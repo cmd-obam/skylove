@@ -1,0 +1,111 @@
+.quick-menu {
+  padding: 4rem var(--section-padding) 5rem;
+  background-color: var(--color-bg);
+}
+
+.quick-menu__inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+.quick-menu__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.quick-menu__item {
+  margin: 0;
+}
+
+.quick-menu__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  height: 100%;
+  padding: 40px 30px;
+  background-color: var(--color-white);
+  border: 2px solid rgba(77, 166, 255, 0.15);
+  border-radius: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  text-decoration: none;
+  transition: all 0.35s ease;
+}
+
+.quick-menu__card:hover,
+.quick-menu__card:focus-visible {
+  border-color: var(--color-primary);
+  transform: translateY(-8px);
+  box-shadow: 0 15px 40px rgba(77, 166, 255, 0.25);
+}
+
+.icon-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 24px;
+  background-color: #eaf6ff;
+  border: 1px solid transparent;
+  border-radius: 18px;
+  overflow: hidden;
+  transition: all 0.35s ease;
+}
+
+.icon-box__img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.quick-menu__card:hover .icon-box,
+.quick-menu__card:focus-visible .icon-box {
+  background: linear-gradient(135deg, #eaf6ff, #dff2ff);
+  border-color: var(--color-primary);
+}
+
+.quick-menu__card:hover .icon-box__img,
+.quick-menu__card:focus-visible .icon-box__img {
+  transform: scale(1.1);
+}
+
+.quick-menu__label {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 0.5rem;
+}
+
+.quick-menu__desc {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+@media (max-width: 992px) {
+  .quick-menu__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .quick-menu {
+    padding: 3rem 1.25rem 4rem;
+  }
+
+  .quick-menu__card {
+    padding: 32px 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .quick-menu__grid {
+    grid-template-columns: 1fr;
+  }
+}

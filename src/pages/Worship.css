@@ -1,0 +1,68 @@
+.worship-page {
+  background-color: var(--color-bg);
+  padding: 3.5rem var(--section-padding) 5rem;
+}
+
+.worship-page__header {
+  max-width: var(--max-width);
+  margin: 0 auto 3rem;
+  text-align: center;
+}
+
+.worship-page__title {
+  margin: 0 0 0.75rem;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-text);
+  letter-spacing: -0.02em;
+}
+
+.worship-page__title::after {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 3px;
+  margin: 1rem auto 0;
+  background-color: var(--color-point);
+  border-radius: 2px;
+}
+
+.worship-page__subtitle {
+  margin: 1.25rem 0 0;
+  font-size: 1.125rem;
+  color: var(--color-text-muted);
+}
+
+.worship-page__content {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem;
+  align-items: start;
+}
+
+@media (max-width: 992px) {
+  .worship-page__content {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .worship-page {
+    padding: 2.5rem 1.25rem 4rem;
+  }
+
+  .worship-page__header {
+    margin-bottom: 2rem;
+  }
+
+  .worship-page__title {
+    font-size: 2rem;
+  }
+
+  .worship-page__subtitle {
+    font-size: 1rem;
+  }
+}

@@ -1,0 +1,95 @@
+@import './WorshipCard.css';
+
+.worship-schedule {
+  background-color: var(--color-white);
+  border-radius: 24px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+  padding: 2.5rem;
+}
+
+.worship-schedule__header {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--color-bg);
+}
+
+.worship-schedule__eyebrow {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-family-en);
+  font-size: 0.875rem;
+  font-style: italic;
+  letter-spacing: 0.08em;
+  color: var(--color-point);
+  text-transform: uppercase;
+}
+
+.worship-schedule__title {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.worship-schedule__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.worship-schedule__divider {
+  margin: 1.25rem 0;
+  border: none;
+  border-top: 1px solid var(--color-border);
+}
+
+.worship-schedule__offering {
+  margin-top: 2rem;
+  padding: 1.5rem 1.75rem;
+  background: linear-gradient(135deg, rgba(77, 166, 255, 0.06), rgba(214, 183, 106, 0.1));
+  border-radius: 16px;
+  border-left: 4px solid var(--color-point);
+}
+
+.worship-schedule__offering-label {
+  margin: 0 0 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+
+.worship-schedule__offering-bank {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.worship-schedule__offering-number {
+  margin: 0 0 0.25rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  letter-spacing: 0.02em;
+}
+
+.worship-schedule__offering-holder {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 768px) {
+  .worship-schedule {
+    padding: 1.75rem 1.25rem;
+  }
+
+  .worship-schedule__title {
+    font-size: 1.5rem;
+  }
+
+  .worship-schedule__offering {
+    padding: 1.25rem;
+  }
+}

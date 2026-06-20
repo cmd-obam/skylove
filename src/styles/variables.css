@@ -1,0 +1,23 @@
+:root {
+  --color-primary: #4da6ff;
+  --color-sub: #87ceeb;
+  --color-point: #d6b76a;
+  --color-text: #1f3a5f;
+  --color-text-muted: #5a7189;
+  --color-topbar-bg: #1f4e79;
+  --color-white: #ffffff;
+  --color-bg: #f7fbff;
+  --color-border: #e3edf7;
+
+  --font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  --font-family-en: 'Cormorant Garamond', 'Times New Roman', serif;
+
+  --topbar-height: 35px;
+  --topbar-font-size: 13px;
+  --header-height: 90px;
+  --max-width: 1200px;
+  --section-padding: 1.5rem;
+  --transition: 0.3s ease;
+  --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.08);
+  --shadow-header: 0 4px 24px rgba(31, 58, 95, 0.08);
+}
