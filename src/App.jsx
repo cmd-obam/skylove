@@ -9,8 +9,10 @@ import { Facilities, Notice } from '@/pages/PlaceholderPage'
 import '@/App.css'
 
 function App() {
+  const basename = import.meta.env.BASE_URL.replace(/\/$/, '')
+
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={basename || undefined}>
       <div className="app">
         <SiteHeader />
         <main className="main">
