@@ -75,6 +75,56 @@
   color: var(--color-text-muted);
 }
 
+.location-visitor__routes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.location-visitor__route {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  min-height: 6.5rem;
+  padding: 0.875rem 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background-color: var(--color-bg);
+  text-align: center;
+}
+
+.location-visitor__route-bus {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.location-visitor__route-stop,
+.location-visitor__route-walk {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.location-visitor__card--transit .location-visitor__card-top {
+  padding-bottom: 1.25rem;
+}
+
+.location-visitor__card--transit .location-visitor__card-title {
+  margin-bottom: 1rem;
+}
+
+.location-visitor__card--transit .location-visitor__routes {
+  grid-template-columns: minmax(0, 9.5rem);
+  justify-content: center;
+}
+
 .location-visitor__card-image-wrap {
   margin: 0;
   margin-top: auto;

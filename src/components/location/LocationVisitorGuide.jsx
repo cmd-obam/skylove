@@ -75,13 +75,30 @@ function LocationVisitorGuide() {
           const Icon = GUIDE_ICONS[guide.id]
 
           return (
-            <li key={guide.id} className="location-visitor__card">
+            <li
+              key={guide.id}
+              className={`location-visitor__card${
+                guide.routes ? ' location-visitor__card--transit' : ''
+              }`}
+            >
               <div className="location-visitor__card-top">
                 <span className="location-visitor__icon" aria-hidden="true">
                   <Icon />
                 </span>
                 <h3 className="location-visitor__card-title">{guide.title}</h3>
-                <p className="location-visitor__card-desc">{guide.description}</p>
+                {guide.routes ? (
+                  <ul className="location-visitor__routes">
+                    {guide.routes.map((route) => (
+                      <li key={route.bus} className="location-visitor__route">
+                        <strong className="location-visitor__route-bus">{route.bus}</strong>
+                        <span className="location-visitor__route-stop">{route.stop}</span>
+                        <span className="location-visitor__route-walk">{route.walk}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="location-visitor__card-desc">{guide.description}</p>
+                )}
               </div>
               <figure className="location-visitor__card-image-wrap">
                 <img

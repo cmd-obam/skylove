@@ -9,8 +9,10 @@ function Location() {
   return (
     <div className="location-page">
       <LocationHero />
-      <MapSection />
-      <LocationInfo />
+      <div className="location-map-block">
+        <MapSection />
+        <LocationInfo />
+      </div>
       <LocationVisitorGuide />
       <LocationVrBanner />
     </div>

@@ -32,7 +32,10 @@ function SiteHeader() {
             className="site-header__logo"
             aria-hidden="true"
           />
-          <span className="site-header__title">하늘사랑교회</span>
+          <span className="site-header__brand-text">
+            <span className="site-header__title">하늘사랑교회</span>
+            <span className="site-header__subtitle">Heavenly Love Church</span>
+          </span>
         </Link>
 
         <nav className="site-header__nav" aria-label="주요 메뉴">

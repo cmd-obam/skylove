@@ -44,9 +44,21 @@ export function SundaySchool() {
   )
 }
 
-export function ChurchLife() {
+export function ChurchAlbum() {
   return (
-    <PlaceholderPage title="교회생활" subtitle="하늘사랑교회의 교회생활을 소개합니다" />
+    <PlaceholderPage title="교회앨범" subtitle="하늘사랑교회의 소중한 순간들을 나눕니다" />
+  )
+}
+
+export function ChurchService() {
+  return (
+    <PlaceholderPage title="전도 및 섬김" subtitle="전도와 섬김의 현장을 소개합니다" />
+  )
+}
+
+export function ChurchWorshipPraise() {
+  return (
+    <PlaceholderPage title="예배와 찬양" subtitle="예배와 찬양의 모습을 전합니다" />
   )
 }
 

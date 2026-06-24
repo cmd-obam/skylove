@@ -23,8 +23,13 @@ export const VISITOR_GUIDES = [
   {
     id: 'transit',
     title: '대중교통 안내',
-    description:
-      '인근 버스 정류장에서 도보로 이동 가능합니다. 자세한 노선은 교회 사무실로 문의해 주시기 바랍니다.',
+    routes: [
+      {
+        bus: '7번 버스',
+        stop: '신방한라',
+        walk: '도보2분',
+      },
+    ],
     image: null,
   },
 ]

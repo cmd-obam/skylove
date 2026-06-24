@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import SiteHeader from '@/components/layout/SiteHeader'
 import Footer from '@/components/layout/Footer'
 import CategoryLayout from '@/components/layout/CategoryLayout'
@@ -13,7 +13,9 @@ import {
   Mission,
   Fellowship,
   SundaySchool,
-  ChurchLife,
+  ChurchAlbum,
+  ChurchService,
+  ChurchWorshipPraise,
   FacilityVr,
 } from '@/pages/PlaceholderPage'
 import '@/App.css'
@@ -40,7 +42,10 @@ function App() {
               <Route path="/mission" element={<Mission />} />
               <Route path="/fellowship" element={<Fellowship />} />
               <Route path="/sunday-school" element={<SundaySchool />} />
-              <Route path="/church-life" element={<ChurchLife />} />
+              <Route path="/church-life" element={<Navigate to="/church-life/album" replace />} />
+              <Route path="/church-life/album" element={<ChurchAlbum />} />
+              <Route path="/church-life/service" element={<ChurchService />} />
+              <Route path="/church-life/worship-praise" element={<ChurchWorshipPraise />} />
             </Route>
           </Routes>
         </main>

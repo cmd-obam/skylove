@@ -42,12 +42,29 @@
   flex-shrink: 0;
 }
 
+.site-header__brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
 .site-header__title {
+  font-family: var(--font-family-brand);
   font-size: 1.875rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--color-text);
   letter-spacing: -0.02em;
   line-height: 1.15;
+  white-space: nowrap;
+}
+
+.site-header__subtitle {
+  font-family: var(--font-family-brand-en);
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+  line-height: 1.2;
   white-space: nowrap;
 }
 
@@ -151,6 +168,10 @@
     font-size: 1.625rem;
   }
 
+  .site-header__subtitle {
+    font-size: 0.75rem;
+  }
+
   .site-header__logo {
     height: 48px;
   }
@@ -164,6 +185,10 @@
 
   .site-header__title {
     font-size: 1.5rem;
+  }
+
+  .site-header__subtitle {
+    font-size: 0.6875rem;
   }
 }
 
@@ -190,6 +215,10 @@
 
   .site-header__title {
     font-size: 1.25rem;
+  }
+
+  .site-header__subtitle {
+    font-size: 0.625rem;
   }
 
   .site-header__toggle {

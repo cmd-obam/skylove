@@ -65,7 +65,9 @@ export const MENU_ITEMS = [
     title: '교회생활',
     path: '/church-life',
     children: [
-      { title: '교회생활', path: '/church-life' },
+      { title: '교회앨범', path: '/church-life/album' },
+      { title: '전도 및 섬김', path: '/church-life/service' },
+      { title: '예배와 찬양', path: '/church-life/worship-praise' },
     ],
   },
 ]

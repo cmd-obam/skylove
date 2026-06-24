@@ -2,3 +2,44 @@
   display: flex;
   flex-direction: column;
 }
+
+.location-map-block {
+  margin-bottom: 3.5rem;
+  border-radius: 20px;
+  overflow: hidden;
+  background-color: var(--color-white);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.location-map-block .map-section {
+  margin-bottom: 0;
+}
+
+.location-map-block .location-info {
+  margin-bottom: 0;
+}
+
+.location-map-block .location-info__card {
+  border-radius: 0;
+  box-shadow: none;
+  border-top: none;
+  padding: 1rem 2rem 2rem;
+}
+
+.location-map-block .map-section__map {
+  border-radius: 0;
+  box-shadow: none;
+  margin-bottom: -1px;
+}
+
+.location-map-block .root_daum_roughmap .border2,
+.location-map-block .root_daum_roughmap .wrap_controllers {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .location-map-block {
+    margin-bottom: 2.5rem;
+    border-radius: 16px;
+  }
+}

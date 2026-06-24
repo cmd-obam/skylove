@@ -11,6 +11,8 @@
   --color-border: #e3edf7;
 
   --font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  --font-family-brand: 'Pretendard', 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
+  --font-family-brand-en: 'Montserrat', 'Arial', sans-serif;
   --font-family-en: 'Cormorant Garamond', 'Times New Roman', serif;
 
   --topbar-height: 35px;
