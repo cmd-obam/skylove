@@ -9,6 +9,8 @@ import Worship from '@/pages/Worship'
 import Location from '@/pages/Location'
 import {
   WordWorship,
+  Education,
+  Mission,
   Fellowship,
   SundaySchool,
   ChurchAlbum,
@@ -36,6 +38,8 @@ function App() {
               <Route path="/about/location" element={<Location />} />
               <Route path="/worship" element={<Worship />} />
               <Route path="/word-worship" element={<WordWorship />} />
+              <Route path="/education" element={<Education />} />
+              <Route path="/mission" element={<Mission />} />
               <Route path="/fellowship" element={<Fellowship />} />
               <Route path="/sunday-school" element={<SundaySchool />} />
               <Route path="/church-life" element={<Navigate to="/church-life/album" replace />} />

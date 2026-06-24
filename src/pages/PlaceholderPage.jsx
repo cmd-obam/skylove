@@ -12,6 +12,14 @@ export function WordWorship() {
   return <PlaceholderPage />
 }
 
+export function Education() {
+  return <PlaceholderPage />
+}
+
+export function Mission() {
+  return <PlaceholderPage />
+}
+
 export function Fellowship() {
   return <PlaceholderPage />
 }

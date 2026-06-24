@@ -23,6 +23,14 @@ export const PAGE_META = {
     title: '말씀&찬양',
     subtitle: '말씀과 찬양 콘텐츠를 안내합니다',
   },
+  '/education': {
+    title: '교육&양육',
+    subtitle: '교육과 양육 프로그램을 안내합니다',
+  },
+  '/mission': {
+    title: '전도&선교',
+    subtitle: '전도와 선교 사역을 소개합니다',
+  },
   '/fellowship': {
     title: '나눔&교제',
     subtitle: '나눔과 교제 활동을 안내합니다',
