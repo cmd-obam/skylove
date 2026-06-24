@@ -1,5 +1,5 @@
 .footer {
-  background-color: #1f3a5f;
+  background-color: var(--color-primary-dark);
   color: #fff;
   padding: 45px 20px;
 }
@@ -91,7 +91,7 @@
 
 .footer__legal-link:hover,
 .footer__legal-link:focus-visible {
-  color: var(--color-sub);
+  color: #fff;
 }
 
 .footer__copyright {

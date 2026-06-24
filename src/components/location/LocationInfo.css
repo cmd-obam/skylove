@@ -1,66 +1,83 @@
 .location-info {
-  max-width: var(--max-width);
-  margin: 0 auto;
+  margin-bottom: 3.5rem;
 }
 
 .location-info__card {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  padding: 2.5rem 2rem;
   background-color: var(--color-white);
   border-radius: 20px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  padding: 40px;
 }
 
-.location-info__list {
+.location-info__column {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 2.5rem 3.5rem;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  width: 100%;
-}
-
-.location-info__item {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.875rem;
-  margin: 0;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1rem;
 }
 
 .location-info__icon {
-  font-size: 1.5rem;
-  line-height: 1;
-  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  background-color: #e8f6fa;
+  color: #2e9eb3;
 }
 
-.location-info__content {
+.location-info__body {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .location-info__label {
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--color-text-muted);
-  letter-spacing: 0.02em;
 }
 
 .location-info__value {
-  font-size: 1.0625rem;
+  font-size: 1rem;
   font-weight: 500;
+  line-height: 1.6;
   color: var(--color-text);
 }
 
-@media (max-width: 768px) {
-  .location-info__card {
-    padding: 1.75rem 1.25rem;
-  }
+.location-info__action {
+  margin-top: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 999px;
+  background-color: #2e9eb3;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-white);
+  text-decoration: none;
+  transition: background-color var(--transition);
+}
 
-  .location-info__list {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1.25rem;
+.location-info__action:hover,
+.location-info__action:focus-visible {
+  background-color: #268a9c;
+}
+
+@media (max-width: 992px) {
+  .location-info__card {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 2rem 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .location-info {
+    margin-bottom: 2.5rem;
   }
 }

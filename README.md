@@ -1,6 +1,6 @@
 # 하늘사랑감리교회 홈페이지
 
-하늘사랑감리교회의 예배 안내, 교회 소개, 시설 안내, 오시는 길 정보를 제공하는 반응형 교회 홈페이지입니다.
+하늘사랑교회의 예배 안내, 교회 소개, 시설 안내, 찾아오시는 길 정보를 제공하는 반응형 교회 홈페이지입니다.
 
 ## 기술 스택
 
@@ -48,7 +48,7 @@ src/
 │   ├── sections/     # Hero, QuickMenu
 │   ├── common/       # Button, Card
 │   ├── worship/      # 예배안내 섹션
-│   └── location/     # 오시는길 섹션
+│   └── location/     # 찾아오시는 길 섹션
 ├── pages/            # 페이지 컴포넌트
 ├── data/             # 메뉴, 예배, 위치 데이터
 ├── App.jsx
@@ -72,6 +72,6 @@ React Router SPA 라우팅을 위해 `vercel.json`이 포함되어 있습니다.
 | `/` | 메인 |
 | `/worship` | 예배안내 |
 | `/about` | 교회소개 |
-| `/about/location` | 오시는길 |
+| `/about/location` | 찾아오시는 길 |
 | `/facilities` | 시설안내 |
 | `/notice` | 공지사항 |

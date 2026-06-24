@@ -76,13 +76,58 @@
   margin-bottom: 0;
 }
 
-.modal__body ul {
-  margin: 0;
-  padding-left: 1.25rem;
+.modal__body h3,
+.modal__body h4 {
+  margin: 0 0 0.75rem;
+  color: var(--color-text);
+  line-height: 1.5;
+}
+
+.modal__body h3 {
+  margin-top: 1.75rem;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.modal__body h3:first-child {
+  margin-top: 0;
+}
+
+.modal__body h4 {
+  margin-top: 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.modal__body ul,
+.modal__body ol {
+  margin: 0 0 1rem;
+  padding-left: 1.35rem;
 }
 
 .modal__body li {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.375rem;
+}
+
+.modal__body li:last-child {
+  margin-bottom: 0;
+}
+
+.modal__body .policy-doc__note {
+  margin-bottom: 1.25rem;
+  padding: 0.875rem 1rem;
+  border-radius: 8px;
+  background-color: var(--color-bg);
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.modal__body .policy-doc__footer {
+  margin-top: 1.75rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--color-border);
+  font-weight: 600;
+  text-align: right;
 }
 
 .modal__body a {

@@ -23,7 +23,7 @@ export const MENU_ITEMS = [
       { title: '교회역사', path: '/about/history' },
       { title: '예배안내', path: '/worship' },
       { title: '시설둘러보기(VR)', path: '/about/facility-vr' },
-      { title: '오시는 길', path: '/about/location' },
+      { title: '찾아오시는 길', path: '/about/location' },
     ],
   },
   {
@@ -106,7 +106,7 @@ export const QUICK_MENUS = [
     href: '/notice',
   },
   {
-    title: '오시는 길',
+    title: '찾아오시는 길',
     desc: '교회 위치와 교통 안내',
     icon: locationIcon,
     href: '/about/location',

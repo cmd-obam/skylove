@@ -30,16 +30,25 @@ function Hero() {
   }, [currentSlide])
 
   return (
-    <section className="hero" aria-label="메인 배너">
-      <div className="hero__slider" aria-hidden="true">
-        {heroImages.map((src, index) => (
-          <img
-            key={src}
-            src={src}
-            alt=""
-            className={`hero__slide${index === currentSlide ? ' hero__slide--active' : ''}`}
-          />
-        ))}
+    <section className="hero hero-section" aria-label="메인 배너">
+      <div
+        className="hero__image-layer"
+        onContextMenu={(event) => event.preventDefault()}
+        aria-hidden="true"
+      >
+        <div className="hero__slider">
+          {heroImages.map((src, index) => (
+            <img
+              key={src}
+              src={src}
+              alt=""
+              draggable={false}
+              className={`hero__slide hero__bg${
+                index === currentSlide ? ' hero__slide--active' : ''
+              }`}
+            />
+          ))}
+        </div>
       </div>
 
       <div className="hero__overlay" aria-hidden="true" />

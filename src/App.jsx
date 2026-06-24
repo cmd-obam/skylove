@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import SiteHeader from '@/components/layout/SiteHeader'
 import Footer from '@/components/layout/Footer'
 import CategoryLayout from '@/components/layout/CategoryLayout'
+import ImageProtection from '@/components/common/ImageProtection'
 import Home from '@/pages/Home'
 import About from '@/pages/About'
 import Worship from '@/pages/Worship'
@@ -22,6 +23,7 @@ function App() {
 
   return (
     <BrowserRouter basename={basename || undefined}>
+      <ImageProtection />
       <div className="app">
         <SiteHeader />
         <main className="main">
