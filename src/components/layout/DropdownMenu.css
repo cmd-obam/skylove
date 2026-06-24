@@ -3,12 +3,14 @@
   top: 100%;
   left: 50%;
   z-index: 200;
-  width: 180px;
+  width: max-content;
+  min-width: 118px;
+  max-width: 162px;
   margin: 0;
   padding: 0;
   list-style: none;
   background-color: var(--color-white);
-  border-radius: 0 0 16px 16px;
+  border-radius: 0 0 14px 14px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
   opacity: 0;
   visibility: hidden;
@@ -43,12 +45,14 @@
 .dropdown-menu__link {
   display: flex;
   align-items: center;
-  height: 45px;
-  padding: 0 20px;
-  font-size: 15px;
+  justify-content: center;
+  height: 42px;
+  padding: 0 12px;
+  font-size: 14px;
   font-weight: 400;
   color: var(--color-text);
   text-decoration: none;
+  white-space: nowrap;
   transition:
     background-color 0.3s ease,
     color 0.3s ease;

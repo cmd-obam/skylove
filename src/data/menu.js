@@ -34,20 +34,6 @@ export const MENU_ITEMS = [
     ],
   },
   {
-    title: '교육&양육',
-    path: '/education',
-    children: [
-      { title: '교육&양육', path: '/education' },
-    ],
-  },
-  {
-    title: '전도&선교',
-    path: '/mission',
-    children: [
-      { title: '전도&선교', path: '/mission' },
-    ],
-  },
-  {
     title: '나눔&교제',
     path: '/fellowship',
     children: [
