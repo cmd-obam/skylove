@@ -59,11 +59,12 @@
 }
 
 .site-header__subtitle {
-  font-family: var(--font-family-brand-en);
-  font-size: 0.8125rem;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.875rem;
   font-weight: 400;
+  font-style: normal;
   color: var(--color-text-muted);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   line-height: 1.2;
   white-space: nowrap;
 }
@@ -169,7 +170,7 @@
   }
 
   .site-header__subtitle {
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
   }
 
   .site-header__logo {
@@ -188,7 +189,7 @@
   }
 
   .site-header__subtitle {
-    font-size: 0.6875rem;
+    font-size: 0.75rem;
   }
 }
 
