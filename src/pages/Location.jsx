@@ -5,7 +5,7 @@ import './Location.css'
 
 function Location() {
   return (
-    <div className="location-page">
+    <>
       <header className="location-page__header">
         <h1 className="location-page__title">오시는길</h1>
         <p className="location-page__subtitle">하늘사랑교회로 오시는 길을 안내합니다</p>
@@ -14,7 +14,7 @@ function Location() {
       <LocationHero />
       <MapSection />
       <LocationInfo />
-    </div>
+    </>
   )
 }
 

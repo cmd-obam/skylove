@@ -21,37 +21,70 @@ export const MENU_ITEMS = [
     children: [
       { title: '교회소개', path: '/about' },
       { title: '교회역사', path: '/about/history' },
-      { title: '담임목사', path: '/about/pastor' },
-      { title: '섬기는 사람들', path: '/about/servants' },
       { title: '예배안내', path: '/worship' },
+      { title: '시설둘러보기(VR)', path: '/about/facility-vr' },
       { title: '오시는 길', path: '/about/location' },
     ],
   },
   {
     title: '말씀&찬양',
     path: '/word-worship',
+    children: [
+      { title: '말씀&찬양', path: '/word-worship' },
+    ],
   },
   {
     title: '교육&양육',
     path: '/education',
+    children: [
+      { title: '교육&양육', path: '/education' },
+    ],
   },
   {
     title: '전도&선교',
     path: '/mission',
+    children: [
+      { title: '전도&선교', path: '/mission' },
+    ],
   },
   {
     title: '나눔&교제',
     path: '/fellowship',
+    children: [
+      { title: '나눔&교제', path: '/fellowship' },
+    ],
   },
   {
     title: '교회학교',
     path: '/sunday-school',
+    children: [
+      { title: '교회학교', path: '/sunday-school' },
+    ],
   },
   {
-    title: '젊은이부',
-    path: '/youth',
+    title: '교회생활',
+    path: '/church-life',
+    children: [
+      { title: '교회생활', path: '/church-life' },
+    ],
   },
 ]
+
+export function findMenuSection(pathname) {
+  for (const item of MENU_ITEMS) {
+    if (item.children?.some((child) => child.path === pathname)) {
+      return item
+    }
+  }
+
+  for (const item of MENU_ITEMS) {
+    if (pathname === item.path || pathname.startsWith(`${item.path}/`)) {
+      return item
+    }
+  }
+
+  return null
+}
 
 export const QUICK_MENUS = [
   {
@@ -64,7 +97,7 @@ export const QUICK_MENUS = [
     title: '시설안내',
     desc: '교회 시설을 둘러보세요',
     icon: facilityIcon,
-    href: '/facilities',
+    href: '/about/facility-vr',
   },
   {
     title: '공지사항',

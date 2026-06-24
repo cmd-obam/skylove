@@ -44,9 +44,18 @@ export function SundaySchool() {
   )
 }
 
-export function Youth() {
+export function ChurchLife() {
   return (
-    <PlaceholderPage title="젊은이부" subtitle="젊은이부 사역을 소개합니다" />
+    <PlaceholderPage title="교회생활" subtitle="하늘사랑교회의 교회생활을 소개합니다" />
+  )
+}
+
+export function FacilityVr() {
+  return (
+    <PlaceholderPage
+      title="시설둘러보기(VR)"
+      subtitle="교회 시설을 가상으로 둘러보세요"
+    />
   )
 }
 

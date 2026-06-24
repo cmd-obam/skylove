@@ -121,7 +121,7 @@
 .site-header__auth-link {
   font-size: 14px;
   font-weight: 400;
-  color: #6b8f71;
+  color: #000;
   text-decoration: none;
   white-space: nowrap;
   transition: color var(--transition);
