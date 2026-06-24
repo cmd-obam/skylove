@@ -1,17 +1,24 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import churchLogo from '@/assets/images/church-logo.png'
 import { AUTH_LINKS, MENU_ITEMS } from '@/data/menu'
 import DropdownMenu from '@/components/layout/DropdownMenu'
 import './SiteHeader.css'
 
+function getFirstSubMenuPath(item) {
+  return item.children?.[0]?.path ?? item.path
+}
+
 function SiteHeader() {
+  const navigate = useNavigate()
   const [isOpen, setIsOpen] = useState(false)
+  const [activeMenu, setActiveMenu] = useState(null)
   const [expandedItem, setExpandedItem] = useState(null)
 
   const closeMenu = () => {
     setIsOpen(false)
     setExpandedItem(null)
+    setActiveMenu(null)
   }
 
   const toggleMenu = () => {
@@ -20,6 +27,21 @@ function SiteHeader() {
 
   const toggleAccordion = (title) => {
     setExpandedItem((prev) => (prev === title ? null : title))
+  }
+
+  const handleCategoryMouseEnter = (title) => {
+    setActiveMenu(title)
+  }
+
+  const handleCategoryMouseLeave = () => {
+    setActiveMenu(null)
+  }
+
+  const handleCategoryClick = (item) => {
+    const firstPath = getFirstSubMenuPath(item)
+    navigate(firstPath)
+    setActiveMenu(null)
+    closeMenu()
   }
 
   return (
@@ -46,13 +68,20 @@ function SiteHeader() {
                 className={`site-header__item${
                   item.children ? ' site-header__item--has-dropdown' : ''
                 }`}
+                onMouseEnter={
+                  item.children ? () => handleCategoryMouseEnter(item.title) : undefined
+                }
+                onMouseLeave={item.children ? handleCategoryMouseLeave : undefined}
               >
                 {item.children ? (
                   <>
                     <Link
-                      to={item.path}
+                      to={getFirstSubMenuPath(item)}
                       className="site-header__link site-header__link--desktop"
-                      onClick={closeMenu}
+                      onClick={(event) => {
+                        event.preventDefault()
+                        handleCategoryClick(item)
+                      }}
                     >
                       {item.title}
                     </Link>
@@ -64,7 +93,11 @@ function SiteHeader() {
                     >
                       {item.title}
                     </button>
-                    <DropdownMenu items={item.children} onLinkClick={closeMenu} />
+                    <DropdownMenu
+                      items={item.children}
+                      isOpen={activeMenu === item.title}
+                      onLinkClick={closeMenu}
+                    />
                     <ul
                       className={`site-header__submenu${
                         expandedItem === item.title ? ' site-header__submenu--open' : ''

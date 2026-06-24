@@ -1,5 +1,5 @@
-import { Outlet } from 'react-router-dom'
 import CategorySidebar from '@/components/layout/CategorySidebar'
+import SubLayout from '@/components/layout/SubLayout'
 import './CategoryLayout.css'
 
 function CategoryLayout() {
@@ -8,7 +8,7 @@ function CategoryLayout() {
       <div className="category-layout__inner">
         <CategorySidebar />
         <div className="category-layout__main">
-          <Outlet />
+          <SubLayout />
         </div>
       </div>
     </div>
