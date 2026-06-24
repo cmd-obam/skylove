@@ -1,12 +1,14 @@
-import WorshipImage from '@/components/worship/WorshipImage'
-import WorshipSchedule from '@/components/worship/WorshipSchedule'
+import WorshipHero from '@/components/worship/WorshipHero'
+import WorshipScheduleTable from '@/components/worship/WorshipScheduleTable'
+import WorshipFirstVisit from '@/components/worship/WorshipFirstVisit'
 import './Worship.css'
 
 function Worship() {
   return (
-    <div className="worship-page__content">
-      <WorshipImage />
-      <WorshipSchedule />
+    <div className="worship-page">
+      <WorshipHero />
+      <WorshipScheduleTable />
+      <WorshipFirstVisit />
     </div>
   )
 }

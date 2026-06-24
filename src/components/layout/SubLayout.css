@@ -1,3 +1,7 @@
+.sub-layout--custom-header {
+  margin-top: 0;
+}
+
 .sub-layout__header {
   display: flex;
   justify-content: space-between;

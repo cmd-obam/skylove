@@ -2,30 +2,26 @@ export const WORSHIP_SCHEDULE = [
   {
     id: 'sunday-blessing',
     name: '주일 축복예배',
-    time: '오전 11:00',
+    time: '주일 오전 11:00',
     location: '대예배실',
-    icon: 'sun',
   },
   {
     id: 'sunday-children',
     name: '주일 아동예배',
-    time: '오전 10:40',
+    time: '주일 오전 10:40',
     location: '소예배실',
-    icon: 'child',
   },
   {
     id: 'wednesday',
     name: '수요예배',
-    time: '오후 7:30',
+    time: '수요일 오후 7:30',
     location: '대예배실',
-    icon: 'book',
   },
   {
     id: 'dawn-prayer',
-    name: '새벽기도',
-    time: '오전 5:30',
+    name: '새벽기도회',
+    time: '월-금 오전 5:30',
     location: '소예배실',
-    icon: 'dawn',
   },
 ]
 

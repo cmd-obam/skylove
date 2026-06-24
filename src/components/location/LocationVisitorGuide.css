@@ -1,5 +1,5 @@
 .location-visitor {
-  margin-bottom: 3rem;
+  margin-bottom: 0;
 }
 
 .location-visitor__header {
@@ -10,10 +10,10 @@
 .location-visitor__title {
   margin: 0 0 0.75rem;
   font-family: var(--font-family-en);
-  font-size: 1.75rem;
+  font-size: 1.875rem;
   font-style: italic;
   font-weight: 600;
-  color: var(--color-primary);
+  color: #4da6ff;
 }
 
 .location-visitor__subtitle {
@@ -25,7 +25,7 @@
 .location-visitor__grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
+  gap: 1.25rem;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -36,9 +36,10 @@
   flex-direction: column;
   margin: 0;
   background-color: var(--color-white);
-  border-radius: 20px;
+  border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 8px 28px rgba(77, 166, 255, 0.1);
+  border: 1px solid rgba(77, 166, 255, 0.06);
 }
 
 .location-visitor__card-top {
@@ -57,22 +58,22 @@
   height: 4rem;
   margin-bottom: 1rem;
   border-radius: 50%;
-  background-color: #e8f6fa;
-  color: #2e9eb3;
+  background-color: rgba(77, 166, 255, 0.12);
+  color: #4da6ff;
 }
 
 .location-visitor__card-title {
   margin: 0 0 0.75rem;
   font-size: 1.125rem;
   font-weight: 700;
-  color: var(--color-text);
+  color: #3b2a20;
 }
 
 .location-visitor__card-desc {
   margin: 0;
   font-size: 0.9375rem;
   line-height: 1.7;
-  color: var(--color-text-muted);
+  color: #5a4a42;
 }
 
 .location-visitor__routes {
@@ -93,23 +94,23 @@
   gap: 0.375rem;
   min-height: 6.5rem;
   padding: 0.875rem 0.5rem;
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  background-color: var(--color-bg);
+  border: 1px solid rgba(77, 166, 255, 0.15);
+  border-radius: 14px;
+  background-color: rgba(77, 166, 255, 0.04);
   text-align: center;
 }
 
 .location-visitor__route-bus {
   font-size: 0.875rem;
   font-weight: 700;
-  color: var(--color-text);
+  color: #3b2a20;
 }
 
 .location-visitor__route-stop,
 .location-visitor__route-walk {
   font-size: 0.8125rem;
   line-height: 1.5;
-  color: var(--color-text-muted);
+  color: #5a4a42;
 }
 
 .location-visitor__card--transit .location-visitor__card-top {

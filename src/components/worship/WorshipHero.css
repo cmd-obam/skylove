@@ -1,0 +1,117 @@
+.worship-hero-wrap {
+  width: 100%;
+}
+
+.worship-hero__breadcrumb {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+.worship-hero {
+  --worship-hero-bg: none;
+
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 360px;
+  margin-left: -2.5rem;
+  margin-right: -2.5rem;
+  width: calc(100% + 5rem);
+  background-image: var(--worship-hero-bg);
+  background-size: cover;
+  background-position: center right;
+  background-repeat: no-repeat;
+  overflow: hidden;
+}
+
+.worship-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.82) 0%,
+    rgba(255, 255, 255, 0.45) 38%,
+    transparent 62%
+  );
+  pointer-events: none;
+}
+
+.worship-hero__content {
+  position: relative;
+  z-index: 1;
+  width: 42%;
+  padding-left: 3.5rem;
+}
+
+.worship-hero__title {
+  margin: 0 0 0.75rem;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-text);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.worship-hero__title::after {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 3px;
+  margin: 1rem 0 0;
+  background-color: var(--color-point);
+  border-radius: 2px;
+}
+
+.worship-hero__subtitle {
+  margin: 1.25rem 0 0;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 992px) {
+  .worship-hero {
+    height: 300px;
+    margin-left: -1.5rem;
+    margin-right: -1.5rem;
+    width: calc(100% + 3rem);
+  }
+
+  .worship-hero__content {
+    width: 50%;
+    padding-left: 2.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .worship-hero {
+    height: 260px;
+    align-items: flex-end;
+    padding-bottom: 1.75rem;
+  }
+
+  .worship-hero__breadcrumb {
+    margin-bottom: 0.75rem;
+  }
+
+  .worship-hero__content {
+    width: 100%;
+    padding: 0 1.5rem;
+    text-align: center;
+  }
+
+  .worship-hero__title {
+    font-size: 2rem;
+  }
+
+  .worship-hero__title::after {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .worship-hero__subtitle {
+    font-size: 0.9375rem;
+  }
+}

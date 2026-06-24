@@ -1,18 +1,19 @@
-import heroImage from '@/assets/images/hero/hero01.jpg'
+import Breadcrumb from '@/components/Breadcrumb'
+import heroBannerImage from '@/assets/images/location/location-hero.png'
 import './LocationHero.css'
 
 function LocationHero() {
   return (
-    <section className="location-intro" aria-label="찾아오시는 길 안내">
-      <p className="location-intro__eyebrow">Welcome to Haneulsarang</p>
-      <figure className="location-intro__figure">
-        <img
-          src={heroImage}
-          alt="하늘사랑교회 건물 전경"
-          className="location-intro__image"
-        />
-      </figure>
-    </section>
+    <div className="location-hero-wrap">
+      <div className="location-hero__breadcrumb">
+        <Breadcrumb />
+      </div>
+      <section
+        className="location-hero"
+        aria-label="찾아오시는 길"
+        style={{ '--location-hero-bg': `url(${heroBannerImage})` }}
+      />
+    </div>
   )
 }
 

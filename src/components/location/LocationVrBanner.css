@@ -3,22 +3,23 @@
   align-items: center;
   justify-content: space-between;
   gap: 1.5rem;
-  padding: 2rem 2.5rem;
-  border-radius: 20px;
-  background: linear-gradient(135deg, #eef7ff 0%, #e3f3fb 100%);
+  padding: 2.25rem 2.5rem;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #eef7ff 0%, #e3f3fb 55%, #dceefb 100%);
+  border: 1px solid rgba(77, 166, 255, 0.12);
 }
 
 .location-vr__eyebrow {
   margin: 0 0 0.5rem;
   font-size: 1.125rem;
   font-weight: 700;
-  color: var(--color-text);
+  color: #3b2a20;
 }
 
 .location-vr__desc {
   margin: 0;
   font-size: 0.9375rem;
-  color: var(--color-text-muted);
+  color: #5a4a42;
 }
 
 .location-vr__badge {
@@ -26,9 +27,9 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 4.5rem;
-  height: 4.5rem;
-  border: 2px solid #2e9eb3;
+  width: 4.75rem;
+  height: 4.75rem;
+  border: 2px solid #4da6ff;
   border-radius: 50%;
   background-color: var(--color-white);
 }
@@ -36,14 +37,14 @@
 .location-vr__badge-text {
   font-size: 0.875rem;
   font-weight: 700;
-  color: #2e9eb3;
+  color: #4da6ff;
 }
 
 .location-vr__action {
   flex-shrink: 0;
   padding: 0.875rem 1.5rem;
   border-radius: 999px;
-  background-color: #2e9eb3;
+  background-color: #4da6ff;
   font-size: 0.9375rem;
   font-weight: 600;
   color: var(--color-white);
@@ -54,7 +55,7 @@
 
 .location-vr__action:hover,
 .location-vr__action:focus-visible {
-  background-color: #268a9c;
+  background-color: #3d96eb;
 }
 
 @media (max-width: 768px) {

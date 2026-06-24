@@ -9,7 +9,7 @@ function Location() {
   return (
     <div className="location-page">
       <LocationHero />
-      <div className="location-map-block">
+      <div className="location-page__content">
         <MapSection />
         <LocationInfo />
       </div>

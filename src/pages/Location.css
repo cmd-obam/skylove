@@ -1,45 +1,48 @@
 .location-page {
   display: flex;
   flex-direction: column;
+  gap: 0;
+  width: 100%;
 }
 
-.location-map-block {
-  margin-bottom: 3.5rem;
-  border-radius: 20px;
-  overflow: hidden;
-  background-color: var(--color-white);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+.location-page__content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  width: 100%;
+  margin-top: 1.5rem;
 }
 
-.location-map-block .map-section {
-  margin-bottom: 0;
+.location-page .map-section {
+  margin-top: 0;
 }
 
-.location-map-block .location-info {
-  margin-bottom: 0;
-}
-
-.location-map-block .location-info__card {
-  border-radius: 0;
-  box-shadow: none;
-  border-top: none;
-  padding: 1rem 2rem 2rem;
-}
-
-.location-map-block .map-section__map {
-  border-radius: 0;
-  box-shadow: none;
-  margin-bottom: -1px;
-}
-
-.location-map-block .root_daum_roughmap .border2,
-.location-map-block .root_daum_roughmap .wrap_controllers {
+.location-page .root_daum_roughmap .border2,
+.location-page .root_daum_roughmap .wrap_controllers {
   display: none;
 }
 
+.location-page .location-visitor {
+  margin-top: 2.5rem;
+}
+
+.location-page .location-vr {
+  margin-top: 2.5rem;
+}
+
+.location-page .location-visitor,
+.location-page .location-vr {
+  width: 100%;
+}
+
 @media (max-width: 768px) {
-  .location-map-block {
-    margin-bottom: 2.5rem;
-    border-radius: 16px;
+  .location-page__content {
+    margin-top: 1.25rem;
+    gap: 0.75rem;
+  }
+
+  .location-page .location-visitor,
+  .location-page .location-vr {
+    margin-top: 2rem;
   }
 }
