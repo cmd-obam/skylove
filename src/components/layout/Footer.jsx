@@ -6,8 +6,8 @@ function Footer() {
     <footer className="footer">
       <div className="footer-container">
         <div className="footer__brand">
-          <p className="footer__title">하늘사랑감리교회</p>
-          <p className="footer__subtitle">Hanul Sarang Methodist Church</p>
+          <p className="footer__title">하늘사랑교회</p>
+          <p className="footer__subtitle">Heavenly Love Church</p>
         </div>
 
         <div className="footer__info">
@@ -17,7 +17,7 @@ function Footer() {
       </div>
 
       <div className="footer__copyright">
-        <p>&copy; {new Date().getFullYear()} 하늘사랑감리교회. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} 하늘사랑교회. All rights reserved.</p>
       </div>
     </footer>
   )

@@ -42,6 +42,10 @@
   text-align: center;
 }
 
+.about-page__content--pastor {
+  text-align: left;
+}
+
 .about-page__placeholder {
   margin: 0;
   font-size: 1.0625rem;

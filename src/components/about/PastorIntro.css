@@ -1,0 +1,78 @@
+.pastor-intro {
+  display: grid;
+  grid-template-columns: minmax(280px, 380px) 1fr;
+  gap: 3rem;
+  align-items: start;
+  text-align: left;
+}
+
+.pastor-intro__photo-wrap {
+  margin: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 12px 32px rgba(31, 58, 95, 0.12);
+}
+
+.pastor-intro__photo {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.pastor-intro__content {
+  min-width: 0;
+}
+
+.pastor-intro__greeting {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  color: var(--color-text-muted);
+}
+
+.pastor-intro__name {
+  margin: 0 0 1.5rem;
+  padding-bottom: 1rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-text);
+  border-bottom: 2px solid var(--color-border);
+}
+
+.pastor-intro__body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.pastor-intro__body p {
+  margin: 0;
+  font-size: 1.0625rem;
+  line-height: 1.9;
+  color: var(--color-text);
+  word-break: keep-all;
+}
+
+@media (max-width: 992px) {
+  .pastor-intro {
+    grid-template-columns: minmax(240px, 320px) 1fr;
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .pastor-intro {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .pastor-intro__photo-wrap {
+    max-width: 360px;
+    margin: 0 auto;
+  }
+
+  .pastor-intro__name {
+    font-size: 1.5rem;
+  }
+}

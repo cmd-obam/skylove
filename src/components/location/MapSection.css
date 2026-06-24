@@ -32,6 +32,12 @@
   object-fit: cover;
 }
 
+.map-section__map-item--kakao {
+  padding: 0;
+  background-color: var(--color-white);
+  display: block;
+}
+
 @media (max-width: 768px) {
   .map-section__grid {
     grid-template-columns: 1fr;

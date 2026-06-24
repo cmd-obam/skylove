@@ -14,6 +14,42 @@ function PlaceholderPage({ title, subtitle }) {
   )
 }
 
+export function WordWorship() {
+  return (
+    <PlaceholderPage title="말씀&찬양" subtitle="말씀과 찬양 콘텐츠를 안내합니다" />
+  )
+}
+
+export function Education() {
+  return (
+    <PlaceholderPage title="교육&양육" subtitle="교육과 양육 프로그램을 안내합니다" />
+  )
+}
+
+export function Mission() {
+  return (
+    <PlaceholderPage title="전도&선교" subtitle="전도와 선교 사역을 소개합니다" />
+  )
+}
+
+export function Fellowship() {
+  return (
+    <PlaceholderPage title="나눔&교제" subtitle="나눔과 교제 활동을 안내합니다" />
+  )
+}
+
+export function SundaySchool() {
+  return (
+    <PlaceholderPage title="교회학교" subtitle="교회학교 프로그램을 안내합니다" />
+  )
+}
+
+export function Youth() {
+  return (
+    <PlaceholderPage title="젊은이부" subtitle="젊은이부 사역을 소개합니다" />
+  )
+}
+
 export function Facilities() {
   return (
     <PlaceholderPage title="시설안내" subtitle="교회 시설을 안내합니다" />

@@ -5,7 +5,14 @@ import Home from '@/pages/Home'
 import About from '@/pages/About'
 import Worship from '@/pages/Worship'
 import Location from '@/pages/Location'
-import { Facilities, Notice } from '@/pages/PlaceholderPage'
+import {
+  WordWorship,
+  Education,
+  Mission,
+  Fellowship,
+  SundaySchool,
+  Youth,
+} from '@/pages/PlaceholderPage'
 import '@/App.css'
 
 function App() {
@@ -19,13 +26,17 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
-            <Route path="/about/vision" element={<About />} />
-            <Route path="/about/pastor" element={<About />} />
             <Route path="/about/history" element={<About />} />
+            <Route path="/about/pastor" element={<About />} />
+            <Route path="/about/servants" element={<About />} />
             <Route path="/about/location" element={<Location />} />
+            <Route path="/word-worship" element={<WordWorship />} />
+            <Route path="/education" element={<Education />} />
+            <Route path="/mission" element={<Mission />} />
+            <Route path="/fellowship" element={<Fellowship />} />
+            <Route path="/sunday-school" element={<SundaySchool />} />
+            <Route path="/youth" element={<Youth />} />
             <Route path="/worship" element={<Worship />} />
-            <Route path="/facilities" element={<Facilities />} />
-            <Route path="/notice" element={<Notice />} />
           </Routes>
         </main>
         <Footer />

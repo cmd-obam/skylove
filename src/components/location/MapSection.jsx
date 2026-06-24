@@ -1,5 +1,5 @@
 import locationMapSketch from '@/assets/images/location/location-map-sketch.png'
-import locationMapNaver from '@/assets/images/location/location-map-naver.png'
+import KakaoRoughMap from '@/components/location/KakaoRoughMap'
 import './MapSection.css'
 
 function MapSection() {
@@ -9,17 +9,13 @@ function MapSection() {
         찾아오시는 길
       </h2>
       <div className="map-section__grid">
+        <div className="map-section__map-item map-section__map-item--kakao">
+          <KakaoRoughMap />
+        </div>
         <figure className="map-section__map-item">
           <img
             src={locationMapSketch}
             alt="하늘사랑교회 주변 약도"
-            className="map-section__map-img"
-          />
-        </figure>
-        <figure className="map-section__map-item">
-          <img
-            src={locationMapNaver}
-            alt="하늘사랑교회 네이버 지도"
             className="map-section__map-img"
           />
         </figure>

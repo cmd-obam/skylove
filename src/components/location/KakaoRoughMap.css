@@ -1,0 +1,18 @@
+.kakao-roughmap {
+  width: 100%;
+  min-height: 420px;
+  height: 100%;
+}
+
+.kakao-roughmap .wrap_map,
+.kakao-roughmap iframe {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+@media (max-width: 768px) {
+  .kakao-roughmap {
+    min-height: 320px;
+  }
+}

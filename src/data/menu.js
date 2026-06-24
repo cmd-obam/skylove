@@ -3,6 +3,11 @@ import facilityIcon from '@/assets/icons/facility.png'
 import noticeIcon from '@/assets/icons/notice.png'
 import locationIcon from '@/assets/icons/location.png'
 
+export const AUTH_LINKS = [
+  { label: '로그인', href: '#login' },
+  { label: '회원가입', href: '#signup' },
+]
+
 export const UTILITY_LINKS = [
   { label: '홈으로', href: '/' },
   { label: '로그인', href: '#login' },
@@ -15,23 +20,36 @@ export const MENU_ITEMS = [
     path: '/about',
     children: [
       { title: '교회소개', path: '/about' },
-      { title: '교회비전', path: '/about/vision' },
-      { title: '담임목사소개', path: '/about/pastor' },
-      { title: '연혁', path: '/about/history' },
-      { title: '오시는길', path: '/about/location' },
+      { title: '교회역사', path: '/about/history' },
+      { title: '담임목사', path: '/about/pastor' },
+      { title: '섬기는 사람들', path: '/about/servants' },
+      { title: '예배안내', path: '/worship' },
+      { title: '오시는 길', path: '/about/location' },
     ],
   },
   {
-    title: '예배안내',
-    path: '/worship',
+    title: '말씀&찬양',
+    path: '/word-worship',
   },
   {
-    title: '시설안내',
-    path: '/facilities',
+    title: '교육&양육',
+    path: '/education',
   },
   {
-    title: '공지사항',
-    path: '/notice',
+    title: '전도&선교',
+    path: '/mission',
+  },
+  {
+    title: '나눔&교제',
+    path: '/fellowship',
+  },
+  {
+    title: '교회학교',
+    path: '/sunday-school',
+  },
+  {
+    title: '젊은이부',
+    path: '/youth',
   },
 ]
 

@@ -29,6 +29,8 @@
   height: 10px;
 }
 
+.site-header__item--has-dropdown:hover .dropdown-menu,
+.site-header__item--has-dropdown:focus-within .dropdown-menu,
 .navigation__item--has-dropdown:hover .dropdown-menu,
 .navigation__item--has-dropdown:focus-within .dropdown-menu {
   opacity: 1;
