@@ -12,17 +12,10 @@ function WorshipScheduleTable() {
 
       <div className="worship-table__wrap">
         <table className="worship-table__table">
-          <thead>
-            <tr>
-              <th scope="col">예배명</th>
-              <th scope="col">시간</th>
-              <th scope="col">장소</th>
-            </tr>
-          </thead>
           <tbody>
             {WORSHIP_SCHEDULE.map((item) => (
               <tr key={item.id}>
-                <td>{item.name}</td>
+                <th scope="row">{item.name}</th>
                 <td>{item.time}</td>
                 <td>{item.location}</td>
               </tr>

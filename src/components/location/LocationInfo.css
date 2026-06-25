@@ -71,46 +71,78 @@
 .location-info__worship {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.75rem;
   width: 100%;
 }
 
-.location-info__worship-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem 0.75rem;
+.location-info__worship-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
 }
 
 .location-info__worship-item {
-  display: inline-flex;
-  align-items: center;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
   gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #eef1f5;
+  word-break: keep-all;
 }
 
-.location-info__worship-separator {
-  color: #c5cad1;
-  font-size: 0.875rem;
-  user-select: none;
+.location-info__worship-item:last-child {
+  border-bottom: none;
 }
 
-.location-info__worship-text {
+.location-info__worship-name {
+  flex: 1;
+  min-width: 0;
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1.5;
-  color: #5f6670;
+  color: #1a1a1a;
+  text-align: left;
+}
+
+.location-info__worship-time {
+  flex-shrink: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--color-primary);
+  text-align: right;
   white-space: nowrap;
 }
 
-.location-info__column--worship .location-info__worship-row:last-child .location-info__worship-text {
-  white-space: normal;
+.location-info__worship-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.25rem;
+  padding: 0.6875rem 1.375rem;
+  border-radius: 999px;
+  background-color: var(--color-primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-white);
+  text-decoration: none;
+  transition: background-color var(--transition);
 }
 
-@media (max-width: 1100px) {
-  .location-info__worship-text {
-    white-space: normal;
-  }
+.location-info__worship-link:hover,
+.location-info__worship-link:focus-visible {
+  background-color: var(--color-primary-dark);
+}
+
+.location-info__column--worship {
+  align-items: stretch;
+}
+
+.location-info__column--worship .location-info__header {
+  align-self: center;
 }
 
 @media (max-width: 992px) {
@@ -139,12 +171,7 @@
 }
 
 @media (max-width: 768px) {
-  .location-info__worship-row {
-    flex-direction: column;
-    gap: 0.375rem;
-  }
-
-  .location-info__worship-separator {
-    display: none;
+  .location-info__worship-time {
+    white-space: normal;
   }
 }

@@ -5,12 +5,10 @@ export const LOCATION_DATA = {
 }
 
 export function getMapLinks() {
-  const { address, churchName } = LOCATION_DATA
-  const searchQuery = encodeURIComponent(`${churchName} ${address}`)
-
   return {
-    naver: `https://map.naver.com/v5/search/${searchQuery}`,
-    kakao: `https://map.kakao.com/link/search/${searchQuery}`,
+    naver:
+      'https://map.naver.com/p/entry/place/13129595?placePath=%2Fhome&c=15.00,0,0,0,dh',
+    kakao: 'https://place.map.kakao.com/17803934',
   }
 }
 
@@ -28,14 +26,14 @@ export const ACCESS_GUIDES = {
         id: 'cheonan',
         direction: '천안 시내 방면',
         bus: '7번 버스',
-        stop: '신방도서관 인근 하차',
+        stop: '신방한라비발디아파트 하차',
         walk: '약 2분',
       },
       {
         id: 'pungse',
         direction: '풍세·광덕 방면',
         bus: '600번대 버스',
-        stop: '신방도서관 인근 하차',
+        stop: '신방한라비발디후문 하차',
         walk: '약 3분',
       },
     ],

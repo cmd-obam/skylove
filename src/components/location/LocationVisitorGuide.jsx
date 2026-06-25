@@ -107,8 +107,13 @@ function LocationVisitorGuide() {
                     <td className="location-visitor__table-direction">{route.direction}</td>
                     <td className="location-visitor__table-bus">{route.bus}</td>
                     <td className="location-visitor__table-info">
-                      {route.stop} 교회까지 도보{' '}
-                      <span className="location-visitor__highlight">{route.walk}</span>
+                      <div className="location-visitor__route-info">
+                        <span className="location-visitor__route-stop">{route.stop}</span>
+                        <span className="location-visitor__route-walk">
+                          교회까지 도보{' '}
+                          <span className="location-visitor__highlight">{route.walk}</span>
+                        </span>
+                      </div>
                     </td>
                   </tr>
                 ))}

@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { LOCATION_DATA } from '@/data/location'
 import { WORSHIP_SCHEDULE } from '@/data/worship'
 import './LocationInfo.css'
@@ -37,7 +38,7 @@ function IconClock() {
   )
 }
 
-const WORSHIP_ROWS = [WORSHIP_SCHEDULE]
+const WORSHIP_PATH = '/worship'
 
 function LocationInfo() {
   return (
@@ -75,22 +76,17 @@ function LocationInfo() {
             <span className="location-info__label">예배시간</span>
           </div>
           <div className="location-info__worship">
-            {WORSHIP_ROWS.map((row) => (
-              <div key={row.map((item) => item.id).join('-')} className="location-info__worship-row">
-                {row.map((item, itemIndex) => (
-                  <span key={item.id} className="location-info__worship-item">
-                    {itemIndex > 0 && (
-                      <span className="location-info__worship-separator" aria-hidden="true">
-                        |
-                      </span>
-                    )}
-                    <span className="location-info__worship-text">
-                      {item.name} {item.time}
-                    </span>
-                  </span>
-                ))}
-              </div>
-            ))}
+            <ul className="location-info__worship-list">
+              {WORSHIP_SCHEDULE.map((item) => (
+                <li key={item.id} className="location-info__worship-item">
+                  <span className="location-info__worship-name">{item.name}</span>
+                  <span className="location-info__worship-time">{item.time}</span>
+                </li>
+              ))}
+            </ul>
+            <Link to={WORSHIP_PATH} className="location-info__worship-link">
+              예배안내 바로가기
+            </Link>
           </div>
         </div>
       </div>
