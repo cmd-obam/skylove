@@ -8,7 +8,7 @@ function PlaceholderPage() {
   )
 }
 
-export function WordWorship() {
+export function WorshipGuidePage() {
   return <PlaceholderPage />
 }
 

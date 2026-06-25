@@ -16,12 +16,32 @@ export const PAGE_META = {
     subtitle: '하늘사랑교회는 언제나 여러분을 기다리고 있습니다.',
   },
   '/worship': {
-    title: '예배안내',
+    title: '예배시간 안내',
     subtitle: '하나님을 만나는 은혜로운 시간',
   },
-  '/word-worship': {
-    title: '말씀&찬양',
-    subtitle: '말씀과 찬양 콘텐츠를 안내합니다',
+  '/worship-guide/sunday-blessing': {
+    title: '주일축복예배',
+    subtitle: '주일축복예배를 안내합니다',
+  },
+  '/worship-guide/sunday-praise': {
+    title: '주일찬양예배',
+    subtitle: '주일찬양예배를 안내합니다',
+  },
+  '/worship-guide/wednesday': {
+    title: '수요예배',
+    subtitle: '수요예배를 안내합니다',
+  },
+  '/worship-guide/dawn-prayer': {
+    title: '새벽기도',
+    subtitle: '새벽기도를 안내합니다',
+  },
+  '/worship-guide/el-shaddai-choir': {
+    title: '엘샤다이찬양단',
+    subtitle: '엘샤다이찬양단을 소개합니다',
+  },
+  '/worship-guide/cell-meeting': {
+    title: '셀모임',
+    subtitle: '셀모임을 안내합니다',
   },
   '/education': {
     title: '교육&양육',

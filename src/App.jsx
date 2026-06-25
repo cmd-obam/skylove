@@ -7,8 +7,9 @@ import Home from '@/pages/Home'
 import About from '@/pages/About'
 import Worship from '@/pages/Worship'
 import Location from '@/pages/Location'
+import Auth from '@/pages/Auth'
 import {
-  WordWorship,
+  WorshipGuidePage,
   Education,
   Mission,
   Fellowship,
@@ -31,13 +32,21 @@ function App() {
         <main className="main">
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Auth />} />
             <Route element={<CategoryLayout />}>
               <Route path="/about" element={<About />} />
               <Route path="/about/history" element={<About />} />
               <Route path="/about/facility-vr" element={<FacilityVr />} />
               <Route path="/about/location" element={<Location />} />
               <Route path="/worship" element={<Worship />} />
-              <Route path="/word-worship" element={<WordWorship />} />
+              <Route path="/worship-guide" element={<Navigate to="/worship-guide/sunday-blessing" replace />} />
+              <Route path="/worship-guide/sunday-blessing" element={<WorshipGuidePage />} />
+              <Route path="/worship-guide/sunday-praise" element={<WorshipGuidePage />} />
+              <Route path="/worship-guide/wednesday" element={<WorshipGuidePage />} />
+              <Route path="/worship-guide/dawn-prayer" element={<WorshipGuidePage />} />
+              <Route path="/worship-guide/el-shaddai-choir" element={<WorshipGuidePage />} />
+              <Route path="/worship-guide/cell-meeting" element={<WorshipGuidePage />} />
+              <Route path="/word-worship" element={<Navigate to="/worship-guide/sunday-blessing" replace />} />
               <Route path="/education" element={<Education />} />
               <Route path="/mission" element={<Mission />} />
               <Route path="/fellowship" element={<Fellowship />} />

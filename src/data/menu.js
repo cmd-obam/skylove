@@ -4,8 +4,8 @@ import noticeIcon from '@/assets/icons/notice.png'
 import locationIcon from '@/assets/icons/location.png'
 
 export const AUTH_LINKS = [
-  { label: '로그인', href: '#login' },
-  { label: '회원가입', href: '#signup' },
+  { label: '로그인', path: '/login' },
+  { label: '회원가입', path: '/login', tab: 'signup' },
 ]
 
 export const MENU_ITEMS = [
@@ -15,16 +15,21 @@ export const MENU_ITEMS = [
     children: [
       { title: '교회소개', path: '/about' },
       { title: '교회역사', path: '/about/history' },
-      { title: '예배안내', path: '/worship' },
+      { title: '예배시간 안내', path: '/worship' },
       { title: '시설둘러보기(VR)', path: '/about/facility-vr' },
       { title: '찾아오시는 길', path: '/about/location' },
     ],
   },
   {
-    title: '말씀&찬양',
-    path: '/word-worship',
+    title: '예배안내',
+    path: '/worship-guide',
     children: [
-      { title: '말씀&찬양', path: '/word-worship' },
+      { title: '주일축복예배', path: '/worship-guide/sunday-blessing' },
+      { title: '주일찬양예배', path: '/worship-guide/sunday-praise' },
+      { title: '수요예배', path: '/worship-guide/wednesday' },
+      { title: '새벽기도', path: '/worship-guide/dawn-prayer' },
+      { title: '엘샤다이찬양단', path: '/worship-guide/el-shaddai-choir' },
+      { title: '셀모임', path: '/worship-guide/cell-meeting' },
     ],
   },
   {
@@ -63,7 +68,7 @@ export function findMenuSection(pathname) {
 
 export const QUICK_MENUS = [
   {
-    title: '예배안내',
+    title: '예배시간 안내',
     desc: '예배 시간과 순서를 안내합니다',
     icon: worshipIcon,
     href: '/worship',

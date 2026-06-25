@@ -4,6 +4,14 @@ import { AUTH_LINKS, MENU_ITEMS } from '@/data/menu'
 import DropdownMenu from '@/components/layout/DropdownMenu'
 import './Navigation.css'
 
+function getAuthLinkPath(item) {
+  if (item.tab) {
+    return { pathname: item.path, search: `?tab=${item.tab}` }
+  }
+
+  return item.path
+}
+
 function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
   const [expandedItem, setExpandedItem] = useState(null)
@@ -40,19 +48,19 @@ function Navigation() {
         <div className={`navigation__panel ${isOpen ? 'navigation__panel--open' : ''}`}>
           <ul className="navigation__utility" aria-label="유틸리티 메뉴">
             {AUTH_LINKS.map((item, index) => (
-              <li key={item.href} className="navigation__utility-item">
+              <li key={item.label} className="navigation__utility-item">
                 {index > 0 && (
                   <span className="navigation__utility-separator" aria-hidden="true">
                     |
                   </span>
                 )}
-                <a
-                  href={item.href}
+                <Link
+                  to={getAuthLinkPath(item)}
                   className="navigation__utility-link"
                   onClick={closeMenu}
                 >
                   {item.label}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>

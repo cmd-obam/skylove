@@ -85,7 +85,7 @@ function LocationInfo() {
               ))}
             </ul>
             <Link to={WORSHIP_PATH} className="location-info__worship-link">
-              예배안내 바로가기
+              예배시간 안내 바로가기
             </Link>
           </div>
         </div>

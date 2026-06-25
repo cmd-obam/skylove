@@ -62,7 +62,7 @@ function Hero() {
             교회소개
           </Link>
           <Link to="/worship" className="hero__btn hero__btn--secondary">
-            예배안내
+            예배시간 안내
           </Link>
         </div>
       </div>

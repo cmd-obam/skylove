@@ -9,6 +9,14 @@ function getFirstSubMenuPath(item) {
   return item.children?.[0]?.path ?? item.path
 }
 
+function getAuthLinkPath(item) {
+  if (item.tab) {
+    return { pathname: item.path, search: `?tab=${item.tab}` }
+  }
+
+  return item.path
+}
+
 function SiteHeader() {
   const navigate = useNavigate()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -127,15 +135,15 @@ function SiteHeader() {
 
           <div className="site-header__auth" aria-label="계정 메뉴">
             {AUTH_LINKS.map((item, index) => (
-              <span key={item.href} className="site-header__auth-item">
+              <span key={item.label} className="site-header__auth-item">
                 {index > 0 && (
                   <span className="site-header__auth-separator" aria-hidden="true">
                     |
                   </span>
                 )}
-                <a href={item.href} className="site-header__auth-link">
+                <Link to={getAuthLinkPath(item)} className="site-header__auth-link">
                   {item.label}
-                </a>
+                </Link>
               </span>
             ))}
           </div>
@@ -224,15 +232,19 @@ function SiteHeader() {
 
         <div className="site-header__drawer-auth" aria-label="계정 메뉴">
           {AUTH_LINKS.map((item, index) => (
-            <span key={item.href} className="site-header__auth-item">
+            <span key={item.label} className="site-header__auth-item">
               {index > 0 && (
                 <span className="site-header__auth-separator" aria-hidden="true">
                   |
                 </span>
               )}
-              <a href={item.href} className="site-header__auth-link" onClick={closeMobileMenu}>
+              <Link
+                to={getAuthLinkPath(item)}
+                className="site-header__auth-link"
+                onClick={closeMobileMenu}
+              >
                 {item.label}
-              </a>
+              </Link>
             </span>
           ))}
         </div>
