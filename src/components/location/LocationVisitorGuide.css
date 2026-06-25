@@ -2,151 +2,227 @@
   margin-bottom: 0;
 }
 
-.location-visitor__header {
-  margin-bottom: 2rem;
-  text-align: center;
-}
-
-.location-visitor__title {
-  margin: 0 0 0.75rem;
-  font-family: var(--font-family-en);
-  font-size: 1.875rem;
-  font-style: italic;
-  font-weight: 600;
-  color: #4da6ff;
-}
-
-.location-visitor__subtitle {
-  margin: 0;
-  font-size: 1rem;
-  color: var(--color-text-muted);
-}
-
 .location-visitor__grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 1.25rem;
-  list-style: none;
-  margin: 0;
-  padding: 0;
 }
 
 .location-visitor__card {
   display: flex;
   flex-direction: column;
-  margin: 0;
   background-color: var(--color-white);
-  border-radius: 24px;
+  border-radius: 16px;
+  border: 1px solid #e6e8ec;
   overflow: hidden;
-  box-shadow: 0 8px 28px rgba(77, 166, 255, 0.1);
-  border: 1px solid rgba(77, 166, 255, 0.06);
 }
 
-.location-visitor__card-top {
+.location-visitor__card-header {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  text-align: center;
-  padding: 2rem 1.5rem 1.5rem;
+  gap: 0.625rem;
+  padding: 1.5rem 1.5rem 1rem;
 }
 
 .location-visitor__icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 4rem;
-  height: 4rem;
-  margin-bottom: 1rem;
+  width: 2.25rem;
+  height: 2.25rem;
   border-radius: 50%;
-  background-color: rgba(77, 166, 255, 0.12);
-  color: #4da6ff;
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  flex-shrink: 0;
 }
 
 .location-visitor__card-title {
-  margin: 0 0 0.75rem;
+  margin: 0;
   font-size: 1.125rem;
   font-weight: 700;
-  color: #3b2a20;
+  color: #1a1a1a;
 }
 
-.location-visitor__card-desc {
-  margin: 0;
-  font-size: 0.9375rem;
-  line-height: 1.7;
-  color: #5a4a42;
-}
-
-.location-visitor__routes {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
-}
-
-.location-visitor__route {
+.location-visitor__card-body {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.375rem;
-  min-height: 6.5rem;
-  padding: 0.875rem 0.5rem;
-  border: 1px solid rgba(77, 166, 255, 0.15);
-  border-radius: 14px;
-  background-color: rgba(77, 166, 255, 0.04);
-  text-align: center;
+  gap: 0.625rem;
+  padding: 0 1.5rem 1.25rem;
+  flex: 1;
 }
 
-.location-visitor__route-bus {
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: #3b2a20;
+.location-visitor__card-body--car {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 1rem;
 }
 
-.location-visitor__route-stop,
-.location-visitor__route-walk {
-  font-size: 0.8125rem;
-  line-height: 1.5;
-  color: #5a4a42;
+.location-visitor__card--car .location-visitor__card-body {
+  flex-grow: 1;
+  align-content: flex-start;
 }
 
-.location-visitor__card--transit .location-visitor__card-top {
-  padding-bottom: 1.25rem;
+.location-visitor__car-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  min-width: 0;
 }
 
-.location-visitor__card--transit .location-visitor__card-title {
-  margin-bottom: 1rem;
-}
-
-.location-visitor__card--transit .location-visitor__routes {
-  grid-template-columns: minmax(0, 9.5rem);
-  justify-content: center;
-}
-
-.location-visitor__card-image-wrap {
+.location-visitor__subtitle {
   margin: 0;
-  margin-top: auto;
-  height: 180px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--color-primary);
 }
 
-.location-visitor__card-image {
+.location-visitor__description {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: #1a1a1a;
+}
+
+.location-visitor__card--car .location-visitor__image-wrap {
+  flex: 1.15;
+  margin: 0;
+  min-width: 0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.location-visitor__card--car .location-visitor__image {
   display: block;
   width: 100%;
   height: 100%;
+  min-height: 148px;
   object-fit: cover;
+}
+
+.location-visitor__card-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-top: auto;
+  padding: 1rem 1.5rem 1.5rem;
+}
+
+.location-visitor__footer-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  flex-shrink: 0;
+}
+
+.location-visitor__footer-text {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #5f6670;
+}
+
+.location-visitor__table-wrap {
+  padding: 0 1.5rem 1.5rem;
+  flex: 1;
+}
+
+.location-visitor__table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.location-visitor__table th {
+  padding: 0.75rem 0.625rem;
+  background-color: #edf6ff;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  text-align: center;
+  border-bottom: 1px solid #dfe8f2;
+}
+
+.location-visitor__table td {
+  padding: 1rem 0.625rem;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: #5f6670;
+  text-align: center;
+  vertical-align: middle;
+  border-bottom: 1px solid #eef1f5;
+}
+
+.location-visitor__table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.location-visitor__table-direction,
+.location-visitor__table-bus {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.location-visitor__highlight {
+  font-weight: 700;
+  color: var(--color-primary);
 }
 
 @media (max-width: 992px) {
   .location-visitor__grid {
     grid-template-columns: 1fr;
   }
+
+  .location-visitor__card-body--car {
+    flex-direction: column;
+    flex-grow: 0;
+    gap: 0.875rem;
+  }
+
+  .location-visitor__car-text {
+    flex: none;
+    width: 100%;
+  }
+
+  .location-visitor__card--car .location-visitor__image-wrap {
+    flex: none;
+    width: 100%;
+  }
+
+  .location-visitor__card--car .location-visitor__image {
+    min-height: 0;
+    max-height: none;
+    aspect-ratio: 16 / 9;
+  }
 }
 
 @media (max-width: 768px) {
-  .location-visitor__title {
-    font-size: 1.5rem;
+  .location-visitor__card-body,
+  .location-visitor__table-wrap,
+  .location-visitor__card-footer {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+
+  .location-visitor__table th,
+  .location-visitor__table td {
+    padding: 0.75rem 0.375rem;
+    font-size: 0.8125rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .location-visitor__table-wrap {
+    overflow-x: auto;
+  }
+
+  .location-visitor__table {
+    min-width: 420px;
   }
 }

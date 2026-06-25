@@ -14,31 +14,30 @@ export function getMapLinks() {
   }
 }
 
-export const VISITOR_GUIDES = [
-  {
-    id: 'parking',
-    title: '주차 안내',
-    description:
-      '교회 정문 앞 주차장과 건물 뒤편 주차 공간을 이용하실 수 있습니다. 주일에는 교통 안내 봉사자가 안내해 드립니다.',
-    image: null,
+export const ACCESS_GUIDES = {
+  car: {
+    title: '자가용 이용 시',
+    subtitle: '서천안IC에서 출발 시',
+    description: '하늘사랑감리교회까지 차량 약 14분 소요됩니다.',
+    parkingNote: '교회 내 주차장을 이용하실 수 있습니다.',
   },
-  {
-    id: 'entrance',
-    title: '입구 안내',
-    description:
-      '정문으로 들어오시면 안내 데스크와 예배 안내가 준비되어 있습니다. 처음 오신 분은 안내팀에 말씀해 주세요.',
-    image: null,
-  },
-  {
-    id: 'transit',
-    title: '대중교통 안내',
+  bus: {
+    title: '버스 이용 시',
     routes: [
       {
+        id: 'cheonan',
+        direction: '천안 시내 방면',
         bus: '7번 버스',
-        stop: '신방한라',
-        walk: '도보2분',
+        stop: '신방도서관 인근 하차',
+        walk: '약 2분',
+      },
+      {
+        id: 'pungse',
+        direction: '풍세·광덕 방면',
+        bus: '600번대 버스',
+        stop: '신방도서관 인근 하차',
+        walk: '약 3분',
       },
     ],
-    image: null,
   },
-]
+}
