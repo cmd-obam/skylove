@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import SiteHeader from '@/components/layout/SiteHeader'
 import Footer from '@/components/layout/Footer'
 import CategoryLayout from '@/components/layout/CategoryLayout'
+import SubLayout from '@/components/layout/SubLayout'
 import ImageProtection from '@/components/common/ImageProtection'
 import Home from '@/pages/Home'
 import About from '@/pages/About'
@@ -14,9 +15,10 @@ import {
   Mission,
   Fellowship,
   SundaySchool,
+  ChurchNews,
   ChurchAlbum,
-  ChurchService,
-  ChurchWorshipPraise,
+  NewFamilyGuide,
+  EventPhotos,
   FacilityVr,
 } from '@/pages/PlaceholderPage'
 import '@/App.css'
@@ -33,28 +35,36 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Auth />} />
+            <Route path="/church-news/news" element={<Navigate to="/church-news" replace />} />
+            <Route path="/church-life" element={<Navigate to="/church-news" replace />} />
+            <Route path="/church-life/album" element={<Navigate to="/church-news/album" replace />} />
+            <Route path="/church-life/service" element={<Navigate to="/church-news" replace />} />
+            <Route path="/church-life/worship-praise" element={<Navigate to="/church-news/event-photos" replace />} />
+            <Route path="/notice" element={<Navigate to="/church-news" replace />} />
+            <Route path="/word-worship" element={<Navigate to="/worship-guide/sunday-blessing" replace />} />
             <Route element={<CategoryLayout />}>
-              <Route path="/about" element={<About />} />
-              <Route path="/about/history" element={<About />} />
-              <Route path="/about/facility-vr" element={<FacilityVr />} />
-              <Route path="/about/location" element={<Location />} />
-              <Route path="/worship" element={<Worship />} />
-              <Route path="/worship-guide" element={<Navigate to="/worship-guide/sunday-blessing" replace />} />
-              <Route path="/worship-guide/sunday-blessing" element={<WorshipGuidePage />} />
-              <Route path="/worship-guide/sunday-praise" element={<WorshipGuidePage />} />
-              <Route path="/worship-guide/wednesday" element={<WorshipGuidePage />} />
-              <Route path="/worship-guide/dawn-prayer" element={<WorshipGuidePage />} />
-              <Route path="/worship-guide/el-shaddai-choir" element={<WorshipGuidePage />} />
-              <Route path="/worship-guide/cell-meeting" element={<WorshipGuidePage />} />
-              <Route path="/word-worship" element={<Navigate to="/worship-guide/sunday-blessing" replace />} />
-              <Route path="/education" element={<Education />} />
-              <Route path="/mission" element={<Mission />} />
-              <Route path="/fellowship" element={<Fellowship />} />
-              <Route path="/sunday-school" element={<SundaySchool />} />
-              <Route path="/church-life" element={<Navigate to="/church-life/album" replace />} />
-              <Route path="/church-life/album" element={<ChurchAlbum />} />
-              <Route path="/church-life/service" element={<ChurchService />} />
-              <Route path="/church-life/worship-praise" element={<ChurchWorshipPraise />} />
+              <Route element={<SubLayout />}>
+                <Route path="/about" element={<About />} />
+                <Route path="/about/history" element={<About />} />
+                <Route path="/about/facility-vr" element={<FacilityVr />} />
+                <Route path="/about/location" element={<Location />} />
+                <Route path="/worship" element={<Worship />} />
+                <Route path="/worship-guide" element={<Navigate to="/worship-guide/sunday-blessing" replace />} />
+                <Route path="/worship-guide/sunday-blessing" element={<WorshipGuidePage />} />
+                <Route path="/worship-guide/sunday-praise" element={<WorshipGuidePage />} />
+                <Route path="/worship-guide/wednesday" element={<WorshipGuidePage />} />
+                <Route path="/worship-guide/dawn-prayer" element={<WorshipGuidePage />} />
+                <Route path="/worship-guide/el-shaddai-choir" element={<WorshipGuidePage />} />
+                <Route path="/worship-guide/cell-meeting" element={<WorshipGuidePage />} />
+                <Route path="/education" element={<Education />} />
+                <Route path="/mission" element={<Mission />} />
+                <Route path="/fellowship" element={<Fellowship />} />
+                <Route path="/sunday-school" element={<SundaySchool />} />
+                <Route path="/church-news" element={<ChurchNews />} />
+                <Route path="/church-news/album" element={<ChurchAlbum />} />
+                <Route path="/church-news/new-family" element={<NewFamilyGuide />} />
+                <Route path="/church-news/event-photos" element={<EventPhotos />} />
+              </Route>
             </Route>
           </Routes>
         </main>

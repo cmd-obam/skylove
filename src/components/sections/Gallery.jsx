@@ -8,7 +8,7 @@ function Gallery() {
       <div className="gallery__inner">
         <div className="gallery__header">
           <h2 className="gallery__title">GALLERY</h2>
-          <Link to="/church-life/album" className="gallery__more">
+          <Link to="/church-news/album" className="gallery__more">
             + 더보기
           </Link>
         </div>

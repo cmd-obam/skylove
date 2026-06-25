@@ -28,15 +28,19 @@ export function SundaySchool() {
   return <PlaceholderPage />
 }
 
+export function ChurchNews() {
+  return <PlaceholderPage />
+}
+
 export function ChurchAlbum() {
   return <PlaceholderPage />
 }
 
-export function ChurchService() {
+export function NewFamilyGuide() {
   return <PlaceholderPage />
 }
 
-export function ChurchWorshipPraise() {
+export function EventPhotos() {
   return <PlaceholderPage />
 }
 

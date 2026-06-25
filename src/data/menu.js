@@ -40,12 +40,13 @@ export const MENU_ITEMS = [
     ],
   },
   {
-    title: '교회생활',
-    path: '/church-life',
+    title: '교회소식',
+    path: '/church-news',
     children: [
-      { title: '교회앨범', path: '/church-life/album' },
-      { title: '전도 및 섬김', path: '/church-life/service' },
-      { title: '예배와 찬양', path: '/church-life/worship-praise' },
+      { title: '교회소식', path: '/church-news' },
+      { title: '교회앨범', path: '/church-news/album' },
+      { title: '새가족안내', path: '/church-news/new-family' },
+      { title: '행사사진', path: '/church-news/event-photos' },
     ],
   },
 ]
@@ -83,7 +84,7 @@ export const QUICK_MENUS = [
     title: '공지사항',
     desc: '교회 소식과 공지를 확인하세요',
     icon: noticeIcon,
-    href: '/notice',
+    href: '/church-news',
   },
   {
     title: '찾아오시는 길',

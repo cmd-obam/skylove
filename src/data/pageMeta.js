@@ -59,17 +59,21 @@ export const PAGE_META = {
     title: '교회학교',
     subtitle: '교회학교 프로그램을 안내합니다',
   },
-  '/church-life/album': {
+  '/church-news': {
+    title: '교회소식',
+    subtitle: '하늘사랑교회의 소식을 전합니다',
+  },
+  '/church-news/album': {
     title: '교회앨범',
     subtitle: '하늘사랑교회의 소중한 순간들을 나눕니다',
   },
-  '/church-life/service': {
-    title: '전도 및 섬김',
-    subtitle: '전도와 섬김의 현장을 소개합니다',
+  '/church-news/new-family': {
+    title: '새가족안내',
+    subtitle: '새가족을 위한 안내를 제공합니다',
   },
-  '/church-life/worship-praise': {
-    title: '예배와 찬양',
-    subtitle: '예배와 찬양의 모습을 전합니다',
+  '/church-news/event-photos': {
+    title: '행사사진',
+    subtitle: '교회 행사의 모습을 전합니다',
   },
 }
 
