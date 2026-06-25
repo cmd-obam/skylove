@@ -11,14 +11,76 @@
 .location-hero {
   --location-hero-bg: none;
 
+  position: relative;
+  display: flex;
+  align-items: center;
   height: 480px;
   margin-left: -2.5rem;
   margin-right: -2.5rem;
   width: calc(100% + 5rem);
   background-image: var(--location-hero-bg);
   background-size: cover;
-  background-position: center;
+  background-position: center right;
   background-repeat: no-repeat;
+  overflow: hidden;
+}
+
+.location-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.88) 0%,
+    rgba(255, 255, 255, 0.55) 42%,
+    transparent 68%
+  );
+  pointer-events: none;
+}
+
+.location-hero__content {
+  position: relative;
+  z-index: 1;
+  width: 46%;
+  padding-left: 3.5rem;
+  margin-left: 20px;
+}
+
+.location-hero__welcome {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-family-en);
+  font-size: 1.375rem;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--color-primary);
+  line-height: 1.3;
+}
+
+.location-hero__title {
+  margin: 0;
+  font-family: 'Nanum Brush Script', cursive;
+  font-size: 5rem;
+  font-weight: 400;
+  color: #000;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.location-hero__tagline {
+  margin: 0.875rem 0 0;
+  font-size: 1.375rem;
+  font-weight: 500;
+  color: var(--color-text);
+  line-height: 1.55;
+}
+
+.location-hero__tagline + .location-hero__tagline {
+  margin-top: 0.25rem;
+}
+
+.location-hero__highlight {
+  color: var(--color-sub);
+  font-weight: 700;
 }
 
 @media (max-width: 992px) {
@@ -30,6 +92,15 @@
     margin-right: -1.5rem;
     width: calc(100% + 3rem);
   }
+
+  .location-hero__content {
+    width: 52%;
+    padding-left: 2.5rem;
+  }
+
+  .location-hero__title {
+    font-size: 4.25rem;
+  }
 }
 
 @media (max-width: 768px) {
@@ -38,7 +109,32 @@
   }
 
   .location-hero {
-    min-height: 260px;
-    aspect-ratio: 4 / 3;
+    min-height: 300px;
+    aspect-ratio: auto;
+    align-items: flex-end;
+    padding-bottom: 2rem;
+  }
+
+  .location-hero::before {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.15) 0%,
+      rgba(255, 255, 255, 0.82) 55%,
+      rgba(255, 255, 255, 0.95) 100%
+    );
+  }
+
+  .location-hero__content {
+    width: 100%;
+    padding: 0 1.5rem;
+    text-align: center;
+  }
+
+  .location-hero__title {
+    font-size: 3.75rem;
+  }
+
+  .location-hero__tagline {
+    font-size: 1.25rem;
   }
 }
