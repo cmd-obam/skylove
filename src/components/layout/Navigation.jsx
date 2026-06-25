@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
-import { UTILITY_LINKS, MENU_ITEMS } from '@/data/menu'
+import { AUTH_LINKS, MENU_ITEMS } from '@/data/menu'
 import DropdownMenu from '@/components/layout/DropdownMenu'
 import './Navigation.css'
 
@@ -39,7 +39,7 @@ function Navigation() {
 
         <div className={`navigation__panel ${isOpen ? 'navigation__panel--open' : ''}`}>
           <ul className="navigation__utility" aria-label="유틸리티 메뉴">
-            {UTILITY_LINKS.map((item, index) => (
+            {AUTH_LINKS.map((item, index) => (
               <li key={item.href} className="navigation__utility-item">
                 {index > 0 && (
                   <span className="navigation__utility-separator" aria-hidden="true">

@@ -1,8 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import churchLogo from '@/assets/images/church-logo.png'
-import { MENU_ITEMS } from '@/data/menu'
-import TopBar from '@/components/layout/TopBar'
+import { AUTH_LINKS, MENU_ITEMS } from '@/data/menu'
 import DropdownMenu from '@/components/layout/DropdownMenu'
 import './SiteHeader.css'
 
@@ -71,8 +70,6 @@ function SiteHeader() {
 
   return (
     <div className="site-header-wrap">
-      <TopBar />
-
       <header className="site-header">
         <div className="site-header__inner">
           <Link to="/" className="site-header__brand" aria-label="하늘사랑교회 홈으로 이동">
@@ -92,7 +89,7 @@ function SiteHeader() {
             <ul className="site-header__menu">
               {MENU_ITEMS.map((item) => (
                 <li
-                  key={item.path}
+                  key={item.title}
                   className={`site-header__item${
                     item.children ? ' site-header__item--has-dropdown' : ''
                   }`}
@@ -127,6 +124,21 @@ function SiteHeader() {
               ))}
             </ul>
           </nav>
+
+          <div className="site-header__auth" aria-label="계정 메뉴">
+            {AUTH_LINKS.map((item, index) => (
+              <span key={item.href} className="site-header__auth-item">
+                {index > 0 && (
+                  <span className="site-header__auth-separator" aria-hidden="true">
+                    |
+                  </span>
+                )}
+                <a href={item.href} className="site-header__auth-link">
+                  {item.label}
+                </a>
+              </span>
+            ))}
+          </div>
 
           <button
             type="button"
@@ -167,7 +179,7 @@ function SiteHeader() {
         <nav className="site-header__drawer-nav" aria-label="모바일 주요 메뉴">
           <ul className="site-header__drawer-menu">
             {MENU_ITEMS.map((item) => (
-              <li key={item.path} className="site-header__drawer-item">
+              <li key={item.title} className="site-header__drawer-item">
                 {item.children ? (
                   <>
                     <button
@@ -209,6 +221,21 @@ function SiteHeader() {
             ))}
           </ul>
         </nav>
+
+        <div className="site-header__drawer-auth" aria-label="계정 메뉴">
+          {AUTH_LINKS.map((item, index) => (
+            <span key={item.href} className="site-header__auth-item">
+              {index > 0 && (
+                <span className="site-header__auth-separator" aria-hidden="true">
+                  |
+                </span>
+              )}
+              <a href={item.href} className="site-header__auth-link" onClick={closeMobileMenu}>
+                {item.label}
+              </a>
+            </span>
+          ))}
+        </div>
       </aside>
     </div>
   )

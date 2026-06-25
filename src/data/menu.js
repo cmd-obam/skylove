@@ -3,18 +3,7 @@ import facilityIcon from '@/assets/icons/facility.png'
 import noticeIcon from '@/assets/icons/notice.png'
 import locationIcon from '@/assets/icons/location.png'
 
-export const TOPBAR_LEFT_LINKS = [
-  { label: '교회소개', path: '/about' },
-  { label: '교회비전', path: '/about' },
-]
-
 export const AUTH_LINKS = [
-  { label: '로그인', href: '#login' },
-  { label: '회원가입', href: '#signup' },
-]
-
-export const UTILITY_LINKS = [
-  { label: '홈으로', href: '/' },
   { label: '로그인', href: '#login' },
   { label: '회원가입', href: '#signup' },
 ]
@@ -36,27 +25,6 @@ export const MENU_ITEMS = [
     path: '/word-worship',
     children: [
       { title: '말씀&찬양', path: '/word-worship' },
-    ],
-  },
-  {
-    title: '교육&양육',
-    path: '/education',
-    children: [
-      { title: '교육&양육', path: '/education' },
-    ],
-  },
-  {
-    title: '전도&선교',
-    path: '/mission',
-    children: [
-      { title: '전도&선교', path: '/mission' },
-    ],
-  },
-  {
-    title: '나눔&교제',
-    path: '/fellowship',
-    children: [
-      { title: '나눔&교제', path: '/fellowship' },
     ],
   },
   {
