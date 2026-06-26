@@ -1,3 +1,5 @@
+import cleaningVolunteerImage from '@/assets/images/church-album/cleaning-volunteer.png'
+
 export const EVENT_PHOTO_SEARCH_TYPES = [
   { value: 'title-content', label: '제목 + 내용' },
   { value: 'title', label: '제목' },
@@ -5,7 +7,22 @@ export const EVENT_PHOTO_SEARCH_TYPES = [
   { value: 'author', label: '작성자' },
 ]
 
-export const EVENT_PHOTO_POSTS = []
+export const EVENT_PHOTO_POSTS = [
+  {
+    id: 1,
+    no: 1,
+    title: '청소 봉사',
+    date: '23.03.26',
+    views: 1,
+    content: '신방동의 한 공원에 청소 봉사왔습니다.',
+    images: [
+      {
+        src: cleaningVolunteerImage,
+        alt: '신방동 공원 청소 봉사 활동',
+      },
+    ],
+  },
+]
 
 export function matchesEventPhotoSearch(post, query, searchType) {
   if (!query) {

@@ -1,9 +1,12 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { FiFileText } from 'react-icons/fi'
 import Breadcrumb from '@/components/Breadcrumb'
+import { CHURCH_NEWS_POSTS } from '@/data/churchNews'
+import { formatBoardDate } from '@/utils/formatBoardDate'
 import './ChurchNews.css'
 
-const POSTS = []
+const LIST_PATH = '/church-news'
 
 function ChurchNews() {
   const [searchKeyword, setSearchKeyword] = useState('')
@@ -62,7 +65,7 @@ function ChurchNews() {
             </tr>
           </thead>
           <tbody>
-            {POSTS.length === 0 ? (
+            {CHURCH_NEWS_POSTS.length === 0 ? (
               <tr>
                 <td colSpan={4} className="church-news-board__empty">
                   <div className="church-news-board__empty-inner">
@@ -72,11 +75,15 @@ function ChurchNews() {
                 </td>
               </tr>
             ) : (
-              POSTS.map((post) => (
+              CHURCH_NEWS_POSTS.map((post) => (
                 <tr key={post.id}>
                   <td>{post.no}</td>
-                  <td className="church-news-board__post-title">{post.title}</td>
-                  <td className="church-news-board__col-date-cell">{post.date}</td>
+                  <td className="church-news-board__post-title">
+                    <Link to={`${LIST_PATH}/${post.id}`} className="church-news-board__post-link">
+                      {post.title}
+                    </Link>
+                  </td>
+                  <td className="church-news-board__col-date-cell">{formatBoardDate(post.date)}</td>
                   <td className="church-news-board__col-views-cell">{post.views}</td>
                 </tr>
               ))

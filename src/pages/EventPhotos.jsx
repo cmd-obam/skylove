@@ -7,6 +7,7 @@ import {
   EVENT_PHOTO_SEARCH_TYPES,
   matchesEventPhotoSearch,
 } from '@/data/eventPhotos'
+import { formatBoardDate } from '@/utils/formatBoardDate'
 import './ChurchNews.css'
 
 const LIST_PATH = '/church-news/album'
@@ -73,56 +74,48 @@ function EventPhotos() {
         </form>
       </div>
 
-      <div className="church-news-board__table-wrap">
-        <table className="church-news-board__table">
-          <colgroup>
-            <col className="church-news-board__col-no" />
-            <col className="church-news-board__col-title" />
-            <col className="church-news-board__col-date" />
-            <col className="church-news-board__col-views" />
-          </colgroup>
-          <thead>
-            <tr>
-              <th scope="col">번호</th>
-              <th scope="col">제목</th>
-              <th scope="col" className="church-news-board__col-date-header">
-                작성일
-              </th>
-              <th scope="col" className="church-news-board__col-views-header">
-                조회
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredPosts.length === 0 ? (
-              <tr>
-                <td colSpan={4} className="church-news-board__empty">
-                  <div className="church-news-board__empty-inner">
-                    <FiFileText className="church-news-board__empty-icon" aria-hidden="true" />
-                    <span>등록된 게시글이 없습니다.</span>
+      {filteredPosts.length === 0 ? (
+        <div className="event-photos-empty">
+          <FiFileText className="event-photos-empty__icon" aria-hidden="true" />
+          <span>등록된 게시글이 없습니다.</span>
+        </div>
+      ) : (
+        <ul className="event-photos-grid">
+          {filteredPosts.map((post) => {
+            const thumbnail = post.images?.[0]
+
+            return (
+              <li key={post.id} className="event-photos-grid__item">
+                <Link to={`${LIST_PATH}/${post.id}`} className="event-photos-card">
+                  <div className="event-photos-card__image-wrap">
+                    {thumbnail ? (
+                      <img
+                        src={thumbnail.src}
+                        alt={thumbnail.alt || post.title}
+                        className="event-photos-card__image"
+                      />
+                    ) : (
+                      <div className="event-photos-card__placeholder" aria-hidden="true">
+                        <FiFileText className="event-photos-card__placeholder-icon" />
+                      </div>
+                    )}
                   </div>
-                </td>
-              </tr>
-            ) : (
-              filteredPosts.map((post) => (
-                <tr key={post.id}>
-                  <td>{post.no}</td>
-                  <td className="church-news-board__post-title">
-                    <Link
-                      to={`${LIST_PATH}/${post.id}`}
-                      className="church-news-board__post-link"
-                    >
-                      {post.title}
-                    </Link>
-                  </td>
-                  <td className="church-news-board__col-date-cell">{post.date}</td>
-                  <td className="church-news-board__col-views-cell">{post.views}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+                  <div className="event-photos-card__body">
+                    <h2 className="event-photos-card__title">{post.title}</h2>
+                    <p className="event-photos-card__meta">
+                      <span>{formatBoardDate(post.date)}</span>
+                      <span className="event-photos-card__meta-divider" aria-hidden="true">
+                        |
+                      </span>
+                      <span>조회 {post.views}</span>
+                    </p>
+                  </div>
+                </Link>
+              </li>
+            )
+          })}
+        </ul>
+      )}
 
       <nav className="church-news-board__pagination" aria-label="게시판 페이지">
         <button

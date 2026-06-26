@@ -10,6 +10,7 @@ import Worship from '@/pages/Worship'
 import Location from '@/pages/Location'
 import Auth from '@/pages/Auth'
 import ChurchNews from '@/pages/ChurchNews'
+import ChurchNewsDetail from '@/pages/ChurchNewsDetail'
 import EventPhotos from '@/pages/EventPhotos'
 import EventPhotoDetail from '@/pages/EventPhotoDetail'
 import {
@@ -71,6 +72,7 @@ function App() {
                 <Route path="/church-news/album" element={<EventPhotos />} />
                 <Route path="/church-news/album/:postId" element={<EventPhotoDetail />} />
                 <Route path="/church-news/new-family" element={<NewFamilyGuide />} />
+                <Route path="/church-news/:postId" element={<ChurchNewsDetail />} />
               </Route>
             </Route>
           </Routes>

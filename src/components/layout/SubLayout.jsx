@@ -17,6 +17,22 @@ const STYLED_WORSHIP_TITLES = {
 
 const CUSTOM_HEADER_PATHS = new Set([LOCATION_PATH, WORSHIP_PATH, CHURCH_NEWS_PATH, CHURCH_ALBUM_PATH])
 
+function isChurchNewsPostDetail(pathname) {
+  if (!pathname.startsWith(`${CHURCH_NEWS_PATH}/`)) {
+    return false
+  }
+
+  if (pathname === CHURCH_ALBUM_PATH || pathname.startsWith(`${CHURCH_ALBUM_PATH}/`)) {
+    return false
+  }
+
+  if (pathname === '/church-news/new-family') {
+    return false
+  }
+
+  return pathname !== CHURCH_NEWS_PATH
+}
+
 function PageTitle({ pathname, title }) {
   const styledTitle = STYLED_WORSHIP_TITLES[pathname]
 
@@ -37,7 +53,9 @@ function SubLayout() {
   const { pathname } = useLocation()
   const { title, subtitle } = getPageMeta(pathname)
   const hasCustomHeader =
-    CUSTOM_HEADER_PATHS.has(pathname) || pathname.startsWith(`${CHURCH_ALBUM_PATH}/`)
+    CUSTOM_HEADER_PATHS.has(pathname) ||
+    pathname.startsWith(`${CHURCH_ALBUM_PATH}/`) ||
+    isChurchNewsPostDetail(pathname)
 
   return (
     <div className={`sub-layout${hasCustomHeader ? ' sub-layout--custom-header' : ''}`}>

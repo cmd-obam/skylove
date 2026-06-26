@@ -105,6 +105,133 @@
   background-color: var(--color-primary-dark);
 }
 
+.event-photos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.event-photos-grid__item {
+  margin: 0;
+}
+
+.event-photos-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: 1px solid #edf1f5;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: var(--color-white);
+  text-decoration: none;
+  transition:
+    border-color var(--transition),
+    box-shadow var(--transition),
+    transform var(--transition);
+}
+
+.event-photos-card:hover,
+.event-photos-card:focus-visible {
+  border-color: #c8ddf5;
+  box-shadow: 0 12px 28px rgba(31, 58, 95, 0.08);
+  transform: translateY(-2px);
+}
+
+.event-photos-card__image-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background-color: #eef4fa;
+}
+
+.event-photos-card__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition);
+}
+
+.event-photos-card:hover .event-photos-card__image,
+.event-photos-card:focus-visible .event-photos-card__image {
+  transform: scale(1.04);
+}
+
+.event-photos-card__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background-color: #eef4fa;
+}
+
+.event-photos-card__placeholder-icon {
+  width: 2rem;
+  height: 2rem;
+  color: #c5ced8;
+}
+
+.event-photos-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem 1.125rem 1.125rem;
+}
+
+.event-photos-card__title {
+  margin: 0;
+  overflow: hidden;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: #1f3a5f;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color var(--transition);
+}
+
+.event-photos-card:hover .event-photos-card__title,
+.event-photos-card:focus-visible .event-photos-card__title {
+  color: #4da6ff;
+}
+
+.event-photos-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #9ca3af;
+}
+
+.event-photos-card__meta-divider {
+  color: #d1d5db;
+}
+
+.event-photos-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  min-height: 240px;
+  border: 1px solid #edf1f5;
+  border-radius: 12px;
+  color: #9ca3af;
+  font-size: 16px;
+}
+
+.event-photos-empty__icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #c5ced8;
+}
+
 .church-news-board__toolbar {
   display: flex;
   justify-content: flex-end;
@@ -168,38 +295,42 @@
 }
 
 .church-news-board__col-no {
-  width: 12%;
+  width: 80px;
 }
 
 .church-news-board__col-title {
-  width: 55%;
+  width: 58%;
 }
 
 .church-news-board__col-date {
-  width: 20%;
+  width: 180px;
 }
 
 .church-news-board__col-views {
-  width: 13%;
+  width: 80px;
 }
 
 .church-news-board__table thead th {
   height: 55px;
+  padding: 0 12px;
   border-top: 2px solid #1f3a5f;
   border-bottom: 1px solid #edf1f5;
   font-size: 0.9375rem;
   font-weight: 600;
   color: #1f3a5f;
   text-align: center;
+  vertical-align: middle;
 }
 
 .church-news-board__table thead th:nth-child(2) {
   text-align: left;
-  padding-left: 1rem;
+  padding-left: 22px;
+  padding-right: 16px;
 }
 
 .church-news-board__table tbody td {
   height: 60px;
+  padding: 0 12px;
   border-bottom: 1px solid #edf1f5;
   font-size: 0.9375rem;
   color: #374151;
@@ -207,9 +338,21 @@
   vertical-align: middle;
 }
 
-.church-news-board__post-title {
+.church-news-board__table tbody td:nth-child(2) {
   text-align: left;
-  padding: 0 1rem;
+  padding-left: 0;
+  padding-right: 16px;
+}
+
+.church-news-board__col-date-header,
+.church-news-board__col-date-cell,
+.church-news-board__col-views-header,
+.church-news-board__col-views-cell {
+  text-align: center;
+}
+
+.church-news-board__post-title {
+  padding-left: 22px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -222,6 +365,7 @@
   text-decoration: none;
   text-overflow: ellipsis;
   white-space: nowrap;
+  cursor: pointer;
   transition: color var(--transition);
 }
 
@@ -322,6 +466,32 @@
   margin-top: 0.875rem;
   font-size: 0.875rem;
   color: #6b7280;
+}
+
+.church-news-detail__meta-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  margin: 0.875rem 0 0;
+  padding: 0;
+}
+
+.church-news-detail__meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.church-news-detail__meta-item dt {
+  font-weight: 600;
+  color: #1f3a5f;
+}
+
+.church-news-detail__meta-item dd {
+  margin: 0;
 }
 
 .church-news-detail__meta-divider {
@@ -465,6 +635,11 @@
     min-width: 0;
   }
 
+  .event-photos-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+
   .church-news-board__toolbar {
     justify-content: stretch;
   }
@@ -489,10 +664,16 @@
   }
 
   .church-news-board__col-no {
-    width: 18%;
+    width: 64px;
   }
 
   .church-news-board__col-title {
-    width: 82%;
+    width: auto;
+  }
+}
+
+@media (max-width: 560px) {
+  .event-photos-grid {
+    grid-template-columns: 1fr;
   }
 }
