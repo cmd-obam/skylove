@@ -5,8 +5,10 @@ import {
   FiHelpCircle,
   FiLink,
   FiMessageSquare,
+  FiPlus,
   FiPrinter,
   FiType,
+  FiX,
   FiZoomIn,
   FiZoomOut,
 } from 'react-icons/fi'
@@ -14,17 +16,22 @@ import './PostUtilityBar.css'
 
 const CONTENT_SELECTOR = '.church-news-detail'
 const BOUNDARY_SELECTOR = '.category-layout__main'
+const MOBILE_BREAKPOINT = 1024
 const FONT_SCALES = [1, 1.15, 1.3]
 const MIN_ZOOM = 0.8
 const MAX_ZOOM = 1.5
 const ZOOM_STEP = 0.1
 const POSITION_PADDING = 12
+const MOBILE_EDGE_GAP = 16
 
 const HELP_MESSAGE =
   '도움말: 글자크기 버튼으로 본문 글자 크기를 조절할 수 있습니다. 확대·축소 버튼으로 이미지 크기를 조절하고, 위로·아래로 버튼으로 페이지 이동, 댓글 버튼으로 댓글 영역으로 이동할 수 있습니다.'
 
 function PostUtilityBar() {
   const barRef = useRef(null)
+  const mobileRef = useRef(null)
+  const [isMobile, setIsMobile] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [fontScaleIndex, setFontScaleIndex] = useState(0)
   const [imageZoom, setImageZoom] = useState(1)
   const [linkCopied, setLinkCopied] = useState(false)
@@ -34,7 +41,7 @@ function PostUtilityBar() {
     [],
   )
 
-  const updateBarPosition = useCallback(() => {
+  const updateDesktopPosition = useCallback(() => {
     const bar = barRef.current
     const boundary = document.querySelector(BOUNDARY_SELECTOR)
 
@@ -68,14 +75,73 @@ function PostUtilityBar() {
     bar.style.top = `${top}px`
   }, [])
 
-  useEffect(() => {
-    updateBarPosition()
+  const updateMobilePosition = useCallback(() => {
+    const mobile = mobileRef.current
+    const boundary = document.querySelector(BOUNDARY_SELECTOR)
 
-    window.addEventListener('scroll', updateBarPosition, { passive: true })
-    window.addEventListener('resize', updateBarPosition)
+    if (!mobile || !boundary) {
+      return
+    }
+
+    const boundaryRect = boundary.getBoundingClientRect()
+    const mobileHeight = mobile.offsetHeight
+
+    if (
+      boundaryRect.bottom < POSITION_PADDING ||
+      boundaryRect.top > window.innerHeight - POSITION_PADDING
+    ) {
+      mobile.style.visibility = 'hidden'
+      return
+    }
+
+    mobile.style.visibility = 'visible'
+
+    const preferredBottom = MOBILE_EDGE_GAP
+    const minBottom = window.innerHeight - boundaryRect.bottom + POSITION_PADDING
+    const maxBottom = window.innerHeight - boundaryRect.top - POSITION_PADDING - mobileHeight
+
+    let bottom = Math.max(preferredBottom, minBottom)
+    if (maxBottom >= minBottom) {
+      bottom = Math.min(bottom, maxBottom)
+    }
+
+    mobile.style.bottom = `${bottom}px`
+    mobile.style.right = `${MOBILE_EDGE_GAP}px`
+  }, [])
+
+  const updatePosition = useCallback(() => {
+    if (window.innerWidth <= MOBILE_BREAKPOINT) {
+      updateMobilePosition()
+      return
+    }
+
+    updateDesktopPosition()
+  }, [updateDesktopPosition, updateMobilePosition])
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT}px)`)
+
+    const handleMediaChange = (event) => {
+      setIsMobile(event.matches)
+      if (!event.matches) {
+        setIsMenuOpen(false)
+      }
+    }
+
+    setIsMobile(mediaQuery.matches)
+    mediaQuery.addEventListener('change', handleMediaChange)
+
+    return () => mediaQuery.removeEventListener('change', handleMediaChange)
+  }, [])
+
+  useEffect(() => {
+    updatePosition()
+
+    window.addEventListener('scroll', updatePosition, { passive: true })
+    window.addEventListener('resize', updatePosition)
 
     const boundary = document.querySelector(BOUNDARY_SELECTOR)
-    const resizeObserver = new ResizeObserver(updateBarPosition)
+    const resizeObserver = new ResizeObserver(updatePosition)
 
     if (boundary) {
       resizeObserver.observe(boundary)
@@ -85,12 +151,16 @@ function PostUtilityBar() {
       resizeObserver.observe(barRef.current)
     }
 
+    if (mobileRef.current) {
+      resizeObserver.observe(mobileRef.current)
+    }
+
     return () => {
-      window.removeEventListener('scroll', updateBarPosition)
-      window.removeEventListener('resize', updateBarPosition)
+      window.removeEventListener('scroll', updatePosition)
+      window.removeEventListener('resize', updatePosition)
       resizeObserver.disconnect()
     }
-  }, [updateBarPosition])
+  }, [updatePosition, isMenuOpen, isMobile])
 
   useEffect(() => {
     const content = getContentElement()
@@ -129,6 +199,23 @@ function PostUtilityBar() {
     return () => window.clearTimeout(timer)
   }, [linkCopied])
 
+  useEffect(() => {
+    if (!isMobile || !isMenuOpen) {
+      return undefined
+    }
+
+    const handlePointerDown = (event) => {
+      if (mobileRef.current?.contains(event.target)) {
+        return
+      }
+
+      setIsMenuOpen(false)
+    }
+
+    document.addEventListener('pointerdown', handlePointerDown)
+    return () => document.removeEventListener('pointerdown', handlePointerDown)
+  }, [isMobile, isMenuOpen])
+
   const handleFontSize = () => {
     setFontScaleIndex((prev) => (prev + 1) % FONT_SCALES.length)
   }
@@ -164,6 +251,7 @@ function PostUtilityBar() {
   }
 
   const handleScrollToComments = () => {
+    setIsMenuOpen(false)
     document.getElementById('board-post-comments')?.scrollIntoView({
       behavior: 'smooth',
       block: 'center',
@@ -195,24 +283,65 @@ function PostUtilityBar() {
     { id: 'link', label: '링크', icon: FiLink, onClick: handleCopyLink },
   ]
 
+  const renderButtons = (buttonClassName, iconClassName, labelClassName) =>
+    items.map(({ id, label, icon: Icon, onClick }) => (
+      <li key={id} className="post-utility-bar__item">
+        <button type="button" className={buttonClassName} onClick={onClick}>
+          <Icon className={iconClassName} aria-hidden="true" />
+          <span className={labelClassName}>{label}</span>
+        </button>
+      </li>
+    ))
+
   return (
-    <aside ref={barRef} className="post-utility-bar" aria-label="게시글 도구">
-      <ul className="post-utility-bar__list">
-        {items.map(({ id, label, icon: Icon, onClick }) => (
-          <li key={id} className="post-utility-bar__item">
-            <button type="button" className="post-utility-bar__button" onClick={onClick}>
-              <Icon className="post-utility-bar__icon" aria-hidden="true" />
-              <span className="post-utility-bar__label">{label}</span>
-            </button>
-          </li>
-        ))}
-      </ul>
-      {linkCopied && (
-        <p className="post-utility-bar__toast" role="status">
-          링크가 복사되었습니다.
-        </p>
-      )}
-    </aside>
+    <>
+      <aside ref={barRef} className="post-utility-bar post-utility-bar--desktop" aria-label="게시글 도구">
+        <ul className="post-utility-bar__list">
+          {renderButtons(
+            'post-utility-bar__button',
+            'post-utility-bar__icon',
+            'post-utility-bar__label',
+          )}
+        </ul>
+        {linkCopied && (
+          <p className="post-utility-bar__toast" role="status">
+            링크가 복사되었습니다.
+          </p>
+        )}
+      </aside>
+
+      <div ref={mobileRef} className="post-utility-mobile" aria-label="게시글 도구">
+        {isMenuOpen && (
+          <div className="post-utility-mobile__panel">
+            <ul className="post-utility-bar__list post-utility-mobile__list">
+              {renderButtons(
+                'post-utility-bar__button',
+                'post-utility-bar__icon',
+                'post-utility-bar__label',
+              )}
+            </ul>
+          </div>
+        )}
+        {linkCopied && isMobile && (
+          <p className="post-utility-mobile__toast" role="status">
+            링크가 복사되었습니다.
+          </p>
+        )}
+        <button
+          type="button"
+          className={`post-utility-mobile__fab${isMenuOpen ? ' post-utility-mobile__fab--open' : ''}`}
+          aria-expanded={isMenuOpen}
+          aria-label={isMenuOpen ? '게시글 도구 닫기' : '게시글 도구 열기'}
+          onClick={() => setIsMenuOpen((prev) => !prev)}
+        >
+          {isMenuOpen ? (
+            <FiX className="post-utility-mobile__fab-icon" aria-hidden="true" />
+          ) : (
+            <FiPlus className="post-utility-mobile__fab-icon" aria-hidden="true" />
+          )}
+        </button>
+      </div>
+    </>
   )
 }
 

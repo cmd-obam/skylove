@@ -96,13 +96,101 @@
 }
 
 @media (max-width: 1024px) {
-  .post-utility-bar {
+  .post-utility-bar--desktop {
     display: none;
   }
 }
 
+.post-utility-mobile {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .post-utility-mobile {
+    position: fixed;
+    z-index: 150;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.625rem;
+  }
+
+  .post-utility-mobile__panel {
+    width: 54px;
+    padding: 0.25rem 0;
+    border: 1px solid #e5e7eb;
+    border-radius: 5px;
+    background-color: var(--color-white);
+    box-shadow: 0 6px 18px rgba(31, 58, 95, 0.12);
+    animation: post-utility-mobile-panel-in 0.2s ease;
+  }
+
+  .post-utility-mobile__list {
+    max-height: min(60vh, 420px);
+    overflow-y: auto;
+  }
+
+  .post-utility-mobile__fab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.25rem;
+    height: 3.25rem;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background-color: #4da6ff;
+    color: var(--color-white);
+    box-shadow: 0 8px 20px rgba(77, 166, 255, 0.35);
+    cursor: pointer;
+    transition:
+      background-color var(--transition),
+      transform var(--transition);
+  }
+
+  .post-utility-mobile__fab:hover,
+  .post-utility-mobile__fab:focus-visible {
+    background-color: var(--color-primary-dark);
+  }
+
+  .post-utility-mobile__fab--open {
+    background-color: #1f3a5f;
+  }
+
+  .post-utility-mobile__fab-icon {
+    width: 1.375rem;
+    height: 1.375rem;
+  }
+
+  .post-utility-mobile__toast {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 0.5rem);
+    margin: 0;
+    padding: 0.4375rem 0.625rem;
+    border-radius: 5px;
+    background-color: #1f3a5f;
+    color: var(--color-white);
+    font-size: 0.6875rem;
+    white-space: nowrap;
+  }
+}
+
+@keyframes post-utility-mobile-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media print {
-  .post-utility-bar {
+  .post-utility-bar--desktop,
+  .post-utility-mobile {
     display: none;
   }
 }
