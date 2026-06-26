@@ -25,10 +25,10 @@ export const MENU_ITEMS = [
     path: '/worship-guide',
     children: [
       { title: '주일 축복 예배', path: '/worship-guide/sunday-blessing' },
-      { title: '주일찬양예배', path: '/worship-guide/sunday-praise' },
+      { title: '주일 찬양 예배', path: '/worship-guide/sunday-praise' },
       { title: '수요예배', path: '/worship-guide/wednesday' },
       { title: '새벽기도', path: '/worship-guide/dawn-prayer' },
-      { title: '엘샤다이찬양단', path: '/worship-guide/el-shaddai-choir' },
+      { title: '엘샤다이 찬양단', path: '/worship-guide/el-shaddai-choir' },
       { title: '셀모임', path: '/worship-guide/cell-meeting' },
     ],
   },
@@ -46,7 +46,6 @@ export const MENU_ITEMS = [
       { title: '교회소식', path: '/church-news' },
       { title: '교회앨범', path: '/church-news/album' },
       { title: '새가족안내', path: '/church-news/new-family' },
-      { title: '행사사진', path: '/church-news/event-photos' },
     ],
   },
 ]

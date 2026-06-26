@@ -1,5 +1,3 @@
-export const EVENT_PHOTO_CATEGORIES = ['전체', '예배', '행사', '섬김', '교제']
-
 export const EVENT_PHOTO_SEARCH_TYPES = [
   { value: 'title-content', label: '제목 + 내용' },
   { value: 'title', label: '제목' },

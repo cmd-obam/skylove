@@ -6,7 +6,7 @@ import {
 } from '@/data/eventPhotos'
 import './ChurchNews.css'
 
-const LIST_PATH = '/church-news/event-photos'
+const LIST_PATH = '/church-news/album'
 
 function EventPhotoDetail() {
   const { postId } = useParams()
@@ -18,7 +18,7 @@ function EventPhotoDetail() {
       <div className="church-news-page">
         <header className="church-news-page__header">
           <div className="church-news-page__heading">
-            <h1 className="church-news-page__title">행사사진</h1>
+            <h1 className="church-news-page__title">교회앨범</h1>
             <p className="church-news-page__description">
               교회 행사와 다양한 활동 사진을 소개합니다.
             </p>
@@ -26,14 +26,14 @@ function EventPhotoDetail() {
           <Breadcrumb />
         </header>
 
-        <section className="church-news-board church-news-detail" aria-label="행사사진 상세">
+        <div className="church-news-detail" aria-label="교회앨범 상세">
           <p className="church-news-detail__not-found">게시글을 찾을 수 없습니다.</p>
           <div className="church-news-detail__actions">
             <Link to={LIST_PATH} className="church-news-detail__list-button">
               목록
             </Link>
           </div>
-        </section>
+        </div>
       </div>
     )
   }
@@ -42,7 +42,7 @@ function EventPhotoDetail() {
     <div className="church-news-page">
       <header className="church-news-page__header">
         <div className="church-news-page__heading">
-          <h1 className="church-news-page__title">행사사진</h1>
+          <h1 className="church-news-page__title">교회앨범</h1>
           <p className="church-news-page__description">
             교회 행사와 다양한 활동 사진을 소개합니다.
           </p>
@@ -50,7 +50,7 @@ function EventPhotoDetail() {
         <Breadcrumb />
       </header>
 
-      <article className="church-news-board church-news-detail" aria-label="행사사진 상세">
+      <article className="church-news-detail" aria-label="교회앨범 상세">
         <header className="church-news-detail__header">
           <h2 className="church-news-detail__title">{post.title}</h2>
           <div className="church-news-detail__meta">

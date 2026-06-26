@@ -31,55 +31,9 @@
 
 .event-photos-toolbar {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
-  gap: 1rem;
   margin-bottom: 1.25rem;
-}
-
-.event-photos-filter {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 12px;
-  min-width: 0;
-}
-
-.event-photos-filter__button {
-  flex-shrink: 0;
-  height: 42px;
-  padding: 0 22px;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  background-color: #ffffff;
-  font-family: inherit;
-  font-size: 15px;
-  font-weight: 600;
-  color: #374151;
-  cursor: pointer;
-  transition:
-    background-color var(--transition),
-    border-color var(--transition),
-    color var(--transition);
-}
-
-.event-photos-filter__button:hover,
-.event-photos-filter__button:focus-visible {
-  border-color: #4a90ff;
-  background-color: #eef6ff;
-  outline: none;
-}
-
-.event-photos-filter__button--active {
-  border-color: transparent;
-  background-color: #4a90ff;
-  color: #ffffff;
-}
-
-.event-photos-filter__button--active:hover,
-.event-photos-filter__button--active:focus-visible {
-  border-color: transparent;
-  background-color: #4a90ff;
-  color: #ffffff;
 }
 
 .event-photos-search {
@@ -149,14 +103,6 @@
 .event-photos-search__button:hover,
 .event-photos-search__button:focus-visible {
   background-color: var(--color-primary-dark);
-}
-
-.church-news-board {
-  background-color: var(--color-white);
-  border: 1px solid #edf1f5;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(31, 58, 95, 0.06);
-  padding: 1.75rem 1.75rem 2rem;
 }
 
 .church-news-board__toolbar {
@@ -350,7 +296,8 @@
 }
 
 .church-news-detail {
-  padding: 2rem 1.75rem;
+  margin: 0;
+  padding: 0;
 }
 
 .church-news-detail__header {
@@ -499,26 +446,8 @@
     font-size: 1.75rem;
   }
 
-  .church-news-board {
-    padding: 1.25rem 1rem 1.5rem;
-  }
-
   .event-photos-toolbar {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
-  }
-
-  .event-photos-filter {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    padding-bottom: 0.25rem;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-
-  .event-photos-filter::-webkit-scrollbar {
-    display: none;
+    justify-content: stretch;
   }
 
   .event-photos-search {

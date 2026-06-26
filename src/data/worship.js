@@ -7,7 +7,7 @@ export const WORSHIP_SCHEDULE = [
   },
   {
     id: 'sunday-praise',
-    name: '주일찬양예배',
+    name: '주일 찬양 예배',
     time: '오후 1시 20분',
     location: '대예배실',
   },

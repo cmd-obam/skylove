@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom'
 import SiteHeader from '@/components/layout/SiteHeader'
 import Footer from '@/components/layout/Footer'
 import CategoryLayout from '@/components/layout/CategoryLayout'
@@ -18,11 +18,15 @@ import {
   Mission,
   Fellowship,
   SundaySchool,
-  ChurchAlbum,
   NewFamilyGuide,
   FacilityVr,
 } from '@/pages/PlaceholderPage'
 import '@/App.css'
+
+function LegacyEventPhotoDetailRedirect() {
+  const { postId } = useParams()
+  return <Navigate to={`/church-news/album/${postId}`} replace />
+}
 
 function App() {
   const basename = import.meta.env.BASE_URL.replace(/\/$/, '')
@@ -40,7 +44,9 @@ function App() {
             <Route path="/church-life" element={<Navigate to="/church-news" replace />} />
             <Route path="/church-life/album" element={<Navigate to="/church-news/album" replace />} />
             <Route path="/church-life/service" element={<Navigate to="/church-news" replace />} />
-            <Route path="/church-life/worship-praise" element={<Navigate to="/church-news/event-photos" replace />} />
+            <Route path="/church-life/worship-praise" element={<Navigate to="/church-news/album" replace />} />
+            <Route path="/church-news/event-photos" element={<Navigate to="/church-news/album" replace />} />
+            <Route path="/church-news/event-photos/:postId" element={<LegacyEventPhotoDetailRedirect />} />
             <Route path="/notice" element={<Navigate to="/church-news" replace />} />
             <Route path="/word-worship" element={<Navigate to="/worship-guide/sunday-blessing" replace />} />
             <Route element={<CategoryLayout />}>
@@ -62,10 +68,9 @@ function App() {
                 <Route path="/fellowship" element={<Fellowship />} />
                 <Route path="/sunday-school" element={<SundaySchool />} />
                 <Route path="/church-news" element={<ChurchNews />} />
-                <Route path="/church-news/album" element={<ChurchAlbum />} />
+                <Route path="/church-news/album" element={<EventPhotos />} />
+                <Route path="/church-news/album/:postId" element={<EventPhotoDetail />} />
                 <Route path="/church-news/new-family" element={<NewFamilyGuide />} />
-                <Route path="/church-news/event-photos" element={<EventPhotos />} />
-                <Route path="/church-news/event-photos/:postId" element={<EventPhotoDetail />} />
               </Route>
             </Route>
           </Routes>

@@ -24,8 +24,8 @@ export const PAGE_META = {
     subtitle: '주일 축복 예배를 안내합니다',
   },
   '/worship-guide/sunday-praise': {
-    title: '주일찬양예배',
-    subtitle: '주일찬양예배를 안내합니다',
+    title: '주일 찬양 예배',
+    subtitle: '주일 찬양 예배를 안내합니다',
   },
   '/worship-guide/wednesday': {
     title: '수요예배',
@@ -36,8 +36,8 @@ export const PAGE_META = {
     subtitle: '새벽기도를 안내합니다',
   },
   '/worship-guide/el-shaddai-choir': {
-    title: '엘샤다이찬양단',
-    subtitle: '엘샤다이찬양단을 소개합니다',
+    title: '엘샤다이 찬양단',
+    subtitle: '엘샤다이 찬양단을 소개합니다',
   },
   '/worship-guide/cell-meeting': {
     title: '셀모임',
@@ -65,15 +65,11 @@ export const PAGE_META = {
   },
   '/church-news/album': {
     title: '교회앨범',
-    subtitle: '하늘사랑교회의 소중한 순간들을 나눕니다',
+    subtitle: '교회 행사와 다양한 활동 사진을 소개합니다.',
   },
   '/church-news/new-family': {
     title: '새가족안내',
     subtitle: '새가족을 위한 안내를 제공합니다',
-  },
-  '/church-news/event-photos': {
-    title: '행사사진',
-    subtitle: '교회 행사와 다양한 활동 사진을 소개합니다.',
   },
 }
 

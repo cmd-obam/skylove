@@ -28,10 +28,6 @@ export function SundaySchool() {
   return <PlaceholderPage />
 }
 
-export function ChurchAlbum() {
-  return <PlaceholderPage />
-}
-
 export function NewFamilyGuide() {
   return <PlaceholderPage />
 }

@@ -6,16 +6,26 @@ import './SubLayout.css'
 const LOCATION_PATH = '/about/location'
 const WORSHIP_PATH = '/worship'
 const CHURCH_NEWS_PATH = '/church-news'
-const EVENT_PHOTOS_PATH = '/church-news/event-photos'
+const CHURCH_ALBUM_PATH = '/church-news/album'
 const SUNDAY_BLESSING_PATH = '/worship-guide/sunday-blessing'
+const SUNDAY_PRAISE_PATH = '/worship-guide/sunday-praise'
 
-const CUSTOM_HEADER_PATHS = new Set([LOCATION_PATH, WORSHIP_PATH, CHURCH_NEWS_PATH, EVENT_PHOTOS_PATH])
+const STYLED_WORSHIP_TITLES = {
+  [SUNDAY_BLESSING_PATH]: { before: '주일 ', accent: '축복', after: ' 예배' },
+  [SUNDAY_PRAISE_PATH]: { before: '주일 ', accent: '찬양', after: ' 예배' },
+}
+
+const CUSTOM_HEADER_PATHS = new Set([LOCATION_PATH, WORSHIP_PATH, CHURCH_NEWS_PATH, CHURCH_ALBUM_PATH])
 
 function PageTitle({ pathname, title }) {
-  if (pathname === SUNDAY_BLESSING_PATH) {
+  const styledTitle = STYLED_WORSHIP_TITLES[pathname]
+
+  if (styledTitle) {
     return (
-      <h1 className="sub-layout__title sub-layout__title--sunday-blessing">
-        주일 <span className="sub-layout__title-accent">축복</span> 예배
+      <h1 className="sub-layout__title sub-layout__title--worship">
+        {styledTitle.before}
+        <span className="sub-layout__title-accent">{styledTitle.accent}</span>
+        {styledTitle.after}
       </h1>
     )
   }
@@ -27,7 +37,7 @@ function SubLayout() {
   const { pathname } = useLocation()
   const { title, subtitle } = getPageMeta(pathname)
   const hasCustomHeader =
-    CUSTOM_HEADER_PATHS.has(pathname) || pathname.startsWith(`${EVENT_PHOTOS_PATH}/`)
+    CUSTOM_HEADER_PATHS.has(pathname) || pathname.startsWith(`${CHURCH_ALBUM_PATH}/`)
 
   return (
     <div className={`sub-layout${hasCustomHeader ? ' sub-layout--custom-header' : ''}`}>
