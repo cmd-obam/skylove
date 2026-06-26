@@ -25,3 +25,27 @@ export function formatBoardDate(date) {
 
   return date
 }
+
+function padTwo(value) {
+  return String(value).padStart(2, '0')
+}
+
+/**
+ * 게시글 작성일시 표시 문자열을 반환합니다.
+ * post.createdAt이 있으면 YYYY-MM-DD HH:mm:ss 형식으로 표시합니다.
+ */
+export function formatPostDateTime(post) {
+  if (!post) {
+    return ''
+  }
+
+  if (post.createdAt) {
+    const parsedDate = new Date(post.createdAt)
+
+    if (!Number.isNaN(parsedDate.getTime())) {
+      return `${parsedDate.getFullYear()}-${padTwo(parsedDate.getMonth() + 1)}-${padTwo(parsedDate.getDate())} ${padTwo(parsedDate.getHours())}:${padTwo(parsedDate.getMinutes())}:${padTwo(parsedDate.getSeconds())}`
+    }
+  }
+
+  return formatBoardDate(post.date)
+}

@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom'
 import BoardPageHeader from '@/components/board/BoardPageHeader'
 import BoardPostExtras from '@/components/board/BoardPostExtras'
-import { formatBoardDate } from '@/utils/formatBoardDate'
+import { formatPostDateTime } from '@/utils/formatBoardDate'
+import { getPostAuthor } from '@/utils/getPostAuthor'
 import '@/pages/ChurchNews.css'
 
 function BoardPostDetail({
@@ -37,17 +38,16 @@ function BoardPostDetail({
 
       <article className="church-news-detail" aria-label={ariaLabel}>
         <header className="church-news-detail__header">
-          <h2 className="church-news-detail__title">{post.title}</h2>
-          <dl className="church-news-detail__meta-list">
-            <div className="church-news-detail__meta-item">
-              <dt>작성일</dt>
-              <dd>{formatBoardDate(post.date)}</dd>
-            </div>
-            <div className="church-news-detail__meta-item">
-              <dt>조회수</dt>
-              <dd>{post.views}</dd>
-            </div>
-          </dl>
+          <div className="church-news-detail__title-row">
+            <h2 className="church-news-detail__title">{post.title}</h2>
+            <time className="church-news-detail__date" dateTime={post.createdAt ?? post.date}>
+              {formatPostDateTime(post)}
+            </time>
+          </div>
+          <div className="church-news-detail__meta-row">
+            <span className="church-news-detail__author">{getPostAuthor(post)}</span>
+            <span className="church-news-detail__views">조회수 {post.views ?? 0}</span>
+          </div>
         </header>
 
         {children}

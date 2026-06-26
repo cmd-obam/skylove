@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import './Auth.css'
 
 const DEFAULT_TAB = 'login'
@@ -7,10 +7,10 @@ const DEFAULT_TAB = 'login'
 const FOOTER_LINKS = [
   { id: 'find-id', label: '아이디 찾기' },
   { id: 'find-password', label: '비밀번호 찾기' },
-  { id: 'signup', label: '회원가입' },
+  { id: 'signup', label: '회원가입', path: '/signup' },
 ]
 
-const VALID_TABS = new Set([DEFAULT_TAB, ...FOOTER_LINKS.map((item) => item.id)])
+const VALID_TABS = new Set([DEFAULT_TAB, ...FOOTER_LINKS.filter((item) => !item.path).map((item) => item.id)])
 
 function Auth() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -114,50 +114,6 @@ function Auth() {
             </form>
           )}
 
-          {activeTab === 'signup' && (
-            <form className="auth-sub-form" onSubmit={handleSubmit}>
-              <h2 className="auth-sub-form__title">회원가입</h2>
-              <input
-                name="loginId"
-                type="text"
-                className="auth-form__input"
-                aria-label="아이디"
-                autoComplete="username"
-              />
-              <input
-                name="password"
-                type="password"
-                className="auth-form__input"
-                aria-label="비밀번호"
-                autoComplete="new-password"
-              />
-              <input
-                name="passwordConfirm"
-                type="password"
-                className="auth-form__input"
-                aria-label="비밀번호 확인"
-                autoComplete="new-password"
-              />
-              <input
-                name="name"
-                type="text"
-                className="auth-form__input"
-                aria-label="이름"
-                autoComplete="name"
-              />
-              <input
-                name="email"
-                type="email"
-                className="auth-form__input"
-                aria-label="이메일"
-                autoComplete="email"
-              />
-              <button type="submit" className="auth-sub-form__submit">
-                회원가입
-              </button>
-            </form>
-          )}
-
           <nav className="auth-card__footer" aria-label="회원 메뉴">
             {FOOTER_LINKS.map((item, index) => (
               <span key={item.id} className="auth-card__footer-item">
@@ -166,15 +122,21 @@ function Auth() {
                     |
                   </span>
                 )}
-                <button
-                  type="button"
-                  className={`auth-card__footer-link${
-                    activeTab === item.id ? ' auth-card__footer-link--active' : ''
-                  }`}
-                  onClick={() => handleTabChange(item.id)}
-                >
-                  {item.label}
-                </button>
+                {item.path ? (
+                  <Link to={item.path} className="auth-card__footer-link">
+                    {item.label}
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    className={`auth-card__footer-link${
+                      activeTab === item.id ? ' auth-card__footer-link--active' : ''
+                    }`}
+                    onClick={() => handleTabChange(item.id)}
+                  >
+                    {item.label}
+                  </button>
+                )}
               </span>
             ))}
           </nav>

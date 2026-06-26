@@ -451,17 +451,54 @@
 }
 
 .church-news-detail__header {
-  padding-bottom: 1.25rem;
-  border-bottom: 1px solid #edf1f5;
+  margin-bottom: 1.75rem;
+}
+
+.church-news-detail__title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.25rem;
+  padding: 1rem 10px;
+  background-color: #f7fafd;
+  border-top: 1px solid #e5edf5;
+  border-bottom: 1px solid #e5edf5;
+}
+
+.church-news-detail__meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 0.875rem 10px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5edf5;
 }
 
 .church-news-detail__title {
   margin: 0;
-  font-size: 1.5rem;
+  flex: 1;
+  min-width: 0;
+  font-size: 1.125rem;
   font-weight: 700;
   line-height: 1.45;
-  color: #1f3a5f;
+  color: #1f2d3d;
   word-break: keep-all;
+}
+
+.church-news-detail__date,
+.church-news-detail__views {
+  flex-shrink: 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.church-news-detail__author {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: #6b7280;
 }
 
 .church-news-detail__meta {
@@ -472,32 +509,6 @@
   margin-top: 0.875rem;
   font-size: 0.875rem;
   color: #6b7280;
-}
-
-.church-news-detail__meta-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem 1.5rem;
-  margin: 0.875rem 0 0;
-  padding: 0;
-}
-
-.church-news-detail__meta-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 0;
-  font-size: 0.875rem;
-  color: #6b7280;
-}
-
-.church-news-detail__meta-item dt {
-  font-weight: 600;
-  color: #1f3a5f;
-}
-
-.church-news-detail__meta-item dd {
-  margin: 0;
 }
 
 .church-news-detail__meta-divider {

@@ -156,6 +156,7 @@
   font-size: 0.875rem;
   font-weight: 500;
   color: #555;
+  text-decoration: none;
   cursor: pointer;
   transition: color var(--transition);
 }

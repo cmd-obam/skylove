@@ -24,14 +24,6 @@ export function Fellowship() {
   return <PlaceholderPage />
 }
 
-export function SundaySchool() {
-  return <PlaceholderPage />
-}
-
-export function NewFamilyGuide() {
-  return <PlaceholderPage />
-}
-
 export function FacilityVr() {
   return <PlaceholderPage />
 }

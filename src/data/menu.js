@@ -5,7 +5,7 @@ import locationIcon from '@/assets/icons/location.png'
 
 export const AUTH_LINKS = [
   { label: '로그인', path: '/login' },
-  { label: '회원가입', path: '/login', tab: 'signup' },
+  { label: '회원가입', path: '/signup' },
 ]
 
 export const MENU_ITEMS = [
@@ -45,12 +45,12 @@ export const MENU_ITEMS = [
     children: [
       { title: '교회소식', path: '/church-news' },
       { title: '교회앨범', path: '/church-news/album' },
-      { title: '교회학교', path: '/church-news/new-family' },
     ],
   },
   {
     title: '새가족 안내',
     path: '/new-family',
+    children: [{ title: '새가족 안내', path: '/new-family' }],
   },
 ]
 

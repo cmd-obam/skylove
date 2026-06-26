@@ -7,6 +7,7 @@ const LOCATION_PATH = '/about/location'
 const WORSHIP_PATH = '/worship'
 const CHURCH_NEWS_PATH = '/church-news'
 const CHURCH_ALBUM_PATH = '/church-news/album'
+const NEW_FAMILY_PATH = '/new-family'
 const SUNDAY_BLESSING_PATH = '/worship-guide/sunday-blessing'
 const SUNDAY_PRAISE_PATH = '/worship-guide/sunday-praise'
 
@@ -15,7 +16,13 @@ const STYLED_WORSHIP_TITLES = {
   [SUNDAY_PRAISE_PATH]: { before: '주일 ', accent: '찬양', after: ' 예배' },
 }
 
-const CUSTOM_HEADER_PATHS = new Set([LOCATION_PATH, WORSHIP_PATH, CHURCH_NEWS_PATH, CHURCH_ALBUM_PATH])
+const CUSTOM_HEADER_PATHS = new Set([
+  LOCATION_PATH,
+  WORSHIP_PATH,
+  CHURCH_NEWS_PATH,
+  CHURCH_ALBUM_PATH,
+  NEW_FAMILY_PATH,
+])
 
 function isChurchNewsPostDetail(pathname) {
   if (!pathname.startsWith(`${CHURCH_NEWS_PATH}/`)) {
@@ -23,10 +30,6 @@ function isChurchNewsPostDetail(pathname) {
   }
 
   if (pathname === CHURCH_ALBUM_PATH || pathname.startsWith(`${CHURCH_ALBUM_PATH}/`)) {
-    return false
-  }
-
-  if (pathname === '/church-news/new-family') {
     return false
   }
 

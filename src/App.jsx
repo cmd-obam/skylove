@@ -9,17 +9,17 @@ import About from '@/pages/About'
 import Worship from '@/pages/Worship'
 import Location from '@/pages/Location'
 import Auth from '@/pages/Auth'
+import Signup from '@/pages/Signup'
 import ChurchNews from '@/pages/ChurchNews'
 import ChurchNewsDetail from '@/pages/ChurchNewsDetail'
 import EventPhotos from '@/pages/EventPhotos'
 import EventPhotoDetail from '@/pages/EventPhotoDetail'
+import NewFamilyGuide from '@/pages/NewFamilyGuide'
 import {
   WorshipGuidePage,
   Education,
   Mission,
   Fellowship,
-  SundaySchool,
-  NewFamilyGuide,
   FacilityVr,
   Facilities,
 } from '@/pages/PlaceholderPage'
@@ -42,6 +42,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Auth />} />
+            <Route path="/signup" element={<Signup />} />
             <Route path="/church-news/news" element={<Navigate to="/church-news" replace />} />
             <Route path="/church-life" element={<Navigate to="/church-news" replace />} />
             <Route path="/church-life/album" element={<Navigate to="/church-news/album" replace />} />
@@ -49,7 +50,8 @@ function App() {
             <Route path="/church-life/worship-praise" element={<Navigate to="/church-news/album" replace />} />
             <Route path="/church-news/event-photos" element={<Navigate to="/church-news/album" replace />} />
             <Route path="/church-news/event-photos/:postId" element={<LegacyEventPhotoDetailRedirect />} />
-            <Route path="/sunday-school" element={<Navigate to="/church-news/new-family" replace />} />
+            <Route path="/sunday-school" element={<Navigate to="/church-news" replace />} />
+            <Route path="/church-news/new-family" element={<Navigate to="/church-news" replace />} />
             <Route path="/notice" element={<Navigate to="/church-news" replace />} />
             <Route path="/word-worship" element={<Navigate to="/worship-guide/sunday-blessing" replace />} />
             <Route element={<CategoryLayout />}>
@@ -73,7 +75,6 @@ function App() {
                 <Route path="/church-news" element={<ChurchNews />} />
                 <Route path="/church-news/album" element={<EventPhotos />} />
                 <Route path="/church-news/album/:postId" element={<EventPhotoDetail />} />
-                <Route path="/church-news/new-family" element={<SundaySchool />} />
                 <Route path="/new-family" element={<NewFamilyGuide />} />
                 <Route path="/church-news/:postId" element={<ChurchNewsDetail />} />
               </Route>
