@@ -19,8 +19,8 @@ import {
   Mission,
   Fellowship,
   SundaySchool,
-  NewFamilyGuide,
   FacilityVr,
+  Facilities,
 } from '@/pages/PlaceholderPage'
 import '@/App.css'
 
@@ -48,6 +48,7 @@ function App() {
             <Route path="/church-life/worship-praise" element={<Navigate to="/church-news/album" replace />} />
             <Route path="/church-news/event-photos" element={<Navigate to="/church-news/album" replace />} />
             <Route path="/church-news/event-photos/:postId" element={<LegacyEventPhotoDetailRedirect />} />
+            <Route path="/sunday-school" element={<Navigate to="/church-news/new-family" replace />} />
             <Route path="/notice" element={<Navigate to="/church-news" replace />} />
             <Route path="/word-worship" element={<Navigate to="/worship-guide/sunday-blessing" replace />} />
             <Route element={<CategoryLayout />}>
@@ -55,6 +56,7 @@ function App() {
                 <Route path="/about" element={<About />} />
                 <Route path="/about/history" element={<About />} />
                 <Route path="/about/facility-vr" element={<FacilityVr />} />
+                <Route path="/about/facilities" element={<Facilities />} />
                 <Route path="/about/location" element={<Location />} />
                 <Route path="/worship" element={<Worship />} />
                 <Route path="/worship-guide" element={<Navigate to="/worship-guide/sunday-blessing" replace />} />
@@ -67,11 +69,10 @@ function App() {
                 <Route path="/education" element={<Education />} />
                 <Route path="/mission" element={<Mission />} />
                 <Route path="/fellowship" element={<Fellowship />} />
-                <Route path="/sunday-school" element={<SundaySchool />} />
                 <Route path="/church-news" element={<ChurchNews />} />
                 <Route path="/church-news/album" element={<EventPhotos />} />
                 <Route path="/church-news/album/:postId" element={<EventPhotoDetail />} />
-                <Route path="/church-news/new-family" element={<NewFamilyGuide />} />
+                <Route path="/church-news/new-family" element={<SundaySchool />} />
                 <Route path="/church-news/:postId" element={<ChurchNewsDetail />} />
               </Route>
             </Route>

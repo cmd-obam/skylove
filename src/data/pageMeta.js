@@ -8,8 +8,12 @@ export const PAGE_META = {
     subtitle: '하늘사랑교회의 발자취를 소개합니다',
   },
   '/about/facility-vr': {
-    title: '시설둘러보기(VR)',
+    title: 'VR 둘러보기',
     subtitle: '교회 시설을 가상으로 둘러보세요',
+  },
+  '/about/facilities': {
+    title: '시설안내',
+    subtitle: '교회 시설을 안내합니다',
   },
   '/about/location': {
     title: '찾아오시는 길',
@@ -55,10 +59,6 @@ export const PAGE_META = {
     title: '나눔&교제',
     subtitle: '나눔과 교제 활동을 안내합니다',
   },
-  '/sunday-school': {
-    title: '교회학교',
-    subtitle: '교회학교 프로그램을 안내합니다',
-  },
   '/church-news': {
     title: '교회소식',
     subtitle: '하늘사랑교회의 새로운 소식을 전합니다',
@@ -68,8 +68,8 @@ export const PAGE_META = {
     subtitle: '교회 행사와 다양한 활동 사진을 소개합니다.',
   },
   '/church-news/new-family': {
-    title: '새가족안내',
-    subtitle: '새가족을 위한 안내를 제공합니다',
+    title: '교회학교',
+    subtitle: '교회학교 프로그램을 안내합니다',
   },
 }
 

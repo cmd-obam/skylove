@@ -15,6 +15,7 @@ export const EVENT_PHOTO_POSTS = [
     date: '23.03.26',
     views: 1,
     content: '신방동의 한 공원에 청소 봉사왔습니다.',
+    attachments: [{ name: 'cleaning-volunteer.png', url: cleaningVolunteerImage }],
     images: [
       {
         src: cleaningVolunteerImage,
@@ -46,6 +47,10 @@ export function matchesEventPhotoSearch(post, query, searchType) {
 
 export function getEventPhotoPost(postId) {
   return EVENT_PHOTO_POSTS.find((post) => String(post.id) === String(postId)) ?? null
+}
+
+export function getRelatedEventPhotoPosts(postId, limit = 5) {
+  return EVENT_PHOTO_POSTS.filter((post) => String(post.id) !== String(postId)).slice(0, limit)
 }
 
 export function getAdjacentEventPhotoPosts(postId) {

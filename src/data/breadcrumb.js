@@ -1,4 +1,4 @@
-import { findMenuSection } from '@/data/menu'
+import { findMenuSection, findMenuItemInSection } from '@/data/menu'
 
 export function getBreadcrumbItems(pathname) {
   const items = [{ label: '홈', path: '/', isHome: true, isCurrent: false }]
@@ -8,7 +8,7 @@ export function getBreadcrumbItems(pathname) {
     return items
   }
 
-  const currentChild = section.children?.find((child) => child.path === pathname)
+  const match = findMenuItemInSection(section, pathname)
 
   items.push({
     label: section.title,
@@ -16,15 +16,29 @@ export function getBreadcrumbItems(pathname) {
     isCurrent: false,
   })
 
-  if (currentChild && currentChild.path !== section.path) {
+  if (match?.parent) {
     items.push({
-      label: currentChild.title,
-      path: currentChild.path,
+      label: match.parent.title,
+      path: match.parent.path,
+      isCurrent: false,
+    })
+    items.push({
+      label: match.item.title,
+      path: match.item.path,
       isCurrent: true,
     })
-  } else {
-    items[items.length - 1].isCurrent = true
+    return items
   }
 
+  if (match?.item && match.item.path !== section.path) {
+    items.push({
+      label: match.item.title,
+      path: match.item.path,
+      isCurrent: true,
+    })
+    return items
+  }
+
+  items[items.length - 1].isCurrent = true
   return items
 }

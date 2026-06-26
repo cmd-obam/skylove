@@ -131,6 +131,33 @@
   color: var(--color-primary);
 }
 
+.sitemap-modal__item--group {
+  padding: 0.5rem 0;
+}
+
+.sitemap-modal__group-label {
+  display: block;
+  padding: 0.5rem 0.25rem 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #444;
+}
+
+.sitemap-modal__sublist {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 0.75rem;
+}
+
+.sitemap-modal__subitem {
+  margin: 0;
+  border-bottom: 1px dashed #e5e7eb;
+}
+
+.sitemap-modal__subitem:last-child {
+  border-bottom: none;
+}
+
 @media (max-width: 992px) {
   .sitemap-modal__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));

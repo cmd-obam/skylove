@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FiFileText } from 'react-icons/fi'
-import Breadcrumb from '@/components/Breadcrumb'
+import BoardPageHeader from '@/components/board/BoardPageHeader'
 import {
   EVENT_PHOTO_POSTS,
   EVENT_PHOTO_SEARCH_TYPES,
@@ -30,15 +30,11 @@ function EventPhotos() {
 
   return (
     <div className="church-news-page">
-      <header className="church-news-page__header">
-        <div className="church-news-page__heading">
-          <h1 className="church-news-page__title">교회앨범</h1>
-          <p className="church-news-page__description">
-            교회 행사와 다양한 활동 사진을 소개합니다.
-          </p>
-        </div>
-        <Breadcrumb />
-      </header>
+      <BoardPageHeader
+        title="교회앨범"
+        description="교회 행사와 다양한 활동 사진을 소개합니다."
+        showDivider
+      />
 
       <div className="event-photos-toolbar">
         <form className="event-photos-search" onSubmit={handleSearchSubmit}>

@@ -1,16 +1,13 @@
 import { useParams } from 'react-router-dom'
 import BoardPostDetail from '@/components/board/BoardPostDetail'
-import {
-  getAdjacentEventPhotoPosts,
-  getEventPhotoPost,
-} from '@/data/eventPhotos'
+import { getEventPhotoPost, getRelatedEventPhotoPosts } from '@/data/eventPhotos'
 
 const LIST_PATH = '/church-news/album'
 
 function EventPhotoDetail() {
   const { postId } = useParams()
   const post = getEventPhotoPost(postId)
-  const { prev, next } = getAdjacentEventPhotoPosts(postId)
+  const relatedPosts = getRelatedEventPhotoPosts(postId)
 
   return (
     <BoardPostDetail
@@ -19,9 +16,7 @@ function EventPhotoDetail() {
       listPath={LIST_PATH}
       detailPathPrefix={LIST_PATH}
       post={post}
-      prev={prev}
-      next={next}
-      showAdjacent
+      relatedPosts={relatedPosts}
       ariaLabel="교회앨범 상세"
       listButtonLabel="목록"
     >

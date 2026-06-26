@@ -64,13 +64,32 @@ function SitemapModal({ isOpen, onClose }) {
                 <h3 className="sitemap-modal__category">{category.title}</h3>
                 <ul className="sitemap-modal__list">
                   {category.children ? (
-                    category.children.map((item) => (
-                      <li key={item.path} className="sitemap-modal__item">
-                        <Link to={item.path} className="sitemap-modal__link" onClick={onClose}>
-                          {item.title}
-                        </Link>
-                      </li>
-                    ))
+                    category.children.map((item) =>
+                      item.children?.length ? (
+                        <li key={item.path} className="sitemap-modal__item sitemap-modal__item--group">
+                          <span className="sitemap-modal__group-label">{item.title}</span>
+                          <ul className="sitemap-modal__sublist">
+                            {item.children.map((subItem) => (
+                              <li key={subItem.path} className="sitemap-modal__subitem">
+                                <Link
+                                  to={subItem.path}
+                                  className="sitemap-modal__link"
+                                  onClick={onClose}
+                                >
+                                  {subItem.title}
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        </li>
+                      ) : (
+                        <li key={item.path} className="sitemap-modal__item">
+                          <Link to={item.path} className="sitemap-modal__link" onClick={onClose}>
+                            {item.title}
+                          </Link>
+                        </li>
+                      ),
+                    )
                   ) : (
                     <li className="sitemap-modal__item">
                       <Link to={category.path} className="sitemap-modal__link" onClick={onClose}>

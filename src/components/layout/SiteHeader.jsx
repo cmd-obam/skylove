@@ -203,17 +203,41 @@ function SiteHeader() {
                         expandedItem === item.title ? ' site-header__drawer-submenu--open' : ''
                       }`}
                     >
-                      {item.children.map((child) => (
-                        <li key={child.path} className="site-header__drawer-submenu-item">
-                          <Link
-                            to={child.path}
-                            className="site-header__drawer-submenu-link"
-                            onClick={closeMobileMenu}
-                          >
-                            {child.title}
-                          </Link>
-                        </li>
-                      ))}
+                      {item.children.map((child) =>
+                        child.children?.length ? (
+                          <li key={child.path} className="site-header__drawer-submenu-group">
+                            <span className="site-header__drawer-submenu-group-label">
+                              {child.title}
+                            </span>
+                            <ul className="site-header__drawer-submenu-nested">
+                              {child.children.map((subItem) => (
+                                <li
+                                  key={subItem.path}
+                                  className="site-header__drawer-submenu-item"
+                                >
+                                  <Link
+                                    to={subItem.path}
+                                    className="site-header__drawer-submenu-link"
+                                    onClick={closeMobileMenu}
+                                  >
+                                    {subItem.title}
+                                  </Link>
+                                </li>
+                              ))}
+                            </ul>
+                          </li>
+                        ) : (
+                          <li key={child.path} className="site-header__drawer-submenu-item">
+                            <Link
+                              to={child.path}
+                              className="site-header__drawer-submenu-link"
+                              onClick={closeMobileMenu}
+                            >
+                              {child.title}
+                            </Link>
+                          </li>
+                        ),
+                      )}
                     </ul>
                   </>
                 ) : (

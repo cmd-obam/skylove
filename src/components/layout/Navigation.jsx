@@ -96,20 +96,42 @@ function Navigation() {
                         expandedItem === item.title ? ' navigation__submenu--open' : ''
                       }`}
                     >
-                      {item.children.map((child) => (
-                        <li key={child.path} className="navigation__submenu-item">
-                          <Link
-                            to={child.path}
-                            className="navigation__submenu-link"
-                            onClick={closeMenu}
-                          >
-                            <span className="navigation__submenu-prefix" aria-hidden="true">
-                              +
-                            </span>
-                            {child.title}
-                          </Link>
-                        </li>
-                      ))}
+                      {item.children.map((child) =>
+                        child.children?.length ? (
+                          <li key={child.path} className="navigation__submenu-group">
+                            <span className="navigation__submenu-group-label">{child.title}</span>
+                            <ul className="navigation__submenu-nested">
+                              {child.children.map((subItem) => (
+                                <li key={subItem.path} className="navigation__submenu-item">
+                                  <Link
+                                    to={subItem.path}
+                                    className="navigation__submenu-link"
+                                    onClick={closeMenu}
+                                  >
+                                    <span className="navigation__submenu-prefix" aria-hidden="true">
+                                      +
+                                    </span>
+                                    {subItem.title}
+                                  </Link>
+                                </li>
+                              ))}
+                            </ul>
+                          </li>
+                        ) : (
+                          <li key={child.path} className="navigation__submenu-item">
+                            <Link
+                              to={child.path}
+                              className="navigation__submenu-link"
+                              onClick={closeMenu}
+                            >
+                              <span className="navigation__submenu-prefix" aria-hidden="true">
+                                +
+                              </span>
+                              {child.title}
+                            </Link>
+                          </li>
+                        ),
+                      )}
                     </ul>
                   </>
                 ) : (

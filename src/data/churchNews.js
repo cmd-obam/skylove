@@ -13,6 +13,10 @@ export function getChurchNewsPost(postId) {
   return CHURCH_NEWS_POSTS.find((post) => String(post.id) === String(postId)) ?? null
 }
 
+export function getRelatedChurchNewsPosts(postId, limit = 5) {
+  return CHURCH_NEWS_POSTS.filter((post) => String(post.id) !== String(postId)).slice(0, limit)
+}
+
 export function getAdjacentChurchNewsPosts(postId) {
   const index = CHURCH_NEWS_POSTS.findIndex((post) => String(post.id) === String(postId))
 

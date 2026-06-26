@@ -1,12 +1,13 @@
 import { useParams } from 'react-router-dom'
 import BoardPostDetail from '@/components/board/BoardPostDetail'
-import { getChurchNewsPost } from '@/data/churchNews'
+import { getChurchNewsPost, getRelatedChurchNewsPosts } from '@/data/churchNews'
 
 const LIST_PATH = '/church-news'
 
 function ChurchNewsDetail() {
   const { postId } = useParams()
   const post = getChurchNewsPost(postId)
+  const relatedPosts = getRelatedChurchNewsPosts(postId)
 
   return (
     <BoardPostDetail
@@ -15,6 +16,7 @@ function ChurchNewsDetail() {
       listPath={LIST_PATH}
       detailPathPrefix={LIST_PATH}
       post={post}
+      relatedPosts={relatedPosts}
       ariaLabel="교회소식 상세"
       listButtonLabel="목록으로"
     />

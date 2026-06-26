@@ -16,7 +16,14 @@ export const MENU_ITEMS = [
       { title: '교회소개', path: '/about' },
       { title: '교회역사', path: '/about/history' },
       { title: '예배시간 안내', path: '/worship' },
-      { title: '시설둘러보기(VR)', path: '/about/facility-vr' },
+      {
+        title: '교회 둘러보기',
+        path: '/about/facility-vr',
+        children: [
+          { title: 'VR 둘러보기', path: '/about/facility-vr' },
+          { title: '시설안내', path: '/about/facilities' },
+        ],
+      },
       { title: '찾아오시는 길', path: '/about/location' },
     ],
   },
@@ -33,26 +40,27 @@ export const MENU_ITEMS = [
     ],
   },
   {
-    title: '교회학교',
-    path: '/sunday-school',
-    children: [
-      { title: '교회학교', path: '/sunday-school' },
-    ],
-  },
-  {
     title: '교회소식',
     path: '/church-news',
     children: [
       { title: '교회소식', path: '/church-news' },
       { title: '교회앨범', path: '/church-news/album' },
-      { title: '새가족안내', path: '/church-news/new-family' },
+      { title: '교회학교', path: '/church-news/new-family' },
     ],
   },
 ]
 
+export function menuItemContainsPath(item, pathname) {
+  if (item.path === pathname) {
+    return true
+  }
+
+  return item.children?.some((child) => menuItemContainsPath(child, pathname)) ?? false
+}
+
 export function findMenuSection(pathname) {
   for (const item of MENU_ITEMS) {
-    if (item.children?.some((child) => child.path === pathname)) {
+    if (item.children?.some((child) => menuItemContainsPath(child, pathname))) {
       return item
     }
   }
@@ -60,6 +68,21 @@ export function findMenuSection(pathname) {
   for (const item of MENU_ITEMS) {
     if (pathname === item.path || pathname.startsWith(`${item.path}/`)) {
       return item
+    }
+  }
+
+  return null
+}
+
+export function findMenuItemInSection(section, pathname) {
+  for (const child of section?.children ?? []) {
+    if (child.path === pathname) {
+      return { item: child, parent: null }
+    }
+
+    const nestedChild = child.children?.find((subItem) => subItem.path === pathname)
+    if (nestedChild) {
+      return { item: nestedChild, parent: child }
     }
   }
 
@@ -77,7 +100,7 @@ export const QUICK_MENUS = [
     title: '시설안내',
     desc: '교회 시설을 둘러보세요',
     icon: facilityIcon,
-    href: '/about/facility-vr',
+    href: '/about/facilities',
   },
   {
     title: '공지사항',
