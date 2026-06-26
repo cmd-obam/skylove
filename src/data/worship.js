@@ -1,7 +1,7 @@
 export const WORSHIP_SCHEDULE = [
   {
     id: 'sunday-blessing',
-    name: '주일축복예배',
+    name: '주일 축복 예배',
     time: '오전 11시',
     location: '대예배실',
   },

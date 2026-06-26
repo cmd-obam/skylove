@@ -23,6 +23,15 @@
   letter-spacing: -0.02em;
 }
 
+.sub-layout__title--sunday-blessing {
+  font-family: var(--font-family-brand);
+  font-weight: 600;
+}
+
+.sub-layout__title-accent {
+  color: #87ceeb;
+}
+
 .sub-layout__title::after {
   content: '';
   display: block;

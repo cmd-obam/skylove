@@ -20,8 +20,8 @@ export const PAGE_META = {
     subtitle: '하나님을 만나는 은혜로운 시간',
   },
   '/worship-guide/sunday-blessing': {
-    title: '주일축복예배',
-    subtitle: '주일축복예배를 안내합니다',
+    title: '주일 축복 예배',
+    subtitle: '주일 축복 예배를 안내합니다',
   },
   '/worship-guide/sunday-praise': {
     title: '주일찬양예배',
