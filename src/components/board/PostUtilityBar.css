@@ -1,0 +1,122 @@
+.post-utility-bar {
+  position: fixed;
+  top: 50%;
+  right: max(1rem, calc((100vw - var(--category-layout-max-width, 1200px)) / 2 - 4.75rem));
+  z-index: 150;
+  width: 54px;
+  padding: 0.25rem 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 5px;
+  background-color: var(--color-white);
+  box-shadow: 0 6px 18px rgba(31, 58, 95, 0.1);
+}
+
+.post-utility-bar__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.post-utility-bar__item {
+  margin: 0;
+  border-bottom: 1px solid #edf1f5;
+}
+
+.post-utility-bar__item:last-child {
+  border-bottom: none;
+}
+
+.post-utility-bar__button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1875rem;
+  width: 100%;
+  min-height: 48px;
+  padding: 0.375rem 0.25rem;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    background-color var(--transition),
+    color var(--transition);
+}
+
+.post-utility-bar__button:hover,
+.post-utility-bar__button:focus-visible {
+  background-color: #f0f8ff;
+  color: var(--color-primary);
+}
+
+.post-utility-bar__icon {
+  width: 1rem;
+  height: 1rem;
+  color: #4b5563;
+  transition: color var(--transition);
+}
+
+.post-utility-bar__button:hover .post-utility-bar__icon,
+.post-utility-bar__button:focus-visible .post-utility-bar__icon {
+  color: var(--color-primary);
+}
+
+.post-utility-bar__label {
+  font-size: 0.625rem;
+  font-weight: 500;
+  line-height: 1.15;
+  color: #374151;
+  white-space: nowrap;
+}
+
+.post-utility-bar__button:hover .post-utility-bar__label,
+.post-utility-bar__button:focus-visible .post-utility-bar__label {
+  color: var(--color-primary);
+}
+
+.post-utility-bar__toast {
+  position: absolute;
+  top: 50%;
+  right: calc(100% + 0.625rem);
+  margin: 0;
+  padding: 0.4375rem 0.625rem;
+  border-radius: 5px;
+  background-color: #1f3a5f;
+  color: var(--color-white);
+  font-size: 0.6875rem;
+  white-space: nowrap;
+  transform: translateY(-50%);
+}
+
+@media (max-width: 1280px) {
+  .post-utility-bar {
+    right: 1rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .post-utility-bar {
+    display: none;
+  }
+}
+
+@media print {
+  .post-utility-bar {
+    display: none;
+  }
+}
+
+.church-news-detail--utility-controlled .church-news-detail__body {
+  font-size: calc(0.9375rem * var(--post-font-scale, 1));
+}
+
+.church-news-detail--utility-controlled .church-news-detail__title {
+  font-size: calc(1.5rem * var(--post-font-scale, 1));
+}
+
+.church-news-detail--utility-controlled .church-news-detail__images {
+  transform: scale(var(--post-image-zoom, 1));
+  transform-origin: top center;
+  transition: transform 0.2s ease;
+}

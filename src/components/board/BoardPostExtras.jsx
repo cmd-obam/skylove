@@ -49,7 +49,11 @@ function BoardPostExtras({
         </div>
       </section>
 
-      <section className="board-post-extras__section" aria-label="댓글쓰기">
+      <section
+        id="board-post-comments"
+        className="board-post-extras__section"
+        aria-label="댓글쓰기"
+      >
         <h3 className="board-post-extras__label">댓글쓰기</h3>
         <div className="board-post-extras__content">
           <form className="board-post-extras__comment-form" onSubmit={handleCommentSubmit}>
