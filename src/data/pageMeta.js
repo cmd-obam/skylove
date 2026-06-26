@@ -71,6 +71,10 @@ export const PAGE_META = {
     title: '교회학교',
     subtitle: '교회학교 프로그램을 안내합니다',
   },
+  '/new-family': {
+    title: '새가족 안내',
+    subtitle: '새가족을 위한 안내를 제공합니다',
+  },
 }
 
 export function getPageMeta(pathname) {

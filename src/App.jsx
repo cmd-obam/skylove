@@ -19,6 +19,7 @@ import {
   Mission,
   Fellowship,
   SundaySchool,
+  NewFamilyGuide,
   FacilityVr,
   Facilities,
 } from '@/pages/PlaceholderPage'
@@ -73,6 +74,7 @@ function App() {
                 <Route path="/church-news/album" element={<EventPhotos />} />
                 <Route path="/church-news/album/:postId" element={<EventPhotoDetail />} />
                 <Route path="/church-news/new-family" element={<SundaySchool />} />
+                <Route path="/new-family" element={<NewFamilyGuide />} />
                 <Route path="/church-news/:postId" element={<ChurchNewsDetail />} />
               </Route>
             </Route>

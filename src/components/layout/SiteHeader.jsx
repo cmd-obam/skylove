@@ -1,7 +1,7 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import churchLogo from '@/assets/images/church-logo.png'
-import { AUTH_LINKS, MENU_ITEMS } from '@/data/menu'
+import { AUTH_LINKS, MENU_ITEMS, menuItemContainsPath } from '@/data/menu'
 import DropdownMenu from '@/components/layout/DropdownMenu'
 import './SiteHeader.css'
 
@@ -19,24 +19,32 @@ function getAuthLinkPath(item) {
 
 function SiteHeader() {
   const navigate = useNavigate()
+  const { pathname } = useLocation()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [activeMenu, setActiveMenu] = useState(null)
   const [expandedItem, setExpandedItem] = useState(null)
+  const [expandedSubItem, setExpandedSubItem] = useState(null)
 
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false)
     setExpandedItem(null)
+    setExpandedSubItem(null)
   }
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen((prev) => !prev)
     if (isMobileMenuOpen) {
       setExpandedItem(null)
+      setExpandedSubItem(null)
     }
   }
 
   const toggleAccordion = (title) => {
     setExpandedItem((prev) => (prev === title ? null : title))
+  }
+
+  const toggleSubAccordion = (path) => {
+    setExpandedSubItem((prev) => (prev === path ? null : path))
   }
 
   const handleCategoryMouseEnter = (title) => {
@@ -60,10 +68,19 @@ function SiteHeader() {
     }
 
     document.body.style.overflow = 'hidden'
+
+    const aboutSection = MENU_ITEMS.find((item) => item.title === '교회소개')
+    const tourItem = aboutSection?.children?.find((child) => child.children?.length)
+
+    if (tourItem && menuItemContainsPath(tourItem, pathname)) {
+      setExpandedItem('교회소개')
+      setExpandedSubItem(tourItem.path)
+    }
+
     return () => {
       document.body.style.overflow = ''
     }
-  }, [isMobileMenuOpen])
+  }, [isMobileMenuOpen, pathname])
 
   useEffect(() => {
     const handleResize = () => {
@@ -205,11 +222,34 @@ function SiteHeader() {
                     >
                       {item.children.map((child) =>
                         child.children?.length ? (
-                          <li key={child.path} className="site-header__drawer-submenu-group">
-                            <span className="site-header__drawer-submenu-group-label">
-                              {child.title}
-                            </span>
-                            <ul className="site-header__drawer-submenu-nested">
+                          <li
+                            key={child.path}
+                            className="site-header__drawer-submenu-item site-header__drawer-submenu-item--expandable"
+                          >
+                            <button
+                              type="button"
+                              className={`site-header__drawer-submenu-expandable${
+                                expandedSubItem === child.path
+                                  ? ' site-header__drawer-submenu-expandable--open'
+                                  : ''
+                              }`}
+                              aria-expanded={expandedSubItem === child.path}
+                              onClick={() => toggleSubAccordion(child.path)}
+                            >
+                              <span className="site-header__drawer-submenu-expandable-text">
+                                {child.title}
+                              </span>
+                              <span className="site-header__drawer-submenu-expandable-icon" aria-hidden="true">
+                                +
+                              </span>
+                            </button>
+                            <ul
+                              className={`site-header__drawer-submenu-nested${
+                                expandedSubItem === child.path
+                                  ? ' site-header__drawer-submenu-nested--open'
+                                  : ''
+                              }`}
+                            >
                               {child.children.map((subItem) => (
                                 <li
                                   key={subItem.path}
@@ -217,7 +257,7 @@ function SiteHeader() {
                                 >
                                   <Link
                                     to={subItem.path}
-                                    className="site-header__drawer-submenu-link"
+                                    className="site-header__drawer-submenu-link site-header__drawer-submenu-link--nested"
                                     onClick={closeMobileMenu}
                                   >
                                     {subItem.title}

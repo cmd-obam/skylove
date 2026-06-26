@@ -48,6 +48,10 @@ export const MENU_ITEMS = [
       { title: '교회학교', path: '/church-news/new-family' },
     ],
   },
+  {
+    title: '새가족 안내',
+    path: '/new-family',
+  },
 ]
 
 export function menuItemContainsPath(item, pathname) {
