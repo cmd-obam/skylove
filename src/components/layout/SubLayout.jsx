@@ -5,13 +5,16 @@ import './SubLayout.css'
 
 const LOCATION_PATH = '/about/location'
 const WORSHIP_PATH = '/worship'
+const CHURCH_NEWS_PATH = '/church-news'
+const EVENT_PHOTOS_PATH = '/church-news/event-photos'
 
-const CUSTOM_HEADER_PATHS = new Set([LOCATION_PATH, WORSHIP_PATH])
+const CUSTOM_HEADER_PATHS = new Set([LOCATION_PATH, WORSHIP_PATH, CHURCH_NEWS_PATH, EVENT_PHOTOS_PATH])
 
 function SubLayout() {
   const { pathname } = useLocation()
   const { title, subtitle } = getPageMeta(pathname)
-  const hasCustomHeader = CUSTOM_HEADER_PATHS.has(pathname)
+  const hasCustomHeader =
+    CUSTOM_HEADER_PATHS.has(pathname) || pathname.startsWith(`${EVENT_PHOTOS_PATH}/`)
 
   return (
     <div className={`sub-layout${hasCustomHeader ? ' sub-layout--custom-header' : ''}`}>

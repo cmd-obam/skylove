@@ -61,7 +61,7 @@ export const PAGE_META = {
   },
   '/church-news': {
     title: '교회소식',
-    subtitle: '하늘사랑교회의 소식을 전합니다',
+    subtitle: '하늘사랑교회의 새로운 소식을 전합니다',
   },
   '/church-news/album': {
     title: '교회앨범',
@@ -73,7 +73,7 @@ export const PAGE_META = {
   },
   '/church-news/event-photos': {
     title: '행사사진',
-    subtitle: '교회 행사의 모습을 전합니다',
+    subtitle: '교회 행사와 다양한 활동 사진을 소개합니다.',
   },
 }
 

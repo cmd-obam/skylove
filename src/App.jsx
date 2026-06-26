@@ -9,16 +9,17 @@ import About from '@/pages/About'
 import Worship from '@/pages/Worship'
 import Location from '@/pages/Location'
 import Auth from '@/pages/Auth'
+import ChurchNews from '@/pages/ChurchNews'
+import EventPhotos from '@/pages/EventPhotos'
+import EventPhotoDetail from '@/pages/EventPhotoDetail'
 import {
   WorshipGuidePage,
   Education,
   Mission,
   Fellowship,
   SundaySchool,
-  ChurchNews,
   ChurchAlbum,
   NewFamilyGuide,
-  EventPhotos,
   FacilityVr,
 } from '@/pages/PlaceholderPage'
 import '@/App.css'
@@ -64,6 +65,7 @@ function App() {
                 <Route path="/church-news/album" element={<ChurchAlbum />} />
                 <Route path="/church-news/new-family" element={<NewFamilyGuide />} />
                 <Route path="/church-news/event-photos" element={<EventPhotos />} />
+                <Route path="/church-news/event-photos/:postId" element={<EventPhotoDetail />} />
               </Route>
             </Route>
           </Routes>
