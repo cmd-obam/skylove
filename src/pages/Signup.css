@@ -1,4 +1,5 @@
 .signup-page {
+  --signup-control-height: 48px;
   min-height: calc(100vh - var(--header-height));
   padding: 3.5rem 1.5rem 5rem;
   background-color: #f7fafd;
@@ -162,19 +163,25 @@
   display: flex;
   gap: 0.625rem;
   align-items: stretch;
+  min-height: var(--signup-control-height);
 }
 
 .signup-field-card__input {
+  box-sizing: border-box;
+  display: block;
   flex: 1;
   min-width: 0;
-  height: 48px;
+  min-height: var(--signup-control-height);
+  height: var(--signup-control-height);
   padding: 0 1rem;
   border: 1px solid transparent;
   border-radius: 10px;
   font-family: inherit;
   font-size: 0.9375rem;
+  line-height: normal;
   color: #1f2d3d;
   background-color: #f7fafd;
+  flex-shrink: 0;
   transition:
     background-color 0.25s ease,
     border-color 0.25s ease;
@@ -182,6 +189,7 @@
 
 .signup-field-card__input--full {
   width: 100%;
+  flex: none;
 }
 
 .signup-field-card__input:focus {
@@ -196,6 +204,8 @@
 
 .signup-field-card__input--date {
   color: #1f2d3d;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
 .signup-field-card__input--date:not(:valid):not(:focus) {
@@ -206,6 +216,13 @@
   margin: 0.625rem 0 0;
   font-size: 0.8125rem;
   line-height: 1.5;
+}
+
+.signup-field-card__hint {
+  margin: 0.625rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: #6b7280;
 }
 
 .signup-field-card__message--error {
@@ -220,7 +237,8 @@
 
 .signup-btn {
   flex-shrink: 0;
-  height: 48px;
+  height: var(--signup-control-height);
+  min-height: var(--signup-control-height);
   padding: 0 1.125rem;
   border-radius: 10px;
   font-family: inherit;

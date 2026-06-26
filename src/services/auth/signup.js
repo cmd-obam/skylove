@@ -1,6 +1,26 @@
 const LOGIN_ID_PATTERN = /^[a-zA-Z0-9_]{4,20}$/
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const PHONE_PATTERN = /^01[0-9]-\d{3,4}-\d{4}$/
+const PASSWORD_SPECIAL_CHAR_PATTERN = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/
+
+export const PASSWORD_REQUIREMENT_HINT = '8자 이상, 특수문자 포함'
+export const PASSWORD_PLACEHOLDER = '8자 이상, 특수문자 포함하여 입력하세요.'
+
+export function validatePassword(password) {
+  if (!password) {
+    return '비밀번호를 입력해주세요.'
+  }
+
+  if (password.length < 8) {
+    return '비밀번호는 8자 이상 입력해주세요.'
+  }
+
+  if (!PASSWORD_SPECIAL_CHAR_PATTERN.test(password)) {
+    return '비밀번호에 특수문자를 포함해주세요.'
+  }
+
+  return null
+}
 
 export const INITIAL_SIGNUP_FORM = {
   loginId: '',
@@ -26,10 +46,9 @@ export function validateForm(form, { isIdChecked = false, isEmailVerified = fals
     errors.loginId = '아이디 중복확인을 해주세요.'
   }
 
-  if (!form.password) {
-    errors.password = '비밀번호를 입력해주세요.'
-  } else if (form.password.length < 8) {
-    errors.password = '비밀번호는 8자 이상 입력해주세요.'
+  const passwordError = validatePassword(form.password)
+  if (passwordError) {
+    errors.password = passwordError
   }
 
   if (!form.passwordConfirm) {

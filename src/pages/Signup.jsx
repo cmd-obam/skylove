@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { FiUser, FiLock, FiCalendar, FiMail, FiSmartphone } from 'react-icons/fi'
 import {
   INITIAL_SIGNUP_FORM,
+  PASSWORD_PLACEHOLDER,
+  PASSWORD_REQUIREMENT_HINT,
   checkDuplicateId,
   formatPhoneNumber,
   handleSignup,
@@ -11,7 +13,7 @@ import {
 } from '@/services/auth/signup'
 import './Signup.css'
 
-function SignupFieldCard({ icon: Icon, label, optional = false, error, success, children }) {
+function SignupFieldCard({ icon: Icon, label, optional = false, error, success, hint, hintId, children }) {
   return (
     <div className={`signup-field-card${error ? ' signup-field-card--error' : ''}`}>
       <div className="signup-field-card__header">
@@ -20,6 +22,11 @@ function SignupFieldCard({ icon: Icon, label, optional = false, error, success, 
         {optional && <span className="signup-field-card__optional">(선택)</span>}
       </div>
       <div className="signup-field-card__body">{children}</div>
+      {hint && !error && (
+        <p id={hintId} className="signup-field-card__hint">
+          {hint}
+        </p>
+      )}
       {error && (
         <p className="signup-field-card__message signup-field-card__message--error" role="alert">
           {error}
@@ -233,16 +240,23 @@ function Signup() {
                 </div>
               </SignupFieldCard>
 
-              <SignupFieldCard icon={FiLock} label="비밀번호" error={errors.password}>
+              <SignupFieldCard
+                icon={FiLock}
+                label="비밀번호"
+                error={errors.password}
+                hint={PASSWORD_REQUIREMENT_HINT}
+                hintId="signup-password-hint"
+              >
                 <input
                   id="signup-password"
                   name="password"
                   type="password"
                   className="signup-field-card__input signup-field-card__input--full"
-                  placeholder="비밀번호를 입력하세요."
+                  placeholder={PASSWORD_PLACEHOLDER}
                   value={form.password}
                   onChange={(event) => updateField('password', event.target.value)}
                   autoComplete="new-password"
+                  aria-describedby="signup-password-hint"
                 />
               </SignupFieldCard>
 
@@ -256,6 +270,7 @@ function Signup() {
                   value={form.passwordConfirm}
                   onChange={(event) => updateField('passwordConfirm', event.target.value)}
                   autoComplete="new-password"
+                  aria-describedby="signup-password-hint"
                 />
               </SignupFieldCard>
 
