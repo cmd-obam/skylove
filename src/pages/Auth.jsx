@@ -1,5 +1,6 @@
-import { useMemo } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useMemo, useState } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { handleLogin } from '@/services/auth/login'
 import './Auth.css'
 
 const DEFAULT_TAB = 'login'
@@ -13,7 +14,10 @@ const FOOTER_LINKS = [
 const VALID_TABS = new Set([DEFAULT_TAB, ...FOOTER_LINKS.filter((item) => !item.path).map((item) => item.id)])
 
 function Auth() {
+  const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
+  const [loginFeedback, setLoginFeedback] = useState(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const activeTab = useMemo(() => {
     const tab = searchParams.get('tab') ?? DEFAULT_TAB
@@ -29,8 +33,34 @@ function Auth() {
     setSearchParams({ tab: tabId })
   }
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
+
+    if (activeTab !== 'login') {
+      return
+    }
+
+    const formData = new FormData(event.currentTarget)
+    const email = formData.get('loginId')
+    const password = formData.get('password')
+
+    setIsSubmitting(true)
+    setLoginFeedback(null)
+
+    try {
+      const result = await handleLogin({ email, password })
+
+      if (result.success) {
+        navigate('/')
+        return
+      }
+
+      setLoginFeedback(result.message)
+    } catch {
+      setLoginFeedback('로그인 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -62,9 +92,12 @@ function Auth() {
                 aria-label="비밀번호"
                 autoComplete="current-password"
               />
-              <button type="submit" className="auth-login__submit">
-                로그인
+              <button type="submit" className="auth-login__submit" disabled={isSubmitting}>
+                {isSubmitting ? '로그인 중...' : '로그인'}
               </button>
+              {loginFeedback && (
+                <p role="alert">{loginFeedback}</p>
+              )}
             </form>
           )}
 

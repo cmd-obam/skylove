@@ -1,3 +1,10 @@
+import { supabase } from '@/lib/supabase'
+import {
+  mapSupabaseAuthError,
+  mapSupabaseProfileError,
+  SIGNUP_SUCCESS_MESSAGE,
+} from '@/services/auth/signupErrors'
+
 const LOGIN_ID_PATTERN = /^[a-zA-Z0-9_]{4,20}$/
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const PHONE_PATTERN = /^01[0-9]-\d{3,4}-\d{4}$/
@@ -69,8 +76,6 @@ export function validateForm(form, { isIdChecked = false, isEmailVerified = fals
     errors.email = '이메일을 입력해주세요.'
   } else if (!EMAIL_PATTERN.test(form.email.trim())) {
     errors.email = '올바른 이메일 형식을 입력해주세요.'
-  } else if (!isEmailVerified) {
-    errors.email = '이메일 인증을 완료해주세요.'
   }
 
   if (form.phone.trim() && !PHONE_PATTERN.test(form.phone.trim())) {
@@ -116,16 +121,58 @@ export async function sendEmailVerification(email) {
 }
 
 export async function handleSignup(formData) {
-  // TODO: Supabase Auth signUp 및 프로필 저장
-  await new Promise((resolve) => {
-    window.setTimeout(resolve, 600)
+  const email = formData.email.trim()
+  const password = formData.password
+
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
   })
+
+  if (error) {
+    return {
+      success: false,
+      message: mapSupabaseAuthError(error),
+    }
+  }
+
+  if (!data.user) {
+    return {
+      success: false,
+      message: '회원가입 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+    }
+  }
+
+  const profileError = await insertProfile(data.user.id, formData)
+
+  if (profileError) {
+    return {
+      success: false,
+      message: mapSupabaseProfileError(profileError),
+    }
+  }
 
   return {
     success: true,
-    message: '회원가입이 완료되었습니다.',
+    message: SIGNUP_SUCCESS_MESSAGE,
     data: formData,
   }
+}
+
+async function insertProfile(userId, formData) {
+  const phone = formData.phone.trim()
+
+  const { error } = await supabase.from('profiles').insert({
+    id: userId,
+    username: formData.loginId.trim(),
+    name: formData.name.trim(),
+    birthday: formData.birthDate,
+    email: formData.email.trim(),
+    phone: phone || null,
+    role: 'member',
+  })
+
+  return error
 }
 
 export function formatPhoneNumber(value) {

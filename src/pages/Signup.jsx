@@ -184,6 +184,11 @@ function Signup() {
           type: 'success',
           message: result.message,
         })
+      } else {
+        setFormFeedback({
+          type: 'error',
+          message: result.message,
+        })
       }
     } catch {
       setFormFeedback({

@@ -10,6 +10,9 @@ import Worship from '@/pages/Worship'
 import Location from '@/pages/Location'
 import Auth from '@/pages/Auth'
 import Signup from '@/pages/Signup'
+import MemberEdit from '@/pages/MemberEdit'
+import Admin from '@/pages/Admin'
+import AdminRoute from '@/components/auth/AdminRoute'
 import ChurchNews from '@/pages/ChurchNews'
 import ChurchNewsDetail from '@/pages/ChurchNewsDetail'
 import EventPhotos from '@/pages/EventPhotos'
@@ -43,6 +46,15 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Auth />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/member/edit" element={<MemberEdit />} />
+            <Route
+              path="/admin"
+              element={
+                <AdminRoute>
+                  <Admin />
+                </AdminRoute>
+              }
+            />
             <Route path="/church-news/news" element={<Navigate to="/church-news" replace />} />
             <Route path="/church-life" element={<Navigate to="/church-news" replace />} />
             <Route path="/church-life/album" element={<Navigate to="/church-news/album" replace />} />
