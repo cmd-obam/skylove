@@ -32,6 +32,10 @@ jobs:
 
       - name: Verify Supabase secrets
         run: |
+          echo "VITE_SUPABASE_URL set: $([ -n "$VITE_SUPABASE_URL" ] && echo yes || echo no)"
+          echo "VITE_SUPABASE_URL length: ${#VITE_SUPABASE_URL}"
+          echo "VITE_SUPABASE_PUBLISHABLE_KEY set: $([ -n "$VITE_SUPABASE_PUBLISHABLE_KEY" ] && echo yes || echo no)"
+          echo "VITE_SUPABASE_PUBLISHABLE_KEY length: ${#VITE_SUPABASE_PUBLISHABLE_KEY}"
           if [ -z "$VITE_SUPABASE_URL" ] || [ -z "$VITE_SUPABASE_PUBLISHABLE_KEY" ]; then
             echo "::error::GitHub Actions Secrets에 VITE_SUPABASE_URL, VITE_SUPABASE_PUBLISHABLE_KEY를 등록해주세요."
             exit 1
@@ -46,6 +50,14 @@ jobs:
           GITHUB_PAGES: 'true'
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+
+      - name: Verify Supabase env in build output
+        run: |
+          if ! grep -rq "supabase.co" dist/assets/*.js; then
+            echo "::error::dist/assets/*.js에 Supabase URL이 포함되지 않았습니다. 빌드 시 VITE 환경변수가 누락되었습니다."
+            exit 1
+          fi
+          echo "Supabase URL found in build output."
 
       - name: Add SPA fallback
         run: cp dist/index.html dist/404.html
