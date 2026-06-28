@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase'
 import { mapProfileFetchError } from '@/services/auth/profileErrors'
 
-const PROFILE_SELECT = 'name, email, birth_date, phone, username'
+const PROFILE_SELECT = 'name, email, birth_date, phone, username, role'
 
 export async function fetchProfileByUserId(userId) {
   const { data, error } = await supabase
@@ -22,7 +22,7 @@ export async function fetchProfileByUserId(userId) {
     profile: {
       name: data.name,
       email: data.email,
-      role: 'member',
+      role: data.role ?? 'member',
       birthday: data.birth_date,
       phone: data.phone,
       username: data.username,

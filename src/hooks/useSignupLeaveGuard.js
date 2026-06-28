@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { clearAllSignupStorage } from '@/utils/signupDraft'
 
 const BACK_NAVIGATION = '__BACK__'
 
@@ -20,7 +21,12 @@ export function useSignupLeaveGuard({ isDirty, onConfirmLeave }) {
   const basename = import.meta.env.BASE_URL ?? '/'
   const allowLeaveRef = useRef(false)
   const pendingNavigationRef = useRef(null)
+  const isDirtyRef = useRef(isDirty)
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false)
+
+  useEffect(() => {
+    isDirtyRef.current = isDirty
+  }, [isDirty])
 
   const allowNavigation = useCallback(() => {
     allowLeaveRef.current = true
@@ -65,6 +71,22 @@ export function useSignupLeaveGuard({ isDirty, onConfirmLeave }) {
       window.removeEventListener('beforeunload', handleBeforeUnload)
     }
   }, [isDirty])
+
+  useEffect(() => {
+    const handlePageHide = (event) => {
+      if (event.persisted || allowLeaveRef.current || !isDirtyRef.current) {
+        return
+      }
+
+      clearAllSignupStorage()
+    }
+
+    window.addEventListener('pagehide', handlePageHide)
+
+    return () => {
+      window.removeEventListener('pagehide', handlePageHide)
+    }
+  }, [])
 
   useEffect(() => {
     if (!isDirty || allowLeaveRef.current) {

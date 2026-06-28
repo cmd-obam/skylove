@@ -1,4 +1,34 @@
 const SIGNUP_DRAFT_KEY = 'skylove_signup_draft'
+const SIGNUP_DISCARDED_KEY = 'skylove_signup_discarded'
+
+export function markSignupDraftDiscarded() {
+  try {
+    sessionStorage.setItem(SIGNUP_DISCARDED_KEY, '1')
+    sessionStorage.removeItem(SIGNUP_DRAFT_KEY)
+  } catch (error) {
+    console.warn('[Signup] draft discard 표시 실패', error)
+  }
+}
+
+export function consumeSignupDraftDiscarded() {
+  try {
+    const discarded = sessionStorage.getItem(SIGNUP_DISCARDED_KEY) === '1'
+
+    if (discarded) {
+      sessionStorage.removeItem(SIGNUP_DISCARDED_KEY)
+      sessionStorage.removeItem(SIGNUP_DRAFT_KEY)
+    }
+
+    return discarded
+  } catch (error) {
+    console.warn('[Signup] draft discard 확인 실패', error)
+    return false
+  }
+}
+
+export function clearAllSignupStorage() {
+  markSignupDraftDiscarded()
+}
 
 export function isSignupFormDirty({
   form,
@@ -34,6 +64,10 @@ export function isSignupFormDirty({
 
 export function loadSignupDraft() {
   try {
+    if (sessionStorage.getItem(SIGNUP_DISCARDED_KEY) === '1') {
+      return null
+    }
+
     const raw = sessionStorage.getItem(SIGNUP_DRAFT_KEY)
 
     if (!raw) {
@@ -49,6 +83,10 @@ export function loadSignupDraft() {
 
 export function saveSignupDraft(draft) {
   try {
+    if (sessionStorage.getItem(SIGNUP_DISCARDED_KEY) === '1') {
+      return
+    }
+
     sessionStorage.setItem(SIGNUP_DRAFT_KEY, JSON.stringify(draft))
   } catch (error) {
     console.warn('[Signup] draft 저장 실패', error)
@@ -57,6 +95,7 @@ export function saveSignupDraft(draft) {
 
 export function clearSignupDraft() {
   sessionStorage.removeItem(SIGNUP_DRAFT_KEY)
+  sessionStorage.removeItem(SIGNUP_DISCARDED_KEY)
 }
 
 export function getResendCooldownRemaining(resendAvailableAt) {

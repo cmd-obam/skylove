@@ -1,0 +1,317 @@
+import { useCallback, useEffect, useState } from 'react'
+import { FiHeart } from 'react-icons/fi'
+import { useAuth } from '@/contexts/AuthContext'
+import { useBoardComments } from '@/hooks/useBoardComments'
+import { isAdminRole, isSuperAdminRole } from '@/services/auth/roles'
+import { formatCommentDateTime } from '@/utils/formatBoardDate'
+
+function CommentAdminActions({
+  comment,
+  isAdmin,
+  isSuperAdmin,
+  onDelete,
+  onHide,
+  onPin,
+  onResolveReport,
+  onEdit,
+}) {
+  return (
+    <div className="board-comments__admin-actions">
+      {isAdmin && (
+        <>
+          <button type="button" className="board-comments__admin-button" onClick={() => onHide(comment)}>
+            {comment.isHidden ? '숨김 해제' : '숨김'}
+          </button>
+          <button type="button" className="board-comments__admin-button" onClick={() => onDelete(comment.id)}>
+            삭제
+          </button>
+        </>
+      )}
+      {isSuperAdmin && (
+        <>
+          <button type="button" className="board-comments__admin-button" onClick={() => onEdit(comment)}>
+            수정
+          </button>
+          <button type="button" className="board-comments__admin-button" onClick={() => onPin(comment)}>
+            {comment.isPinned ? '고정 해제' : '고정'}
+          </button>
+          {comment.isReported && (
+            <button
+              type="button"
+              className="board-comments__admin-button"
+              onClick={() => onResolveReport(comment.id)}
+            >
+              신고 처리
+            </button>
+          )}
+        </>
+      )}
+    </div>
+  )
+}
+
+function CommentItem({
+  comment,
+  isLoggedIn,
+  isAdmin,
+  isSuperAdmin,
+  onLike,
+  onDelete,
+  onHide,
+  onPin,
+  onResolveReport,
+  onEdit,
+}) {
+  if (comment.isHidden && !isAdmin) {
+    return null
+  }
+
+  return (
+    <article
+      className={`board-comments__item${comment.isHidden ? ' board-comments__item--hidden' : ''}${
+        comment.isPinned ? ' board-comments__item--pinned' : ''
+      }`}
+    >
+      <div className="board-comments__item-header">
+        <div className="board-comments__item-meta">
+          <strong className="board-comments__author">{comment.authorName}</strong>
+          <time className="board-comments__date" dateTime={comment.createdAt}>
+            {formatCommentDateTime(comment.createdAt)}
+          </time>
+          {comment.isPinned && <span className="board-comments__badge">고정</span>}
+          {comment.isHidden && isAdmin && <span className="board-comments__badge">숨김</span>}
+          {comment.isReported && isSuperAdmin && (
+            <span className="board-comments__badge board-comments__badge--report">신고</span>
+          )}
+        </div>
+        {(isAdmin || isSuperAdmin) && (
+          <CommentAdminActions
+            comment={comment}
+            isAdmin={isAdmin}
+            isSuperAdmin={isSuperAdmin}
+            onDelete={onDelete}
+            onHide={onHide}
+            onPin={onPin}
+            onResolveReport={onResolveReport}
+            onEdit={onEdit}
+          />
+        )}
+      </div>
+
+      <p className="board-comments__body">{comment.body}</p>
+
+      <button
+        type="button"
+        className={`board-comments__like-button${comment.likedByMe ? ' board-comments__like-button--active' : ''}`}
+        onClick={() => onLike(comment)}
+        disabled={!isLoggedIn}
+      >
+        <FiHeart aria-hidden="true" />
+        <span>추천 {comment.likeCount}</span>
+      </button>
+    </article>
+  )
+}
+
+function BoardPostComments({ postType, postId, onCommentsCountChange }) {
+  const { isLoggedIn, user, profile } = useAuth()
+  const [comment, setComment] = useState('')
+  const [editingComment, setEditingComment] = useState(null)
+  const [editBody, setEditBody] = useState('')
+
+  const userRole = profile?.role
+  const isAdmin = isAdminRole(userRole)
+  const isSuperAdmin = isSuperAdminRole(userRole)
+
+  const handleCommentsChange = useCallback(
+    (count) => {
+      onCommentsCountChange?.(count)
+    },
+    [onCommentsCountChange],
+  )
+
+  const {
+    comments,
+    isLoading,
+    isSubmitting,
+    feedback,
+    setFeedback,
+    submitComment,
+    editComment,
+    hideComment,
+    pinComment,
+    handleReport,
+    removeComment,
+    likeComment,
+  } = useBoardComments(postType, postId, user?.id, handleCommentsChange)
+
+  useEffect(() => {
+    if (!feedback) {
+      return undefined
+    }
+
+    const timer = window.setTimeout(() => setFeedback(null), 3000)
+    return () => window.clearTimeout(timer)
+  }, [feedback, setFeedback])
+
+  const handleSubmit = async () => {
+    if (!isLoggedIn) {
+      setFeedback({ type: 'error', message: '로그인 후 댓글을 작성할 수 있습니다.' })
+      return
+    }
+
+    const result = await submitComment({
+      authorName: profile?.name || '회원',
+      body: comment,
+    })
+
+    if (result.success) {
+      setComment('')
+    }
+  }
+
+  const handleFormSubmit = (event) => {
+    event.preventDefault()
+    handleSubmit()
+  }
+
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault()
+      handleSubmit()
+    }
+  }
+
+  const handleLike = async (targetComment) => {
+    if (!isLoggedIn) {
+      setFeedback({ type: 'error', message: '로그인 후 추천할 수 있습니다.' })
+      return
+    }
+
+    await likeComment(targetComment.id, targetComment.likedByMe)
+  }
+
+  const handleHide = async (targetComment) => {
+    await hideComment(targetComment.id, !targetComment.isHidden)
+  }
+
+  const handlePin = async (targetComment) => {
+    await pinComment(targetComment.id, !targetComment.isPinned)
+  }
+
+  const handleEditStart = (targetComment) => {
+    setEditingComment(targetComment)
+    setEditBody(targetComment.body)
+  }
+
+  const handleEditSave = async () => {
+    if (!editingComment) {
+      return
+    }
+
+    const result = await editComment(editingComment.id, editBody)
+
+    if (result.success) {
+      setEditingComment(null)
+      setEditBody('')
+    }
+  }
+
+  const handleDelete = async (commentId) => {
+    if (!window.confirm('댓글을 삭제하시겠습니까?')) {
+      return
+    }
+
+    await removeComment(commentId)
+  }
+
+  return (
+    <div className="board-post-extras__section board-post-extras__section--comments" id="board-post-comments">
+      <h3 className="board-post-extras__label">댓글</h3>
+      <div className="board-post-extras__content board-post-extras__content--comments">
+        {feedback && (
+          <p
+            className={`board-comments__feedback board-comments__feedback--${feedback.type}`}
+            role="status"
+          >
+            {feedback.message}
+          </p>
+        )}
+
+        <div className="board-comments__list" aria-live="polite">
+          {isLoading ? (
+            <p className="board-post-extras__empty">댓글을 불러오는 중입니다.</p>
+          ) : comments.length > 0 ? (
+            comments.map((item) => (
+              <CommentItem
+                key={item.id}
+                comment={item}
+                isLoggedIn={isLoggedIn}
+                isAdmin={isAdmin}
+                isSuperAdmin={isSuperAdmin}
+                onLike={handleLike}
+                onDelete={handleDelete}
+                onHide={handleHide}
+                onPin={handlePin}
+                onResolveReport={handleReport}
+                onEdit={handleEditStart}
+              />
+            ))
+          ) : (
+            <p className="board-post-extras__empty">등록된 댓글이 없습니다.</p>
+          )}
+        </div>
+
+        {editingComment && (
+          <div className="board-comments__edit-panel">
+            <textarea
+              className="board-post-extras__comment-input"
+              rows={3}
+              value={editBody}
+              onChange={(event) => setEditBody(event.target.value)}
+            />
+            <div className="board-comments__edit-actions">
+              <button type="button" className="board-comments__edit-button" onClick={handleEditSave}>
+                저장
+              </button>
+              <button
+                type="button"
+                className="board-comments__edit-button board-comments__edit-button--secondary"
+                onClick={() => {
+                  setEditingComment(null)
+                  setEditBody('')
+                }}
+              >
+                취소
+              </button>
+            </div>
+          </div>
+        )}
+
+        <form className="board-post-extras__comment-form" onSubmit={handleFormSubmit}>
+          <textarea
+            id="board-post-comment"
+            className="board-post-extras__comment-input"
+            rows={4}
+            value={comment}
+            onChange={(event) => setComment(event.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={
+              isLoggedIn ? '댓글 입력...' : '댓글은 로그인 후 작성 가능합니다.'
+            }
+            disabled={!isLoggedIn || isSubmitting}
+          />
+          <button
+            type="submit"
+            className="board-post-extras__comment-submit"
+            disabled={!isLoggedIn || isSubmitting}
+          >
+            {isSubmitting ? '등록 중...' : '등록'}
+          </button>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+export default BoardPostComments

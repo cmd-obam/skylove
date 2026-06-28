@@ -12,9 +12,6 @@ import {
   handleSignup,
   sendEmailVerification,
   validateForm,
-  normalizeBirthDate,
-  BIRTH_DATE_MIN,
-  getBirthDateMax,
 } from '@/services/auth/signup'
 import {
   SIGNUP_EMAIL_NOT_VERIFIED_MESSAGE,
@@ -24,11 +21,13 @@ import {
 } from '@/services/auth/signupErrors'
 import {
   clearSignupDraft,
+  consumeSignupDraftDiscarded,
   getResendCooldownRemaining,
   isSignupFormDirty,
   loadSignupDraft,
   saveSignupDraft,
 } from '@/utils/signupDraft'
+import BirthDateSelect from '@/components/signup/BirthDateSelect'
 import './Signup.css'
 
 const SIGNUP_PASSWORD_PLACEHOLDER = '8자 이상, 특수문자 포함'
@@ -117,6 +116,17 @@ function SignupAgreement({ id, checked, onChange, label, badge }) {
 }
 
 function createInitialState() {
+  if (consumeSignupDraftDiscarded()) {
+    return {
+      form: INITIAL_SIGNUP_FORM,
+      isIdChecked: false,
+      idCheckMessage: '',
+      emailSent: false,
+      emailStatusMessage: '',
+      resendAvailableAt: null,
+    }
+  }
+
   const draft = loadSignupDraft()
 
   return {
@@ -703,17 +713,10 @@ function Signup() {
               </SignupFieldCard>
 
               <SignupFieldCard icon={FiCalendar} label="생년월일" error={errors.birthDate}>
-                <input
-                  id="signup-birth-date"
-                  name="birthDate"
-                  type="date"
-                  className="signup-field-card__input signup-field-card__input--full signup-field-card__input--date"
+                <BirthDateSelect
+                  idPrefix="signup-birth"
                   value={form.birthDate}
-                  onChange={(event) =>
-                    updateField('birthDate', normalizeBirthDate(event.target.value))
-                  }
-                  min={BIRTH_DATE_MIN}
-                  max={getBirthDateMax()}
+                  onChange={(nextValue) => updateField('birthDate', nextValue)}
                 />
               </SignupFieldCard>
 

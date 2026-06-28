@@ -49,3 +49,44 @@ export function formatPostDateTime(post) {
 
   return formatBoardDate(post.date)
 }
+
+export function formatPostRegistrationDate(post) {
+  if (!post) {
+    return ''
+  }
+
+  if (post.createdAt) {
+    const parsedDate = new Date(post.createdAt)
+
+    if (!Number.isNaN(parsedDate.getTime())) {
+      return `${parsedDate.getFullYear()}.${padTwo(parsedDate.getMonth() + 1)}.${padTwo(parsedDate.getDate())}`
+    }
+  }
+
+  const shortDate = formatBoardDate(post.date)
+
+  if (/^\d{2}\.\d{2}\.\d{2}$/.test(shortDate)) {
+    const [year, month, day] = shortDate.split('.')
+    return `20${year}.${month}.${day}`
+  }
+
+  if (/^\d{4}\.\d{2}\.\d{2}$/.test(shortDate)) {
+    return shortDate
+  }
+
+  return shortDate
+}
+
+export function formatCommentDateTime(value) {
+  if (!value) {
+    return ''
+  }
+
+  const parsedDate = new Date(value)
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return value
+  }
+
+  return `${parsedDate.getFullYear()}.${padTwo(parsedDate.getMonth() + 1)}.${padTwo(parsedDate.getDate())} ${padTwo(parsedDate.getHours())}:${padTwo(parsedDate.getMinutes())}`
+}

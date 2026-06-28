@@ -1,7 +1,5 @@
-import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { formatBoardDate } from '@/utils/formatBoardDate'
-import { useAuth } from '@/contexts/AuthContext'
 
 function BoardPostExtras({
   attachments = [],
@@ -9,9 +7,6 @@ function BoardPostExtras({
   detailPathPrefix,
   imageAttachments = [],
 }) {
-  const { isLoggedIn: loggedIn } = useAuth()
-  const [comment, setComment] = useState('')
-
   const fileList =
     attachments.length > 0
       ? attachments
@@ -19,10 +14,6 @@ function BoardPostExtras({
           name: image.name || `image-${index + 1}.jpg`,
           url: image.src,
         }))
-
-  const handleCommentSubmit = (event) => {
-    event.preventDefault()
-  }
 
   return (
     <div className="board-post-extras">
@@ -46,38 +37,6 @@ function BoardPostExtras({
           ) : (
             <p className="board-post-extras__empty">첨부파일이 없습니다.</p>
           )}
-        </div>
-      </section>
-
-      <section
-        id="board-post-comments"
-        className="board-post-extras__section"
-        aria-label="댓글쓰기"
-      >
-        <h3 className="board-post-extras__label">댓글쓰기</h3>
-        <div className="board-post-extras__content">
-          <form className="board-post-extras__comment-form" onSubmit={handleCommentSubmit}>
-            <textarea
-              id="board-post-comment"
-              className="board-post-extras__comment-input"
-              rows={4}
-              value={comment}
-              onChange={(event) => setComment(event.target.value)}
-              placeholder={
-                loggedIn
-                  ? '댓글을 입력하세요.'
-                  : '로그인 후 댓글 작성이 가능합니다.'
-              }
-              disabled={!loggedIn}
-            />
-            <button
-              type="submit"
-              className="board-post-extras__comment-submit"
-              disabled={!loggedIn}
-            >
-              등록
-            </button>
-          </form>
         </div>
       </section>
 

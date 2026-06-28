@@ -17,6 +17,7 @@ function EventPhotoDetail() {
         pageDescription="교회 행사와 다양한 활동 사진을 소개합니다."
         listPath={LIST_PATH}
         detailPathPrefix={LIST_PATH}
+        postType="album"
         post={post}
         relatedPosts={relatedPosts}
         ariaLabel="교회앨범 상세"

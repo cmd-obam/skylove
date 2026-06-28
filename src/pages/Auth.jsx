@@ -73,7 +73,7 @@ function Auth() {
 
         <section className="auth-card" aria-label="회원 서비스">
           {activeTab === 'login' && (
-            <form className="auth-login" onSubmit={handleSubmit}>
+            <form className="auth-login" onSubmit={handleSubmit} autoComplete="off">
               <input
                 id="login-id"
                 name="loginId"
@@ -81,7 +81,7 @@ function Auth() {
                 className="auth-form__input"
                 placeholder="아이디를 입력하세요"
                 aria-label="아이디"
-                autoComplete="username"
+                autoComplete="off"
               />
               <input
                 id="login-password"
@@ -90,7 +90,7 @@ function Auth() {
                 className="auth-form__input"
                 placeholder="비밀번호를 입력하세요"
                 aria-label="비밀번호"
-                autoComplete="current-password"
+                autoComplete="off"
               />
               <button type="submit" className="auth-login__submit" disabled={isSubmitting}>
                 {isSubmitting ? '로그인 중...' : '로그인'}
@@ -102,21 +102,21 @@ function Auth() {
           )}
 
           {activeTab === 'find-id' && (
-            <form className="auth-sub-form" onSubmit={handleSubmit}>
+            <form className="auth-sub-form" onSubmit={handleSubmit} autoComplete="off">
               <h2 className="auth-sub-form__title">아이디 찾기</h2>
               <input
                 name="name"
                 type="text"
                 className="auth-form__input"
                 aria-label="이름"
-                autoComplete="name"
+                autoComplete="off"
               />
               <input
                 name="email"
                 type="email"
                 className="auth-form__input"
                 aria-label="이메일"
-                autoComplete="email"
+                autoComplete="off"
               />
               <button type="submit" className="auth-sub-form__submit">
                 아이디 찾기
@@ -125,21 +125,21 @@ function Auth() {
           )}
 
           {activeTab === 'find-password' && (
-            <form className="auth-sub-form" onSubmit={handleSubmit}>
+            <form className="auth-sub-form" onSubmit={handleSubmit} autoComplete="off">
               <h2 className="auth-sub-form__title">비밀번호 찾기</h2>
               <input
                 name="loginId"
                 type="text"
                 className="auth-form__input"
                 aria-label="아이디"
-                autoComplete="username"
+                autoComplete="off"
               />
               <input
                 name="email"
                 type="email"
                 className="auth-form__input"
                 aria-label="이메일"
-                autoComplete="email"
+                autoComplete="off"
               />
               <button type="submit" className="auth-sub-form__submit">
                 비밀번호 찾기

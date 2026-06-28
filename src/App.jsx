@@ -27,6 +27,7 @@ import {
   FacilityVr,
   Facilities,
 } from '@/pages/PlaceholderPage'
+import ScrollToTop from '@/components/common/ScrollToTop'
 import '@/App.css'
 import { AuthProvider } from '@/contexts/AuthContext'
 
@@ -40,6 +41,7 @@ function App() {
 
   return (
     <BrowserRouter basename={basename || undefined}>
+      <ScrollToTop />
       <AuthProvider>
         <ImageProtection />
         <div className="app">

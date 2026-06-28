@@ -202,14 +202,51 @@
   color: #9ca3af;
 }
 
-.signup-field-card__input--date {
-  color: #1f2d3d;
-  appearance: none;
-  -webkit-appearance: none;
+.signup-birth-date {
+  display: flex;
+  gap: 0.625rem;
+  align-items: stretch;
+  min-height: var(--signup-control-height);
 }
 
-.signup-field-card__input--date:not(:valid):not(:focus) {
+.signup-birth-date__select {
+  box-sizing: border-box;
+  flex: 1;
+  min-width: 0;
+  min-height: var(--signup-control-height);
+  height: var(--signup-control-height);
+  padding: 0 2rem 0 1rem;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  line-height: normal;
+  color: #1f2d3d;
+  background-color: #f7fafd;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.875rem center;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.signup-birth-date__select:focus {
+  outline: none;
+  border-color: #e5edf5;
+  background-color: #eef7ff;
+}
+
+.signup-birth-date__select--placeholder {
   color: #9ca3af;
+}
+
+.signup-birth-date__select:disabled {
+  cursor: not-allowed;
+  opacity: 0.85;
 }
 
 .signup-field-card__message {
