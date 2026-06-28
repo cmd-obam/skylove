@@ -41,14 +41,14 @@ function Auth() {
     }
 
     const formData = new FormData(event.currentTarget)
-    const email = formData.get('loginId')
+    const loginId = formData.get('loginId')
     const password = formData.get('password')
 
     setIsSubmitting(true)
     setLoginFeedback(null)
 
     try {
-      const result = await handleLogin({ email, password })
+      const result = await handleLogin({ loginId, password })
 
       if (result.success) {
         navigate('/')

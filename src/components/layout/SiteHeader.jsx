@@ -1,8 +1,9 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import churchLogo from '@/assets/images/church-logo.png'
 import { AUTH_LINKS, MENU_ITEMS, menuItemContainsPath } from '@/data/menu'
 import DropdownMenu from '@/components/layout/DropdownMenu'
+import { useAuth } from '@/contexts/AuthContext'
 import './SiteHeader.css'
 
 function getFirstSubMenuPath(item) {
@@ -17,9 +18,26 @@ function getAuthLinkPath(item) {
   return item.path
 }
 
+function renderAuthLink(item, onNavigate) {
+  if (item.onClick) {
+    return (
+      <button type="button" className="site-header__auth-link" onClick={item.onClick}>
+        {item.label}
+      </button>
+    )
+  }
+
+  return (
+    <Link to={getAuthLinkPath(item)} className="site-header__auth-link" onClick={onNavigate}>
+      {item.label}
+    </Link>
+  )
+}
+
 function SiteHeader() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
+  const { isLoggedIn, signOut } = useAuth()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [activeMenu, setActiveMenu] = useState(null)
   const [expandedItem, setExpandedItem] = useState(null)
@@ -60,6 +78,27 @@ function SiteHeader() {
     navigate(firstPath)
     setActiveMenu(null)
   }
+
+  const handleLogout = useCallback(async () => {
+    try {
+      await signOut()
+      closeMobileMenu()
+      navigate('/')
+    } catch {
+      // signOut error logged in AuthContext
+    }
+  }, [signOut, navigate])
+
+  const authLinks = useMemo(
+    () =>
+      isLoggedIn
+        ? [
+            { label: '회원정보', path: '/member/edit' },
+            { label: '로그아웃', onClick: handleLogout },
+          ]
+        : AUTH_LINKS,
+    [isLoggedIn, handleLogout],
+  )
 
   useEffect(() => {
     if (!isMobileMenuOpen) {
@@ -151,16 +190,14 @@ function SiteHeader() {
           </nav>
 
           <div className="site-header__auth" aria-label="계정 메뉴">
-            {AUTH_LINKS.map((item, index) => (
+            {authLinks.map((item, index) => (
               <span key={item.label} className="site-header__auth-item">
                 {index > 0 && (
                   <span className="site-header__auth-separator" aria-hidden="true">
                     |
                   </span>
                 )}
-                <Link to={getAuthLinkPath(item)} className="site-header__auth-link">
-                  {item.label}
-                </Link>
+                {renderAuthLink(item)}
               </span>
             ))}
           </div>
@@ -295,20 +332,14 @@ function SiteHeader() {
         </nav>
 
         <div className="site-header__drawer-auth" aria-label="계정 메뉴">
-          {AUTH_LINKS.map((item, index) => (
+          {authLinks.map((item, index) => (
             <span key={item.label} className="site-header__auth-item">
               {index > 0 && (
                 <span className="site-header__auth-separator" aria-hidden="true">
                   |
                 </span>
               )}
-              <Link
-                to={getAuthLinkPath(item)}
-                className="site-header__auth-link"
-                onClick={closeMobileMenu}
-              >
-                {item.label}
-              </Link>
+              {renderAuthLink(item, closeMobileMenu)}
             </span>
           ))}
         </div>

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { formatBoardDate } from '@/utils/formatBoardDate'
-import { isLoggedIn } from '@/utils/auth'
+import { useAuth } from '@/contexts/AuthContext'
 
 function BoardPostExtras({
   attachments = [],
@@ -9,7 +9,7 @@ function BoardPostExtras({
   detailPathPrefix,
   imageAttachments = [],
 }) {
-  const loggedIn = isLoggedIn()
+  const { isLoggedIn: loggedIn } = useAuth()
   const [comment, setComment] = useState('')
 
   const fileList =

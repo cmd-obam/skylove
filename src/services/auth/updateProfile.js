@@ -131,11 +131,11 @@ export async function handleProfileUpdate(form, currentProfile) {
     .from('profiles')
     .update({
       name: form.name.trim(),
-      birthday: normalizeBirthDate(form.birthday),
+      birth_date: normalizeBirthDate(form.birthday),
       phone: phone || null,
       email: trimmedEmail,
     })
-    .eq('id', user.id)
+    .eq('user_id', user.id)
 
   if (profileError) {
     return {

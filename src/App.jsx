@@ -10,6 +10,7 @@ import Worship from '@/pages/Worship'
 import Location from '@/pages/Location'
 import Auth from '@/pages/Auth'
 import Signup from '@/pages/Signup'
+import EmailConfirmSuccess from '@/pages/EmailConfirmSuccess'
 import MemberEdit from '@/pages/MemberEdit'
 import Admin from '@/pages/Admin'
 import AdminRoute from '@/components/auth/AdminRoute'
@@ -27,6 +28,7 @@ import {
   Facilities,
 } from '@/pages/PlaceholderPage'
 import '@/App.css'
+import { AuthProvider } from '@/contexts/AuthContext'
 
 function LegacyEventPhotoDetailRedirect() {
   const { postId } = useParams()
@@ -38,14 +40,16 @@ function App() {
 
   return (
     <BrowserRouter basename={basename || undefined}>
-      <ImageProtection />
-      <div className="app">
-        <SiteHeader />
-        <main className="main">
-          <Routes>
+      <AuthProvider>
+        <ImageProtection />
+        <div className="app">
+          <SiteHeader />
+          <main className="main">
+            <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Auth />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/email-confirm" element={<EmailConfirmSuccess />} />
             <Route path="/member/edit" element={<MemberEdit />} />
             <Route
               path="/admin"
@@ -95,6 +99,7 @@ function App() {
         </main>
         <Footer />
       </div>
+      </AuthProvider>
     </BrowserRouter>
   )
 }

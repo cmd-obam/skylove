@@ -1,0 +1,83 @@
+.delete-account-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background-color: rgba(15, 23, 42, 0.45);
+}
+
+.delete-account-modal__dialog {
+  width: min(100%, 440px);
+  padding: 2rem 1.75rem 1.5rem;
+  border-radius: 20px;
+  background-color: #ffffff;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+}
+
+.delete-account-modal__title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2d3d;
+  letter-spacing: -0.02em;
+}
+
+.delete-account-modal__content {
+  margin-top: 1rem;
+}
+
+.delete-account-modal__question {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2d3d;
+}
+
+.delete-account-modal__description {
+  margin: 0.875rem 0 0;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: #6b7280;
+  white-space: pre-line;
+}
+
+.delete-account-modal__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.member-delete-complete {
+  position: fixed;
+  inset: 0;
+  z-index: 1400;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background-color: rgba(255, 255, 255, 0.96);
+  text-align: center;
+}
+
+.member-delete-complete__toast {
+  margin: 0;
+  padding: 0.875rem 1.25rem;
+  border-radius: 12px;
+  background-color: #ecfdf5;
+  color: #047857;
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.member-delete-complete__thanks {
+  margin: 0;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: #1f2d3d;
+}

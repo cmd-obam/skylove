@@ -1,6 +1,10 @@
 export const EMAIL_NOT_CONFIRMED_MESSAGE = '이메일 인증 후 로그인해주세요.'
+export const USERNAME_NOT_FOUND_MESSAGE = '존재하지 않는 아이디입니다.'
+export const WRONG_PASSWORD_MESSAGE = '비밀번호가 올바르지 않습니다.'
+export const DB_QUERY_FAILED_MESSAGE =
+  '로그인 정보 조회에 실패했습니다. 잠시 후 다시 시도해주세요.'
 
-export function mapSupabaseLoginError(error) {
+export function mapSupabaseLoginError(error, { usernameResolved = false } = {}) {
   const code = error?.code ?? ''
   const message = (error?.message ?? '').toLowerCase()
 
@@ -17,6 +21,10 @@ export function mapSupabaseLoginError(error) {
     message.includes('invalid login credentials') ||
     message.includes('invalid email or password')
   ) {
+    if (usernameResolved) {
+      return WRONG_PASSWORD_MESSAGE
+    }
+
     return '이메일 또는 비밀번호가 올바르지 않습니다.'
   }
 

@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { FiUser, FiLock, FiCalendar, FiMail, FiSmartphone } from 'react-icons/fi'
 import { supabase } from '@/lib/supabase'
+import DeleteAccountModal from '@/components/auth/DeleteAccountModal'
+import '@/components/auth/DeleteAccountModal.css'
+import { deleteAccount } from '@/services/auth/deleteAccount'
 import { fetchCurrentUserProfile } from '@/services/auth/profile'
 import {
   PASSWORD_PLACEHOLDER,
@@ -47,6 +50,10 @@ function MemberEdit() {
   const [formFeedback, setFormFeedback] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false)
+  const [deleteComplete, setDeleteComplete] = useState(false)
+  const [deleteError, setDeleteError] = useState(null)
 
   useEffect(() => {
     let isMounted = true
@@ -88,6 +95,35 @@ function MemberEdit() {
       isMounted = false
     }
   }, [navigate])
+
+  useEffect(() => {
+    if (!deleteComplete) {
+      return undefined
+    }
+
+    const timer = window.setTimeout(() => {
+      navigate('/', { replace: true })
+    }, 2000)
+
+    return () => window.clearTimeout(timer)
+  }, [deleteComplete, navigate])
+
+  const handleDeleteAccount = async () => {
+    setIsDeletingAccount(true)
+    setDeleteError(null)
+
+    const result = await deleteAccount()
+
+    if (!result.success) {
+      setDeleteError(result.message)
+      setIsDeletingAccount(false)
+      return
+    }
+
+    setIsDeleteModalOpen(false)
+    setDeleteComplete(true)
+    setIsDeletingAccount(false)
+  }
 
   const updateField = (name, value) => {
     setForm((prev) => ({ ...prev, [name]: value }))
@@ -138,6 +174,17 @@ function MemberEdit() {
     }
   }
 
+  if (deleteComplete) {
+    return (
+      <div className="member-delete-complete" role="status" aria-live="polite">
+        <p className="member-delete-complete__toast">회원탈퇴가 완료되었습니다.</p>
+        <p className="member-delete-complete__thanks">
+          그동안 하늘사랑교회를 이용해주셔서 감사합니다.
+        </p>
+      </div>
+    )
+  }
+
   if (isLoading) {
     return (
       <div className="signup-page">
@@ -152,6 +199,19 @@ function MemberEdit() {
 
   return (
     <div className="signup-page">
+      <DeleteAccountModal
+        isOpen={isDeleteModalOpen}
+        isDeleting={isDeletingAccount}
+        error={deleteError}
+        onCancel={() => {
+          if (!isDeletingAccount) {
+            setIsDeleteModalOpen(false)
+            setDeleteError(null)
+          }
+        }}
+        onConfirm={handleDeleteAccount}
+      />
+
       <div className="signup-page__container">
         <section className="signup-card" aria-label="회원정보 수정">
           <header className="signup-card__header">
@@ -271,9 +331,23 @@ function MemberEdit() {
             )}
 
             <div className="signup-form__actions">
-              <button type="submit" className="signup-btn signup-btn--primary" disabled={isSubmitting}>
-                {isSubmitting ? '저장 중...' : '회원정보 수정'}
-              </button>
+              <div className="signup-form__actions-row">
+                <button type="submit" className="signup-btn signup-btn--primary" disabled={isSubmitting}>
+                  {isSubmitting ? '저장 중...' : '회원정보 수정'}
+                </button>
+
+                <button
+                  type="button"
+                  className="signup-btn signup-btn--danger"
+                  onClick={() => {
+                    setDeleteError(null)
+                    setIsDeleteModalOpen(true)
+                  }}
+                  disabled={isSubmitting || isDeletingAccount}
+                >
+                  회원탈퇴
+                </button>
+              </div>
 
               <p className="signup-form__login">
                 <Link to="/" className="signup-form__login-link">

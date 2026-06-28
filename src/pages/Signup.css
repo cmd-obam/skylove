@@ -282,6 +282,19 @@
   gap: 1.25rem;
 }
 
+.signup-form__actions-row {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.signup-form__actions-row .signup-btn--primary,
+.signup-form__actions-row .signup-btn--danger {
+  flex: 1;
+  width: auto;
+  min-width: 0;
+}
+
 .signup-btn--primary {
   width: 100%;
   height: 56px;
@@ -301,6 +314,32 @@
 }
 
 .signup-btn--primary:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.signup-btn--danger {
+  width: 100%;
+  height: 56px;
+  border: 1px solid #d32f2f;
+  border-radius: 14px;
+  background-color: #ffffff;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #d32f2f;
+}
+
+.signup-btn--danger:hover:not(:disabled),
+.signup-btn--danger:focus-visible:not(:disabled) {
+  background-color: #ffefef;
+  color: #d32f2f;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(211, 47, 47, 0.12);
+}
+
+.signup-btn--danger:disabled {
   opacity: 0.65;
   cursor: not-allowed;
   transform: none;
@@ -438,6 +477,110 @@
 .signup-form__login-link:hover,
 .signup-form__login-link:focus-visible {
   color: #3b94f6;
+}
+
+/* ── Email verification panel ── */
+
+.signup-verify-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  text-align: center;
+}
+
+.signup-verify-panel__icon {
+  margin: 0;
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+.signup-verify-panel__title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2d3d;
+  letter-spacing: -0.02em;
+}
+
+.signup-verify-panel__text {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.75;
+  color: #6b7280;
+  white-space: pre-line;
+}
+
+.signup-verify-panel__note {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #4da6ff;
+}
+
+.signup-verify-panel__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.signup-btn--full {
+  width: 100%;
+}
+
+.signup-email-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  margin-top: 0.75rem;
+}
+
+/* ── Leave confirm modal ── */
+
+.signup-leave-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background-color: rgba(15, 23, 42, 0.45);
+}
+
+.signup-leave-modal__dialog {
+  width: min(100%, 420px);
+  padding: 2rem 1.75rem 1.5rem;
+  border-radius: 20px;
+  background-color: #ffffff;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+}
+
+.signup-leave-modal__title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2d3d;
+  letter-spacing: -0.02em;
+  line-height: 1.45;
+}
+
+.signup-leave-modal__content {
+  margin: 1rem 0 0;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: #6b7280;
+  white-space: pre-line;
+}
+
+.signup-leave-modal__actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.signup-leave-modal__actions .signup-btn {
+  flex: 1;
 }
 
 /* ── Responsive ── */
