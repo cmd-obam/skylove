@@ -97,22 +97,20 @@
 }
 
 .worship-template__info-label {
-  position: relative;
-  padding-top: 0.875rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.625rem;
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--worship-accent);
 }
 
-.worship-template__info-label::before {
+.worship-template__info-label::after {
   content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
   width: 20px;
   height: 2px;
   background-color: var(--worship-accent);
-  transform: translateX(-50%);
 }
 
 .worship-template__info-value {

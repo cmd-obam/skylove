@@ -6,8 +6,8 @@ export const WORSHIP_GUIDE_CONTENT = {
   '/worship-guide/sunday-blessing': {
     title: '주일축복예배',
     subtitle: 'WORSHIP',
-    time: '주일 오전 11시',
-    location: '하늘사랑교회 본당',
+    time: '오전 11시',
+    location: '대예배실',
     headline: '하나님을 사랑하고 이웃을 사랑하는 예배',
     description:
       '주일 온가족예배는 모든 세대가 함께 모여 찬양과 말씀으로 하나님께 나아가는 공동체 예배입니다.',
@@ -22,8 +22,8 @@ export const WORSHIP_GUIDE_CONTENT = {
   '/worship-guide/sunday-praise': {
     title: '주일찬양예배',
     subtitle: 'WORSHIP',
-    time: '주일 오후 2시',
-    location: '하늘사랑교회 본당',
+    time: '오후 1시 20분',
+    location: '대예배실',
     headline: '찬양으로 하나님께 영광을 돌리는 예배',
     description:
       '주일 찬양 예배는 모든 성도가 함께 찬양하며 하나님을 높이고, 은혜를 나누는 시간입니다.',
@@ -38,8 +38,8 @@ export const WORSHIP_GUIDE_CONTENT = {
   '/worship-guide/wednesday': {
     title: '수요저녁예배',
     subtitle: 'WORSHIP',
-    time: '수요일 오후 7시 30분',
-    location: '하늘사랑교회 본당',
+    time: '오후 7시 30분',
+    location: '소예배실',
     headline: '한 주의 중심에 세워지는 예배',
     description:
       '수요 저녁예배는 한 주간의 삶 가운데 말씀과 기도로 새 힘을 얻고, 공동체로 함께하는 시간입니다.',
@@ -54,8 +54,8 @@ export const WORSHIP_GUIDE_CONTENT = {
   '/worship-guide/dawn-prayer': {
     title: '새벽기도',
     subtitle: 'PRAYER',
-    time: '월~금 오전 5시',
-    location: '하늘사랑교회 본당',
+    time: '오전 5시 30분(화~토)',
+    location: '소예배실',
     headline: '하루의 시작, 기도로 여는 아침',
     description:
       '새벽기도는 하루를 시작하며 하나님께 마음을 올리고, 말씀으로 새 힘을 얻는 시간입니다.',
@@ -70,8 +70,8 @@ export const WORSHIP_GUIDE_CONTENT = {
   '/worship-guide/cell-meeting': {
     title: '셀모임',
     subtitle: 'FELLOWSHIP',
-    time: '셀별 상이',
-    location: '각 셀 모임 장소',
+    time: '오후 1시 (마지막주 일요일)',
+    location: '셀별 모임장소',
     headline: '말씀과 나눔으로 세워지는 공동체',
     description:
       '셀모임은 소그룹 가운데서 말씀을 나누고, 서로를 돌보며, 함께 성장하는 교제의 자리입니다.',
