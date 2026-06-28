@@ -5,8 +5,11 @@ import { fileURLToPath, URL } from 'node:url'
 
 const isGitHubPages = process.env.GITHUB_PAGES === 'true'
 
+const projectRoot = fileURLToPath(new URL('.', import.meta.url))
+
 export default defineConfig({
   root: '.',
+  envDir: projectRoot,
   base: isGitHubPages ? '/skylove/' : '/',
   publicDir: 'public',
   plugins: [react()],
