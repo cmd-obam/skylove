@@ -10,8 +10,13 @@ export const NEW_FAMILY_HERO = {
 }
 
 export const NEW_FAMILY_VIDEO = {
-  title: '영상으로 만나는 하늘사랑교회',
-  description: '하늘사랑교회를 영상으로 소개합니다.',
+  titleLine1: '영상으로 만나는',
+  titleLine2: '하늘사랑교회',
+  descriptionLines: [
+    '2009년 작은 가정에서 시작된',
+    '하늘사랑교회의 이야기를',
+    '영상으로 만나보세요.',
+  ],
   videoUrl: null,
   thumbnail: null,
 }

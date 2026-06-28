@@ -150,12 +150,12 @@
 .nf-video {
   padding: 2.5rem;
   border-radius: 16px;
-  background-color: #f7fafd;
+  background-color: #f5f8fb;
 }
 
 .nf-video__inner {
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  grid-template-columns: minmax(0, 0.64fr) minmax(0, 1.36fr);
   gap: 2rem;
   align-items: center;
 }
