@@ -114,12 +114,21 @@ export async function handleLogin({ loginId, password }) {
 
   if (!profileResult.success) {
     await supabase.auth.signOut()
-    console.log('[Login] 실패 원인: DB 조회 실패 (프로필)', profileResult.message)
+    console.error('[Login] 실패 원인: 프로필 조회 실패', profileResult)
+    console.error(
+      '[Login] Supabase response JSON',
+      JSON.stringify(profileResult.response ?? profileResult.error, null, 2),
+    )
+    if (profileResult.request) {
+      console.error('[Login] Profile request', profileResult.request)
+    }
 
     return {
       success: false,
       message: profileResult.message,
       reason: 'db_query_failed',
+      error: profileResult.error,
+      response: profileResult.response,
     }
   }
 

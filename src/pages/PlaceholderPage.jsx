@@ -8,10 +8,6 @@ function PlaceholderPage() {
   )
 }
 
-export function WorshipGuidePage() {
-  return <PlaceholderPage />
-}
-
 export function Education() {
   return <PlaceholderPage />
 }

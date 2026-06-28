@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   birth_date date NOT NULL,
   email text NOT NULL,
   phone text,
+  role text NOT NULL DEFAULT 'member' CHECK (role IN ('member', 'admin', 'super_admin')),
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
@@ -83,8 +84,8 @@ BEGIN
     RAISE EXCEPTION 'Profile already exists';
   END IF;
 
-  INSERT INTO public.profiles (user_id, username, name, birth_date, email, phone)
-  VALUES (p_user_id, p_username, p_name, p_birth_date, p_email, p_phone)
+  INSERT INTO public.profiles (user_id, username, name, birth_date, email, phone, role)
+  VALUES (p_user_id, p_username, p_name, p_birth_date, p_email, p_phone, 'member')
   RETURNING id INTO new_id;
 
   RETURN new_id;

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
-import { LOCATION_DATA } from '@/data/location'
-import { WORSHIP_SCHEDULE } from '@/data/worship'
+import bannerBg from '@/assets/images/location/location-info-banner-bg.png'
+import { LOCATION_DATA, LOCATION_INFO_BANNER } from '@/data/location'
 import './LocationInfo.css'
 
 function IconPin() {
@@ -41,52 +41,80 @@ function IconClock() {
 const WORSHIP_PATH = '/worship'
 
 function LocationInfo() {
+  const banner = LOCATION_INFO_BANNER
+
   return (
     <section className="location-info" aria-label="교회 연락처 및 예배 안내">
       <div className="location-info__card">
-        <div className="location-info__column">
-          <div className="location-info__header">
-            <span className="location-info__icon" aria-hidden="true">
-              <IconPin />
-            </span>
-            <span className="location-info__label">주소</span>
-          </div>
-          <p className="location-info__value">{LOCATION_DATA.address}</p>
+        <div className="location-info__bg-wrap" aria-hidden="true">
+          <img src={bannerBg} alt="" className="location-info__bg" />
         </div>
-
-        <div className="location-info__column">
-          <div className="location-info__header">
-            <span className="location-info__icon" aria-hidden="true">
-              <IconPhone />
-            </span>
-            <span className="location-info__label">전화번호</span>
+        <div className="location-info__content">
+          <div className="location-info__column location-info__column--directions">
+            <div className="location-info__header">
+              <span className="location-info__icon" aria-hidden="true">
+                <IconPin />
+              </span>
+              <span className="location-info__label">{banner.directionsTitle}</span>
+            </div>
+            <div className="location-info__directions">
+              <p className="location-info__address">{LOCATION_DATA.address}</p>
+              <p className="location-info__church-name">{LOCATION_DATA.churchName}</p>
+            </div>
           </div>
-          <p className="location-info__value">
-            <a href={`tel:${LOCATION_DATA.phone}`} className="location-info__phone-link">
-              {LOCATION_DATA.phone}
-            </a>
-          </p>
-        </div>
 
-        <div className="location-info__column location-info__column--worship">
-          <div className="location-info__header">
-            <span className="location-info__icon" aria-hidden="true">
-              <IconClock />
-            </span>
-            <span className="location-info__label">예배시간</span>
+          <div className="location-info__column location-info__column--phone">
+            <div className="location-info__header">
+              <span className="location-info__icon" aria-hidden="true">
+                <IconPhone />
+              </span>
+              <span className="location-info__label">{banner.phoneTitle}</span>
+            </div>
+            <div className="location-info__phone">
+              <a href={`tel:${LOCATION_DATA.phone}`} className="location-info__phone-number">
+                {LOCATION_DATA.phone}
+              </a>
+              <p className="location-info__phone-desc">{banner.phoneDescription}</p>
+              <div className="location-info__phone-hours">
+                <p className="location-info__phone-hours-label">{banner.phoneHoursLabel}</p>
+                <p className="location-info__phone-hours-value">{banner.phoneHours}</p>
+              </div>
+            </div>
           </div>
-          <div className="location-info__worship">
-            <ul className="location-info__worship-list">
-              {WORSHIP_SCHEDULE.map((item) => (
-                <li key={item.id} className="location-info__worship-item">
-                  <span className="location-info__worship-name">{item.name}</span>
-                  <span className="location-info__worship-time">{item.time}</span>
-                </li>
-              ))}
-            </ul>
-            <Link to={WORSHIP_PATH} className="location-info__worship-link">
-              예배시간 안내 바로가기
-            </Link>
+
+          <div className="location-info__column location-info__column--worship">
+            <div className="location-info__header">
+              <span className="location-info__icon" aria-hidden="true">
+                <IconClock />
+              </span>
+              <span className="location-info__label">{banner.worshipTitle}</span>
+            </div>
+            <div className="location-info__worship">
+              <div className="location-info__worship-grid">
+                {banner.worshipColumns.map((column, columnIndex) => (
+                  <ul key={columnIndex} className="location-info__worship-list">
+                    {column.map((item) => (
+                      <li key={item.id} className="location-info__worship-item">
+                        <span className="location-info__worship-name">{item.name}</span>
+                        <span className="location-info__worship-time-col">
+                          <span className="location-info__worship-time">{item.time}</span>
+                          {item.timeSub ? (
+                            <span className="location-info__worship-time-sub">{item.timeSub}</span>
+                          ) : null}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ))}
+              </div>
+              <Link to={WORSHIP_PATH} className="location-info__worship-link">
+                {banner.worshipLinkLabel}
+                <span className="location-info__worship-link-arrow" aria-hidden="true">
+                  {' '}
+                  &gt;
+                </span>
+              </Link>
+            </div>
           </div>
         </div>
       </div>

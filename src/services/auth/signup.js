@@ -10,6 +10,7 @@ import {
   SIGNUP_EMAIL_NOT_VERIFIED_MESSAGE,
   SIGNUP_EMAIL_SENT_MESSAGE,
 } from '@/services/auth/signupErrors'
+import { DEFAULT_MEMBER_ROLE } from '@/services/auth/profileSchema'
 
 const LOGIN_ID_PATTERN = /^[a-zA-Z0-9_]{4,20}$/
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -729,6 +730,7 @@ async function insertProfile(userId, formData) {
     birth_date: birthDate,
     email,
     phone: phone || null,
+    role: DEFAULT_MEMBER_ROLE,
   }
 
   const { error: insertError } = await supabase.from('profiles').insert(profilePayload)

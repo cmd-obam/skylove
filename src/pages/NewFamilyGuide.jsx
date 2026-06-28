@@ -1,18 +1,53 @@
-import BoardPageHeader from '@/components/board/BoardPageHeader'
-import './ChurchNews.css'
-import './NewFamilyGuide.css'
+import { useEffect, useRef } from 'react'
+import WelcomeHero from '@/components/newFamily/WelcomeHero'
+import ChurchIntroVideo from '@/components/newFamily/ChurchIntroVideo'
+import ChurchFeatureCards from '@/components/newFamily/ChurchFeatureCards'
+import WelcomeReasonCards from '@/components/newFamily/WelcomeReasonCards'
+import FirstVisitGuide from '@/components/newFamily/FirstVisitGuide'
+import CellMeetingSection from '@/components/newFamily/CellMeetingSection'
+import FAQAccordion from '@/components/newFamily/FAQAccordion'
+import ContactSection from '@/components/newFamily/ContactSection'
+import '@/components/newFamily/NewFamilyGuide.css'
 
 function NewFamilyGuide() {
-  return (
-    <div className="new-family-page">
-      <BoardPageHeader
-        title="새가족 안내"
-        description="새가족을 위한 안내를 제공합니다."
-      />
+  const pageRef = useRef(null)
 
-      <div className="new-family-page__content">
-        <p className="new-family-page__placeholder">콘텐츠 준비 중입니다.</p>
-      </div>
+  useEffect(() => {
+    const root = pageRef.current
+
+    if (!root) {
+      return undefined
+    }
+
+    const targets = root.querySelectorAll('.nf-fade')
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('nf-fade--visible')
+            observer.unobserve(entry.target)
+          }
+        })
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -32px 0px' },
+    )
+
+    targets.forEach((target) => observer.observe(target))
+
+    return () => observer.disconnect()
+  }, [])
+
+  return (
+    <div className="new-family-page" ref={pageRef}>
+      <WelcomeHero />
+      <ChurchIntroVideo />
+      <ChurchFeatureCards />
+      <WelcomeReasonCards />
+      <FirstVisitGuide />
+      <CellMeetingSection />
+      <FAQAccordion />
+      <ContactSection />
     </div>
   )
 }

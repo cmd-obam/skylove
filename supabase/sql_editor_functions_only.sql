@@ -1,7 +1,39 @@
 -- ============================================================
 -- profiles 테이블을 이미 만든 경우 → 이 파일만 SQL Editor에서 실행
 -- Supabase Dashboard → SQL Editor → New query → Run
+--
+-- 로그인 오류 "column profiles.role does not exist" 발생 시
+-- 아래 ⓪ role 컬럼 섹션이 포함되어 있으므로 이 파일 전체를 실행하세요.
 -- ============================================================
+
+-- ⓪ role 컬럼 (로그인 필수 — member | admin | super_admin)
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS role text DEFAULT 'member';
+
+UPDATE public.profiles
+SET role = 'member'
+WHERE role IS NULL;
+
+ALTER TABLE public.profiles
+  ALTER COLUMN role SET DEFAULT 'member';
+
+ALTER TABLE public.profiles
+  ALTER COLUMN role SET NOT NULL;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conname = 'profiles_role_check'
+      AND conrelid = 'public.profiles'::regclass
+  ) THEN
+    ALTER TABLE public.profiles
+      ADD CONSTRAINT profiles_role_check
+      CHECK (role IN ('member', 'admin', 'super_admin'));
+  END IF;
+END;
+$$;
 
 -- ① 아이디 중복확인 (profiles.username)
 CREATE OR REPLACE FUNCTION public.is_username_available(check_username text)
@@ -61,8 +93,8 @@ BEGIN
     RAISE EXCEPTION 'Profile already exists';
   END IF;
 
-  INSERT INTO public.profiles (user_id, username, name, birth_date, email, phone)
-  VALUES (p_user_id, p_username, p_name, p_birth_date, p_email, p_phone)
+  INSERT INTO public.profiles (user_id, username, name, birth_date, email, phone, role)
+  VALUES (p_user_id, p_username, p_name, p_birth_date, p_email, p_phone, 'member')
   RETURNING id INTO new_id;
 
   RETURN new_id;

@@ -19,8 +19,8 @@ import ChurchNewsDetail from '@/pages/ChurchNewsDetail'
 import EventPhotos from '@/pages/EventPhotos'
 import EventPhotoDetail from '@/pages/EventPhotoDetail'
 import NewFamilyGuide from '@/pages/NewFamilyGuide'
+import WorshipGuidePage from '@/pages/WorshipGuidePage'
 import {
-  WorshipGuidePage,
   Education,
   Mission,
   Fellowship,

@@ -1,12 +1,8 @@
 -- ============================================================
 -- 게시글 메타 / 추천 / 댓글 / 댓글 추천
 -- Supabase Dashboard → SQL Editor → Run
--- ============================================================
-
-ALTER TABLE public.profiles
-  ADD COLUMN IF NOT EXISTS role text NOT NULL DEFAULT 'member'
-    CHECK (role IN ('member', 'admin', 'super_admin'));
-
+--
+-- 선행 조건: 004_add_role_column.sql (profiles.role)
 -- ============================================================
 -- 게시글 통계 (조회수 / 추천수 / 댓글수)
 -- post_type: church_news | album

@@ -52,13 +52,18 @@ function PageTitle({ pathname, title }) {
   return <h1 className="sub-layout__title">{title}</h1>
 }
 
+function isWorshipGuidePath(pathname) {
+  return pathname.startsWith('/worship-guide/') && pathname !== '/worship-guide'
+}
+
 function SubLayout() {
   const { pathname } = useLocation()
   const { title, subtitle } = getPageMeta(pathname)
   const hasCustomHeader =
     CUSTOM_HEADER_PATHS.has(pathname) ||
     pathname.startsWith(`${CHURCH_ALBUM_PATH}/`) ||
-    isChurchNewsPostDetail(pathname)
+    isChurchNewsPostDetail(pathname) ||
+    isWorshipGuidePath(pathname)
 
   return (
     <div className={`sub-layout${hasCustomHeader ? ' sub-layout--custom-header' : ''}`}>

@@ -18,6 +18,18 @@ async function loadProfile(user, { retryCount = 2, retryDelayMs = 400 } = {}) {
       return profileResult.profile
     }
 
+    console.error('[Auth] fetchProfileByUserId failed', {
+      attempt: attempt + 1,
+      userId: user.id,
+      profileResult,
+      response: profileResult.response,
+      request: profileResult.request,
+    })
+    console.error(
+      '[Auth] Supabase response JSON',
+      JSON.stringify(profileResult.response ?? profileResult.error, null, 2),
+    )
+
     if (attempt < retryCount) {
       await new Promise((resolve) => {
         window.setTimeout(resolve, retryDelayMs)
@@ -25,7 +37,7 @@ async function loadProfile(user, { retryCount = 2, retryDelayMs = 400 } = {}) {
     }
   }
 
-  console.error('[Auth] profile load failed after retries')
+  console.error('[Auth] profile load failed after retries', { userId: user.id })
   return null
 }
 
