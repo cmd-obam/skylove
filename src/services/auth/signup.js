@@ -9,6 +9,34 @@ const LOGIN_ID_PATTERN = /^[a-zA-Z0-9_]{4,20}$/
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const PHONE_PATTERN = /^01[0-9]-\d{3,4}-\d{4}$/
 const PASSWORD_SPECIAL_CHAR_PATTERN = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/
+const BIRTH_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
+
+export { BIRTH_DATE_PATTERN }
+
+export const BIRTH_DATE_MIN = '1900-01-01'
+
+export function getBirthDateMax() {
+  return new Date().toISOString().slice(0, 10)
+}
+
+export function normalizeBirthDate(value) {
+  if (!value) {
+    return ''
+  }
+
+  const trimmed = value.trim()
+  const match = trimmed.match(/^(\d+)-(\d{1,2})-(\d{1,2})$/)
+
+  if (!match) {
+    return trimmed
+  }
+
+  const year = match[1].slice(0, 4)
+  const month = match[2].padStart(2, '0').slice(0, 2)
+  const day = match[3].padStart(2, '0').slice(0, 2)
+
+  return `${year}-${month}-${day}`
+}
 
 export const PASSWORD_REQUIREMENT_HINT = '8자 이상, 특수문자 포함'
 export const PASSWORD_PLACEHOLDER = '8자 이상, 특수문자 포함하여 입력하세요.'
@@ -70,6 +98,8 @@ export function validateForm(form, { isIdChecked = false, isEmailVerified = fals
 
   if (!form.birthDate) {
     errors.birthDate = '생년월일을 선택해주세요.'
+  } else if (!BIRTH_DATE_PATTERN.test(form.birthDate)) {
+    errors.birthDate = '올바른 생년월일 형식을 입력해주세요.'
   }
 
   if (!form.email.trim()) {
@@ -166,7 +196,7 @@ async function insertProfile(userId, formData) {
     id: userId,
     username: formData.loginId.trim(),
     name: formData.name.trim(),
-    birthday: formData.birthDate,
+    birthday: normalizeBirthDate(formData.birthDate),
     email: formData.email.trim(),
     phone: phone || null,
     role: 'member',

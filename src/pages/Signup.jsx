@@ -10,6 +10,9 @@ import {
   handleSignup,
   sendEmailVerification,
   validateForm,
+  normalizeBirthDate,
+  BIRTH_DATE_MIN,
+  getBirthDateMax,
 } from '@/services/auth/signup'
 import './Signup.css'
 
@@ -299,7 +302,9 @@ function Signup() {
                   type="date"
                   className="signup-field-card__input signup-field-card__input--full signup-field-card__input--date"
                   value={form.birthDate}
-                  onChange={(event) => updateField('birthDate', event.target.value)}
+                  onChange={(event) => updateField('birthDate', normalizeBirthDate(event.target.value))}
+                  min={BIRTH_DATE_MIN}
+                  max={getBirthDateMax()}
                 />
               </SignupFieldCard>
 

@@ -12,6 +12,7 @@ import {
   formatPhoneNumber,
   handleProfileUpdate,
 } from '@/services/auth/updateProfile'
+import { BIRTH_DATE_MIN, getBirthDateMax, normalizeBirthDate } from '@/services/auth/signup'
 import { setAuthSession } from '@/utils/auth'
 import './Signup.css'
 
@@ -235,7 +236,9 @@ function MemberEdit() {
                   type="date"
                   className="signup-field-card__input signup-field-card__input--full signup-field-card__input--date"
                   value={form.birthday}
-                  onChange={(event) => updateField('birthday', event.target.value)}
+                  onChange={(event) => updateField('birthday', normalizeBirthDate(event.target.value))}
+                  min={BIRTH_DATE_MIN}
+                  max={getBirthDateMax()}
                 />
               </ProfileFieldCard>
 

@@ -4,7 +4,12 @@ import {
   mapProfileUpdateAuthError,
   mapProfileUpdateError,
 } from '@/services/auth/profileUpdateErrors'
-import { formatPhoneNumber, validatePassword } from '@/services/auth/signup'
+import {
+  BIRTH_DATE_PATTERN,
+  formatPhoneNumber,
+  normalizeBirthDate,
+  validatePassword,
+} from '@/services/auth/signup'
 import { setAuthSession } from '@/utils/auth'
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -34,6 +39,8 @@ export function validateProfileUpdateForm(form) {
 
   if (!form.birthday) {
     errors.birthday = '생년월일을 선택해주세요.'
+  } else if (!BIRTH_DATE_PATTERN.test(form.birthday)) {
+    errors.birthday = '올바른 생년월일 형식을 입력해주세요.'
   }
 
   if (!form.email.trim()) {
@@ -124,7 +131,7 @@ export async function handleProfileUpdate(form, currentProfile) {
     .from('profiles')
     .update({
       name: form.name.trim(),
-      birthday: form.birthday,
+      birthday: normalizeBirthDate(form.birthday),
       phone: phone || null,
       email: trimmedEmail,
     })
