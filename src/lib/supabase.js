@@ -7,4 +7,16 @@ console.log(import.meta.env)
 console.log(import.meta.env.VITE_SUPABASE_URL)
 console.log(import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY)
 
+if (!supabaseUrl?.trim()) {
+  throw new Error(
+    '[Supabase] VITE_SUPABASE_URL이 없습니다. 로컬: .env 확인 후 dev 서버 재시작 / 배포: GitHub Actions Secrets 등록 후 재배포',
+  )
+}
+
+if (!supabaseKey?.trim()) {
+  throw new Error(
+    '[Supabase] VITE_SUPABASE_PUBLISHABLE_KEY가 없습니다. 로컬: .env 확인 후 dev 서버 재시작 / 배포: GitHub Actions Secrets 등록 후 재배포',
+  )
+}
+
 export const supabase = createClient(supabaseUrl, supabaseKey)
