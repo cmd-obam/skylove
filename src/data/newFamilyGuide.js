@@ -24,27 +24,31 @@ export const NEW_FAMILY_VIDEO = {
 export const CHURCH_FEATURE_CARDS = [
   {
     id: 'word',
-    title: '말씀의 교회',
+    title: '말씀이 살아있는 교회',
     description: '하나님의 말씀을 중심으로 삶을 세워가는 공동체',
     icon: 'book',
+    theme: 'blue',
   },
   {
     id: 'praise',
-    title: '찬양의 교회',
+    title: '찬양이 넘치는 교회',
     description: '하나님께 올려드리는 찬양으로 기쁨과 은혜가 넘치는 예배',
     icon: 'music',
+    theme: 'green',
   },
   {
     id: 'next-gen',
     title: '다음세대를 세우는 교회',
     description: '다음세대가 믿음 안에서 건강하게 성장하도록 함께합니다',
     icon: 'users',
+    theme: 'orange',
   },
   {
     id: 'gospel',
-    title: '복음의 감동을 전하는 교회',
-    description: '예수 그리스도의 복음을 바르게 전하며 믿음의 본질을 지켜갑니다',
+    title: '복음의 정통을 지켜가는 교회',
+    description: '예수 그리스도의 복음을 바르게 전하여 믿음의 본질을 지켜갑니다',
     icon: 'cross',
+    theme: 'purple',
   },
 ]
 
