@@ -17,7 +17,7 @@ export const NEW_FAMILY_VIDEO = {
     '하늘사랑교회의 이야기를',
     '영상으로 만나보세요.',
   ],
-  videoUrl: null,
+  videoUrl: 'https://www.youtube.com/embed/Uhl1Wb4WkEI',
   thumbnail: null,
 }
 
