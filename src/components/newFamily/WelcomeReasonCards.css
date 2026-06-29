@@ -37,7 +37,7 @@
   font-size: clamp(1.875rem, 4.2vw, 2.5rem);
   font-weight: 700;
   line-height: 1.2;
-  color: #1f4e79;
+  color: #0056b3;
   letter-spacing: -0.02em;
 }
 
@@ -81,12 +81,17 @@
   object-fit: contain;
 }
 
+.nf-reasons__item-title-line,
+.nf-reasons__item-description-line {
+  display: block;
+}
+
 .nf-reasons__item-title {
   margin: 0 0 0.375rem;
   font-size: clamp(0.8125rem, 1.3vw, 0.9375rem);
   font-weight: 700;
   line-height: 1.4;
-  color: #1f4e79;
+  color: #0056b3;
   word-break: keep-all;
 }
 

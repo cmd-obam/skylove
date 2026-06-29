@@ -32,8 +32,20 @@ function WelcomeReasonCards({
                   loading="lazy"
                   aria-hidden="true"
                 />
-                <h3 className="nf-reasons__item-title">{item.title}</h3>
-                <p className="nf-reasons__item-description">{item.description}</p>
+                <h3 className="nf-reasons__item-title">
+                  {item.titleLines.map((line) => (
+                    <span key={line} className="nf-reasons__item-title-line">
+                      {line}
+                    </span>
+                  ))}
+                </h3>
+                <p className="nf-reasons__item-description">
+                  {item.descriptionLines.map((line) => (
+                    <span key={line} className="nf-reasons__item-description-line">
+                      {line}
+                    </span>
+                  ))}
+                </p>
               </li>
             ))}
           </ul>
