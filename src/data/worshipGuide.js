@@ -1,7 +1,11 @@
 /**
  * 예배안내 페이지 콘텐츠
- * 이미지 URL(heroImage, introImage, galleryImages)은 추후 관리자 업로드로 교체
+ * 이미지 URL(introImage, galleryImages)은 추후 관리자 업로드로 교체
  */
+import sundayBlessingHero from '@/assets/images/worship/sunday-blessing-hero.png'
+import sundayPraiseHero from '@/assets/images/worship/sunday-praise-hero.png'
+import wednesdayHero from '@/assets/images/worship/wednesday-hero.png'
+
 export const WORSHIP_GUIDE_CONTENT = {
   '/worship-guide/sunday-blessing': {
     title: '주일축복예배',
@@ -11,7 +15,7 @@ export const WORSHIP_GUIDE_CONTENT = {
     headline: '하나님을 사랑하고 이웃을 사랑하는 예배',
     description:
       '주일 온가족예배는 모든 세대가 함께 모여 찬양과 말씀으로 하나님께 나아가는 공동체 예배입니다.',
-    heroImage: null,
+    heroImage: sundayBlessingHero,
     introImage: null,
     galleryImages: [null, null, null],
     galleryTitles: ['찬양', '말씀', '교제'],
@@ -27,7 +31,7 @@ export const WORSHIP_GUIDE_CONTENT = {
     headline: '찬양으로 하나님께 영광을 돌리는 예배',
     description:
       '주일 찬양 예배는 모든 성도가 함께 찬양하며 하나님을 높이고, 은혜를 나누는 시간입니다.',
-    heroImage: null,
+    heroImage: sundayPraiseHero,
     introImage: null,
     galleryImages: [null, null, null],
     galleryTitles: ['찬양', '말씀', '교제'],
@@ -43,7 +47,7 @@ export const WORSHIP_GUIDE_CONTENT = {
     headline: '한 주의 중심에 세워지는 예배',
     description:
       '수요 저녁예배는 한 주간의 삶 가운데 말씀과 기도로 새 힘을 얻고, 공동체로 함께하는 시간입니다.',
-    heroImage: null,
+    heroImage: wednesdayHero,
     introImage: null,
     galleryImages: [null, null, null],
     galleryTitles: ['기도', '말씀', '교제'],

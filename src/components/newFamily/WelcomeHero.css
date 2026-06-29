@@ -1,0 +1,121 @@
+.nf-hero__banner {
+  position: relative;
+  min-height: 22rem;
+  padding: 2.5rem 2.75rem 2.75rem;
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--nf-hero-bg) center / cover no-repeat;
+}
+
+.nf-hero__banner--watercolor {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.78) 0%,
+      rgba(255, 255, 255, 0.52) 38%,
+      rgba(255, 255, 255, 0.12) 62%,
+      rgba(255, 255, 255, 0) 78%
+    ),
+    var(--nf-hero-bg) center / cover no-repeat;
+}
+
+.nf-hero__banner-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  max-width: 34rem;
+}
+
+.nf-hero__welcome {
+  margin: 0 0 1.375rem;
+}
+
+.nf-hero__welcome-text {
+  font-family: 'Nanum Brush Script', cursive;
+  font-size: clamp(1.625rem, 3.8vw, 2.125rem);
+  font-weight: 400;
+  line-height: 1.1;
+  color: #2f4f72;
+  letter-spacing: -0.01em;
+}
+
+.nf-hero__main-title {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  margin: 0 0 1.625rem;
+}
+
+.nf-hero__main-line {
+  font-family: 'Nanum Myeongjo', 'Noto Serif KR', serif;
+  font-size: clamp(2rem, 5.2vw, 3.125rem);
+  font-weight: 800;
+  line-height: 1.28;
+  color: #1e3a5f;
+  letter-spacing: -0.03em;
+  word-break: keep-all;
+}
+
+.nf-hero__main-line--second {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.125rem 0.25rem;
+}
+
+.nf-hero__highlight {
+  position: relative;
+  display: inline-block;
+  padding: 0 0.3em;
+  margin: 0 0.05em;
+}
+
+.nf-hero__highlight::before {
+  content: '';
+  position: absolute;
+  inset: -0.16em -0.12em -0.14em;
+  border: 2.5px solid #ffd44d;
+  border-radius: 50%;
+  transform: rotate(-4deg);
+  pointer-events: none;
+}
+
+.nf-hero__subcopy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  margin: 0;
+}
+
+.nf-hero__subcopy-line {
+  display: block;
+  font-family: 'Noto Sans KR', var(--font-family-brand), sans-serif;
+  font-size: clamp(0.9375rem, 2vw, 1.0625rem);
+  font-weight: 400;
+  line-height: 1.75;
+  color: #5f6b7a;
+  letter-spacing: -0.01em;
+  word-break: keep-all;
+}
+
+@media (max-width: 768px) {
+  .nf-hero__banner {
+    min-height: 19rem;
+    padding: 1.75rem 1.375rem 2rem;
+  }
+
+  .nf-hero__banner-content {
+    max-width: none;
+  }
+
+  .nf-hero__welcome {
+    margin-bottom: 1rem;
+  }
+
+  .nf-hero__main-title {
+    margin-bottom: 1.25rem;
+  }
+}

@@ -4,19 +4,21 @@ import { LOCATION_DATA } from '@/data/location'
 export const NEW_FAMILY_HERO = {
   title: '새가족안내',
   subtitle: 'WELCOME',
-  headlineLines: ['당신을 축복하며', '사랑으로 환영합니다.'],
-  description: '처음 방문하셨다면 편안한 마음으로 예배드리시면 됩니다.',
+  welcomeLine: '여러분들을 환영합니다',
+  headlineLine1: '당신을 축복하고',
+  headlineHighlight: '사랑으로',
+  headlineLine2Prefix: '환영합니',
+  headlineLine2Suffix: '다.',
+  descriptionLines: [
+    '하나님의 은혜가 가득한 이곳에서',
+    '행복한 믿음의 여정을 함께 시작해요.',
+  ],
   heroImage: null,
 }
 
 export const NEW_FAMILY_VIDEO = {
-  titleLine1: '영상으로 만나는',
-  titleLine2: '하늘사랑교회',
-  descriptionLines: [
-    '2009년 작은 가정에서 시작된',
-    '하늘사랑교회의 이야기를',
-    '영상으로 만나보세요.',
-  ],
+  introImage: null,
+  videoTitle: "사람이 행복한 '천안하늘사랑감리교회'",
   videoUrl: 'https://www.youtube.com/embed/Uhl1Wb4WkEI',
   thumbnail: null,
 }
@@ -53,46 +55,9 @@ export const CHURCH_FEATURE_CARDS = [
 ]
 
 export const WELCOME_REASON = {
-  title: '하나님께서 예비하신 만남, 여러분을 환영합니다.',
-  description: '누구든지 편안한 마음으로 함께 예배드릴 수 있습니다.',
-  cards: [
-    {
-      id: 'first-time',
-      title: '교회가 처음이신 분',
-      description: '처음으로 예배를 드려보고 하나님을 알아가고 싶은 분',
-      icon: 'door',
-    },
-    {
-      id: 'new-church',
-      title: '새로운 교회를 찾으시는 분',
-      description: '함께 신앙생활할 교회를 찾고 계신 분',
-      icon: 'compass',
-    },
-    {
-      id: 'returning',
-      title: '오랜만에 다시 교회를 찾으신 분',
-      description: '다시 하나님께 나아오고 싶은 분',
-      icon: 'path',
-    },
-    {
-      id: 'moving',
-      title: '이사 후 새로운 교회를 찾으시는 분',
-      description: '새로운 지역에서 신앙공동체를 찾는 분',
-      icon: 'home',
-    },
-    {
-      id: 'restart',
-      title: '신앙을 다시 시작하고 싶은 분',
-      description: '믿음을 회복하며 새롭게 시작하고 싶은 분',
-      icon: 'sprout',
-    },
-    {
-      id: 'family',
-      title: '가족과 함께 예배드리고 싶은 분',
-      description: '온 가족이 함께 신앙생활하고 싶은 분',
-      icon: 'family',
-    },
-  ],
+  bannerImage: null,
+  bannerAlt:
+    '하나님께서 예비하신 만남, 여러분들을 환영합니다. 누구든지 편안한 마음으로 함께 예배드릴 수 있습니다.',
 }
 
 export const FIRST_VISIT_STEPS = [
@@ -134,34 +99,63 @@ export const CELL_MEETING = {
 
 export const FAQ_ITEMS = [
   {
-    id: 'dress',
-    question: '예배 복장은 어떻게 되나요?',
+    id: 'first-visit',
+    question: '교회에 처음 가는데, 그냥 들어가도 되나요?',
     answer:
-      '특별한 복장 규정은 없습니다. 평소 입으시는 편안한 옷차림으로 오시면 됩니다. 하나님 앞에 마음을 준비하시는 것이 가장 중요합니다.',
+      '네, 물론입니다.\n\n따로 신청하거나 연락하지 않으셔도 예배 시간에 맞춰 편하게 오시면 됩니다. 교회에 도착하시면 2층으로 올라와 본당으로 들어오시면 됩니다.',
+  },
+  {
+    id: 'late',
+    question: '예배 시간보다 조금 늦어도 괜찮나요?',
+    answer:
+      '네, 괜찮습니다.\n\n늦었다고 부담 갖지 마시고 조용히 들어오시면 됩니다. 처음 방문하시는 분들은 예배 시작 10분 전쯤 오시면 조금 더 여유롭게 안내받으실 수 있습니다.',
+  },
+  {
+    id: 'worship-order',
+    question: '예배가 처음이라 순서를 몰라도 괜찮나요?',
+    answer:
+      '네, 괜찮습니다.\n\n예배에 필요한 성경책은 예배당 뒤편에 준비되어 있습니다. 또한 찬양 가사와 성경 구절, 예배 순서 등 예배 전반의 내용은 앞 화면 PPT로 안내되니 처음 오신 분도 편하게 함께하실 수 있습니다.',
   },
   {
     id: 'children',
     question: '아이와 함께 예배드릴 수 있나요?',
     answer:
-      '네, 가능합니다. 유아·유치부와 유초등부 프로그램이 함께 운영되며, 가족과 함께 예배에 참석하실 수 있습니다.',
+      '네, 가능합니다.\n\n예배당 뒤편에 자모실이 마련되어 있어 아이와 함께 오신 분들도 편안하게 예배드리실 수 있습니다.',
   },
   {
     id: 'parking',
     question: '주차는 가능한가요?',
-    answer:
-      '교회 내 주차장을 이용하실 수 있습니다. 주차가 어려우신 경우 안내 데스크에 문의해 주시면 도와드리겠습니다.',
-  },
-  {
-    id: 'registration',
-    question: '등록은 어떻게 하나요?',
-    answer:
-      '예배 후 새가족 안내 데스크에서 간단한 등록을 도와드립니다. 부담 없이 방문해 주시면 친절히 안내해 드리겠습니다.',
+    answer: '네, 가능합니다.\n\n교회 주변 주차 공간을 이용하실 수 있습니다.',
   },
   {
     id: 'offering',
     question: '헌금은 꼭 해야 하나요?',
     answer:
-      '헌금은 강제가 아닙니다. 처음 방문하시는 분은 헌금 없이 예배에 참석하셔도 됩니다. 마음이 준비되었을 때 함께 나누어 주시면 됩니다.',
+      '처음 방문하신 분들은 헌금에 부담 갖지 않으셔도 됩니다.\n\n헌금은 하나님께 감사하는 마음으로 자원하여 드리는 예배의 한 부분입니다. 감사의 마음으로 드리고 싶으신 경우 자유롭게 헌금하실 수 있습니다.',
+  },
+  {
+    id: 'introduction',
+    question: '처음 왔다고 사람들 앞에서 소개되나요?',
+    answer:
+      '걱정하지 않으셔도 됩니다.\n\n처음 오신 분이 불편하시지 않도록 배려합니다. 원치 않으시면 따로 일어나거나 소개하지 않으셔도 됩니다.',
+  },
+  {
+    id: 'registration',
+    question: '등록은 어떻게 하나요?',
+    answer:
+      '등록은 바로 결정하지 않으셔도 됩니다.\n\n예배에 함께하시며 교회를 천천히 알아가신 뒤, 등록을 원하실 때 목사님에게 편하게 문의해 주세요.',
+  },
+  {
+    id: 'after-worship',
+    question: '예배 후 바로 가도 되나요?',
+    answer:
+      '네, 괜찮습니다.\n\n예배 후 바로 돌아가셔도 괜찮고, 목사님과 인사를 나누셔도 좋습니다.',
+  },
+  {
+    id: 'denomination',
+    question: '혹시 이단이나 사이비 교회는 아닌가요?',
+    answer:
+      '네, 안심하고 방문하셔도 됩니다.\n\n하늘사랑교회는 기독교대한감리회에 소속된 교회로, 성경 말씀을 따라 하나님을 예배하고 예수 그리스도의 복음을 전하는 교회입니다.',
   },
 ]
 
