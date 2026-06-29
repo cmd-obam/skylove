@@ -1,5 +1,11 @@
 import { WORSHIP_SCHEDULE } from '@/data/worship'
 import { LOCATION_DATA } from '@/data/location'
+import welcomeReasonIcon01 from '@/assets/images/newFamily/welcome-reason-icon-01.png'
+import welcomeReasonIcon02 from '@/assets/images/newFamily/welcome-reason-icon-02.png'
+import welcomeReasonIcon03 from '@/assets/images/newFamily/welcome-reason-icon-03.png'
+import welcomeReasonIcon04 from '@/assets/images/newFamily/welcome-reason-icon-04.png'
+import welcomeReasonIcon05 from '@/assets/images/newFamily/welcome-reason-icon-05.png'
+import welcomeReasonIcon06 from '@/assets/images/newFamily/welcome-reason-icon-06.png'
 
 export const NEW_FAMILY_HERO = {
   title: '새가족안내',
@@ -55,9 +61,47 @@ export const CHURCH_FEATURE_CARDS = [
 ]
 
 export const WELCOME_REASON = {
-  bannerImage: null,
-  bannerAlt:
-    '하나님께서 예비하신 만남, 여러분들을 환영합니다. 누구든지 편안한 마음으로 함께 예배드릴 수 있습니다.',
+  eyebrow: '하나님께서 예비하신 만남,',
+  title: '여러분들을 환영합니다.',
+  description: '누구든지 편안한 마음으로 함께 예배드릴 수 있습니다.',
+  items: [
+    {
+      id: 'first-time',
+      title: '교회가 처음이신 분',
+      description: '처음으로 예배를 드려보고 하나님을 알아가고 싶은 분',
+      icon: welcomeReasonIcon01,
+    },
+    {
+      id: 'new-church',
+      title: '새로운 교회를 찾고 계신 분',
+      description: '함께 신앙생활할 교회를 찾고 계신 분',
+      icon: welcomeReasonIcon02,
+    },
+    {
+      id: 'returning',
+      title: '오랜만에 다시 교회를 찾으신 분',
+      description: '다시 하나님께 나아오고 싶은 분',
+      icon: welcomeReasonIcon03,
+    },
+    {
+      id: 'after-move',
+      title: '이사 후 새로운 교회를 찾으시는 분',
+      description: '새로운 지역에서 신앙공동체를 찾는 분',
+      icon: welcomeReasonIcon04,
+    },
+    {
+      id: 'restart-faith',
+      title: '신앙을 다시 시작하고 싶은 분',
+      description: '믿음을 회복하여 새롭게 시작하고 싶은 분',
+      icon: welcomeReasonIcon05,
+    },
+    {
+      id: 'family-worship',
+      title: '가족과 함께 예배드리고 싶은 분',
+      description: '온 가족이 함께 신앙생활하고 싶은 분',
+      icon: welcomeReasonIcon06,
+    },
+  ],
 }
 
 export const FIRST_VISIT_STEPS = [
@@ -163,7 +207,6 @@ export const CONTACT_INFO = {
   phone: LOCATION_DATA.phone,
   address: `${LOCATION_DATA.address} ${LOCATION_DATA.churchName}`,
   worshipSummary: WORSHIP_SCHEDULE.map((item) => `${item.name} ${item.time}`).join(' / '),
-  mapImage: null,
   worshipGuidePath: '/worship-guide/sunday-blessing',
   locationPath: '/about/location',
 }

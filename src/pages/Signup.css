@@ -20,7 +20,7 @@
 
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: none;
   }
 }
 
@@ -202,6 +202,56 @@
   color: #9ca3af;
 }
 
+.signup-password-input {
+  position: relative;
+  width: 100%;
+}
+
+.signup-password-input__field {
+  padding-right: 2.75rem;
+}
+
+.signup-password-input__toggle {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.signup-password-input__toggle:hover {
+  color: #2f80ed;
+  background-color: rgba(47, 128, 237, 0.08);
+}
+
+.signup-password-input__toggle:focus-visible {
+  outline: 2px solid rgba(47, 128, 237, 0.35);
+  outline-offset: 2px;
+}
+
+.signup-password-input__toggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.signup-password-input__toggle svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
 .signup-birth-date {
   display: flex;
   gap: 0.625rem;
@@ -209,9 +259,15 @@
   min-height: var(--signup-control-height);
 }
 
+.signup-birth-date__dropdown {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
 .signup-birth-date__select {
   box-sizing: border-box;
-  flex: 1;
+  width: 100%;
   min-width: 0;
   min-height: var(--signup-control-height);
   height: var(--signup-control-height);
@@ -222,6 +278,7 @@
   font-size: 0.9375rem;
   line-height: normal;
   color: #1f2d3d;
+  text-align: left;
   background-color: #f7fafd;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
@@ -232,6 +289,53 @@
   transition:
     background-color 0.25s ease,
     border-color 0.25s ease;
+}
+
+.signup-birth-date__menu {
+  position: absolute;
+  top: calc(100% + 0.375rem);
+  left: 0;
+  right: 0;
+  z-index: 30;
+  max-height: 15rem;
+  margin: 0;
+  padding: 0.375rem 0;
+  list-style: none;
+  overflow-y: auto;
+  border: 1px solid #e5edf5;
+  border-radius: 10px;
+  background-color: #ffffff;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+}
+
+.signup-birth-date__option {
+  display: block;
+  width: 100%;
+  padding: 0.625rem 1rem;
+  border: 0;
+  background: transparent;
+  color: #1f2d3d;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+}
+
+.signup-birth-date__option:hover,
+.signup-birth-date__option:focus-visible {
+  outline: none;
+  background-color: #eef7ff;
+}
+
+.signup-birth-date__option--selected {
+  color: #2f80ed;
+  font-weight: 600;
+}
+
+.signup-birth-date__dropdown--open .signup-birth-date__select {
+  border-color: #e5edf5;
+  background-color: #eef7ff;
 }
 
 .signup-birth-date__select:focus {

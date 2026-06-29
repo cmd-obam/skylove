@@ -28,6 +28,7 @@ import {
   saveSignupDraft,
 } from '@/utils/signupDraft'
 import BirthDateSelect from '@/components/signup/BirthDateSelect'
+import PasswordInput from '@/components/signup/PasswordInput'
 import './Signup.css'
 
 const SIGNUP_PASSWORD_PLACEHOLDER = '8자 이상, 특수문자 포함'
@@ -667,11 +668,9 @@ function Signup() {
               </SignupFieldCard>
 
               <SignupFieldCard icon={FiLock} label="비밀번호" error={displayedPasswordError}>
-                <input
+                <PasswordInput
                   id="signup-password"
                   name="password"
-                  type="password"
-                  className="signup-field-card__input signup-field-card__input--full"
                   placeholder={SIGNUP_PASSWORD_PLACEHOLDER}
                   value={form.password}
                   onChange={(event) => updateField('password', event.target.value)}
@@ -684,11 +683,9 @@ function Signup() {
                 label="비밀번호 확인"
                 error={displayedPasswordConfirmError}
               >
-                <input
+                <PasswordInput
                   id="signup-password-confirm"
                   name="passwordConfirm"
-                  type="password"
-                  className="signup-field-card__input signup-field-card__input--full"
                   placeholder={SIGNUP_PASSWORD_CONFIRM_PLACEHOLDER}
                   value={form.passwordConfirm}
                   onChange={(event) => {

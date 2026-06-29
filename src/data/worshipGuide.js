@@ -2,9 +2,9 @@
  * 예배안내 페이지 콘텐츠
  * 이미지 URL(introImage, galleryImages)은 추후 관리자 업로드로 교체
  */
-import sundayBlessingHero from '@/assets/images/worship/sunday-blessing-hero.png'
-import sundayPraiseHero from '@/assets/images/worship/sunday-praise-hero.png'
-import wednesdayHero from '@/assets/images/worship/wednesday-hero.png'
+import sundayBlessingIntro from '@/assets/images/worship/sunday-blessing-intro.png'
+import sundayPraiseIntro from '@/assets/images/worship/sunday-praise-intro.png'
+import wednesdayIntro from '@/assets/images/worship/wednesday-intro.png'
 
 export const WORSHIP_GUIDE_CONTENT = {
   '/worship-guide/sunday-blessing': {
@@ -12,11 +12,16 @@ export const WORSHIP_GUIDE_CONTENT = {
     subtitle: 'WORSHIP',
     time: '오전 11시',
     location: '대예배실',
-    headline: '하나님을 사랑하고 이웃을 사랑하는 예배',
-    description:
-      '주일 온가족예배는 모든 세대가 함께 모여 찬양과 말씀으로 하나님께 나아가는 공동체 예배입니다.',
-    heroImage: sundayBlessingHero,
-    introImage: null,
+    headlineLines: ['하나님의 은혜와', '축복이 머무는 예배'],
+    introTitle: '주일 축복예배',
+    descriptionLines: [
+      '주일 축복예배는',
+      '예배 가운데 임하시는',
+      '하나님의 사랑과  은혜를',
+      '함께 누리는 시간입니다.',
+    ],
+    heroImage: null,
+    introImage: sundayBlessingIntro,
     galleryImages: [null, null, null],
     galleryTitles: ['찬양', '말씀', '교제'],
     footerMessage:
@@ -28,11 +33,16 @@ export const WORSHIP_GUIDE_CONTENT = {
     subtitle: 'WORSHIP',
     time: '오후 1시 20분',
     location: '대예배실',
-    headline: '찬양으로 하나님께 영광을 돌리는 예배',
-    description:
-      '주일 찬양 예배는 모든 성도가 함께 찬양하며 하나님을 높이고, 은혜를 나누는 시간입니다.',
-    heroImage: sundayPraiseHero,
-    introImage: null,
+    headlineLines: ['찬양에 마음을 담아', '주님께 드리는 예배'],
+    introTitle: '주일 찬양예배',
+    descriptionLines: [
+      '주일 찬양예배는',
+      '감사와 사랑의 고백을 찬양으로 올려드리며',
+      '기쁨 가운데 주님을 높이는',
+      '은혜의 시간입니다.',
+    ],
+    heroImage: null,
+    introImage: sundayPraiseIntro,
     galleryImages: [null, null, null],
     galleryTitles: ['찬양', '말씀', '교제'],
     footerMessage:
@@ -44,11 +54,16 @@ export const WORSHIP_GUIDE_CONTENT = {
     subtitle: 'WORSHIP',
     time: '오후 7시 30분',
     location: '소예배실',
-    headline: '한 주의 중심에 세워지는 예배',
-    description:
-      '수요 저녁예배는 한 주간의 삶 가운데 말씀과 기도로 새 힘을 얻고, 공동체로 함께하는 시간입니다.',
-    heroImage: wednesdayHero,
-    introImage: null,
+    headlineLines: ['한 주의 중심에서', '말씀 앞에 머무는 예배'],
+    introTitle: '수요 예배',
+    descriptionLines: [
+      '수요 예배는',
+      '한 주의 걸음을 잠시 멈추고',
+      '말씀과 기도로 하나님 앞에 나아가며',
+      '은혜와 새 힘을 얻는 시간입니다.',
+    ],
+    heroImage: null,
+    introImage: wednesdayIntro,
     galleryImages: [null, null, null],
     galleryTitles: ['기도', '말씀', '교제'],
     footerMessage:

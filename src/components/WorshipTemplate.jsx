@@ -1,15 +1,15 @@
 import { useEffect, useRef } from 'react'
+import footerCrossImage from '@/assets/images/worship/footer-cross.png'
 import './WorshipTemplate.css'
 
-function DefaultCrossIcon() {
+function FooterDividerCross() {
   return (
-    <svg
-      className="worship-template__cross-icon"
-      viewBox="0 0 24 24"
+    <img
+      src={footerCrossImage}
+      alt=""
+      className="worship-template__footer-cross"
       aria-hidden="true"
-    >
-      <path d="M12 2v20M5 9h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    </svg>
+    />
   )
 }
 
@@ -47,7 +47,10 @@ function WorshipTemplate({
   time,
   location,
   headline,
+  headlineLines = null,
+  introTitle = null,
   description,
+  descriptionLines = null,
   heroImage = null,
   introImage = null,
   galleryImages = [null, null, null],
@@ -112,14 +115,40 @@ function WorshipTemplate({
         </div>
       </section>
 
-      <section className="worship-template__intro worship-template__fade" aria-label="예배 소개">
+      <section
+        className={`worship-template__intro worship-template__fade${
+          introImage ? ' worship-template__intro--banner' : ''
+        }`}
+        style={introImage ? { '--worship-intro-bg': `url(${introImage})` } : undefined}
+        aria-label="예배 소개"
+      >
         <div className="worship-template__intro-text">
-          <p className="worship-template__headline">{headline}</p>
-          <p className="worship-template__description">{description}</p>
+          <p className="worship-template__headline">
+            {(headlineLines ?? [headline]).map((line) => (
+              <span key={line} className="worship-template__headline-line">
+                {line}
+              </span>
+            ))}
+          </p>
+          {introTitle && (
+            <>
+              <div className="worship-template__intro-divider" aria-hidden="true" />
+              <p className="worship-template__intro-title">{introTitle}</p>
+            </>
+          )}
+          <p className="worship-template__description">
+            {(descriptionLines ?? [description]).map((line) => (
+              <span key={line} className="worship-template__description-line">
+                {line}
+              </span>
+            ))}
+          </p>
         </div>
-        <div className="worship-template__intro-media">
-          <ImageSlot src={introImage} alt={`${title} 소개 이미지`} variant="intro" />
-        </div>
+        {!introImage && (
+          <div className="worship-template__intro-media">
+            <ImageSlot alt={`${title} 소개 이미지`} variant="intro" />
+          </div>
+        )}
       </section>
 
       <section className="worship-template__gallery worship-template__fade" aria-label="예배 모습">
@@ -140,8 +169,10 @@ function WorshipTemplate({
 
       <footer className="worship-template__footer worship-template__fade">
         <p className="worship-template__footer-message">{footerMessage}</p>
-        <div className="worship-template__footer-icon" aria-hidden="true">
-          {crossIcon ?? <DefaultCrossIcon />}
+        <div className="worship-template__footer-divider" aria-hidden="true">
+          <span className="worship-template__footer-line" />
+          {crossIcon ?? <FooterDividerCross />}
+          <span className="worship-template__footer-line" />
         </div>
       </footer>
     </article>

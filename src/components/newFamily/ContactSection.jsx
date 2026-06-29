@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom'
+import KakaoRoughMap from '@/components/location/KakaoRoughMap'
 import { CONTACT_INFO } from '@/data/newFamilyGuide'
-import { ContactIconMap, ContactIconPhone, PlaceholderMap } from '@/components/newFamily/shared'
+import { ContactIconMap, ContactIconPhone } from '@/components/newFamily/shared'
 
 function ContactSection({
   phone = CONTACT_INFO.phone,
   address = CONTACT_INFO.address,
   worshipSummary = CONTACT_INFO.worshipSummary,
-  mapImage = CONTACT_INFO.mapImage,
   worshipGuidePath = CONTACT_INFO.worshipGuidePath,
   locationPath = CONTACT_INFO.locationPath,
 }) {
@@ -43,7 +43,7 @@ function ContactSection({
         </div>
 
         <div className="nf-contact__map">
-          <PlaceholderMap label="지도 영역" mapImage={mapImage} />
+          <KakaoRoughMap />
         </div>
 
         <div className="nf-contact__actions">

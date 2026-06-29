@@ -67,12 +67,6 @@
   height: auto;
 }
 
-.worship-template__image-slot--hero .worship-template__image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
 /* ── Info card ── */
 
 .worship-template__info-card {
@@ -109,7 +103,7 @@
   flex-direction: column;
   align-items: center;
   gap: 0.625rem;
-  font-size: 0.875rem;
+  font-size: 1.125rem;
   font-weight: 600;
   color: var(--worship-accent);
 }
@@ -123,7 +117,7 @@
 
 .worship-template__info-value {
   margin: 0;
-  font-size: 1.125rem;
+  font-size: 1.5rem;
   font-weight: 700;
   line-height: 1.5;
   color: #1f2d3d;
@@ -142,6 +136,80 @@
   gap: 2.5rem;
   align-items: center;
   margin-bottom: 3rem;
+}
+
+.worship-template__intro--banner {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1024 / 438;
+  min-height: auto;
+  padding: clamp(2rem, 5vw, 3rem) clamp(1.75rem, 4vw, 3rem);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--worship-intro-bg) right center / cover no-repeat;
+}
+
+.worship-template__intro--banner .worship-template__intro-text {
+  position: relative;
+  z-index: 1;
+  width: min(52%, 22rem);
+  max-width: none;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.worship-template__intro--banner .worship-template__headline {
+  font-family: 'Nanum Brush Script', cursive;
+  font-size: clamp(1.875rem, 4.2vw, 2.5rem);
+  font-weight: 400;
+  line-height: 1.3;
+  color: #2f6fad;
+  margin-bottom: 0;
+  width: 100%;
+  text-align: center;
+}
+
+.worship-template__headline-line,
+.worship-template__description-line {
+  display: block;
+}
+
+.worship-template__intro--banner .worship-template__intro-divider {
+  margin: 1rem auto 1.125rem;
+}
+
+.worship-template__intro-divider {
+  width: 3rem;
+  height: 2px;
+  margin: 1rem 0 1.125rem;
+  background-color: #2f6fad;
+}
+
+.worship-template__intro--banner .worship-template__intro-title {
+  width: 100%;
+  text-align: center;
+}
+
+.worship-template__intro-title {
+  margin: 0 0 1rem;
+  font-size: clamp(1.1875rem, 2.4vw, 1.375rem);
+  font-weight: 700;
+  line-height: 1.45;
+  color: #1f2d3d;
+  word-break: keep-all;
+}
+
+.worship-template__intro--banner .worship-template__description {
+  font-size: clamp(1rem, 2vw, 1.0625rem);
+  line-height: 1.65;
+  color: #374151;
+  margin: 0;
+  width: 100%;
+  text-align: center;
 }
 
 .worship-template__headline {
@@ -217,6 +285,29 @@
   box-shadow: 0 12px 28px rgba(90, 169, 255, 0.15);
 }
 
+.worship-template__image-slot.worship-template__image-slot--hero,
+.worship-template__image-slot.worship-template__image-slot--hero:hover {
+  border: none;
+  border-radius: 12px;
+  outline: none;
+  background-color: transparent;
+  box-shadow: none;
+  transform: none;
+  transition: none;
+  line-height: 0;
+}
+
+.worship-template__image-slot.worship-template__image-slot--hero .worship-template__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  object-fit: cover;
+  vertical-align: top;
+}
+
 .worship-template__placeholder-icon {
   font-size: 2rem;
   line-height: 1;
@@ -270,40 +361,36 @@
 }
 
 .worship-template__footer-message {
-  margin: 0 0 1.5rem;
+  margin: 0 0 1.25rem;
   font-size: 1rem;
   line-height: 1.75;
   color: #4b5563;
   word-break: keep-all;
 }
 
-.worship-template__footer-icon {
-  position: relative;
+.worship-template__footer-divider {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 0.875rem;
+  width: 100%;
+  max-width: 36rem;
+  margin: 0 auto;
   color: var(--worship-accent);
 }
 
-.worship-template__footer-icon::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
+.worship-template__footer-line {
+  flex: 1;
   height: 1px;
-  background-color: #e5edf5;
-  transform: translateY(-50%);
-  z-index: 0;
+  background-color: currentColor;
+  opacity: 0.55;
 }
 
-.worship-template__cross-icon {
-  position: relative;
-  z-index: 1;
-  width: 28px;
-  height: 28px;
-  padding: 0 1rem;
-  background-color: #ffffff;
+.worship-template__footer-cross {
+  flex-shrink: 0;
+  width: 35px;
+  height: 35px;
+  object-fit: contain;
 }
 
 /* ── Responsive ── */
@@ -312,6 +399,19 @@
   .worship-template__intro {
     grid-template-columns: 1fr;
     gap: 1.75rem;
+  }
+
+  .worship-template__intro--banner {
+    aspect-ratio: auto;
+    min-height: 18rem;
+    padding: 1.75rem 1.25rem;
+  }
+
+  .worship-template__intro--banner .worship-template__intro-text {
+    width: 100%;
+    max-width: none;
+    align-items: center;
+    text-align: center;
   }
 
   .worship-template__intro-media {

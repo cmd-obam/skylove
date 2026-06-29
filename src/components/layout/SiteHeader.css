@@ -101,7 +101,7 @@
 .site-header__link {
   display: block;
   padding: 0.5rem 0.5rem;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
   color: #2a2a2a;
   text-decoration: none;
@@ -189,7 +189,7 @@
   top: 0;
   right: 0;
   z-index: 200;
-  width: 300px;
+  width: 270px;
   height: 100vh;
   background: #fff;
   box-shadow: -4px 0 24px rgba(0, 0, 0, 0.12);
@@ -364,7 +364,7 @@
 
   .site-header__link {
     padding: 0.5rem 0.25rem;
-    font-size: 16px;
+    font-size: 18px;
   }
 
   .site-header__title {
@@ -383,7 +383,7 @@
 @media (max-width: 1100px) {
   .site-header__link {
     padding: 0.5rem 0.125rem;
-    font-size: 15px;
+    font-size: 17px;
   }
 
   .site-header__title {
@@ -452,6 +452,6 @@
   }
 
   .site-header__drawer {
-    width: min(300px, 88vw);
+    width: min(270px, 88vw);
   }
 }

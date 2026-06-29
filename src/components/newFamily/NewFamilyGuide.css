@@ -291,7 +291,6 @@
 /* ── Cards ── */
 
 .nf-features__grid,
-.nf-reasons__grid,
 .nf-first-visit__grid {
   display: grid;
   gap: 1rem;
@@ -302,10 +301,6 @@
 
 .nf-features__grid {
   grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-
-.nf-reasons__grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .nf-first-visit__grid {
@@ -661,6 +656,21 @@
   background-color: var(--nf-accent);
 }
 
+.nf-contact__map {
+  width: 100%;
+  min-height: 280px;
+  height: 100%;
+  border: 1px solid rgba(77, 166, 255, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: #ffffff;
+  box-shadow: 0 8px 24px rgba(77, 166, 255, 0.12);
+}
+
+.nf-contact__map .kakao-roughmap {
+  min-height: 280px;
+}
+
 .nf-contact__actions {
   display: flex;
   flex-direction: column;
@@ -734,7 +744,6 @@
     border-radius: 0 0 12px 12px;
   }
 
-  .nf-reasons__grid,
   .nf-first-visit__grid {
     grid-template-columns: 1fr;
   }
@@ -757,7 +766,7 @@
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
-  .nf-reasons__grid {
+  .nf-first-visit__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
