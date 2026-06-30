@@ -92,8 +92,10 @@ export const WORSHIP_GUIDE_CONTENT = {
   '/worship-guide/el-shaddai-choir': {
     title: '엘샤다이 찬양단',
     subtitle: 'CHOIR',
-    time: '주일 예배 시',
-    location: '대예배실',
+    timeLabel: '사역',
+    time: '찬양 사역',
+    locationLabel: '사역시간',
+    location: '주일축복예배 시',
     headlineLines: ['찬양으로', '하나님께 영광을'],
     introTitle: '엘샤다이 찬양단',
     descriptionLines: [

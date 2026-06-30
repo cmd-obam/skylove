@@ -46,6 +46,8 @@ function WorshipTemplate({
   subtitle = 'WORSHIP',
   time,
   location,
+  timeLabel = '예배시간',
+  locationLabel = '장소',
   headline,
   headlineLines = null,
   introTitle = null,
@@ -106,12 +108,12 @@ function WorshipTemplate({
 
       <section className="worship-template__info-card worship-template__fade" aria-label="예배 정보">
         <div className="worship-template__info-item">
-          <span className="worship-template__info-label">예배시간</span>
+          <span className="worship-template__info-label">{timeLabel}</span>
           <p className="worship-template__info-value">{time}</p>
         </div>
         <div className="worship-template__info-divider" aria-hidden="true" />
         <div className="worship-template__info-item">
-          <span className="worship-template__info-label">장소</span>
+          <span className="worship-template__info-label">{locationLabel}</span>
           <p className="worship-template__info-value">{location}</p>
         </div>
       </section>
