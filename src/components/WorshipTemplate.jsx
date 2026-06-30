@@ -43,23 +43,28 @@ function ImageSlot({ src, alt, label, variant = 'default', className = '' }) {
 
 function WorshipTemplate({
   title,
-  subtitle = 'WORSHIP',
+  subtitle = 'Sunday Blessing Service',
   time,
   location,
   timeLabel = '예배시간',
   locationLabel = '장소',
   headline,
   headlineLines = null,
+  headlineRichLines = null,
   introTitle = null,
   description,
   descriptionLines = null,
+  descriptionParagraphs = null,
   heroImage = null,
+  heroImageFit = 'cover',
   introImage = null,
   galleryImages = [null, null, null],
   galleryTitles = ['찬양', '말씀', '교제'],
+  showGallery = true,
   footerMessage,
   crossIcon = null,
   introBannerVariant = null,
+  introBackgroundPosition = 'right center',
 }) {
   const rootRef = useRef(null)
 
@@ -84,15 +89,29 @@ function WorshipTemplate({
       { threshold: 0.12, rootMargin: '0px 0px -40px 0px' },
     )
 
-    targets.forEach((target) => observer.observe(target))
+    targets.forEach((target) => {
+      target.classList.remove('worship-template__fade--visible')
+      observer.observe(target)
+
+      const rect = target.getBoundingClientRect()
+      const isAlreadyVisible = rect.top < window.innerHeight * 0.92 && rect.bottom > 0
+
+      if (isAlreadyVisible) {
+        target.classList.add('worship-template__fade--visible')
+        observer.unobserve(target)
+      }
+    })
 
     return () => observer.disconnect()
-  }, [])
+  }, [title])
 
   const galleryItems = galleryTitles.map((galleryTitle, index) => ({
     title: galleryTitle,
     src: galleryImages[index] ?? null,
   }))
+
+  const usesDiamondDivider =
+    introBannerVariant === 'choir' || introBannerVariant === 'dawn-prayer'
 
   return (
     <article className="worship-template" ref={rootRef}>
@@ -103,7 +122,12 @@ function WorshipTemplate({
       </header>
 
       <div className="worship-template__hero worship-template__fade">
-        <ImageSlot src={heroImage} alt={`${title} 대표 이미지`} variant="hero" />
+        <ImageSlot
+          src={heroImage}
+          alt={`${title} 대표 이미지`}
+          variant="hero"
+          className={heroImageFit === 'contain' ? 'worship-template__image-slot--hero-fit-contain' : ''}
+        />
       </div>
 
       <section className="worship-template__info-card worship-template__fade" aria-label="예배 정보">
@@ -119,48 +143,111 @@ function WorshipTemplate({
       </section>
 
       <section
-        className={`worship-template__intro worship-template__fade${
-          introImage ? ' worship-template__intro--banner' : ''
-        }${
+        className={`worship-template__intro${
+          introImage ? '' : ' worship-template__fade'
+        }${introImage ? ' worship-template__intro--banner' : ''}${
           introBannerVariant
             ? ` worship-template__intro--banner-${introBannerVariant}`
             : ''
         }`}
-        style={introImage ? { '--worship-intro-bg': `url(${introImage})` } : undefined}
+        style={
+          introImage
+            ? {
+                '--worship-intro-bg': `url(${introImage})`,
+                ...(introBackgroundPosition !== 'right center'
+                  ? { '--worship-intro-bg-position': introBackgroundPosition }
+                  : {}),
+              }
+            : undefined
+        }
         aria-label="예배 소개"
       >
         <div className="worship-template__intro-text">
-          <p className="worship-template__headline">
-            {(headlineLines ?? [headline]).map((line) => (
-              <span key={line} className="worship-template__headline-line">
-                {line}
+          {introBannerVariant === 'dawn-prayer' && (
+            <>
+              <span className="worship-template__intro-cross" aria-hidden="true">
+                <svg width="16" height="20" viewBox="0 0 16 20" fill="none">
+                  <path d="M8 0v20M0 6h16" stroke="currentColor" strokeWidth="2" />
+                </svg>
               </span>
-            ))}
+              <div
+                className="worship-template__intro-divider worship-template__intro-divider--diamond worship-template__intro-divider--top"
+                aria-hidden="true"
+              >
+                <span className="worship-template__intro-divider-diamond" />
+              </div>
+            </>
+          )}
+          <p className="worship-template__headline">
+            {headlineRichLines ? (
+              headlineRichLines.map((line, lineIndex) => (
+                <span key={lineIndex} className="worship-template__headline-line">
+                  {line.map((part, partIndex) => (
+                    <span
+                      key={partIndex}
+                      className={
+                        part.accent ? 'worship-template__headline-accent' : undefined
+                      }
+                    >
+                      {part.text}
+                    </span>
+                  ))}
+                </span>
+              ))
+            ) : (
+              (headlineLines ?? [headline]).map((line) => (
+                <span key={line} className="worship-template__headline-line">
+                  {line}
+                </span>
+              ))
+            )}
           </p>
           {introTitle && (
             <>
               <div
                 className={`worship-template__intro-divider${
-                  introBannerVariant === 'choir'
-                    ? ' worship-template__intro-divider--diamond'
-                    : ''
+                  usesDiamondDivider ? ' worship-template__intro-divider--diamond' : ''
                 }`}
                 aria-hidden="true"
               >
-                {introBannerVariant === 'choir' && (
+                {usesDiamondDivider && (
                   <span className="worship-template__intro-divider-diamond" />
                 )}
               </div>
               <p className="worship-template__intro-title">{introTitle}</p>
             </>
           )}
-          <p className="worship-template__description">
-            {(descriptionLines ?? [description]).map((line) => (
-              <span key={line} className="worship-template__description-line">
-                {line}
-              </span>
-            ))}
-          </p>
+          {descriptionParagraphs ? (
+            <div className="worship-template__description-blocks">
+              {descriptionParagraphs.map((paragraph, paragraphIndex) => (
+                <div key={paragraphIndex} className="worship-template__description-block">
+                  {paragraphIndex > 0 && (
+                    <div className="worship-template__description-divider" aria-hidden="true" />
+                  )}
+                  <p className="worship-template__description worship-template__description--rich">
+                    {paragraph.map((part, partIndex) => (
+                      <span
+                        key={partIndex}
+                        className={
+                          part.accent ? 'worship-template__description-accent' : undefined
+                        }
+                      >
+                        {part.text}
+                      </span>
+                    ))}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="worship-template__description">
+              {(descriptionLines ?? [description]).map((line) => (
+                <span key={line} className="worship-template__description-line">
+                  {line}
+                </span>
+              ))}
+            </p>
+          )}
         </div>
         {!introImage && (
           <div className="worship-template__intro-media">
@@ -169,6 +256,7 @@ function WorshipTemplate({
         )}
       </section>
 
+      {showGallery && (
       <section className="worship-template__gallery worship-template__fade" aria-label="예배 모습">
         <ul className="worship-template__gallery-list">
           {galleryItems.map((item) => (
@@ -184,6 +272,7 @@ function WorshipTemplate({
           ))}
         </ul>
       </section>
+      )}
 
       <footer className="worship-template__footer worship-template__fade">
         <p className="worship-template__footer-message">{footerMessage}</p>

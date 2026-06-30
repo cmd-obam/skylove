@@ -3,110 +3,70 @@
 }
 
 .location-info__card {
-  position: relative;
-  display: grid;
-  --location-sky-top: #e6f3fb;
-  --location-sky-mid: #eff6fc;
-  --location-sky-soft: #f1f6fc;
-  --location-sky-light: #f3f8fe;
-  background-color: var(--location-sky-top);
   border-radius: 16px;
   border: 1px solid #e6e8ec;
   overflow: hidden;
-}
-
-.location-info__bg-wrap {
-  grid-column: 1;
-  grid-row: 1;
-  z-index: 0;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-self: stretch;
-  overflow: hidden;
-  background: linear-gradient(
-    180deg,
-    var(--location-sky-top) 0%,
-    var(--location-sky-mid) 48%,
-    var(--location-sky-soft) 100%
-  );
-}
-
-/* 상단 하늘 영역만 은은하게 — 하단 일러스트는 가리지 않음 */
-.location-info__bg-wrap::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 55%;
-  z-index: 1;
-  pointer-events: none;
-  background: radial-gradient(
-    ellipse 90% 80% at 65% 20%,
-    rgba(255, 255, 255, 0.18) 0%,
-    transparent 72%
-  );
-}
-
-.location-info__bg {
-  position: relative;
-  z-index: 0;
-  display: block;
-  width: 100%;
-  height: auto;
-  flex-shrink: 0;
-  opacity: 1;
-  filter: none;
+  background-color: #f3f8fe;
+  container-type: inline-size;
+  container-name: location-info;
 }
 
 .location-info__content {
-  grid-column: 1;
-  grid-row: 1;
-  z-index: 1;
-  position: relative;
   display: grid;
-  /* 교회 일러스트 끝(~37%) | 문의전화 | 예배안내(넓게) */
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.78fr) minmax(0, 1.42fr);
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.72fr) minmax(0, 1.48fr);
   align-items: stretch;
-  isolation: isolate;
-}
-
-/* 텍스트 가독성: 이미지 흐림 대신 연한 흰색 오버레이 (상단 위주) */
-.location-info__content::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.34) 0%,
-    rgba(255, 255, 255, 0.18) 30%,
-    rgba(255, 255, 255, 0.07) 55%,
-    rgba(255, 255, 255, 0) 75%
-  );
 }
 
 .location-info__column {
   position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-  gap: 1.125rem;
-  padding: 2.125rem 1.75rem 2rem;
+  min-height: 24rem;
+  overflow: hidden;
 }
 
 .location-info__column:not(:last-child) {
   border-right: 1px solid rgba(210, 218, 228, 0.9);
 }
 
-.location-info__column--directions {
-  padding-right: 1rem;
-  padding-bottom: 2.5rem;
+.location-info__column-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: var(--location-col-bg) right bottom / cover no-repeat;
+  pointer-events: none;
+}
+
+.location-info__column--directions .location-info__column-bg {
+  background-position: center bottom;
+  background-size: contain;
+}
+
+.location-info__column--directions .location-info__column-inner {
+  padding-bottom: 11.5rem;
+}
+
+.location-info__column--phone .location-info__column-bg {
+  background-position: center;
+  background-size: cover;
+}
+
+.location-info__column--worship .location-info__column-bg {
+  background-position: right bottom;
+  background-size: auto 58%;
+}
+
+.location-info__column-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.125rem;
+  min-height: 100%;
+  padding: 2.125rem 1.75rem 2rem;
+}
+
+.location-info__column--phone .location-info__column-inner {
+  gap: 0.875rem;
 }
 
 .location-info__directions {
@@ -114,7 +74,6 @@
   flex-direction: column;
   gap: 0.5rem;
   width: 100%;
-  max-width: 100%;
 }
 
 .location-info__header {
@@ -137,7 +96,7 @@
 }
 
 .location-info__label {
-  font-size: 1.0625rem;
+  font-size: 1.125rem;
   font-weight: 700;
   line-height: 1.3;
   color: #1a1a1a;
@@ -146,7 +105,7 @@
 
 .location-info__address {
   margin: 0;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   font-weight: 500;
   line-height: 1.65;
   color: #5f6670;
@@ -155,37 +114,24 @@
 
 .location-info__church-name {
   margin: 0;
-  font-size: 0.9375rem;
+  font-size: 1rem;
   font-weight: 600;
   line-height: 1.5;
   color: var(--color-primary);
 }
 
-.location-info__column--phone {
-  padding-left: 1.25rem;
-  padding-right: 1.125rem;
-  gap: 0.875rem;
-}
-
 .location-info__column--phone .location-info__label {
-  font-size: 0.9375rem;
-}
-
-.location-info__phone {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.375rem;
-  width: 100%;
+  font-size: 1rem;
 }
 
 .location-info__phone-number {
-  font-size: 1.25rem;
+  font-size: clamp(1.125rem, 2.2cqi, 1.375rem);
   font-weight: 700;
   line-height: 1.35;
   color: var(--color-primary);
   text-decoration: none;
   letter-spacing: -0.03em;
+  white-space: nowrap;
   transition: opacity var(--transition);
 }
 
@@ -196,7 +142,7 @@
 
 .location-info__phone-desc {
   margin: 0;
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 500;
   line-height: 1.5;
   color: #5f6670;
@@ -212,7 +158,7 @@
 .location-info__phone-hours-label,
 .location-info__phone-hours-value {
   margin: 0;
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   line-height: 1.5;
 }
 
@@ -226,16 +172,8 @@
   color: #5f6670;
 }
 
-.location-info__column--worship {
-  align-items: flex-start;
-  padding-left: 1.125rem;
-  padding-right: 1.125rem;
-  min-width: 0;
-  overflow: visible;
-}
-
 .location-info__column--worship .location-info__label {
-  font-size: 1.125rem;
+  font-size: 1.1875rem;
 }
 
 .location-info__worship {
@@ -248,10 +186,15 @@
   min-width: 0;
 }
 
+.location-info__column--worship .location-info__column-inner {
+  padding-left: 1.375rem;
+  padding-right: 1.375rem;
+}
+
 .location-info__worship-grid {
   display: grid;
-  grid-template-columns: minmax(0, 0.95fr) minmax(7.25rem, 1.05fr);
-  gap: 0 0.75rem;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0 1.375rem;
   width: 100%;
   flex: 1;
   min-width: 0;
@@ -267,10 +210,10 @@
 
 .location-info__worship-item {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) minmax(5.5rem, auto);
   align-items: start;
-  gap: 0.375rem 0.5rem;
-  padding: 0.375rem 0;
+  gap: 0.375rem 0.75rem;
+  padding: 0.4375rem 0;
   word-break: keep-all;
 }
 
@@ -316,8 +259,8 @@
   padding: 0.625rem 1.25rem;
   border: 1.5px solid var(--color-primary);
   border-radius: 999px;
-  background-color: rgba(255, 255, 255, 0.62);
-  font-size: 0.875rem;
+  background-color: rgba(255, 255, 255, 0.72);
+  font-size: 0.9375rem;
   font-weight: 600;
   color: var(--color-primary);
   text-decoration: none;
@@ -337,50 +280,324 @@
   color: var(--color-white);
 }
 
-@media (max-width: 992px) {
+/* ── Phone: compact row (mobile) ── */
+
+.location-info__phone-top {
+  display: contents;
+}
+
+.location-info__phone-number--compact {
+  display: none;
+}
+
+.location-info__phone-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.375rem;
+  width: 100%;
+}
+
+/* ── Worship: compact row (mobile) ── */
+
+.location-info__worship-compact {
+  display: none;
+}
+
+.location-info__worship-full {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.125rem;
+  width: 100%;
+  min-height: 100%;
+}
+
+/* ── Tablet: narrow content (sidebar 포함 ~1256, ~1025 등) ── */
+
+@container location-info (max-width: 1100px) {
   .location-info__content {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 
-  .location-info__column {
-    padding: 1.75rem 1.5rem;
+  .location-info__column--worship {
+    grid-column: 1 / -1;
   }
 
   .location-info__column:not(:last-child) {
     border-right: none;
-    border-bottom: 1px solid rgba(210, 218, 228, 0.9);
   }
 
-  .location-info__directions {
-    max-width: none;
+  .location-info__column--directions {
+    border-right: 1px solid rgba(210, 218, 228, 0.9);
   }
 
   .location-info__column--worship {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
+    border-top: 1px solid rgba(210, 218, 228, 0.9);
+  }
+
+  .location-info__column {
+    min-height: auto;
+  }
+
+  .location-info__column-inner {
+    padding: 1.75rem 1.5rem;
+  }
+
+  .location-info__column--directions .location-info__column-inner {
+    align-items: center;
+    text-align: center;
+    padding-bottom: 10rem;
+  }
+
+  .location-info__column--directions .location-info__header,
+  .location-info__column--directions .location-info__directions {
+    align-self: center;
+    align-items: center;
+    text-align: center;
+  }
+
+  .location-info__column--directions .location-info__column-bg {
+    background-position: center bottom;
+    background-size: contain;
+  }
+
+  .location-info__column--worship .location-info__column-inner {
+    padding-left: 1.75rem;
+    padding-right: 1.75rem;
+  }
+
+  .location-info__column--worship .location-info__column-bg {
+    background-size: auto 48%;
+    opacity: 0.85;
   }
 
   .location-info__worship-grid {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 0 1rem;
+    gap: 0 2rem;
   }
 
-  .location-info__worship-link {
-    margin-top: 0.5rem;
+  .location-info__worship-item {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.5rem 1rem;
+    padding: 0.5rem 0;
   }
 }
 
-@media (max-width: 640px) {
+/* ── Mobile: single column ── */
+
+@container location-info (max-width: 580px) {
+  .location-info__content {
+    grid-template-columns: 1fr;
+  }
+
+  .location-info__column--directions {
+    border-right: none;
+    border-bottom: 1px solid rgba(210, 218, 228, 0.9);
+  }
+
+  .location-info__column--phone {
+    border-bottom: 1px solid rgba(210, 218, 228, 0.9);
+  }
+
+  .location-info__column--worship {
+    border-top: none;
+  }
+
+  .location-info__column--directions .location-info__column-inner {
+    align-items: flex-start;
+    text-align: left;
+    padding-bottom: 9.5rem;
+  }
+
+  .location-info__column--directions .location-info__header,
+  .location-info__column--directions .location-info__directions {
+    align-self: flex-start;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .location-info__column--phone .location-info__column-inner {
+    gap: 0;
+  }
+
+  .location-info__phone-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .location-info__phone-number--compact {
+    display: block;
+    font-size: 1.125rem;
+    flex-shrink: 0;
+  }
+
+  .location-info__phone-body {
+    display: none;
+  }
+
+  .location-info__column--worship .location-info__column-bg {
+    display: none;
+  }
+
+  .location-info__column--worship .location-info__column-inner {
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
+  }
+
+  .location-info__worship-compact {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: 100%;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .location-info__worship-compact-arrow {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #9ca3af;
+    line-height: 1;
+  }
+
+  .location-info__worship-full {
+    display: none;
+  }
+
   .location-info__worship-grid {
     grid-template-columns: 1fr;
     gap: 0.25rem 0;
   }
 
-  .location-info__worship-time {
-    white-space: normal;
+  .location-info__worship-item {
+    grid-template-columns: minmax(0, 1fr) auto;
   }
 
+  .location-info__worship-time,
   .location-info__worship-time-sub {
     white-space: normal;
+  }
+}
+
+/* viewport fallback (container query 미지원) */
+@media (max-width: 1280px) {
+  .location-info__content {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .location-info__column--worship {
+    grid-column: 1 / -1;
+    border-top: 1px solid rgba(210, 218, 228, 0.9);
+  }
+
+  .location-info__column:not(:last-child) {
+    border-right: none;
+  }
+
+  .location-info__column--directions {
+    border-right: 1px solid rgba(210, 218, 228, 0.9);
+  }
+
+  .location-info__column {
+    min-height: auto;
+  }
+
+  .location-info__column--directions .location-info__column-inner {
+    align-items: center;
+    text-align: center;
+    padding-bottom: 10rem;
+  }
+
+  .location-info__column--directions .location-info__header,
+  .location-info__column--directions .location-info__directions {
+    align-self: center;
+    align-items: center;
+    text-align: center;
+  }
+
+  .location-info__worship-grid {
+    gap: 0 2rem;
+  }
+}
+
+@media (max-width: 899px) {
+  .location-info__content {
+    grid-template-columns: 1fr;
+  }
+
+  .location-info__column--directions {
+    border-right: none;
+    border-bottom: 1px solid rgba(210, 218, 228, 0.9);
+  }
+
+  .location-info__column--phone {
+    border-bottom: 1px solid rgba(210, 218, 228, 0.9);
+  }
+
+  .location-info__column--worship {
+    border-top: none;
+  }
+
+  .location-info__column--directions .location-info__column-inner {
+    align-items: flex-start;
+    text-align: left;
+    padding-bottom: 9.5rem;
+  }
+
+  .location-info__column--directions .location-info__header,
+  .location-info__column--directions .location-info__directions {
+    align-self: flex-start;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .location-info__column--phone .location-info__column-inner {
+    gap: 0;
+  }
+
+  .location-info__phone-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .location-info__phone-number--compact {
+    display: block;
+    font-size: 1.125rem;
+    flex-shrink: 0;
+  }
+
+  .location-info__phone-body {
+    display: none;
+  }
+
+  .location-info__column--worship .location-info__column-bg {
+    display: none;
+  }
+
+  .location-info__column--worship .location-info__column-inner {
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
+  }
+
+  .location-info__worship-compact {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: 100%;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .location-info__worship-full {
+    display: none;
   }
 }

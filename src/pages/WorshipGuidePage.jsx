@@ -19,7 +19,7 @@ function WorshipGuidePage() {
     return <WorshipGuideFallback />
   }
 
-  return <WorshipTemplate {...content} />
+  return <WorshipTemplate key={pathname} {...content} />
 }
 
 export default WorshipGuidePage

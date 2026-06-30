@@ -206,7 +206,8 @@ export const FAQ_ITEMS = [
 export const CONTACT_INFO = {
   phone: LOCATION_DATA.phone,
   address: `${LOCATION_DATA.address} ${LOCATION_DATA.churchName}`,
-  worshipSummary: WORSHIP_SCHEDULE.map((item) => `${item.name} ${item.time}`).join(' / '),
+  worshipSchedule: WORSHIP_SCHEDULE,
+  worshipSchedulePath: '/worship',
   worshipGuidePath: '/worship-guide/sunday-blessing',
   locationPath: '/about/location',
 }

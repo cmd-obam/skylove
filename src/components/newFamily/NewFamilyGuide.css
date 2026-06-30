@@ -656,6 +656,20 @@
   background-color: var(--nf-accent);
 }
 
+.nf-contact__worship-compact {
+  display: none;
+}
+
+.nf-contact__worship-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nf-contact__worship-list li + li {
+  margin-top: 0.25rem;
+}
+
 .nf-contact__map {
   width: 100%;
   min-height: 280px;
@@ -758,6 +772,34 @@
 
   .nf-contact__actions {
     flex-direction: column;
+  }
+
+  .nf-contact__worship-compact {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: 100%;
+    font-weight: 500;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .nf-contact__worship-compact:hover,
+  .nf-contact__worship-compact:focus-visible {
+    color: var(--nf-accent);
+  }
+
+  .nf-contact__worship-compact-arrow {
+    flex-shrink: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #9ca3af;
+    line-height: 1;
+  }
+
+  .nf-contact__worship-full {
+    display: none;
   }
 
   .nf-cell__panel {

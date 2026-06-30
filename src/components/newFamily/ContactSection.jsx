@@ -6,7 +6,8 @@ import { ContactIconMap, ContactIconPhone } from '@/components/newFamily/shared'
 function ContactSection({
   phone = CONTACT_INFO.phone,
   address = CONTACT_INFO.address,
-  worshipSummary = CONTACT_INFO.worshipSummary,
+  worshipSchedule = CONTACT_INFO.worshipSchedule,
+  worshipSchedulePath = CONTACT_INFO.worshipSchedulePath,
   worshipGuidePath = CONTACT_INFO.worshipGuidePath,
   locationPath = CONTACT_INFO.locationPath,
 }) {
@@ -32,12 +33,26 @@ function ContactSection({
               </dt>
               <dd>{address}</dd>
             </div>
-            <div className="nf-contact__row">
+            <div className="nf-contact__row nf-contact__row--worship">
               <dt>
                 <span className="nf-contact__label-dot" aria-hidden="true" />
                 <span>예배시간</span>
               </dt>
-              <dd>{worshipSummary}</dd>
+              <dd className="nf-contact__worship">
+                <Link to={worshipSchedulePath} className="nf-contact__worship-compact">
+                  예배시간 안내
+                  <span className="nf-contact__worship-compact-arrow" aria-hidden="true">
+                    →
+                  </span>
+                </Link>
+                <ul className="nf-contact__worship-list nf-contact__worship-full">
+                  {worshipSchedule.map((item) => (
+                    <li key={item.id}>
+                      {item.name} {item.time}
+                    </li>
+                  ))}
+                </ul>
+              </dd>
             </div>
           </dl>
         </div>

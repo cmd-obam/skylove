@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom'
-import bannerBg from '@/assets/images/location/location-info-banner-bg.png'
+import directionsBg from '@/assets/images/location/location-info-col-directions.png'
+import phoneBg from '@/assets/images/location/location-info-col-phone.png'
+import worshipBg from '@/assets/images/location/location-info-col-worship.png'
 import { LOCATION_DATA, LOCATION_INFO_BANNER } from '@/data/location'
 import './LocationInfo.css'
 
@@ -40,17 +42,27 @@ function IconClock() {
 
 const WORSHIP_PATH = '/worship'
 
+function LocationInfoColumn({ variant, bgImage, children }) {
+  return (
+    <div className={`location-info__column location-info__column--${variant}`}>
+      <div
+        className="location-info__column-bg"
+        style={{ '--location-col-bg': `url(${bgImage})` }}
+        aria-hidden="true"
+      />
+      <div className="location-info__column-inner">{children}</div>
+    </div>
+  )
+}
+
 function LocationInfo() {
   const banner = LOCATION_INFO_BANNER
 
   return (
     <section className="location-info" aria-label="교회 연락처 및 예배 안내">
       <div className="location-info__card">
-        <div className="location-info__bg-wrap" aria-hidden="true">
-          <img src={bannerBg} alt="" className="location-info__bg" />
-        </div>
         <div className="location-info__content">
-          <div className="location-info__column location-info__column--directions">
+          <LocationInfoColumn variant="directions" bgImage={directionsBg}>
             <div className="location-info__header">
               <span className="location-info__icon" aria-hidden="true">
                 <IconPin />
@@ -61,16 +73,24 @@ function LocationInfo() {
               <p className="location-info__address">{LOCATION_DATA.address}</p>
               <p className="location-info__church-name">{LOCATION_DATA.churchName}</p>
             </div>
-          </div>
+          </LocationInfoColumn>
 
-          <div className="location-info__column location-info__column--phone">
-            <div className="location-info__header">
-              <span className="location-info__icon" aria-hidden="true">
-                <IconPhone />
-              </span>
-              <span className="location-info__label">{banner.phoneTitle}</span>
+          <LocationInfoColumn variant="phone" bgImage={phoneBg}>
+            <div className="location-info__phone-top">
+              <div className="location-info__header">
+                <span className="location-info__icon" aria-hidden="true">
+                  <IconPhone />
+                </span>
+                <span className="location-info__label">{banner.phoneTitle}</span>
+              </div>
+              <a
+                href={`tel:${LOCATION_DATA.phone}`}
+                className="location-info__phone-number location-info__phone-number--compact"
+              >
+                {LOCATION_DATA.phone}
+              </a>
             </div>
-            <div className="location-info__phone">
+            <div className="location-info__phone-body">
               <a href={`tel:${LOCATION_DATA.phone}`} className="location-info__phone-number">
                 {LOCATION_DATA.phone}
               </a>
@@ -80,42 +100,56 @@ function LocationInfo() {
                 <p className="location-info__phone-hours-value">{banner.phoneHours}</p>
               </div>
             </div>
-          </div>
+          </LocationInfoColumn>
 
-          <div className="location-info__column location-info__column--worship">
-            <div className="location-info__header">
-              <span className="location-info__icon" aria-hidden="true">
-                <IconClock />
-              </span>
-              <span className="location-info__label">{banner.worshipTitle}</span>
-            </div>
-            <div className="location-info__worship">
-              <div className="location-info__worship-grid">
-                {banner.worshipColumns.map((column, columnIndex) => (
-                  <ul key={columnIndex} className="location-info__worship-list">
-                    {column.map((item) => (
-                      <li key={item.id} className="location-info__worship-item">
-                        <span className="location-info__worship-name">{item.name}</span>
-                        <span className="location-info__worship-time-col">
-                          <span className="location-info__worship-time">{item.time}</span>
-                          {item.timeSub ? (
-                            <span className="location-info__worship-time-sub">{item.timeSub}</span>
-                          ) : null}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                ))}
-              </div>
-              <Link to={WORSHIP_PATH} className="location-info__worship-link">
-                {banner.worshipLinkLabel}
-                <span className="location-info__worship-link-arrow" aria-hidden="true">
-                  {' '}
-                  &gt;
+          <LocationInfoColumn variant="worship" bgImage={worshipBg}>
+            <Link to={WORSHIP_PATH} className="location-info__worship-compact">
+              <div className="location-info__header">
+                <span className="location-info__icon" aria-hidden="true">
+                  <IconClock />
                 </span>
-              </Link>
+                <span className="location-info__label">{banner.worshipTitle}</span>
+              </div>
+              <span className="location-info__worship-compact-arrow" aria-hidden="true">
+                &gt;
+              </span>
+            </Link>
+
+            <div className="location-info__worship-full">
+              <div className="location-info__header">
+                <span className="location-info__icon" aria-hidden="true">
+                  <IconClock />
+                </span>
+                <span className="location-info__label">{banner.worshipTitle}</span>
+              </div>
+              <div className="location-info__worship">
+                <div className="location-info__worship-grid">
+                  {banner.worshipColumns.map((column, columnIndex) => (
+                    <ul key={columnIndex} className="location-info__worship-list">
+                      {column.map((item) => (
+                        <li key={item.id} className="location-info__worship-item">
+                          <span className="location-info__worship-name">{item.name}</span>
+                          <span className="location-info__worship-time-col">
+                            <span className="location-info__worship-time">{item.time}</span>
+                            {item.timeSub ? (
+                              <span className="location-info__worship-time-sub">{item.timeSub}</span>
+                            ) : null}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  ))}
+                </div>
+                <Link to={WORSHIP_PATH} className="location-info__worship-link">
+                  {banner.worshipLinkLabel}
+                  <span className="location-info__worship-link-arrow" aria-hidden="true">
+                    {' '}
+                    &gt;
+                  </span>
+                </Link>
+              </div>
             </div>
-          </div>
+          </LocationInfoColumn>
         </div>
       </div>
     </section>

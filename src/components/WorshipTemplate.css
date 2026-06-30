@@ -39,12 +39,15 @@
 }
 
 .worship-template__subtitle {
-  margin: 0.75rem 0 0;
+  margin: 0.75rem auto 0;
+  max-width: 22rem;
   font-family: 'Montserrat', sans-serif;
-  font-size: 0.8125rem;
+  font-size: clamp(0.6875rem, 1.6vw, 0.8125rem);
   font-weight: 500;
-  letter-spacing: 0.35em;
+  line-height: 1.5;
+  letter-spacing: 0.06em;
   color: var(--worship-accent);
+  word-break: keep-all;
 }
 
 .worship-template__title-line {
@@ -146,7 +149,11 @@
   padding: clamp(2rem, 5vw, 3rem) clamp(1.75rem, 4vw, 3rem);
   border-radius: 12px;
   overflow: hidden;
-  background: var(--worship-intro-bg) right center / cover no-repeat;
+  background: var(--worship-intro-bg) var(--worship-intro-bg-position, right center) / cover no-repeat;
+}
+
+.worship-template__intro--banner-cross-top {
+  --worship-intro-bg-position: right top;
 }
 
 .worship-template__intro--banner .worship-template__intro-text {
@@ -224,6 +231,37 @@
   color: #5aa9ff;
 }
 
+.worship-template__intro--banner-dawn-prayer .worship-template__headline {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: clamp(1.75rem, 3.6vw, 2.25rem);
+  font-weight: 700;
+  line-height: 1.35;
+  color: #1f2d3d;
+}
+
+.worship-template__intro--banner-dawn-prayer .worship-template__headline-accent {
+  color: #5aa9ff;
+  font-weight: 700;
+}
+
+.worship-template__intro--banner-dawn-prayer .worship-template__description {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: clamp(0.875rem, 1.9vw, 0.96875rem);
+  line-height: 1.8;
+}
+
+.worship-template__intro-cross {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.625rem;
+  color: #5aa9ff;
+}
+
+.worship-template__intro-divider--top {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
 .worship-template__intro-divider--diamond {
   display: flex;
   align-items: center;
@@ -249,6 +287,36 @@
   background-color: #9ec5e8;
   transform: rotate(45deg);
   flex-shrink: 0;
+}
+
+.worship-template__description-blocks {
+  width: 100%;
+}
+
+.worship-template__description-block + .worship-template__description-block {
+  margin-top: 0.25rem;
+}
+
+.worship-template__description-divider {
+  width: min(100%, 12rem);
+  height: 0;
+  margin: 1rem auto;
+  border: none;
+  border-top: 1px dotted #c5d5e8;
+}
+
+.worship-template__intro--banner-choir .worship-template__description--rich {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: clamp(0.875rem, 1.9vw, 0.96875rem);
+  line-height: 1.8;
+  color: #374151;
+  text-align: center;
+  word-break: keep-all;
+}
+
+.worship-template__intro--banner-choir .worship-template__description-accent {
+  color: #5aa9ff;
+  font-weight: 700;
 }
 
 .worship-template__headline {
@@ -345,6 +413,18 @@
   box-shadow: none;
   object-fit: cover;
   vertical-align: top;
+}
+
+.worship-template__image-slot.worship-template__image-slot--hero.worship-template__image-slot--hero-fit-contain {
+  aspect-ratio: auto;
+  background-color: #faf6ef;
+}
+
+.worship-template__image-slot.worship-template__image-slot--hero.worship-template__image-slot--hero-fit-contain
+  .worship-template__image {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
 }
 
 .worship-template__placeholder-icon {
@@ -444,6 +524,11 @@
     aspect-ratio: auto;
     min-height: 18rem;
     padding: 1.75rem 1.25rem;
+  }
+
+  .worship-template__intro--banner-cross-top {
+    --worship-intro-bg-position: 92% 6%;
+    min-height: 20rem;
   }
 
   .worship-template__intro--banner .worship-template__intro-text {

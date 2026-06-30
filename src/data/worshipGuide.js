@@ -8,12 +8,12 @@ import wednesdayIntro from '@/assets/images/worship/wednesday-intro.png'
 import elShaddaiChoirHero from '@/assets/images/worship/el-shaddai-choir-hero.png'
 import elShaddaiChoirIntro from '@/assets/images/worship/el-shaddai-choir-intro.png'
 import cellMeetingIntro from '@/assets/images/worship/cell-meeting-intro.png'
+import dawnPrayerIntro from '@/assets/images/worship/dawn-prayer-intro.png'
 
 export const WORSHIP_GUIDE_CONTENT = {
   '/worship-guide/sunday-blessing': {
     title: '주일축복예배',
-    subtitle: 'WORSHIP',
-    time: '오전 11시',
+    subtitle: 'Sunday Blessing Service',
     location: '대예배실',
     headlineLines: ['하나님의 은혜와', '축복이 머무는 예배'],
     introTitle: '주일 축복예배',
@@ -33,8 +33,7 @@ export const WORSHIP_GUIDE_CONTENT = {
   },
   '/worship-guide/sunday-praise': {
     title: '주일찬양예배',
-    subtitle: 'WORSHIP',
-    time: '오후 1시 20분',
+    subtitle: 'Sunday Praise Service',
     location: '대예배실',
     headlineLines: ['찬양에 마음을 담아', '주님께 드리는 예배'],
     introTitle: '주일 찬양예배',
@@ -54,8 +53,7 @@ export const WORSHIP_GUIDE_CONTENT = {
   },
   '/worship-guide/wednesday': {
     title: '수요저녁예배',
-    subtitle: 'WORSHIP',
-    time: '오후 7시 30분',
+    subtitle: 'Wednesday Night Service',
     location: '소예배실',
     headlineLines: ['한 주의 중심에서', '말씀 앞에 머무는 예배'],
     introTitle: '수요 예배',
@@ -67,6 +65,7 @@ export const WORSHIP_GUIDE_CONTENT = {
     ],
     heroImage: null,
     introImage: wednesdayIntro,
+    introBannerVariant: 'cross-top',
     galleryImages: [null, null, null],
     galleryTitles: ['기도', '말씀', '교제'],
     footerMessage:
@@ -75,14 +74,23 @@ export const WORSHIP_GUIDE_CONTENT = {
   },
   '/worship-guide/dawn-prayer': {
     title: '새벽기도',
-    subtitle: 'PRAYER',
+    subtitle: 'Early Morning Prayer',
     time: '오전 5시 30분(화~토)',
     location: '소예배실',
-    headline: '하루의 시작, 기도로 여는 아침',
-    description:
-      '새벽기도는 하루를 시작하며 하나님께 마음을 올리고, 말씀으로 새 힘을 얻는 시간입니다.',
+    headlineRichLines: [
+      [{ text: '주님과 함께하는' }],
+      [{ text: '하루의 ' }, { text: '첫걸음', accent: true }],
+    ],
+    introTitle: '새벽기도',
+    descriptionLines: [
+      '하루의 첫 시간을 하나님께 드리며',
+      '기도와 말씀 가운데',
+      '새로운 힘과 소망을 얻는',
+      '하늘사랑교회의 새벽기도입니다.',
+    ],
     heroImage: null,
-    introImage: null,
+    introImage: dawnPrayerIntro,
+    introBannerVariant: 'dawn-prayer',
     galleryImages: [null, null, null],
     galleryTitles: ['기도', '말씀', '교제'],
     footerMessage:
@@ -91,31 +99,42 @@ export const WORSHIP_GUIDE_CONTENT = {
   },
   '/worship-guide/el-shaddai-choir': {
     title: '엘샤다이 찬양단',
-    subtitle: 'CHOIR',
+    subtitle: 'El Shaddai Praise Team',
     timeLabel: '사역',
     time: '찬양 사역',
     locationLabel: '사역시간',
     location: '주일축복예배 시',
     headlineLines: ['찬양으로', '하나님께 영광을'],
     introTitle: '엘샤다이 찬양단',
-    descriptionLines: [
-      '엘샤다이 찬양단은',
-      '예배 가운데 온 마음으로 찬양하며',
-      '성도들과 함께 하나님께 영광을 올려드리는',
-      '하늘사랑교회의 찬양팀입니다.',
+    descriptionParagraphs: [
+      [
+        { text: "'엘샤다이(El Shaddai)'는", accent: true },
+        { text: ' 세상 모든 것을 가능하게 하시는 ' },
+        { text: '전능하신 하나님', accent: true },
+        { text: ', 우리의 모든 필요를 풍성히 ' },
+        { text: '채우시는 하나님', accent: true },
+        { text: '을 뜻합니다.' },
+      ],
+      [
+        {
+          text: '우리는 그 이름을 높여 찬양하며, 예배 가운데 성도들과 함께 하나님께 영광을 올려드리는 ',
+        },
+        { text: '하늘사랑교회', accent: true },
+        { text: '의 찬양팀입니다.' },
+      ],
     ],
     heroImage: elShaddaiChoirHero,
+    heroImageFit: 'contain',
     introImage: elShaddaiChoirIntro,
     introBannerVariant: 'choir',
-    galleryImages: [null, null, null],
-    galleryTitles: ['찬양', '예배', '교제'],
+    showGallery: false,
     footerMessage:
       '찬양으로 하나님께 영광 돌리는 엘샤다이 찬양단, 함께 예배하며 은혜를 누리시길 바랍니다.',
     crossIcon: null,
   },
   '/worship-guide/cell-meeting': {
     title: '셀모임',
-    subtitle: 'FELLOWSHIP',
+    subtitle: 'Cell Group Meeting',
     time: '오후 1시 (마지막주 일요일)',
     location: '셀별 모임장소',
     headlineLines: ['삶을 나누고', '믿음을 세우는 공동체'],
@@ -129,8 +148,7 @@ export const WORSHIP_GUIDE_CONTENT = {
     heroImage: null,
     introImage: cellMeetingIntro,
     introBannerVariant: 'choir',
-    galleryImages: [null, null, null],
-    galleryTitles: ['나눔', '말씀', '교제'],
+    showGallery: false,
     footerMessage:
       '작은 공동체 가운데서 함께 성장하는 셀모임, 따뜻한 교제로 하나님의 사랑을 나누시길 바랍니다.',
     crossIcon: null,
