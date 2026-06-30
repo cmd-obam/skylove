@@ -20,12 +20,12 @@ import EventPhotos from '@/pages/EventPhotos'
 import EventPhotoDetail from '@/pages/EventPhotoDetail'
 import NewFamilyGuide from '@/pages/NewFamilyGuide'
 import WorshipGuidePage from '@/pages/WorshipGuidePage'
+import Facilities from '@/pages/Facilities'
 import {
   Education,
   Mission,
   Fellowship,
   FacilityVr,
-  Facilities,
 } from '@/pages/PlaceholderPage'
 import ScrollToTop from '@/components/common/ScrollToTop'
 import '@/App.css'

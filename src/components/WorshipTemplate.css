@@ -212,6 +212,45 @@
   text-align: center;
 }
 
+.worship-template__intro--banner-choir .worship-template__headline {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: clamp(1.75rem, 3.6vw, 2.25rem);
+  font-weight: 700;
+  line-height: 1.35;
+  color: #1f2d3d;
+}
+
+.worship-template__intro--banner-choir .worship-template__headline-line:nth-child(2) {
+  color: #5aa9ff;
+}
+
+.worship-template__intro-divider--diamond {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: min(100%, 10.5rem);
+  height: auto;
+  margin: 1rem auto 1.125rem;
+  background: transparent;
+}
+
+.worship-template__intro-divider--diamond::before,
+.worship-template__intro-divider--diamond::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background-color: #9ec5e8;
+}
+
+.worship-template__intro-divider-diamond {
+  width: 0.3125rem;
+  height: 0.3125rem;
+  background-color: #9ec5e8;
+  transform: rotate(45deg);
+  flex-shrink: 0;
+}
+
 .worship-template__headline {
   margin: 0 0 1.25rem;
   font-size: clamp(1.375rem, 3vw, 1.75rem);

@@ -57,6 +57,7 @@ function WorshipTemplate({
   galleryTitles = ['찬양', '말씀', '교제'],
   footerMessage,
   crossIcon = null,
+  introBannerVariant = null,
 }) {
   const rootRef = useRef(null)
 
@@ -118,6 +119,10 @@ function WorshipTemplate({
       <section
         className={`worship-template__intro worship-template__fade${
           introImage ? ' worship-template__intro--banner' : ''
+        }${
+          introBannerVariant
+            ? ` worship-template__intro--banner-${introBannerVariant}`
+            : ''
         }`}
         style={introImage ? { '--worship-intro-bg': `url(${introImage})` } : undefined}
         aria-label="예배 소개"
@@ -132,7 +137,18 @@ function WorshipTemplate({
           </p>
           {introTitle && (
             <>
-              <div className="worship-template__intro-divider" aria-hidden="true" />
+              <div
+                className={`worship-template__intro-divider${
+                  introBannerVariant === 'choir'
+                    ? ' worship-template__intro-divider--diamond'
+                    : ''
+                }`}
+                aria-hidden="true"
+              >
+                {introBannerVariant === 'choir' && (
+                  <span className="worship-template__intro-divider-diamond" />
+                )}
+              </div>
               <p className="worship-template__intro-title">{introTitle}</p>
             </>
           )}

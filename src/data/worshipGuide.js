@@ -5,6 +5,9 @@
 import sundayBlessingIntro from '@/assets/images/worship/sunday-blessing-intro.png'
 import sundayPraiseIntro from '@/assets/images/worship/sunday-praise-intro.png'
 import wednesdayIntro from '@/assets/images/worship/wednesday-intro.png'
+import elShaddaiChoirHero from '@/assets/images/worship/el-shaddai-choir-hero.png'
+import elShaddaiChoirIntro from '@/assets/images/worship/el-shaddai-choir-intro.png'
+import cellMeetingIntro from '@/assets/images/worship/cell-meeting-intro.png'
 
 export const WORSHIP_GUIDE_CONTENT = {
   '/worship-guide/sunday-blessing': {
@@ -86,16 +89,44 @@ export const WORSHIP_GUIDE_CONTENT = {
       '새벽의 고요 가운데 하나님을 만나는 시간, 함께 기도하며 하루를 시작하시길 바랍니다.',
     crossIcon: null,
   },
+  '/worship-guide/el-shaddai-choir': {
+    title: '엘샤다이 찬양단',
+    subtitle: 'CHOIR',
+    time: '주일 예배 시',
+    location: '대예배실',
+    headlineLines: ['찬양으로', '하나님께 영광을'],
+    introTitle: '엘샤다이 찬양단',
+    descriptionLines: [
+      '엘샤다이 찬양단은',
+      '예배 가운데 온 마음으로 찬양하며',
+      '성도들과 함께 하나님께 영광을 올려드리는',
+      '하늘사랑교회의 찬양팀입니다.',
+    ],
+    heroImage: elShaddaiChoirHero,
+    introImage: elShaddaiChoirIntro,
+    introBannerVariant: 'choir',
+    galleryImages: [null, null, null],
+    galleryTitles: ['찬양', '예배', '교제'],
+    footerMessage:
+      '찬양으로 하나님께 영광 돌리는 엘샤다이 찬양단, 함께 예배하며 은혜를 누리시길 바랍니다.',
+    crossIcon: null,
+  },
   '/worship-guide/cell-meeting': {
     title: '셀모임',
     subtitle: 'FELLOWSHIP',
     time: '오후 1시 (마지막주 일요일)',
     location: '셀별 모임장소',
-    headline: '말씀과 나눔으로 세워지는 공동체',
-    description:
-      '셀모임은 소그룹 가운데서 말씀을 나누고, 서로를 돌보며, 함께 성장하는 교제의 자리입니다.',
+    headlineLines: ['삶을 나누고', '믿음을 세우는 공동체'],
+    introTitle: '셀모임',
+    descriptionLines: [
+      '셀모임은 삶과 신앙을 함께 나누며',
+      '말씀과 기도로 서로를 격려하고',
+      '믿음 안에서 함께 성장해 가는',
+      '하늘사랑교회의 소그룹 공동체입니다.',
+    ],
     heroImage: null,
-    introImage: null,
+    introImage: cellMeetingIntro,
+    introBannerVariant: 'choir',
     galleryImages: [null, null, null],
     galleryTitles: ['나눔', '말씀', '교제'],
     footerMessage:

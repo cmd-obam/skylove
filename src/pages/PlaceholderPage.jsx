@@ -24,10 +24,6 @@ export function FacilityVr() {
   return <PlaceholderPage />
 }
 
-export function Facilities() {
-  return <PlaceholderPage />
-}
-
 export function Notice() {
   return <PlaceholderPage />
 }

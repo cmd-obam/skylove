@@ -8,6 +8,7 @@ const WORSHIP_PATH = '/worship'
 const CHURCH_NEWS_PATH = '/church-news'
 const CHURCH_ALBUM_PATH = '/church-news/album'
 const NEW_FAMILY_PATH = '/new-family'
+const FACILITIES_PATH = '/about/facilities'
 const SUNDAY_BLESSING_PATH = '/worship-guide/sunday-blessing'
 const SUNDAY_PRAISE_PATH = '/worship-guide/sunday-praise'
 
@@ -22,6 +23,7 @@ const CUSTOM_HEADER_PATHS = new Set([
   CHURCH_NEWS_PATH,
   CHURCH_ALBUM_PATH,
   NEW_FAMILY_PATH,
+  FACILITIES_PATH,
 ])
 
 function isChurchNewsPostDetail(pathname) {
