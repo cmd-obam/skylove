@@ -9,11 +9,21 @@ import elShaddaiChoirHero from '@/assets/images/worship/el-shaddai-choir-hero.pn
 import elShaddaiChoirIntro from '@/assets/images/worship/el-shaddai-choir-intro.png'
 import cellMeetingIntro from '@/assets/images/worship/cell-meeting-intro.png'
 import dawnPrayerIntro from '@/assets/images/worship/dawn-prayer-intro.png'
+import { WORSHIP_SCHEDULE } from '@/data/worship'
+
+const WORSHIP_SCHEDULE_BY_PATH = {
+  '/worship-guide/sunday-blessing': 'sunday-blessing',
+  '/worship-guide/sunday-praise': 'sunday-praise',
+  '/worship-guide/wednesday': 'wednesday',
+  '/worship-guide/dawn-prayer': 'dawn-prayer',
+  '/worship-guide/cell-meeting': 'sunday-cell',
+}
 
 export const WORSHIP_GUIDE_CONTENT = {
   '/worship-guide/sunday-blessing': {
     title: '주일축복예배',
     subtitle: 'Sunday Blessing Service',
+    time: '오전 11시',
     location: '대예배실',
     headlineLines: ['하나님의 은혜와', '축복이 머무는 예배'],
     introTitle: '주일 축복예배',
@@ -34,6 +44,7 @@ export const WORSHIP_GUIDE_CONTENT = {
   '/worship-guide/sunday-praise': {
     title: '주일찬양예배',
     subtitle: 'Sunday Praise Service',
+    time: '오후 1시 20분',
     location: '대예배실',
     headlineLines: ['찬양에 마음을 담아', '주님께 드리는 예배'],
     introTitle: '주일 찬양예배',
@@ -54,6 +65,7 @@ export const WORSHIP_GUIDE_CONTENT = {
   '/worship-guide/wednesday': {
     title: '수요저녁예배',
     subtitle: 'Wednesday Night Service',
+    time: '오후 7시 30분',
     location: '소예배실',
     headlineLines: ['한 주의 중심에서', '말씀 앞에 머무는 예배'],
     introTitle: '수요 예배',
@@ -156,5 +168,27 @@ export const WORSHIP_GUIDE_CONTENT = {
 }
 
 export function getWorshipGuideContent(pathname) {
-  return WORSHIP_GUIDE_CONTENT[pathname] ?? null
+  const content = WORSHIP_GUIDE_CONTENT[pathname] ?? null
+
+  if (!content) {
+    return null
+  }
+
+  const scheduleId = WORSHIP_SCHEDULE_BY_PATH[pathname]
+
+  if (!scheduleId) {
+    return content
+  }
+
+  const schedule = WORSHIP_SCHEDULE.find((item) => item.id === scheduleId)
+
+  if (!schedule) {
+    return content
+  }
+
+  return {
+    ...content,
+    time: content.time ?? schedule.time,
+    location: content.location ?? schedule.location,
+  }
 }

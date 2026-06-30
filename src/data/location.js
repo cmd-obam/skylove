@@ -38,7 +38,7 @@ export const ACCESS_GUIDES = {
     title: '자가용 이용 시',
     subtitle: '서천안IC에서 출발 시',
     description: '하늘사랑감리교회까지 차량 약 14분 소요됩니다.',
-    parkingNote: '교회 내 주차장을 이용하실 수 있습니다.',
+    parkingNote: '교회 주차장을 이용하실 수 있습니다.',
   },
   bus: {
     title: '버스 이용 시',
