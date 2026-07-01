@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
+import { HOME_HERO } from '@/data/home'
 import hero01 from '@/assets/images/hero/hero01.jpg'
 import hero02 from '@/assets/images/hero/hero02.jpg'
 import './Hero.css'
@@ -54,15 +55,14 @@ function Hero() {
       <div className="hero__overlay" aria-hidden="true" />
 
       <div className="hero__content">
-        <p className="hero__eyebrow">WELCOME TO OUR COMMUNITY</p>
-        <h1 className="hero__title">하늘사랑교회</h1>
-        <p className="hero__subtitle">하나님을 만나 사람이 행복한 교회</p>
+        <h1 className="hero__title">{HOME_HERO.title}</h1>
+        <p className="hero__subtitle">{HOME_HERO.subtitle}</p>
         <div className="hero__actions">
-          <Link to="/about" className="hero__btn hero__btn--primary">
-            교회소개
+          <Link to={HOME_HERO.primaryCta.href} className="hero__btn hero__btn--primary">
+            {HOME_HERO.primaryCta.label}
           </Link>
-          <Link to="/worship" className="hero__btn hero__btn--secondary">
-            예배시간 안내
+          <Link to={HOME_HERO.secondaryCta.href} className="hero__btn hero__btn--secondary">
+            {HOME_HERO.secondaryCta.label}
           </Link>
         </div>
       </div>

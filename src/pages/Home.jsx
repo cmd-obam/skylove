@@ -1,13 +1,17 @@
 import Hero from '@/components/sections/Hero'
-import QuickMenu from '@/components/sections/QuickMenu'
-import Gallery from '@/components/sections/Gallery'
+import HomeWelcome from '@/components/sections/HomeWelcome'
+import HomeWorship from '@/components/sections/HomeWorship'
+import HomeStory from '@/components/sections/HomeStory'
+import HomeLocation from '@/components/sections/HomeLocation'
 
 function Home() {
   return (
     <>
       <Hero />
-      <QuickMenu />
-      <Gallery />
+      <HomeWelcome />
+      <HomeWorship />
+      <HomeStory />
+      <HomeLocation />
     </>
   )
 }
