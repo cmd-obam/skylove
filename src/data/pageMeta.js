@@ -67,6 +67,14 @@ export const PAGE_META = {
     title: '교회앨범',
     subtitle: '교회 행사와 다양한 활동 사진을 소개합니다.',
   },
+  '/news/write': {
+    title: '교회소식 글쓰기',
+    subtitle: '',
+  },
+  '/album/write': {
+    title: '교회앨범 등록',
+    subtitle: '',
+  },
   '/new-family': {
     title: '새가족 안내',
     subtitle: '새가족을 위한 안내를 제공합니다',

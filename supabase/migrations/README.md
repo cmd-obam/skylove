@@ -10,6 +10,9 @@ Migration 파일을 **번호 순서대로** Supabase SQL Editor에서 실행하�
 | 2 | `002_profile_delete_policy.sql` | 회원탈퇴 DELETE 정책 |
 | 3 | `004_add_role_column.sql` | **role 컬럼** (member / admin / super_admin) |
 | 4 | `003_board_comments_likes.sql` | 게시글 댓글·추천 (role 컬럼 필요) |
+| 5 | `005_board_posts.sql` | 교회소식·교회앨범 게시글 + Storage |
+| 6 | `006_account_recovery.sql` | 아이디/비밀번호 찾기 RPC |
+| 7 | `007_password_recovery.sql` | 이름+이메일 본인 확인 RPC |
 
 > `003`은 `profiles.role`을 RLS에서 참조하므로 **`004`를 먼저** 실행해야 합니다.
 

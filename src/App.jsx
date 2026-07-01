@@ -12,12 +12,19 @@ import Auth from '@/pages/Auth'
 import Signup from '@/pages/Signup'
 import EmailConfirmSuccess from '@/pages/EmailConfirmSuccess'
 import MemberEdit from '@/pages/MemberEdit'
+import ResetPassword from '@/pages/ResetPassword'
+import ChangePassword from '@/pages/ChangePassword'
 import Admin from '@/pages/Admin'
 import AdminRoute from '@/components/auth/AdminRoute'
 import ChurchNews from '@/pages/ChurchNews'
 import ChurchNewsDetail from '@/pages/ChurchNewsDetail'
+import ChurchNewsWrite from '@/pages/ChurchNewsWrite'
+import ChurchNewsEdit from '@/pages/ChurchNewsEdit'
 import EventPhotos from '@/pages/EventPhotos'
 import EventPhotoDetail from '@/pages/EventPhotoDetail'
+import AlbumWrite from '@/pages/AlbumWrite'
+import AlbumEdit from '@/pages/AlbumEdit'
+import BoardAdminRoute from '@/components/auth/BoardAdminRoute'
 import NewFamilyGuide from '@/pages/NewFamilyGuide'
 import WorshipGuidePage from '@/pages/WorshipGuidePage'
 import Facilities from '@/pages/Facilities'
@@ -50,9 +57,11 @@ function App() {
             <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Auth />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/email-confirm" element={<EmailConfirmSuccess />} />
             <Route path="/member/edit" element={<MemberEdit />} />
+            <Route path="/mypage/change-password" element={<ChangePassword />} />
             <Route
               path="/admin"
               element={
@@ -93,6 +102,40 @@ function App() {
                 <Route path="/church-news" element={<ChurchNews />} />
                 <Route path="/church-news/album" element={<EventPhotos />} />
                 <Route path="/church-news/album/:postId" element={<EventPhotoDetail />} />
+                <Route
+                  path="/news/write"
+                  element={
+                    <BoardAdminRoute>
+                      <ChurchNewsWrite />
+                    </BoardAdminRoute>
+                  }
+                />
+                <Route
+                  path="/news/edit/:postId"
+                  element={
+                    <BoardAdminRoute>
+                      <ChurchNewsEdit />
+                    </BoardAdminRoute>
+                  }
+                />
+                <Route
+                  path="/album/write"
+                  element={
+                    <BoardAdminRoute>
+                      <AlbumWrite />
+                    </BoardAdminRoute>
+                  }
+                />
+                <Route
+                  path="/album/edit/:postId"
+                  element={
+                    <BoardAdminRoute>
+                      <AlbumEdit />
+                    </BoardAdminRoute>
+                  }
+                />
+                <Route path="/church-news/write" element={<Navigate to="/news/write" replace />} />
+                <Route path="/church-news/album/write" element={<Navigate to="/album/write" replace />} />
                 <Route path="/new-family" element={<NewFamilyGuide />} />
                 <Route path="/church-news/:postId" element={<ChurchNewsDetail />} />
               </Route>

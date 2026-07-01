@@ -26,7 +26,15 @@ export const NEW_FAMILY_VIDEO = {
   introImage: null,
   videoTitle: "사람이 행복한 '천안하늘사랑감리교회'",
   videoUrl: 'https://www.youtube.com/embed/Uhl1Wb4WkEI',
+  videoId: 'Uhl1Wb4WkEI',
+  playButtonLabel: '인사말 영상 보기',
+  pastorName: '최석림 목사',
+  pastorRole: '하늘사랑교회 담임목사',
   thumbnail: null,
+}
+
+export function getYouTubeThumbnail(videoId, quality = 'maxresdefault') {
+  return `https://img.youtube.com/vi/${videoId}/${quality}.jpg`
 }
 
 export const CHURCH_FEATURE_CARDS = [
@@ -61,9 +69,9 @@ export const CHURCH_FEATURE_CARDS = [
 ]
 
 export const WELCOME_REASON = {
-  eyebrow: '하나님께서 예비하신 만남,',
-  title: '여러분들을 환영합니다.',
-  description: '누구든지 편안한 마음으로 함께 예배드릴 수 있습니다.',
+  eyebrow: '하늘사랑교회를 처음 방문하신 모든 분들을 환영합니다.',
+  title: null,
+  description: '누구든 편안한 마음으로 함께 예배하실 수 있습니다.',
   items: [
     {
       id: 'first-time',

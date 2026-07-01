@@ -17,6 +17,10 @@ export function getPostAuthor(post, { defaultAuthor = DEFAULT_AUTHOR } = {}) {
     return post.author.trim()
   }
 
+  if (typeof post.writer === 'string' && post.writer.trim()) {
+    return post.writer.trim()
+  }
+
   // TODO: post.authorId로 Supabase 프로필/회원 정보 조회 후 표시명 반환
   // if (post.authorId) {
   //   return resolveAuthorNameById(post.authorId) ?? defaultAuthor

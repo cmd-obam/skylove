@@ -25,6 +25,17 @@
   margin-bottom: 2rem;
 }
 
+.category-layout--canvas {
+  background-color: transparent;
+}
+
+.category-layout__main--canvas {
+  padding: 0;
+  background-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
+}
+
 @media (max-width: 1024px) {
   .category-layout {
     padding: 2rem 0 4rem;
@@ -44,6 +55,13 @@
     margin: 0 auto;
     padding: 2rem 1.5rem 2.5rem;
   }
+
+  .category-layout__main--canvas {
+    width: 100%;
+    max-width: none;
+    padding: 0;
+    border-radius: 0;
+  }
 }
 
 @media (max-width: 768px) {
@@ -55,5 +73,11 @@
     width: calc(100% - 32px);
     padding: 1.75rem 1.25rem 2rem;
     border-radius: 16px;
+  }
+
+  .category-layout__main--canvas {
+    width: 100%;
+    padding: 0;
+    border-radius: 0;
   }
 }

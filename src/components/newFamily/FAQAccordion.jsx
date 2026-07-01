@@ -11,7 +11,11 @@ function FAQAccordion({ items = FAQ_ITEMS }) {
 
   return (
     <section className="nf-section nf-faq nf-fade" aria-label="자주 묻는 질문">
-      <SectionHeading title="자주 묻는 질문" description="처음 방문하시는 분들이 자주 묻는 질문입니다." />
+      <SectionHeading
+        title="자주 묻는 질문"
+        description="처음 방문하시는 분들이 자주 묻는 질문입니다."
+        align="left"
+      />
 
       <ul className="nf-accordion">
         {items.map((item) => {

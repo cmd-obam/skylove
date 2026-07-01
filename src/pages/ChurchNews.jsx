@@ -1,19 +1,52 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FiFileText } from 'react-icons/fi'
 import Breadcrumb from '@/components/Breadcrumb'
-import { CHURCH_NEWS_POSTS } from '@/data/churchNews'
+import BoardWriteButton from '@/components/board/BoardWriteButton'
+import { fetchBoardPosts } from '@/services/board/posts'
 import { formatBoardDate } from '@/utils/formatBoardDate'
+import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 import './ChurchNews.css'
 
 const LIST_PATH = '/church-news'
 
 function ChurchNews() {
   const [searchKeyword, setSearchKeyword] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [posts, setPosts] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function loadPosts() {
+      const result = await fetchBoardPosts('church_news')
+
+      if (isMounted) {
+        setPosts(result.posts ?? [])
+        setLoading(false)
+      }
+    }
+
+    loadPosts()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   const handleSearchSubmit = (event) => {
     event.preventDefault()
+    setSearchQuery(searchKeyword.trim())
   }
+
+  const filteredPosts = useMemo(() => {
+    if (!searchQuery) {
+      return posts
+    }
+
+    return posts.filter((post) => post.title?.includes(searchQuery))
+  }, [posts, searchQuery])
 
   return (
     <div className="church-news-page">
@@ -26,7 +59,7 @@ function ChurchNews() {
       </header>
 
       <div className="church-news-board__toolbar">
-        <form className="church-news-board__search" onSubmit={handleSearchSubmit}>
+        <form className="church-news-board__search" onSubmit={handleSearchSubmit} autoComplete="off">
           <label htmlFor="church-news-search" className="visually-hidden">
             제목 검색
           </label>
@@ -37,11 +70,13 @@ function ChurchNews() {
             placeholder="제목 검색"
             value={searchKeyword}
             onChange={(event) => setSearchKeyword(event.target.value)}
+            autoComplete={AUTOCOMPLETE_OFF}
           />
           <button type="submit" className="church-news-board__search-button">
             검색
           </button>
         </form>
+        <BoardWriteButton to="/news/write" />
       </div>
 
       <div className="church-news-board__table-wrap">
@@ -65,7 +100,15 @@ function ChurchNews() {
             </tr>
           </thead>
           <tbody>
-            {CHURCH_NEWS_POSTS.length === 0 ? (
+            {loading ? (
+              <tr>
+                <td colSpan={4} className="church-news-board__empty">
+                  <div className="church-news-board__empty-inner">
+                    <span>불러오는 중...</span>
+                  </div>
+                </td>
+              </tr>
+            ) : filteredPosts.length === 0 ? (
               <tr>
                 <td colSpan={4} className="church-news-board__empty">
                   <div className="church-news-board__empty-inner">
@@ -75,7 +118,7 @@ function ChurchNews() {
                 </td>
               </tr>
             ) : (
-              CHURCH_NEWS_POSTS.map((post) => (
+              filteredPosts.map((post) => (
                 <tr key={post.id}>
                   <td>{post.no}</td>
                   <td className="church-news-board__post-title">

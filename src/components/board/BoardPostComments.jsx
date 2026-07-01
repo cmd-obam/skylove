@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useBoardComments } from '@/hooks/useBoardComments'
 import { isAdminRole, isSuperAdminRole } from '@/services/auth/roles'
 import { formatCommentDateTime } from '@/utils/formatBoardDate'
+import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 
 function CommentAdminActions({
   comment,
@@ -269,6 +270,7 @@ function BoardPostComments({ postType, postId, onCommentsCountChange }) {
               rows={3}
               value={editBody}
               onChange={(event) => setEditBody(event.target.value)}
+              autoComplete={AUTOCOMPLETE_OFF}
             />
             <div className="board-comments__edit-actions">
               <button type="button" className="board-comments__edit-button" onClick={handleEditSave}>
@@ -288,7 +290,7 @@ function BoardPostComments({ postType, postId, onCommentsCountChange }) {
           </div>
         )}
 
-        <form className="board-post-extras__comment-form" onSubmit={handleFormSubmit}>
+        <form className="board-post-extras__comment-form" onSubmit={handleFormSubmit} autoComplete="off">
           <textarea
             id="board-post-comment"
             className="board-post-extras__comment-input"
@@ -300,6 +302,7 @@ function BoardPostComments({ postType, postId, onCommentsCountChange }) {
               isLoggedIn ? '댓글 입력...' : '댓글은 로그인 후 작성 가능합니다.'
             }
             disabled={!isLoggedIn || isSubmitting}
+            autoComplete={AUTOCOMPLETE_OFF}
           />
           <button
             type="submit"

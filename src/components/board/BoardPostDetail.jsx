@@ -4,6 +4,7 @@ import { FiHeart, FiImage } from 'react-icons/fi'
 import BoardPageHeader from '@/components/board/BoardPageHeader'
 import BoardPostExtras from '@/components/board/BoardPostExtras'
 import BoardPostComments from '@/components/board/BoardPostComments'
+import BoardPostAdminBar from '@/components/board/BoardPostAdminBar'
 import { useBoardPostStats } from '@/hooks/useBoardPostStats'
 import { useAuth } from '@/contexts/AuthContext'
 import { togglePostLike } from '@/services/board/postLikes'
@@ -104,6 +105,7 @@ function BoardPostDetail({
           <div className="church-news-detail__title-row">
             <h2 className="church-news-detail__title">{post.title}</h2>
             <div className="church-news-detail__header-actions">
+              <BoardPostAdminBar postType={postType} postId={postId} listPath={listPath} />
               <Link to={listPath} className="church-news-detail__header-button">
                 {listButtonLabel}
               </Link>

@@ -16,6 +16,8 @@ import {
   handleProfileUpdate,
 } from '@/services/auth/updateProfile'
 import { BIRTH_DATE_MIN, getBirthDateMax, normalizeBirthDate } from '@/services/auth/signup'
+import { AUTOCOMPLETE_OFF, PASSWORD_AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
+import MemberMypageLayout from '@/components/auth/MemberMypageLayout'
 import { setAuthSession } from '@/utils/auth'
 import './Signup.css'
 
@@ -187,17 +189,20 @@ function MemberEdit() {
 
   if (isLoading) {
     return (
-      <div className="signup-page">
-        <div className="signup-page__container">
-          <section className="signup-card" aria-label="회원정보 수정">
-            <p>회원정보를 불러오는 중입니다.</p>
-          </section>
+      <MemberMypageLayout>
+        <div className="signup-page">
+          <div className="signup-page__container">
+            <section className="signup-card" aria-label="회원정보 수정">
+              <p>회원정보를 불러오는 중입니다.</p>
+            </section>
+          </div>
         </div>
-      </div>
+      </MemberMypageLayout>
     )
   }
 
   return (
+    <MemberMypageLayout>
     <div className="signup-page">
       <DeleteAccountModal
         isOpen={isDeleteModalOpen}
@@ -222,7 +227,7 @@ function MemberEdit() {
             </p>
           </header>
 
-          <form className="signup-form" onSubmit={onSubmit} noValidate>
+          <form className="signup-form" onSubmit={onSubmit} noValidate autoComplete="off">
             <div className="signup-form__fields">
               <ProfileFieldCard icon={FiMail} label="이메일" error={errors.email}>
                 <input
@@ -233,7 +238,7 @@ function MemberEdit() {
                   placeholder="example@email.com"
                   value={form.email}
                   onChange={(event) => updateField('email', event.target.value)}
-                  autoComplete="email"
+                  autoComplete={AUTOCOMPLETE_OFF}
                 />
               </ProfileFieldCard>
 
@@ -253,7 +258,7 @@ function MemberEdit() {
                   placeholder={PASSWORD_PLACEHOLDER}
                   value={form.password}
                   onChange={(event) => updateField('password', event.target.value)}
-                  autoComplete="new-password"
+                  autoComplete={PASSWORD_AUTOCOMPLETE_OFF}
                   aria-describedby="member-edit-password-hint"
                 />
               </ProfileFieldCard>
@@ -272,7 +277,7 @@ function MemberEdit() {
                   placeholder="변경 시에만 입력하세요."
                   value={form.passwordConfirm}
                   onChange={(event) => updateField('passwordConfirm', event.target.value)}
-                  autoComplete="new-password"
+                  autoComplete={PASSWORD_AUTOCOMPLETE_OFF}
                 />
               </ProfileFieldCard>
 
@@ -285,7 +290,7 @@ function MemberEdit() {
                   placeholder="이름을 입력하세요."
                   value={form.name}
                   onChange={(event) => updateField('name', event.target.value)}
-                  autoComplete="name"
+                  autoComplete={AUTOCOMPLETE_OFF}
                 />
               </ProfileFieldCard>
 
@@ -299,6 +304,7 @@ function MemberEdit() {
                   onChange={(event) => updateField('birthday', normalizeBirthDate(event.target.value))}
                   min={BIRTH_DATE_MIN}
                   max={getBirthDateMax()}
+                  autoComplete={AUTOCOMPLETE_OFF}
                 />
               </ProfileFieldCard>
 
@@ -316,7 +322,7 @@ function MemberEdit() {
                   placeholder="010-0000-0000"
                   value={form.phone}
                   onChange={(event) => updateField('phone', formatPhoneNumber(event.target.value))}
-                  autoComplete="tel"
+                  autoComplete={AUTOCOMPLETE_OFF}
                 />
               </ProfileFieldCard>
             </div>
@@ -359,6 +365,7 @@ function MemberEdit() {
         </section>
       </div>
     </div>
+    </MemberMypageLayout>
   )
 }
 

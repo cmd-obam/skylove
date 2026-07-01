@@ -674,7 +674,6 @@ function Signup() {
                   placeholder={SIGNUP_PASSWORD_PLACEHOLDER}
                   value={form.password}
                   onChange={(event) => updateField('password', event.target.value)}
-                  autoComplete="off"
                 />
               </SignupFieldCard>
 
@@ -692,7 +691,6 @@ function Signup() {
                     setPasswordConfirmTouched(true)
                     updateField('passwordConfirm', event.target.value)
                   }}
-                  autoComplete="off"
                 />
               </SignupFieldCard>
 

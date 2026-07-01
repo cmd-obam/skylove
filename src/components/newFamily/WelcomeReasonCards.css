@@ -26,10 +26,10 @@
 
 .nf-reasons__eyebrow {
   margin: 0;
-  font-size: clamp(1rem, 2.1vw, 1.125rem);
-  font-weight: 500;
-  line-height: 1.35;
-  color: #374151;
+  font-size: clamp(1.0625rem, 2.2vw, 1.25rem);
+  font-weight: 700;
+  line-height: 1.45;
+  color: #1f2d3d;
 }
 
 .nf-reasons__title {

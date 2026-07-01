@@ -1,0 +1,41 @@
+.member-mypage-sidebar.category-sidebar {
+  display: block;
+}
+
+@media (max-width: 1024px) {
+  .member-mypage-sidebar.category-sidebar {
+    width: calc(100% - 40px);
+    max-width: 1100px;
+    margin: 0 auto 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .member-mypage-sidebar.category-sidebar {
+    width: calc(100% - 32px);
+  }
+}
+
+.member-mypage-layout__main .signup-page__container {
+  max-width: none;
+  margin: 0;
+  animation: none;
+}
+
+.member-mypage-layout__main .signup-card {
+  box-shadow: none;
+  padding: 0;
+  border-radius: 0;
+}
+
+.member-mypage-layout .signup-page {
+  min-height: auto;
+  padding: 0;
+  background-color: transparent;
+}
+
+.member-mypage-layout .signup-page {
+  min-height: auto;
+  padding: 0;
+  background-color: transparent;
+}

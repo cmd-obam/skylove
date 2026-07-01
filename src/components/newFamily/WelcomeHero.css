@@ -1,36 +1,26 @@
-.nf-hero__banner {
+.nf-hero {
   position: relative;
-  min-height: 22rem;
-  padding: 2.5rem 2.75rem 2.75rem;
-  overflow: hidden;
-  border-radius: 16px;
-  background: var(--nf-hero-bg) center / cover no-repeat;
+  display: flex;
+  align-items: center;
+  min-height: clamp(22rem, 52vw, 32rem);
+  margin-bottom: 2.75rem;
+  padding: clamp(2.25rem, 5vw, 3.75rem) 0;
 }
 
-.nf-hero__banner--watercolor {
-  background:
-    linear-gradient(
-      90deg,
-      rgba(255, 255, 255, 0.78) 0%,
-      rgba(255, 255, 255, 0.52) 38%,
-      rgba(255, 255, 255, 0.12) 62%,
-      rgba(255, 255, 255, 0) 78%
-    ),
-    var(--nf-hero-bg) center / cover no-repeat;
-}
-
-.nf-hero__banner-content {
+.nf-hero__content {
   position: relative;
   z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  justify-content: center;
   gap: 0;
-  max-width: 34rem;
+  width: min(100%, 36rem);
+  max-width: 58%;
 }
 
 .nf-hero__welcome {
-  margin: 0 0 1.375rem;
+  margin: 0 0 1.25rem;
 }
 
 .nf-hero__welcome-text {
@@ -45,8 +35,8 @@
 .nf-hero__main-title {
   display: flex;
   flex-direction: column;
-  gap: 0.125rem;
-  margin: 0 0 1.625rem;
+  gap: 0.25rem;
+  margin: 0 0 1.5rem;
 }
 
 .nf-hero__main-line {
@@ -86,7 +76,7 @@
 .nf-hero__subcopy {
   display: flex;
   flex-direction: column;
-  gap: 0.125rem;
+  gap: 0.25rem;
   margin: 0;
 }
 
@@ -102,20 +92,22 @@
 }
 
 @media (max-width: 768px) {
-  .nf-hero__banner {
-    min-height: 19rem;
-    padding: 1.75rem 1.375rem 2rem;
+  .nf-hero {
+    min-height: 20rem;
+    margin-bottom: 2rem;
+    padding: 1.75rem 0 2.25rem;
   }
 
-  .nf-hero__banner-content {
+  .nf-hero__content {
     max-width: none;
+    width: 100%;
   }
 
   .nf-hero__welcome {
-    margin-bottom: 1rem;
+    margin-bottom: 0.875rem;
   }
 
   .nf-hero__main-title {
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.125rem;
   }
 }

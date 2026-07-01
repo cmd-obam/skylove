@@ -1,13 +1,40 @@
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import BoardPostDetail from '@/components/board/BoardPostDetail'
-import { getChurchNewsPost, getRelatedChurchNewsPosts } from '@/data/churchNews'
+import { fetchRelatedBoardPosts } from '@/services/board/posts'
+import { useBoardPost } from '@/hooks/useBoardPost'
 
 const LIST_PATH = '/church-news'
 
 function ChurchNewsDetail() {
   const { postId } = useParams()
-  const post = getChurchNewsPost(postId)
-  const relatedPosts = getRelatedChurchNewsPosts(postId)
+  const { post, loading } = useBoardPost('church_news', postId)
+  const [relatedPosts, setRelatedPosts] = useState([])
+
+  useEffect(() => {
+    if (!postId) {
+      return
+    }
+
+    let isMounted = true
+
+    async function loadRelated() {
+      const related = await fetchRelatedBoardPosts('church_news', postId)
+      if (isMounted) {
+        setRelatedPosts(related)
+      }
+    }
+
+    loadRelated()
+
+    return () => {
+      isMounted = false
+    }
+  }, [postId])
+
+  if (loading) {
+    return null
+  }
 
   return (
     <BoardPostDetail

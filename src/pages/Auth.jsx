@@ -1,6 +1,18 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import AuthBreadcrumb from '@/components/auth/AuthBreadcrumb'
+import MemberMenuSidebar from '@/components/auth/MemberMenuSidebar'
+import {
+  findUsernameByNameEmail,
+  verifyMemberForPasswordReset,
+} from '@/services/auth/accountRecovery'
+import { AUTH_MESSAGES } from '@/constants/authMessages'
+import { setPasswordResetSession } from '@/utils/passwordResetSession'
 import { handleLogin } from '@/services/auth/login'
+import { clearSavedLoginId, getSavedLoginId, setSavedLoginId } from '@/utils/savedLoginId'
+import { AUTOCOMPLETE_OFF, PASSWORD_AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
+import '@/components/layout/CategoryLayout.css'
+import '@/components/layout/SubLayout.css'
 import './Auth.css'
 
 const DEFAULT_TAB = 'login'
@@ -13,10 +25,32 @@ const FOOTER_LINKS = [
 
 const VALID_TABS = new Set([DEFAULT_TAB, ...FOOTER_LINKS.filter((item) => !item.path).map((item) => item.id)])
 
+const PAGE_CONTENT = {
+  login: {
+    title: '회원 로그인',
+    subtitle: '하늘사랑교회 홈페이지에 오신 것을 환영합니다.',
+    breadcrumb: '회원 로그인',
+  },
+  'find-id': {
+    title: '아이디 찾기',
+    subtitle: '가입 시 등록한 이름과 이메일로 아이디를 찾을 수 있습니다.',
+    breadcrumb: '아이디 찾기',
+  },
+  'find-password': {
+    title: '비밀번호 찾기',
+    subtitle: '가입 시 등록한 이름과 이메일로 본인 확인 후 비밀번호를 재설정할 수 있습니다.',
+    breadcrumb: '비밀번호 찾기',
+  },
+}
+
 function Auth() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
+  const [loginId, setLoginId] = useState('')
+  const [password, setPassword] = useState('')
+  const [rememberId, setRememberId] = useState(false)
   const [loginFeedback, setLoginFeedback] = useState(null)
+  const [formFeedback, setFormFeedback] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const activeTab = useMemo(() => {
@@ -24,7 +58,21 @@ function Auth() {
     return VALID_TABS.has(tab) ? tab : DEFAULT_TAB
   }, [searchParams])
 
+  const pageContent = PAGE_CONTENT[activeTab] ?? PAGE_CONTENT.login
+
+  useEffect(() => {
+    const savedLoginId = getSavedLoginId()
+
+    if (savedLoginId) {
+      setLoginId(savedLoginId)
+      setRememberId(true)
+    }
+  }, [])
+
   const handleTabChange = (tabId) => {
+    setFormFeedback(null)
+    setLoginFeedback(null)
+
     if (tabId === DEFAULT_TAB) {
       setSearchParams({})
       return
@@ -33,17 +81,8 @@ function Auth() {
     setSearchParams({ tab: tabId })
   }
 
-  const handleSubmit = async (event) => {
+  const handleLoginSubmit = async (event) => {
     event.preventDefault()
-
-    if (activeTab !== 'login') {
-      return
-    }
-
-    const formData = new FormData(event.currentTarget)
-    const loginId = formData.get('loginId')
-    const password = formData.get('password')
-
     setIsSubmitting(true)
     setLoginFeedback(null)
 
@@ -51,6 +90,12 @@ function Auth() {
       const result = await handleLogin({ loginId, password })
 
       if (result.success) {
+        if (rememberId) {
+          setSavedLoginId(loginId)
+        } else {
+          clearSavedLoginId()
+        }
+
         navigate('/')
         return
       }
@@ -63,117 +108,261 @@ function Auth() {
     }
   }
 
+  const handleFindIdSubmit = async (event) => {
+    event.preventDefault()
+    setIsSubmitting(true)
+    setFormFeedback(null)
+
+    const formData = new FormData(event.currentTarget)
+
+    try {
+      const result = await findUsernameByNameEmail({
+        name: formData.get('name'),
+        email: formData.get('email'),
+      })
+
+      if (result.success) {
+        window.alert(AUTH_MESSAGES.findIdSuccess)
+        setFormFeedback({
+          type: 'success',
+          message: result.message,
+        })
+        return
+      }
+
+      setFormFeedback({
+        type: 'error',
+        message: result.message,
+      })
+    } catch {
+      setFormFeedback({
+        type: 'error',
+        message: '아이디 찾기 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleFindPasswordSubmit = async (event) => {
+    event.preventDefault()
+    setIsSubmitting(true)
+    setFormFeedback(null)
+
+    const formData = new FormData(event.currentTarget)
+
+    try {
+      const result = await verifyMemberForPasswordReset({
+        name: formData.get('name'),
+        email: formData.get('email'),
+      })
+
+      if (!result.success) {
+        setFormFeedback({
+          type: 'error',
+          message: result.message,
+        })
+        return
+      }
+
+      setPasswordResetSession({
+        email: result.email,
+        name: result.name,
+      })
+
+      window.alert(AUTH_MESSAGES.passwordResetVerified)
+      navigate('/reset-password', {
+        state: {
+          email: result.email,
+          name: result.name,
+        },
+      })
+    } catch {
+      setFormFeedback({
+        type: 'error',
+        message: '비밀번호 찾기 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return (
-    <div className="auth-page">
-      <div className="auth-page__inner">
-        <header className="auth-page__header">
-          <h1 className="auth-page__title">로그인</h1>
-          <p className="auth-page__description">하늘사랑교회 홈페이지에 오신 것을 환영합니다.</p>
-        </header>
+    <div className="category-layout auth-page">
+      <div className="category-layout__inner">
+        <MemberMenuSidebar activeTab={activeTab} onTabChange={handleTabChange} />
 
-        <section className="auth-card" aria-label="회원 서비스">
-          {activeTab === 'login' && (
-            <form className="auth-login" onSubmit={handleSubmit} autoComplete="off">
-              <input
-                id="login-id"
-                name="loginId"
-                type="text"
-                className="auth-form__input"
-                placeholder="아이디를 입력하세요"
-                aria-label="아이디"
-                autoComplete="off"
-              />
-              <input
-                id="login-password"
-                name="password"
-                type="password"
-                className="auth-form__input"
-                placeholder="비밀번호를 입력하세요"
-                aria-label="비밀번호"
-                autoComplete="off"
-              />
-              <button type="submit" className="auth-login__submit" disabled={isSubmitting}>
-                {isSubmitting ? '로그인 중...' : '로그인'}
-              </button>
-              {loginFeedback && (
-                <p role="alert">{loginFeedback}</p>
-              )}
-            </form>
-          )}
+        <div className="category-layout__main auth-page__main">
+          <div className="sub-layout__header">
+            <div className="sub-layout__heading">
+              <h1 className="sub-layout__title">{pageContent.title}</h1>
+              <p className="sub-layout__subtitle">{pageContent.subtitle}</p>
+            </div>
+            <AuthBreadcrumb label={pageContent.breadcrumb} />
+          </div>
 
-          {activeTab === 'find-id' && (
-            <form className="auth-sub-form" onSubmit={handleSubmit} autoComplete="off">
-              <h2 className="auth-sub-form__title">아이디 찾기</h2>
-              <input
-                name="name"
-                type="text"
-                className="auth-form__input"
-                aria-label="이름"
-                autoComplete="off"
-              />
-              <input
-                name="email"
-                type="email"
-                className="auth-form__input"
-                aria-label="이메일"
-                autoComplete="off"
-              />
-              <button type="submit" className="auth-sub-form__submit">
-                아이디 찾기
-              </button>
-            </form>
-          )}
+          <div className="auth-page__body" aria-label="회원 서비스">
+            {activeTab === 'login' && (
+              <form className="auth-login" onSubmit={handleLoginSubmit} autoComplete="off">
+                <input
+                  id="login-id"
+                  name="loginId"
+                  type="text"
+                  className="auth-form__input"
+                  placeholder="아이디"
+                  aria-label="아이디"
+                  autoComplete={AUTOCOMPLETE_OFF}
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  spellCheck={false}
+                  value={loginId}
+                  onChange={(event) => setLoginId(event.target.value)}
+                />
+                <input
+                  id="login-password"
+                  name="password"
+                  type="password"
+                  className="auth-form__input"
+                  placeholder="비밀번호"
+                  aria-label="비밀번호"
+                  autoComplete={PASSWORD_AUTOCOMPLETE_OFF}
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  spellCheck={false}
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                />
 
-          {activeTab === 'find-password' && (
-            <form className="auth-sub-form" onSubmit={handleSubmit} autoComplete="off">
-              <h2 className="auth-sub-form__title">비밀번호 찾기</h2>
-              <input
-                name="loginId"
-                type="text"
-                className="auth-form__input"
-                aria-label="아이디"
-                autoComplete="off"
-              />
-              <input
-                name="email"
-                type="email"
-                className="auth-form__input"
-                aria-label="이메일"
-                autoComplete="off"
-              />
-              <button type="submit" className="auth-sub-form__submit">
-                비밀번호 찾기
-              </button>
-            </form>
-          )}
+                <label className="auth-login__remember">
+                  <input
+                    type="checkbox"
+                    className="auth-login__checkbox"
+                    checked={rememberId}
+                    onChange={(event) => setRememberId(event.target.checked)}
+                  />
+                  <span>아이디 저장</span>
+                </label>
 
-          <nav className="auth-card__footer" aria-label="회원 메뉴">
-            {FOOTER_LINKS.map((item, index) => (
-              <span key={item.id} className="auth-card__footer-item">
-                {index > 0 && (
-                  <span className="auth-card__footer-separator" aria-hidden="true">
-                    |
-                  </span>
+                <button type="submit" className="auth-login__submit" disabled={isSubmitting}>
+                  {isSubmitting ? '로그인 중...' : '로그인'}
+                </button>
+
+                {loginFeedback && (
+                  <p className="auth-form__feedback auth-form__feedback--error" role="alert">
+                    {loginFeedback}
+                  </p>
                 )}
-                {item.path ? (
-                  <Link to={item.path} className="auth-card__footer-link">
-                    {item.label}
-                  </Link>
-                ) : (
-                  <button
-                    type="button"
-                    className={`auth-card__footer-link${
-                      activeTab === item.id ? ' auth-card__footer-link--active' : ''
+              </form>
+            )}
+
+            {activeTab === 'find-id' && (
+              <form className="auth-sub-form" onSubmit={handleFindIdSubmit} autoComplete="off">
+                <input
+                  name="name"
+                  type="text"
+                  className="auth-form__input"
+                  placeholder="이름"
+                  aria-label="이름"
+                  autoComplete={AUTOCOMPLETE_OFF}
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  spellCheck={false}
+                />
+                <input
+                  name="email"
+                  type="email"
+                  className="auth-form__input"
+                  placeholder="이메일"
+                  aria-label="이메일"
+                  autoComplete={AUTOCOMPLETE_OFF}
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  spellCheck={false}
+                />
+                <button type="submit" className="auth-sub-form__submit" disabled={isSubmitting}>
+                  {isSubmitting ? '확인 중...' : '아이디 찾기'}
+                </button>
+                {formFeedback && (
+                  <p
+                    className={`auth-form__feedback auth-form__feedback--${formFeedback.type}${
+                      formFeedback.type === 'success' ? ' auth-form__feedback--multiline' : ''
                     }`}
-                    onClick={() => handleTabChange(item.id)}
+                    role={formFeedback.type === 'error' ? 'alert' : 'status'}
                   >
-                    {item.label}
-                  </button>
+                    {formFeedback.message}
+                  </p>
                 )}
-              </span>
-            ))}
-          </nav>
-        </section>
+              </form>
+            )}
+
+            {activeTab === 'find-password' && (
+              <form className="auth-sub-form" onSubmit={handleFindPasswordSubmit} autoComplete="off">
+                <input
+                  name="name"
+                  type="text"
+                  className="auth-form__input"
+                  placeholder="이름"
+                  aria-label="이름"
+                  autoComplete={AUTOCOMPLETE_OFF}
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  spellCheck={false}
+                />
+                <input
+                  name="email"
+                  type="email"
+                  className="auth-form__input"
+                  placeholder="이메일"
+                  aria-label="이메일"
+                  autoComplete={AUTOCOMPLETE_OFF}
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  spellCheck={false}
+                />
+                <button type="submit" className="auth-sub-form__submit" disabled={isSubmitting}>
+                  {isSubmitting ? '확인 중...' : '비밀번호 찾기'}
+                </button>
+                {formFeedback && (
+                  <p
+                    className={`auth-form__feedback auth-form__feedback--${formFeedback.type}${
+                      formFeedback.type === 'success' ? ' auth-form__feedback--multiline' : ''
+                    }`}
+                    role={formFeedback.type === 'error' ? 'alert' : 'status'}
+                  >
+                    {formFeedback.message}
+                  </p>
+                )}
+              </form>
+            )}
+
+            <nav className="auth-page__footer" aria-label="회원 안내 링크">
+              {FOOTER_LINKS.map((item, index) => (
+                <span key={item.id} className="auth-page__footer-item">
+                  {index > 0 && (
+                    <span className="auth-page__footer-separator" aria-hidden="true">
+                      |
+                    </span>
+                  )}
+                  {item.path ? (
+                    <Link to={item.path} className="auth-page__footer-link">
+                      {item.label}
+                    </Link>
+                  ) : (
+                    <button
+                      type="button"
+                      className={`auth-page__footer-link${
+                        activeTab === item.id ? ' auth-page__footer-link--active' : ''
+                      }`}
+                      onClick={() => handleTabChange(item.id)}
+                    >
+                      {item.label}
+                    </button>
+                  )}
+                </span>
+              ))}
+            </nav>
+          </div>
+        </div>
       </div>
     </div>
   )

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import pageBg from '@/assets/images/newFamily/new-family-page-bg.png'
 import WelcomeHero from '@/components/newFamily/WelcomeHero'
 import ChurchIntroVideo from '@/components/newFamily/ChurchIntroVideo'
 import ChurchFeatureCards from '@/components/newFamily/ChurchFeatureCards'
@@ -39,15 +40,25 @@ function NewFamilyGuide() {
   }, [])
 
   return (
-    <div className="new-family-page" ref={pageRef}>
-      <WelcomeHero />
-      <ChurchIntroVideo />
-      <ChurchFeatureCards />
-      <WelcomeReasonCards />
-      <FirstVisitGuide />
-      <CellMeetingSection />
-      <FAQAccordion />
-      <ContactSection />
+    <div
+      className="new-family-page"
+      ref={pageRef}
+      style={{ '--nf-page-bg': `url(${pageBg})` }}
+    >
+      <div className="new-family-page__content">
+        <WelcomeHero />
+
+        <ChurchIntroVideo />
+        <ChurchFeatureCards />
+        <WelcomeReasonCards />
+        <FirstVisitGuide />
+        <CellMeetingSection />
+
+        <div className="nf-footer-grid">
+          <FAQAccordion />
+          <ContactSection />
+        </div>
+      </div>
     </div>
   )
 }

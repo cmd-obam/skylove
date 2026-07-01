@@ -1,22 +1,62 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FiFileText } from 'react-icons/fi'
 import BoardPageHeader from '@/components/board/BoardPageHeader'
-import {
-  EVENT_PHOTO_POSTS,
-  EVENT_PHOTO_SEARCH_TYPES,
-  matchesEventPhotoSearch,
-} from '@/data/eventPhotos'
+import BoardWriteButton from '@/components/board/BoardWriteButton'
+import { EVENT_PHOTO_SEARCH_TYPES } from '@/data/eventPhotos'
+import { fetchBoardPosts } from '@/services/board/posts'
 import { formatBoardDate } from '@/utils/formatBoardDate'
+import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 import './ChurchNews.css'
 
 const LIST_PATH = '/church-news/album'
+
+function matchesAlbumSearch(post, query, searchType) {
+  if (!query) {
+    return true
+  }
+
+  switch (searchType) {
+    case 'title':
+      return post.title?.includes(query) ?? false
+    case 'content':
+      return post.content?.includes(query) ?? false
+    case 'author':
+      return (post.writer?.includes(query) ?? false) || (post.author?.includes(query) ?? false)
+    case 'title-content':
+    default:
+      return (
+        (post.title?.includes(query) ?? false) || (post.content?.includes(query) ?? false)
+      )
+  }
+}
 
 function EventPhotos() {
   const [searchKeyword, setSearchKeyword] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
   const [searchType, setSearchType] = useState('title-content')
   const [activeSearchType, setActiveSearchType] = useState('title-content')
+  const [posts, setPosts] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function loadPosts() {
+      const result = await fetchBoardPosts('album')
+
+      if (isMounted) {
+        setPosts(result.posts ?? [])
+        setLoading(false)
+      }
+    }
+
+    loadPosts()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   const handleSearchSubmit = (event) => {
     event.preventDefault()
@@ -24,8 +64,9 @@ function EventPhotos() {
     setActiveSearchType(searchType)
   }
 
-  const filteredPosts = EVENT_PHOTO_POSTS.filter((post) =>
-    matchesEventPhotoSearch(post, searchQuery, activeSearchType),
+  const filteredPosts = useMemo(
+    () => posts.filter((post) => matchesAlbumSearch(post, searchQuery, activeSearchType)),
+    [posts, searchQuery, activeSearchType],
   )
 
   return (
@@ -37,7 +78,7 @@ function EventPhotos() {
       />
 
       <div className="event-photos-toolbar">
-        <form className="event-photos-search" onSubmit={handleSearchSubmit}>
+        <form className="event-photos-search" onSubmit={handleSearchSubmit} autoComplete="off">
           <label htmlFor="event-photos-search-type" className="visually-hidden">
             검색 조건
           </label>
@@ -63,14 +104,20 @@ function EventPhotos() {
             placeholder="검색어를 입력하세요."
             value={searchKeyword}
             onChange={(event) => setSearchKeyword(event.target.value)}
+            autoComplete={AUTOCOMPLETE_OFF}
           />
           <button type="submit" className="event-photos-search__button">
             검색
           </button>
         </form>
+        <BoardWriteButton to="/album/write" buttonClassName="event-photos-search__button" />
       </div>
 
-      {filteredPosts.length === 0 ? (
+      {loading ? (
+        <div className="event-photos-empty">
+          <span>불러오는 중...</span>
+        </div>
+      ) : filteredPosts.length === 0 ? (
         <div className="event-photos-empty">
           <FiFileText className="event-photos-empty__icon" aria-hidden="true" />
           <span>등록된 게시글이 없습니다.</span>
@@ -78,7 +125,7 @@ function EventPhotos() {
       ) : (
         <ul className="event-photos-grid">
           {filteredPosts.map((post) => {
-            const thumbnail = post.images?.[0]
+            const thumbnail = post.thumbnail || post.images?.[0]?.src
 
             return (
               <li key={post.id} className="event-photos-grid__item">
@@ -86,8 +133,8 @@ function EventPhotos() {
                   <div className="event-photos-card__image-wrap">
                     {thumbnail ? (
                       <img
-                        src={thumbnail.src}
-                        alt={thumbnail.alt || post.title}
+                        src={thumbnail}
+                        alt={post.images?.[0]?.alt || post.title}
                         className="event-photos-card__image"
                       />
                     ) : (

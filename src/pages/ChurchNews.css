@@ -39,6 +39,7 @@
   display: flex;
   justify-content: flex-end;
   align-items: center;
+  gap: 0.5rem;
   margin-bottom: 1.25rem;
 }
 
@@ -241,6 +242,8 @@
 .church-news-board__toolbar {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
   margin-bottom: 1.25rem;
 }
 
@@ -1115,6 +1118,7 @@
 
   .event-photos-toolbar {
     justify-content: stretch;
+    flex-wrap: wrap;
   }
 
   .event-photos-search {
@@ -1139,6 +1143,7 @@
 
   .church-news-board__toolbar {
     justify-content: stretch;
+    flex-wrap: wrap;
   }
 
   .church-news-board__search {
@@ -1207,4 +1212,266 @@
   .board-post-extras__related-list {
     grid-template-columns: 1fr;
   }
+}
+
+.board-write-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.board-write-form {
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+.board-write-form__title {
+  margin: 0 0 1.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f3a5f;
+}
+
+.board-write-form__field {
+  margin-bottom: 1.25rem;
+}
+
+.board-write-form__label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #1f3a5f;
+}
+
+.board-write-form__input,
+.board-write-form__textarea {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 1px solid #dce5ef;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  color: var(--color-text);
+  background-color: var(--color-white);
+}
+
+.board-write-form__textarea {
+  min-height: 180px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.board-write-form__input:focus,
+.board-write-form__textarea:focus {
+  outline: none;
+  border-color: #4da6ff;
+}
+
+.board-write-form__file-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.board-write-form__file-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 42px;
+  padding: 0 1.25rem;
+  border: 1px solid #dce5ef;
+  border-radius: 8px;
+  background-color: var(--color-white);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  transition:
+    border-color var(--transition),
+    color var(--transition);
+}
+
+.board-write-form__file-button:hover,
+.board-write-form__file-button:focus-visible {
+  border-color: #4da6ff;
+  color: #4da6ff;
+}
+
+.board-write-form__file-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+.board-write-form__file-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+}
+
+.board-write-form__file-remove:hover,
+.board-write-form__file-remove:focus-visible {
+  color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.board-write-form__hint {
+  margin: 0.75rem 0 0;
+  font-size: 0.875rem;
+  color: #9ca3af;
+}
+
+.board-write-form__error {
+  margin: 0 0 1rem;
+  color: #dc2626;
+  font-size: 0.875rem;
+}
+
+.board-write-form__actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #edf1f5;
+}
+
+.board-write-form__cancel {
+  text-decoration: none;
+}
+
+.board-write-form__submit {
+  min-width: 120px;
+}
+
+.board-access-denied {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 3rem 0;
+}
+
+.board-access-denied__message {
+  margin: 0;
+  font-size: 1rem;
+  color: #6b7280;
+}
+
+.board-post-admin-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.church-news-detail__header-button--danger {
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.church-news-detail__header-button--danger:hover,
+.church-news-detail__header-button--danger:focus-visible {
+  color: #b91c1c;
+  border-color: #f87171;
+}
+
+.board-delete-modal__message {
+  margin: 0 0 1.5rem;
+  font-size: 0.9375rem;
+  color: #374151;
+}
+
+.board-delete-modal__actions {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+.album-image-uploader__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1rem;
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+}
+
+.album-image-uploader__item {
+  margin: 0;
+}
+
+.album-image-uploader__preview-wrap {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 1px solid #edf1f5;
+  border-radius: 8px;
+  background-color: #eef4fa;
+}
+
+.album-image-uploader__preview {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.album-image-uploader__badge {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  background-color: rgba(77, 166, 255, 0.92);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.album-image-uploader__actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+}
+
+.album-image-uploader__action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid #dce5ef;
+  border-radius: 6px;
+  background-color: var(--color-white);
+  color: #374151;
+  cursor: pointer;
+}
+
+.album-image-uploader__action:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.album-image-uploader__action--danger:hover,
+.album-image-uploader__action--danger:focus-visible {
+  border-color: #fecaca;
+  color: #dc2626;
 }

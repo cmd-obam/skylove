@@ -18,7 +18,7 @@ function WelcomeReasonCards({
         <div className="nf-reasons__banner-inner">
           <div className="nf-reasons__banner-text">
             <p className="nf-reasons__eyebrow">{eyebrow}</p>
-            <h2 className="nf-reasons__title">{title}</h2>
+            {title ? <h2 className="nf-reasons__title">{title}</h2> : null}
             <p className="nf-reasons__description">{description}</p>
           </div>
 

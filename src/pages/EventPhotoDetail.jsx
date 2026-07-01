@@ -1,14 +1,41 @@
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import BoardPostDetail from '@/components/board/BoardPostDetail'
 import PostUtilityBar from '@/components/board/PostUtilityBar'
-import { getEventPhotoPost, getRelatedEventPhotoPosts } from '@/data/eventPhotos'
+import { fetchRelatedBoardPosts } from '@/services/board/posts'
+import { useBoardPost } from '@/hooks/useBoardPost'
 
 const LIST_PATH = '/church-news/album'
 
 function EventPhotoDetail() {
   const { postId } = useParams()
-  const post = getEventPhotoPost(postId)
-  const relatedPosts = getRelatedEventPhotoPosts(postId)
+  const { post, loading } = useBoardPost('album', postId)
+  const [relatedPosts, setRelatedPosts] = useState([])
+
+  useEffect(() => {
+    if (!postId) {
+      return
+    }
+
+    let isMounted = true
+
+    async function loadRelated() {
+      const related = await fetchRelatedBoardPosts('album', postId)
+      if (isMounted) {
+        setRelatedPosts(related)
+      }
+    }
+
+    loadRelated()
+
+    return () => {
+      isMounted = false
+    }
+  }, [postId])
+
+  if (loading) {
+    return null
+  }
 
   return (
     <>

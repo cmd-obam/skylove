@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { PASSWORD_AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 import { FiEye, FiEyeOff } from 'react-icons/fi'
 
 function PasswordInput({
@@ -8,7 +8,7 @@ function PasswordInput({
   onChange,
   placeholder,
   className = '',
-  autoComplete = 'off',
+  autoComplete = PASSWORD_AUTOCOMPLETE_OFF,
   'aria-describedby': ariaDescribedBy,
   disabled = false,
   readOnly = false,
