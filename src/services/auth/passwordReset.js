@@ -6,7 +6,13 @@ import {
   validateResetPasswordConfirm,
 } from '@/services/auth/passwordValidation'
 
-export async function resetPasswordByVerification({ name, email, password, passwordConfirm }) {
+export async function resetPasswordByVerification({
+  name,
+  email,
+  password,
+  passwordConfirm,
+  securityAnswer,
+}) {
   const validation = validateResetPasswordConfirm(password, passwordConfirm)
 
   if (validation.password || validation.passwordConfirm) {
@@ -17,12 +23,20 @@ export async function resetPasswordByVerification({ name, email, password, passw
     }
   }
 
+  if (!String(securityAnswer ?? '').trim()) {
+    return {
+      success: false,
+      message: '비밀번호 찾기 답변 확인이 필요합니다. 처음부터 다시 시도해주세요.',
+    }
+  }
+
   const { data, error } = await supabase.functions.invoke('reset-password', {
     method: 'POST',
     body: {
       name: String(name ?? '').trim(),
       email: String(email ?? '').trim(),
       password,
+      securityAnswer: String(securityAnswer ?? '').trim(),
     },
   })
 
@@ -36,6 +50,10 @@ export async function resetPasswordByVerification({ name, email, password, passw
 
   if (data?.error === 'not_found') {
     return { success: false, message: AUTH_MESSAGES.memberNotFound }
+  }
+
+  if (data?.error === 'security_mismatch') {
+    return { success: false, message: AUTH_MESSAGES.securityAnswerMismatch }
   }
 
   if (data?.error) {

@@ -35,10 +35,21 @@ function ResetPassword() {
       : null
 
     const sessionVerification = getPasswordResetSession()
-    const nextVerification = stateVerification ?? sessionVerification
+    const nextVerification = stateVerification
+      ? {
+          ...stateVerification,
+          securityVerified: sessionVerification?.securityVerified ?? false,
+          securityAnswer: sessionVerification?.securityAnswer ?? '',
+        }
+      : sessionVerification
 
     if (!nextVerification?.email || !nextVerification?.name) {
       navigate('/login?tab=find-password', { replace: true })
+      return
+    }
+
+    if (!nextVerification.securityVerified) {
+      navigate('/reset-password/security-question', { replace: true })
       return
     }
 
@@ -62,6 +73,7 @@ function ResetPassword() {
         email: verification.email,
         password,
         passwordConfirm,
+        securityAnswer: verification.securityAnswer,
       })
 
       if (result.errors) {

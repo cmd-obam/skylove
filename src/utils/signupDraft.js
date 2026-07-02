@@ -47,6 +47,8 @@ export function isSignupFormDirty({
     Boolean(form.birthDate) ||
     Boolean(form.email?.trim()) ||
     Boolean(form.phone?.trim()) ||
+    Boolean(form.securityQuestion) ||
+    Boolean(form.securityAnswer?.trim()) ||
     Boolean(form.agreePrivacy) ||
     Boolean(form.agreeTerms) ||
     Boolean(form.agreeEmail)

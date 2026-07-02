@@ -170,8 +170,7 @@ function Auth() {
         name: result.name,
       })
 
-      window.alert(AUTH_MESSAGES.passwordResetVerified)
-      navigate('/reset-password', {
+      navigate('/reset-password/security-question', {
         state: {
           email: result.email,
           name: result.name,

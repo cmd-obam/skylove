@@ -30,12 +30,20 @@ function MemberMenuSidebar({ activeTab, onTabChange }) {
                   : false
 
             if (item.path) {
+              const isActive = activeTab === item.id
+
               return (
                 <li key={item.id} className="category-sidebar__item">
-                  <Link to={item.path} className="category-sidebar__link">
+                  <Link
+                    to={item.path}
+                    className={`category-sidebar__link${
+                      isActive ? ' category-sidebar__link--active' : ''
+                    }`}
+                    aria-current={isActive ? 'page' : undefined}
+                  >
                     <span className="category-sidebar__link-text">{item.label}</span>
                     <span className="category-sidebar__link-icon" aria-hidden="true">
-                      +
+                      {isActive ? '>' : '+'}
                     </span>
                   </Link>
                 </li>
@@ -53,7 +61,7 @@ function MemberMenuSidebar({ activeTab, onTabChange }) {
                 >
                   <span className="category-sidebar__link-text">{item.label}</span>
                   <span className="category-sidebar__link-icon" aria-hidden="true">
-                    +
+                    {isActive ? '>' : '+'}
                   </span>
                 </button>
               </li>

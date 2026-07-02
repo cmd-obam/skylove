@@ -102,7 +102,7 @@ function BirthDateDropdown({
   )
 }
 
-function BirthDateSelect({ idPrefix = 'signup-birth', value, onChange }) {
+function BirthDateSelect({ idPrefix = 'signup-birth', value, onChange, className = '' }) {
   const fallbackId = useId()
   const fieldIdPrefix = idPrefix || fallbackId.replace(/:/g, '')
   const [parts, setParts] = useState(() => splitBirthDate(value))
@@ -143,7 +143,7 @@ function BirthDateSelect({ idPrefix = 'signup-birth', value, onChange }) {
   }))
 
   return (
-    <div className="signup-birth-date">
+    <div className={`signup-birth-date ${className}`.trim()}>
       <BirthDateDropdown
         id={`${fieldIdPrefix}-year`}
         name="birthDateYear"

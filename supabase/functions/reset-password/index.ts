@@ -35,6 +35,7 @@ Deno.serve(async (req) => {
     const name = String(body?.name ?? '').trim()
     const email = String(body?.email ?? '').trim()
     const password = body?.password
+    const securityAnswer = String(body?.securityAnswer ?? '').trim()
 
     if (!name) {
       return new Response(JSON.stringify({ error: 'validation', message: '이름을 입력해주세요.' }), {
@@ -59,6 +60,16 @@ Deno.serve(async (req) => {
       })
     }
 
+    if (!securityAnswer) {
+      return new Response(
+        JSON.stringify({ error: 'validation', message: '비밀번호 찾기 답변을 입력해주세요.' }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        },
+      )
+    }
+
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
 
@@ -75,7 +86,7 @@ Deno.serve(async (req) => {
 
     const { data: profile, error: profileError } = await adminClient
       .from('profiles')
-      .select('user_id, email, name')
+      .select('user_id, email, name, security_answer_hash')
       .ilike('email', email)
       .maybeSingle()
 
@@ -100,6 +111,56 @@ Deno.serve(async (req) => {
         JSON.stringify({ error: 'not_found', message: '❌ 회원정보가 일치하지 않습니다.' }),
         {
           status: 404,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        },
+      )
+    }
+
+    if (!profile.security_answer_hash) {
+      return new Response(
+        JSON.stringify({
+          error: 'security_missing',
+          message: '등록된 비밀번호 찾기 질문이 없습니다. 관리자에게 문의해주세요.',
+        }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        },
+      )
+    }
+
+    const { data: answerVerified, error: verifyError } = await adminClient.rpc(
+      'verify_password_recovery_answer',
+      {
+        p_name: name,
+        p_email: email,
+        p_answer: securityAnswer,
+      },
+    )
+
+    if (verifyError) {
+      console.error('[reset-password] security answer verify failed', verifyError)
+
+      return new Response(
+        JSON.stringify({
+          error: 'verify_failed',
+          message: '답변 확인 중 오류가 발생했습니다.',
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        },
+      )
+    }
+
+    if (!answerVerified) {
+      return new Response(
+        JSON.stringify({
+          error: 'security_mismatch',
+          message: '등록하신 질문과 답변이 일치하지 않습니다. 다시 확인해주세요.',
+        }),
+        {
+          status: 403,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         },
       )

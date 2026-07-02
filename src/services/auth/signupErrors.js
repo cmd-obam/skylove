@@ -36,7 +36,7 @@ export function mapSupabaseAuthError(error) {
     message.includes('password should be at least') ||
     message.includes('password is too short')
   ) {
-    return '비밀번호가 너무 짧습니다.'
+    return '비밀번호 형식이 올바르지 않습니다.'
   }
 
   if (
@@ -91,14 +91,14 @@ export function mapSupabaseProfileError(error) {
 
   if (code === '23505' || message.includes('duplicate') || message.includes('unique')) {
     if (message.includes('username')) {
-      return '이미 사용 중인 아이디입니다.'
+      return '아이디가 이미 존재합니다.'
     }
 
     return '이미 등록된 회원 정보입니다.'
   }
 
   if (message.includes('username already taken')) {
-    return '이미 사용 중인 아이디입니다.'
+    return '아이디가 이미 존재합니다.'
   }
 
   if (message.includes('profile already exists')) {

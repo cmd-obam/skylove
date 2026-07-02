@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { FiUser, FiLock, FiCalendar, FiMail, FiSmartphone } from 'react-icons/fi'
+import { useNavigate } from 'react-router-dom'
+import AuthBreadcrumb from '@/components/auth/AuthBreadcrumb'
+import MemberMenuSidebar from '@/components/auth/MemberMenuSidebar'
 import { supabase } from '@/lib/supabase'
 import { useSignupLeaveGuard } from '@/hooks/useSignupLeaveGuard'
 import {
@@ -27,13 +28,44 @@ import {
   loadSignupDraft,
   saveSignupDraft,
 } from '@/utils/signupDraft'
-import BirthDateSelect from '@/components/signup/BirthDateSelect'
-import PasswordInput from '@/components/signup/PasswordInput'
+import SignupToast from '@/components/signup/SignupToast'
+import SignupProgress from '@/components/signup/SignupProgress'
+import SignupStepTerms from '@/components/signup/SignupStepTerms'
+import SignupStepForm from '@/components/signup/SignupStepForm'
+import SignupStepComplete from '@/components/signup/SignupStepComplete'
+import '@/components/layout/CategoryLayout.css'
+import '@/components/layout/SubLayout.css'
 import './Signup.css'
 
-const SIGNUP_PASSWORD_PLACEHOLDER = '8자 이상, 특수문자 포함'
-const SIGNUP_PASSWORD_CONFIRM_PLACEHOLDER = '비밀번호를 다시 입력해주세요'
 const RESEND_COOLDOWN_SECONDS = 60
+
+const INITIAL_STEP1_AGREEMENTS = {
+  terms: 'disagree',
+  privacy: 'disagree',
+  consignment: 'disagree',
+}
+
+function isStep1Agreed(value) {
+  return value === 'agree'
+}
+
+function getInitialStep(form) {
+  if (form.agreePrivacy && form.agreeTerms) {
+    return 2
+  }
+
+  return 1
+}
+
+function getInitialStep1Agreements(form) {
+  const completed = form.agreePrivacy && form.agreeTerms
+
+  return {
+    terms: completed ? 'agree' : 'disagree',
+    privacy: completed ? 'agree' : 'disagree',
+    consignment: completed ? 'agree' : 'disagree',
+  }
+}
 
 function SignupLeaveConfirmModal({ isOpen, onCancel, onConfirm }) {
   if (!isOpen) {
@@ -71,51 +103,6 @@ function SignupLeaveConfirmModal({ isOpen, onCancel, onConfirm }) {
   )
 }
 
-function SignupFieldCard({ icon: Icon, label, optional = false, error, success, hint, hintId, children }) {
-  return (
-    <div className={`signup-field-card${error ? ' signup-field-card--error' : ''}`}>
-      <div className="signup-field-card__header">
-        <Icon className="signup-field-card__icon" aria-hidden="true" />
-        <span className="signup-field-card__label">{label}</span>
-        {optional && <span className="signup-field-card__optional">(선택)</span>}
-      </div>
-      <div className="signup-field-card__body">{children}</div>
-      {hint && !error && (
-        <p id={hintId} className="signup-field-card__hint">
-          {hint}
-        </p>
-      )}
-      {error && (
-        <p className="signup-field-card__message signup-field-card__message--error" role="alert">
-          {error}
-        </p>
-      )}
-      {!error && success && (
-        <p className="signup-field-card__message signup-field-card__message--success">{success}</p>
-      )}
-    </div>
-  )
-}
-
-function SignupAgreement({ id, checked, onChange, label, badge }) {
-  return (
-    <label className="signup-agreement" htmlFor={id}>
-      <input
-        id={id}
-        type="checkbox"
-        className="signup-agreement__input"
-        checked={checked}
-        onChange={onChange}
-      />
-      <span className="signup-agreement__check" aria-hidden="true" />
-      <span className="signup-agreement__text">
-        {label}
-        <span className="signup-agreement__badge">{badge}</span>
-      </span>
-    </label>
-  )
-}
-
 function createInitialState() {
   if (consumeSignupDraftDiscarded()) {
     return {
@@ -144,6 +131,10 @@ function Signup() {
   const navigate = useNavigate()
   const initialState = useRef(createInitialState()).current
 
+  const [currentStep, setCurrentStep] = useState(() => getInitialStep(initialState.form))
+  const [step1Agreements, setStep1Agreements] = useState(() =>
+    getInitialStep1Agreements(initialState.form),
+  )
   const [form, setForm] = useState(initialState.form)
   const [errors, setErrors] = useState({})
   const [isIdChecked, setIsIdChecked] = useState(initialState.isIdChecked)
@@ -162,6 +153,66 @@ function Signup() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSyncingEmailVerification, setIsSyncingEmailVerification] = useState(true)
   const [passwordConfirmTouched, setPasswordConfirmTouched] = useState(false)
+  const [toast, setToast] = useState(null)
+
+  const showFeedback = useCallback((type, message) => {
+    if (!type || !message) {
+      setFormFeedback(null)
+      setToast(null)
+      return
+    }
+
+    setFormFeedback({ type, message })
+    setToast({ type, message })
+  }, [])
+
+  const clearFeedback = useCallback(() => {
+    showFeedback(null, null)
+  }, [showFeedback])
+
+  const allStep1RequiredChecked =
+    isStep1Agreed(step1Agreements.terms) &&
+    isStep1Agreed(step1Agreements.privacy) &&
+    isStep1Agreed(step1Agreements.consignment)
+  const allStep1Checked = allStep1RequiredChecked
+
+  const handleSidebarTabChange = (tab) => {
+    if (tab === 'login') {
+      navigate('/login')
+      return
+    }
+
+    if (tab === 'find-id' || tab === 'find-password') {
+      navigate(`/login?tab=${tab}`)
+    }
+  }
+
+  const handleStep1AgreementChange = (key, value) => {
+    setStep1Agreements((prev) => ({ ...prev, [key]: value }))
+  }
+
+  const handleStep1AllAgreementChange = (checked) => {
+    const nextValue = checked ? 'agree' : 'disagree'
+    setStep1Agreements({
+      terms: nextValue,
+      privacy: nextValue,
+      consignment: nextValue,
+    })
+  }
+
+  const handleGoToStep2 = () => {
+    if (!allStep1RequiredChecked) {
+      return
+    }
+
+    setForm((prev) => ({
+      ...prev,
+      agreePrivacy: true,
+      agreeTerms: true,
+    }))
+    setCurrentStep(2)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   const passwordRuleLiveError = getPasswordRuleLiveError(form.password)
   const passwordConfirmLiveError =
@@ -213,7 +264,10 @@ function Signup() {
     setResendAvailableAt(null)
     setResendCooldown(0)
     setFormFeedback(null)
+    setToast(null)
     setPasswordConfirmTouched(false)
+    setCurrentStep(1)
+    setStep1Agreements(INITIAL_STEP1_AGREEMENTS)
     clearSignupDraft()
   }, [])
 
@@ -222,7 +276,7 @@ function Signup() {
   }, [resetSignupForm])
 
   const { isLeaveModalOpen, cancelLeave, confirmLeave, allowNavigation } = useSignupLeaveGuard({
-    isDirty,
+    isDirty: currentStep === 2 ? isDirty : false,
     onConfirmLeave: handleConfirmLeave,
   })
 
@@ -244,7 +298,8 @@ function Signup() {
 
   const syncEmailVerifiedFromSupabase = useCallback(
     async (email = form.email) => {
-      const trimmedEmail = email.trim()
+      const emailValue = typeof email === 'string' ? email : form.email
+      const trimmedEmail = emailValue.trim()
 
       if (!trimmedEmail) {
         setIsEmailVerified(false)
@@ -311,7 +366,11 @@ function Signup() {
       }
     }
 
-    window.addEventListener('focus', syncEmailVerifiedFromSupabase)
+    const handleWindowFocus = () => {
+      syncEmailVerifiedFromSupabase()
+    }
+
+    window.addEventListener('focus', handleWindowFocus)
     document.addEventListener('visibilitychange', handleVisibilityChange)
 
     const {
@@ -326,7 +385,7 @@ function Signup() {
     })
 
     return () => {
-      window.removeEventListener('focus', syncEmailVerifiedFromSupabase)
+      window.removeEventListener('focus', handleWindowFocus)
       document.removeEventListener('visibilitychange', handleVisibilityChange)
       subscription.unsubscribe()
     }
@@ -354,7 +413,7 @@ function Signup() {
   const updateField = (name, value) => {
     setForm((prev) => ({ ...prev, [name]: value }))
     setErrors((prev) => ({ ...prev, [name]: undefined }))
-    setFormFeedback(null)
+    clearFeedback()
 
     if (name === 'loginId') {
       setIsIdChecked(false)
@@ -396,8 +455,12 @@ function Signup() {
       setIdCheckMessage(result.message)
       setErrors((prev) => ({
         ...prev,
-        loginId: result.available ? undefined : '이미 사용 중인 아이디입니다.',
+        loginId: result.available ? undefined : '아이디가 이미 존재합니다.',
       }))
+
+      if (!result.available) {
+        showFeedback('error', '아이디가 이미 존재합니다.')
+      }
     } catch (error) {
       const message =
         error instanceof Error && error.message.includes('001_create_profiles.sql')
@@ -409,6 +472,7 @@ function Signup() {
         ...prev,
         loginId: message,
       }))
+      showFeedback('error', message)
     } finally {
       setIsCheckingId(false)
     }
@@ -462,12 +526,15 @@ function Signup() {
         ...prev,
         email: result.message,
       }))
+      showFeedback('error', result.message)
     } catch (error) {
       console.error('[Signup] sendEmailVerification 예외', error)
+      const message = '인증 메일 발송에 실패했습니다.'
       setErrors((prev) => ({
         ...prev,
-        email: '인증 메일 발송에 실패했습니다.',
+        email: message,
       }))
+      showFeedback('error', message)
     } finally {
       setIsSendingEmail(false)
     }
@@ -491,16 +558,20 @@ function Signup() {
         return
       }
 
+      const message = '아직 이메일 인증이 완료되지 않았습니다. 메일함을 확인해주세요.'
       setErrors((prev) => ({
         ...prev,
-        email: '아직 이메일 인증이 완료되지 않았습니다. 메일함을 확인해주세요.',
+        email: message,
       }))
+      showFeedback('error', message)
     } catch (error) {
       console.error('[Signup] checkEmailVerificationStatus 예외', error)
+      const message = '이메일 인증 확인에 실패했습니다. 다시 시도해주세요.'
       setErrors((prev) => ({
         ...prev,
-        email: '이메일 인증 확인에 실패했습니다. 다시 시도해주세요.',
+        email: message,
       }))
+      showFeedback('error', message)
     } finally {
       setIsCheckingEmail(false)
     }
@@ -541,12 +612,15 @@ function Signup() {
         ...prev,
         email: result.message,
       }))
+      showFeedback('error', result.message)
     } catch (error) {
       console.error('[Signup] handleResendEmail 예외', error)
+      const message = '인증 메일 발송에 실패했습니다.'
       setErrors((prev) => ({
         ...prev,
-        email: '인증 메일 발송에 실패했습니다.',
+        email: message,
       }))
+      showFeedback('error', message)
     } finally {
       setIsSendingEmail(false)
     }
@@ -554,15 +628,12 @@ function Signup() {
 
   const onSubmit = async (event) => {
     event.preventDefault()
-    setFormFeedback(null)
+    clearFeedback()
 
     const verified = await syncEmailVerifiedFromSupabase()
 
     if (!verified) {
-      setFormFeedback({
-        type: 'error',
-        message: SIGNUP_EMAIL_NOT_VERIFIED_MESSAGE,
-      })
+      showFeedback('error', SIGNUP_EMAIL_NOT_VERIFIED_MESSAGE)
       return
     }
 
@@ -570,10 +641,14 @@ function Signup() {
     setErrors(validation.errors)
 
     if (!validation.valid) {
-      setFormFeedback({
-        type: 'error',
-        message: validation.errors.email || '입력 정보를 확인해주세요.',
-      })
+      const message =
+        validation.errors.loginId ||
+        validation.errors.password ||
+        validation.errors.passwordConfirm ||
+        validation.errors.name ||
+        validation.errors.email ||
+        '입력 정보를 확인해주세요.'
+      showFeedback('error', message)
       return
     }
 
@@ -585,10 +660,7 @@ function Signup() {
       signupResult = await handleSignup(form)
     } catch (error) {
       console.error('[Signup] handleSignup 예외', error)
-      setFormFeedback({
-        type: 'error',
-        message: '회원가입 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
-      })
+      showFeedback('error', '회원가입 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.')
       setIsSubmitting(false)
       return
     }
@@ -598,10 +670,7 @@ function Signup() {
         setIsEmailVerified(false)
       }
 
-      setFormFeedback({
-        type: 'error',
-        message: signupResult?.message ?? '회원가입에 실패했습니다.',
-      })
+      showFeedback('error', signupResult?.message ?? '회원가입에 실패했습니다.')
       setIsSubmitting(false)
       return
     }
@@ -609,254 +678,88 @@ function Signup() {
     try {
       allowNavigation()
       resetSignupForm()
+      setStep1Agreements(INITIAL_STEP1_AGREEMENTS)
+      setCurrentStep(3)
     } catch (postProcessError) {
       console.warn('[Signup] 회원가입 후처리(UI) 실패 — 회원가입은 성공', postProcessError)
+      setCurrentStep(3)
     }
 
-    navigate('/')
     setIsSubmitting(false)
   }
 
   return (
-    <div className="signup-page">
+    <div className="category-layout signup-page">
+      <SignupToast
+        message={toast?.message}
+        type={toast?.type}
+        onClose={() => setToast(null)}
+      />
       <SignupLeaveConfirmModal
         isOpen={isLeaveModalOpen}
         onCancel={cancelLeave}
         onConfirm={confirmLeave}
       />
-      <div className="signup-page__container">
-        <section className="signup-card" aria-label="회원가입">
-          <header className="signup-card__header">
-            <h1 className="signup-card__title">회원가입</h1>
-            <div className="signup-card__accent" aria-hidden="true" />
-            <p className="signup-card__description">
-              하늘사랑교회 홈페이지 회원가입을 통해 다양한 교회 소식과 서비스를 이용하실 수
-              있습니다.
-            </p>
-          </header>
+      <div className="category-layout__inner">
+        <MemberMenuSidebar activeTab="signup" onTabChange={handleSidebarTabChange} />
 
-          <form className="signup-form" onSubmit={onSubmit} noValidate autoComplete="off">
-            <div className="signup-form__fields">
-              <SignupFieldCard
-                icon={FiUser}
-                label="아이디"
-                error={errors.loginId}
-                success={!errors.loginId ? idCheckMessage : undefined}
-              >
-                <div className="signup-field-card__row">
-                  <input
-                    id="signup-login-id"
-                    name="loginId"
-                    type="text"
-                    className="signup-field-card__input"
-                    placeholder="아이디를 입력하세요."
-                    value={form.loginId}
-                    onChange={(event) => updateField('loginId', event.target.value)}
-                    autoComplete="off"
-                  />
-                  <button
-                    type="button"
-                    className={`signup-btn signup-btn--secondary${
-                      isIdChecked ? ' signup-btn--secondary-verified' : ''
-                    }`}
-                    onClick={handleDuplicateCheck}
-                    disabled={isCheckingId}
-                  >
-                    {isCheckingId ? '확인 중...' : '중복확인'}
-                  </button>
-                </div>
-              </SignupFieldCard>
-
-              <SignupFieldCard icon={FiLock} label="비밀번호" error={displayedPasswordError}>
-                <PasswordInput
-                  id="signup-password"
-                  name="password"
-                  placeholder={SIGNUP_PASSWORD_PLACEHOLDER}
-                  value={form.password}
-                  onChange={(event) => updateField('password', event.target.value)}
-                />
-              </SignupFieldCard>
-
-              <SignupFieldCard
-                icon={FiLock}
-                label="비밀번호 확인"
-                error={displayedPasswordConfirmError}
-              >
-                <PasswordInput
-                  id="signup-password-confirm"
-                  name="passwordConfirm"
-                  placeholder={SIGNUP_PASSWORD_CONFIRM_PLACEHOLDER}
-                  value={form.passwordConfirm}
-                  onChange={(event) => {
-                    setPasswordConfirmTouched(true)
-                    updateField('passwordConfirm', event.target.value)
-                  }}
-                />
-              </SignupFieldCard>
-
-              <SignupFieldCard icon={FiUser} label="이름" error={errors.name}>
-                <input
-                  id="signup-name"
-                  name="name"
-                  type="text"
-                  className="signup-field-card__input signup-field-card__input--full"
-                  placeholder="이름을 입력하세요."
-                  value={form.name}
-                  onChange={(event) => updateField('name', event.target.value)}
-                  autoComplete="off"
-                />
-              </SignupFieldCard>
-
-              <SignupFieldCard icon={FiCalendar} label="생년월일" error={errors.birthDate}>
-                <BirthDateSelect
-                  idPrefix="signup-birth"
-                  value={form.birthDate}
-                  onChange={(nextValue) => updateField('birthDate', nextValue)}
-                />
-              </SignupFieldCard>
-
-              <SignupFieldCard
-                icon={FiMail}
-                label="이메일"
-                error={errors.email}
-                success={emailFieldSuccess}
-              >
-                <div className="signup-field-card__row">
-                  <input
-                    id="signup-email"
-                    name="email"
-                    type="email"
-                    className="signup-field-card__input"
-                    placeholder="example@email.com"
-                    value={form.email}
-                    onChange={(event) => updateField('email', event.target.value)}
-                    readOnly={isEmailVerified}
-                    autoComplete="off"
-                  />
-                  <button
-                    type="button"
-                    className={`signup-btn signup-btn--secondary${
-                      isEmailVerified ? ' signup-btn--secondary-verified' : ''
-                    }`}
-                    onClick={handleEmailVerify}
-                    disabled={isSendingEmail || isEmailVerified}
-                  >
-                    {isSendingEmail
-                      ? '발송 중...'
-                      : isEmailVerified
-                        ? '인증 완료'
-                        : '이메일 인증'}
-                  </button>
-                </div>
-
-                {emailSent && !isEmailVerified && (
-                  <div className="signup-email-actions">
-                    <button
-                      type="button"
-                      className="signup-btn signup-btn--secondary signup-btn--full"
-                      onClick={handleCheckEmailVerification}
-                      disabled={isCheckingEmail || isSendingEmail}
-                    >
-                      {isCheckingEmail ? '확인 중...' : '인증 확인'}
-                    </button>
-                    <button
-                      type="button"
-                      className="signup-btn signup-btn--secondary signup-btn--full"
-                      onClick={handleResendEmail}
-                      disabled={isSendingEmail || resendCooldown > 0}
-                    >
-                      {isSendingEmail
-                        ? '발송 중...'
-                        : resendCooldown > 0
-                          ? `재발송 (${resendCooldown})`
-                          : '인증 메일 재발송'}
-                    </button>
-                  </div>
-                )}
-              </SignupFieldCard>
-
-              <SignupFieldCard
-                icon={FiSmartphone}
-                label="휴대폰 번호"
-                optional
-                error={errors.phone}
-              >
-                <input
-                  id="signup-phone"
-                  name="phone"
-                  type="tel"
-                  className="signup-field-card__input signup-field-card__input--full"
-                  placeholder="010-0000-0000"
-                  value={form.phone}
-                  onChange={(event) => updateField('phone', formatPhoneNumber(event.target.value))}
-                  autoComplete="off"
-                />
-              </SignupFieldCard>
+        <div className="category-layout__main signup-page__main">
+          <div className="sub-layout__header">
+            <div className="sub-layout__heading">
+              <h1 className="sub-layout__title">회원가입</h1>
             </div>
+            <AuthBreadcrumb label="회원가입" />
+          </div>
 
-            <div className="signup-agreements">
-              <SignupAgreement
-                id="signup-agree-privacy"
-                checked={form.agreePrivacy}
-                onChange={(event) => updateField('agreePrivacy', event.target.checked)}
-                label="개인정보 처리방침 동의"
-                badge="(필수)"
-              />
-              {errors.agreePrivacy && (
-                <p className="signup-agreements__error" role="alert">
-                  {errors.agreePrivacy}
-                </p>
-              )}
+          <SignupProgress currentStep={currentStep} />
 
-              <SignupAgreement
-                id="signup-agree-terms"
-                checked={form.agreeTerms}
-                onChange={(event) => updateField('agreeTerms', event.target.checked)}
-                label="이용약관 동의"
-                badge="(필수)"
-              />
-              {errors.agreeTerms && (
-                <p className="signup-agreements__error" role="alert">
-                  {errors.agreeTerms}
-                </p>
-              )}
+          {currentStep === 1 && (
+            <SignupStepTerms
+              agreements={step1Agreements}
+              onChangeAgreement={handleStep1AgreementChange}
+              onChangeAll={handleStep1AllAgreementChange}
+              allChecked={allStep1Checked}
+              allRequiredChecked={allStep1RequiredChecked}
+              onNext={handleGoToStep2}
+            />
+          )}
 
-              <SignupAgreement
-                id="signup-agree-email"
-                checked={form.agreeEmail}
-                onChange={(event) => updateField('agreeEmail', event.target.checked)}
-                label="이메일 수신 동의"
-                badge="(선택)"
-              />
+          {currentStep === 2 && (
+            <SignupStepForm
+              form={form}
+              errors={errors}
+              displayedPasswordError={displayedPasswordError}
+              displayedPasswordConfirmError={displayedPasswordConfirmError}
+              idCheckMessage={idCheckMessage}
+              emailFieldSuccess={emailFieldSuccess}
+              isIdChecked={isIdChecked}
+              isCheckingId={isCheckingId}
+              isSendingEmail={isSendingEmail}
+              isCheckingEmail={isCheckingEmail}
+              isEmailVerified={isEmailVerified}
+              emailSent={emailSent}
+              resendCooldown={resendCooldown}
+              isSubmitting={isSubmitting}
+              isSyncingEmailVerification={isSyncingEmailVerification}
+              formFeedback={formFeedback}
+              onSubmit={onSubmit}
+              onCancel={() => navigate('/login')}
+              updateField={updateField}
+              setPasswordConfirmTouched={setPasswordConfirmTouched}
+              handleDuplicateCheck={handleDuplicateCheck}
+              handleEmailVerify={handleEmailVerify}
+              handleCheckEmailVerification={handleCheckEmailVerification}
+              handleResendEmail={handleResendEmail}
+              formatPhoneNumber={formatPhoneNumber}
+            />
+          )}
+
+          {currentStep === 3 && (
+            <div className="signup-card signup-card--embedded">
+              <SignupStepComplete />
             </div>
-
-            {formFeedback && (
-              <p
-                className={`signup-form__feedback signup-form__feedback--${formFeedback.type}`}
-                role={formFeedback.type === 'error' ? 'alert' : 'status'}
-              >
-                {formFeedback.message}
-              </p>
-            )}
-
-            <div className="signup-form__actions">
-              <button
-                type="submit"
-                className="signup-btn signup-btn--primary"
-                disabled={isSubmitting || isSyncingEmailVerification || !isEmailVerified}
-              >
-                {isSubmitting ? '가입 처리 중...' : '회원가입'}
-              </button>
-
-              <p className="signup-form__login">
-                이미 회원이신가요?
-                <Link to="/login" className="signup-form__login-link">
-                  로그인하기
-                </Link>
-              </p>
-            </div>
-          </form>
-        </section>
+          )}
+        </div>
       </div>
     </div>
   )

@@ -13,6 +13,7 @@ import Signup from '@/pages/Signup'
 import EmailConfirmSuccess from '@/pages/EmailConfirmSuccess'
 import MemberEdit from '@/pages/MemberEdit'
 import ResetPassword from '@/pages/ResetPassword'
+import ResetPasswordSecurityQuestion from '@/pages/ResetPasswordSecurityQuestion'
 import ChangePassword from '@/pages/ChangePassword'
 import Admin from '@/pages/Admin'
 import AdminRoute from '@/components/auth/AdminRoute'
@@ -57,6 +58,7 @@ function App() {
             <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Auth />} />
+            <Route path="/reset-password/security-question" element={<ResetPasswordSecurityQuestion />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/email-confirm" element={<EmailConfirmSuccess />} />

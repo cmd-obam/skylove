@@ -11,11 +11,11 @@ import {
   SIGNUP_EMAIL_SENT_MESSAGE,
 } from '@/services/auth/signupErrors'
 import { DEFAULT_MEMBER_ROLE } from '@/services/auth/profileSchema'
+import { validateResetPassword } from '@/services/auth/passwordValidation'
 
 const LOGIN_ID_PATTERN = /^[a-zA-Z0-9_]{4,20}$/
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const PHONE_PATTERN = /^01[0-9]-\d{3,4}-\d{4}$/
-const PASSWORD_SPECIAL_CHAR_PATTERN = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/
 const BIRTH_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
 
 export { BIRTH_DATE_PATTERN }
@@ -45,9 +45,9 @@ export function normalizeBirthDate(value) {
   return `${year}-${month}-${day}`
 }
 
-export const PASSWORD_REQUIREMENT_HINT = '8자 이상, 특수문자 포함'
-export const PASSWORD_PLACEHOLDER = '8자 이상, 특수문자 포함하여 입력하세요.'
-export const PASSWORD_RULE_LIVE_MESSAGE = '8자 이상, 특수문자를 포함하여 입력해주세요.'
+export const PASSWORD_REQUIREMENT_HINT = '8자 이상, 영문·숫자 포함'
+export const PASSWORD_PLACEHOLDER = '8자 이상, 영문·숫자 포함하여 입력하세요.'
+export const PASSWORD_RULE_LIVE_MESSAGE = '비밀번호 형식이 올바르지 않습니다. (8자 이상, 영문·숫자 포함)'
 
 export function isPasswordRuleValid(password) {
   if (!password) {
@@ -62,33 +62,19 @@ export function getPasswordRuleLiveError(password) {
     return undefined
   }
 
-  if (!isPasswordRuleValid(password)) {
-    return PASSWORD_RULE_LIVE_MESSAGE
-  }
-
-  return undefined
+  return validateResetPassword(password) ?? undefined
 }
 
 export function validatePassword(password) {
-  if (!password) {
-    return '비밀번호를 입력해주세요.'
-  }
-
-  if (password.length < 8) {
-    return '비밀번호는 8자 이상 입력해주세요.'
-  }
-
-  if (!PASSWORD_SPECIAL_CHAR_PATTERN.test(password)) {
-    return '비밀번호에 특수문자를 포함해주세요.'
-  }
-
-  return null
+  return validateResetPassword(password)
 }
 
 export const INITIAL_SIGNUP_FORM = {
   loginId: '',
   password: '',
   passwordConfirm: '',
+  securityQuestion: '',
+  securityAnswer: '',
   name: '',
   birthDate: '',
   email: '',
@@ -113,7 +99,7 @@ export function validateForm(form, { isIdChecked = false, isEmailVerified = fals
   if (!form.password) {
     errors.password = '비밀번호를 입력해주세요.'
   } else if (passwordError) {
-    errors.password = PASSWORD_RULE_LIVE_MESSAGE
+    errors.password = passwordError
   }
 
   if (!form.passwordConfirm) {
@@ -122,8 +108,20 @@ export function validateForm(form, { isIdChecked = false, isEmailVerified = fals
     errors.passwordConfirm = '비밀번호가 일치하지 않습니다.'
   }
 
-  if (!form.name.trim()) {
-    errors.name = '이름을 입력해주세요.'
+  if (!form.securityQuestion) {
+    errors.securityQuestion = '비밀번호 분실 시 질문을 선택해주세요.'
+  }
+
+  if (!form.securityAnswer.trim()) {
+    errors.securityAnswer = form.securityAnswer
+      ? '비밀번호 분실 시 답변에 공백만 입력할 수 없습니다.'
+      : '비밀번호 분실 시 답변을 입력해주세요.'
+  }
+
+  const trimmedName = form.name.trim()
+
+  if (!trimmedName) {
+    errors.name = form.name ? '이름에 공백만 입력할 수 없습니다.' : '이름을 입력해주세요.'
   }
 
   if (!form.birthDate) {
@@ -265,7 +263,43 @@ async function checkDuplicateIdViaTable(loginId) {
 
   return {
     available,
-    message: available ? '사용 가능한 아이디입니다.' : '이미 사용 중인 아이디입니다.',
+    message: available ? '사용 가능한 아이디입니다.' : '아이디가 이미 존재합니다.',
+  }
+}
+
+export async function checkDuplicateEmail(email) {
+  const trimmedEmail = email.trim().toLowerCase()
+
+  if (!trimmedEmail) {
+    return {
+      available: false,
+      message: '이메일을 입력해주세요.',
+    }
+  }
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('email')
+    .ilike('email', trimmedEmail)
+    .maybeSingle()
+
+  if (error) {
+    console.error('[Signup] profiles.email 직접 조회 실패', formatAuthError(error), error)
+
+    if (error.code === 'PGRST205' || error.message?.includes('does not exist')) {
+      throw new Error(
+        'profiles 테이블이 없습니다. Supabase SQL Editor에서 supabase/migrations/001_create_profiles.sql을 실행해주세요.',
+      )
+    }
+
+    throw error
+  }
+
+  const available = !data
+
+  return {
+    available,
+    message: available ? '사용 가능한 이메일입니다.' : '이미 가입된 이메일입니다.',
   }
 }
 
@@ -279,7 +313,7 @@ export async function checkDuplicateId(loginId) {
 
     return {
       available,
-      message: available ? '사용 가능한 아이디입니다.' : '이미 사용 중인 아이디입니다.',
+      message: available ? '사용 가능한 아이디입니다.' : '아이디가 이미 존재합니다.',
     }
   }
 
@@ -346,6 +380,23 @@ function evaluateEmailVerification(user, trimmedEmail) {
 export async function sendEmailVerification(email) {
   const trimmedEmail = email.trim().toLowerCase()
   const emailRedirectTo = getEmailConfirmRedirectTo()
+
+  try {
+    const duplicateEmail = await checkDuplicateEmail(trimmedEmail)
+
+    if (!duplicateEmail.available) {
+      return {
+        success: false,
+        message: duplicateEmail.message,
+      }
+    }
+  } catch (error) {
+    console.error('[Signup] 이메일 중복확인 실패', error)
+    return {
+      success: false,
+      message: '이메일 중복확인에 실패했습니다. 다시 시도해주세요.',
+    }
+  }
 
   const existing = await checkEmailVerificationStatus(trimmedEmail)
 
@@ -424,7 +475,7 @@ async function stepCheckDuplicateId(loginId) {
       return {
         success: false,
         step: 'duplicate',
-        message: '이미 사용 중인 아이디입니다.',
+        message: '아이디가 이미 존재합니다.',
       }
     }
 
@@ -639,6 +690,35 @@ export async function handleSignup(formData) {
       return { success: false, ...duplicateStep }
     }
 
+    try {
+      const duplicateEmailStep = await checkDuplicateEmail(formData.email)
+
+      if (!duplicateEmailStep.available) {
+        const emailFailure = {
+          success: false,
+          step: 'duplicate_email',
+          message: duplicateEmailStep.message,
+        }
+        logSignupStep('이메일 중복 검사', false, emailFailure)
+        logSignupStep('회원가입 최종 결과', false, emailFailure)
+        console.groupEnd()
+        return emailFailure
+      }
+
+      logSignupStep('이메일 중복 검사', true)
+    } catch (error) {
+      const emailFailure = {
+        success: false,
+        step: 'duplicate_email',
+        message: '이메일 중복확인에 실패했습니다. 다시 시도해주세요.',
+        error: formatAuthError(error),
+      }
+      logSignupStep('이메일 중복 검사', false, emailFailure)
+      logSignupStep('회원가입 최종 결과', false, emailFailure)
+      console.groupEnd()
+      return emailFailure
+    }
+
     const emailStep = await stepCheckEmailVerification(formData)
 
     if (!emailStep.success) {
@@ -707,7 +787,7 @@ export async function handleSignup(formData) {
     return {
       success: false,
       step: 'unknown',
-      message: '회원가입 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+      message: '회원가입 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
       error: formatAuthError(error),
     }
   }
@@ -736,7 +816,18 @@ async function insertProfile(userId, formData) {
   const { error: insertError } = await supabase.from('profiles').insert(profilePayload)
 
   if (!insertError) {
-    return null
+    const { error: securityError } = await supabase.rpc('set_profile_security_recovery', {
+      p_user_id: userId,
+      p_security_question: formData.securityQuestion,
+      p_security_answer: formData.securityAnswer.trim(),
+    })
+
+    if (!securityError) {
+      return null
+    }
+
+    logProfileSaveError('security_recovery', securityError)
+    return securityError
   }
 
   logProfileSaveError('direct_insert', insertError)
@@ -748,6 +839,8 @@ async function insertProfile(userId, formData) {
     p_birth_date: birthDate,
     p_email: email,
     p_phone: phone || null,
+    p_security_question: formData.securityQuestion,
+    p_security_answer: formData.securityAnswer.trim(),
   }
 
   const { data: rpcData, error: rpcError } = await supabase.rpc('create_profile_after_signup', rpcParams)
