@@ -116,26 +116,32 @@ export const FIRST_VISIT_STEPS = [
   {
     id: 'worship',
     title: '예배에 함께하세요',
-    description: '교회는 누구에게나 열려 있습니다. 편안한 마음으로 예배에 참석해 보세요.',
-    buttonLabel: '예배안내',
-    buttonPath: '/worship-guide/sunday-blessing',
-    icon: 'worship',
+    descriptionLines: [
+      '교회는 누구에게나 열려 있습니다.',
+      '편안한 마음으로 예배에 참여해 보세요.',
+    ],
+    buttonLabel: '예배안내 보기',
+    buttonPath: '/worship',
   },
   {
     id: 'greeting',
     title: '새가족 인사',
-    description: '예배 후 새가족 안내 데스크에서 따뜻하게 맞이해 드립니다.',
-    buttonLabel: '교회소개',
+    descriptionLines: [
+      '예배 후 새가족 데스크에서',
+      '따뜻하게 맞이해 드립니다.',
+    ],
+    buttonLabel: '교회소개 보기',
     buttonPath: '/about',
-    icon: 'handshake',
   },
   {
     id: 'community',
     title: '공동체와 함께하세요',
-    description: '셀모임과 다양한 공동체를 통해 함께 성장할 수 있습니다.',
-    buttonLabel: '셀모임',
+    descriptionLines: [
+      '셀모임과 다양한 공동체를 통해',
+      '함께 성장할 수 있습니다.',
+    ],
+    buttonLabel: '셀모임 보기',
     buttonPath: '/worship-guide/cell-meeting',
-    icon: 'community',
   },
 ]
 

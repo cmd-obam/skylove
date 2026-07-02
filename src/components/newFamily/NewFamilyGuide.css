@@ -273,53 +273,84 @@
   color: var(--nf-accent);
 }
 
-/* ── Cards ── */
+/* ── First visit guide ── */
 
-.nf-features__grid,
-.nf-first-visit__grid {
-  display: grid;
-  gap: 1rem;
-  list-style: none;
-  margin: 0;
-  padding: 0;
+.nf-first-visit {
+  --nf-first-visit-card-padding-y: 1.125rem;
+  --nf-first-visit-badge-size: 1.75rem;
+  --nf-first-visit-arrow-width: 24px;
+  --nf-first-visit-arrow-slot: calc(var(--nf-first-visit-arrow-width) + 0.75rem);
+  --nf-first-visit-arrow-inset: 10px;
+  margin-bottom: 4rem;
 }
 
-.nf-features__grid {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+.nf-first-visit__title {
+  margin: 0 0 1.75rem;
+  font-size: clamp(1.375rem, 3vw, 1.75rem);
+  font-weight: 700;
+  line-height: 1.45;
+  text-align: center;
+  color: var(--nf-accent-dark);
+  word-break: keep-all;
 }
 
 .nf-first-visit__grid {
   display: flex;
-  align-items: stretch;
+  align-items: center;
   gap: 0;
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.nf-first-visit__item {
-  display: flex;
-  align-items: center;
+.nf-first-visit__card-item {
   flex: 1;
   min-width: 0;
 }
 
+.nf-first-visit__arrow-item {
+  flex: 0 0 auto;
+  width: var(--nf-first-visit-arrow-width);
+  padding: 0 0.375rem;
+  list-style: none;
+}
+
+.nf-first-visit__card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: var(--nf-first-visit-card-padding-y) 1.125rem 1rem;
+  border: 1px solid #e3ebf4;
+  border-radius: 14px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 16px rgba(31, 78, 121, 0.05);
+}
+
 .nf-first-visit__arrow {
-  flex-shrink: 0;
-  padding: 0 0.5rem;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #b8c9dc;
-  line-height: 1;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(100% - var(--nf-first-visit-arrow-inset));
+  width: calc(var(--nf-first-visit-arrow-slot) / 2 + var(--nf-first-visit-arrow-inset));
+  height: 14px;
+  margin-block: auto;
+  color: var(--nf-accent);
+  pointer-events: none;
+}
+
+.nf-first-visit__card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
 }
 
 .nf-first-visit__step-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  margin-bottom: 0.875rem;
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: var(--nf-first-visit-badge-size);
   border-radius: 50%;
   background-color: var(--nf-accent);
   color: #ffffff;
@@ -328,8 +359,71 @@
   line-height: 1;
 }
 
-.nf-first-visit__item .nf-card--step {
-  width: 100%;
+.nf-first-visit__card-title {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--nf-accent-dark);
+  word-break: keep-all;
+}
+
+.nf-first-visit__card-body {
+  --nf-first-visit-indent: calc(1.75rem + 0.625rem);
+  margin-top: 0.625rem;
+  padding-left: var(--nf-first-visit-indent);
+}
+
+.nf-first-visit__card-description {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: #5f6f82;
+}
+
+.nf-first-visit__card-description-line {
+  display: block;
+}
+
+.nf-first-visit__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.125rem;
+  min-width: 9.75rem;
+  min-height: 36px;
+  margin-top: 0.875rem;
+  padding: 0 0.875rem;
+  border: 1px solid #c5d8eb;
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: var(--nf-accent-dark);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    border-color 0.25s ease,
+    color 0.25s ease,
+    background-color 0.25s ease;
+}
+
+.nf-first-visit__button:hover,
+.nf-first-visit__button:focus-visible {
+  border-color: var(--nf-accent);
+  color: var(--nf-accent);
+  background-color: #f8fbff;
+}
+
+/* ── Cards ── */
+
+.nf-features__grid {
+  display: grid;
+  gap: 1rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .nf-card {
@@ -831,12 +925,25 @@
     gap: 0.75rem;
   }
 
-  .nf-first-visit__item {
+  .nf-first-visit__card-item {
     width: 100%;
+  }
+
+  .nf-first-visit__arrow-item {
+    display: none;
   }
 
   .nf-first-visit__arrow {
     display: none;
+  }
+
+  .nf-first-visit__card {
+    padding: 1.125rem 1rem 1rem;
+  }
+
+  .nf-first-visit__button {
+    width: 100%;
+    min-width: 0;
   }
 
   .nf-features__grid {
@@ -897,6 +1004,23 @@
 
 @media (min-width: 769px) and (max-width: 1024px) {
   .nf-first-visit__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .nf-first-visit__card-item {
+    flex: 1 1 calc(50% - 0.5rem);
+  }
+
+  .nf-first-visit__card-item:nth-child(5) {
+    flex-basis: 100%;
+  }
+
+  .nf-first-visit__arrow-item {
+    display: none;
+  }
+
+  .nf-first-visit__arrow {
+    display: none;
   }
 }

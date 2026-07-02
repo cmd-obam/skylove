@@ -14,7 +14,11 @@ function HomeWelcome() {
     <section className="home-section home-welcome" aria-label="환영 안내">
       <div className="home-section__inner home-welcome__inner">
         <div className="home-welcome__content">
-          <HomeSectionHeader eyebrow={HOME_WELCOME.eyebrow} title={HOME_WELCOME.title} />
+          <HomeSectionHeader
+            eyebrow={HOME_WELCOME.eyebrow}
+            title={HOME_WELCOME.title}
+            titleLines={HOME_WELCOME.titleLines}
+          />
           <p className="home-welcome__description">
             {HOME_WELCOME.descriptionLines?.map((line) => (
               <span key={line} className="home-welcome__description-line">

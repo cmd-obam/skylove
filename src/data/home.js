@@ -14,6 +14,7 @@ export const HOME_HERO = {
 export const HOME_WELCOME = {
   eyebrow: 'WELCOME',
   title: '하늘사랑교회에 오신 것을 환영합니다',
+  titleLines: ['하늘사랑교회에', '오신 것을 환영합니다'],
   descriptionLines: [
     '처음 오신 한 분도 가족처럼 환영합니다.',
     '예배를 통해 하나님을 만나고,',

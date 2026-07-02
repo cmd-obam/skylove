@@ -147,6 +147,10 @@
   color: #7d937c;
 }
 
+.home-section__title-line {
+  display: block;
+}
+
 .home-welcome .home-section__title {
   font-family: 'Nanum Myeongjo', 'Noto Serif KR', serif;
   font-size: clamp(2.3rem, 4vw, 3.35rem);
