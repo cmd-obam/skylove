@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { FiBookOpen, FiUser } from 'react-icons/fi'
+import { FiArrowRight, FiBookOpen, FiUser } from 'react-icons/fi'
 import { HOME_WELCOME } from '@/data/home'
 import HomeSectionHeader from '@/components/sections/HomeSectionHeader'
 import './HomeSections.css'
@@ -15,7 +15,13 @@ function HomeWelcome() {
       <div className="home-section__inner home-welcome__inner">
         <div className="home-welcome__content">
           <HomeSectionHeader eyebrow={HOME_WELCOME.eyebrow} title={HOME_WELCOME.title} />
-          <p className="home-welcome__description">{HOME_WELCOME.description}</p>
+          <p className="home-welcome__description">
+            {HOME_WELCOME.descriptionLines?.map((line) => (
+              <span key={line} className="home-welcome__description-line">
+                {line}
+              </span>
+            ))}
+          </p>
           <ul className="home-welcome__links">
             {HOME_WELCOME.links.map((link) => {
               const Icon = LINK_ICONS[link.icon] ?? FiBookOpen
@@ -26,7 +32,10 @@ function HomeWelcome() {
                     <span className="home-welcome__link-icon" aria-hidden="true">
                       <Icon />
                     </span>
-                    <span>{link.label}</span>
+                    <span className="home-welcome__link-label">{link.label}</span>
+                    <span className="home-welcome__link-arrow" aria-hidden="true">
+                      <FiArrowRight />
+                    </span>
                   </Link>
                 </li>
               )

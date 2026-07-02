@@ -4,7 +4,7 @@
   align-items: center;
   min-height: clamp(22rem, 52vw, 32rem);
   margin-bottom: 2.75rem;
-  padding: clamp(2.25rem, 5vw, 3.75rem) 0;
+  padding: clamp(2rem, 4.5vw, 3.25rem) 0 clamp(1.5rem, 3.5vw, 2.5rem);
 }
 
 .nf-hero__content {
@@ -15,8 +15,8 @@
   align-items: flex-start;
   justify-content: center;
   gap: 0;
-  width: min(100%, 36rem);
-  max-width: 58%;
+  width: min(100%, 38rem);
+  max-width: 56%;
 }
 
 .nf-hero__welcome {

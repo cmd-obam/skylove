@@ -13,8 +13,38 @@ Migration 파일을 **번호 순서대로** Supabase SQL Editor에서 실행하�
 | 5 | `005_board_posts.sql` | 교회소식·교회앨범 게시글 + Storage |
 | 6 | `006_account_recovery.sql` | 아이디/비밀번호 찾기 RPC |
 | 7 | `007_password_recovery.sql` | 이름+이메일 본인 확인 RPC |
+| 8 | `008_security_questions.sql` | 비밀번호 찾기 보안 질문/답변 |
+| 9 | `009_password_recovery_with_username.sql` | 이름+아이디+이메일 본인 확인 RPC |
+| 10 | `010_password_recovery_name_email.sql` | 이름+이메일 본인 확인 RPC 복원 |
 
 > `003`은 `profiles.role`을 RLS에서 참조하므로 **`004`를 먼저** 실행해야 합니다.
+
+## Edge Functions
+
+| 함수명 | 경로 | 용도 |
+|--------|------|------|
+| `find_by_name_email` | `supabase/functions/find_by_name_email/` | 아이디 찾기 / 비밀번호 찾기 회원 조회 |
+| `verify_security_answer` | `supabase/functions/verify_security_answer/` | 보안질문 답변 검증 |
+| `reset-password` | `supabase/functions/reset-password/` | (레거시) 비밀번호 재설정 |
+| `delete-account` | `supabase/functions/delete-account/` | 회원탈퇴 |
+
+CORS는 `supabase/functions/_shared/cors.ts`에서 공통 관리합니다.
+
+프론트엔드 호출명은 **폴더명과 동일**해야 합니다.
+
+```js
+supabase.functions.invoke('find_by_name_email', { body: { name, email } })
+```
+
+배포:
+
+```bash
+npx supabase login
+npm run deploy:all-edge-functions
+npm run test:edge-function-cors
+```
+
+공개 함수(`find_by_name_email`, `verify_security_answer`, `reset-password`)는 `--no-verify-jwt`로 배포해야 localhost에서 OPTIONS preflight가 200을 반환합니다.
 
 ## profiles 테이블 컬럼 (코드와 동기화)
 

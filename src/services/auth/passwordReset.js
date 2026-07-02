@@ -2,16 +2,14 @@ import { supabase } from '@/lib/supabase'
 import { AUTH_MESSAGES } from '@/constants/authMessages'
 import { mapProfileUpdateAuthError } from '@/services/auth/profileUpdateErrors'
 import {
-  validateResetPassword,
   validateResetPasswordConfirm,
 } from '@/services/auth/passwordValidation'
 
 export async function resetPasswordByVerification({
-  name,
   email,
   password,
   passwordConfirm,
-  securityAnswer,
+  emailOtpVerified = false,
 }) {
   const validation = validateResetPasswordConfirm(password, passwordConfirm)
 
@@ -19,49 +17,50 @@ export async function resetPasswordByVerification({
     return {
       success: false,
       errors: validation,
-      message: validation.password || validation.passwordConfirm,
+      message: validation.password || validation.passwordConfirm || AUTH_MESSAGES.passwordMismatch,
     }
   }
 
-  if (!String(securityAnswer ?? '').trim()) {
+  if (!emailOtpVerified) {
     return {
       success: false,
-      message: '비밀번호 찾기 답변 확인이 필요합니다. 처음부터 다시 시도해주세요.',
+      message: '이메일 인증을 완료해주세요.',
     }
   }
 
-  const { data, error } = await supabase.functions.invoke('reset-password', {
-    method: 'POST',
-    body: {
-      name: String(name ?? '').trim(),
-      email: String(email ?? '').trim(),
-      password,
-      securityAnswer: String(securityAnswer ?? '').trim(),
-    },
+  const trimmedEmail = String(email ?? '').trim().toLowerCase()
+
+  const {
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession()
+
+  if (sessionError || !session?.user?.email) {
+    return {
+      success: false,
+      message: AUTH_MESSAGES.emailVerificationFailed,
+    }
+  }
+
+  if (session.user.email.toLowerCase() !== trimmedEmail) {
+    return {
+      success: false,
+      message: AUTH_MESSAGES.emailVerificationFailed,
+    }
+  }
+
+  const { error: updateError } = await supabase.auth.updateUser({
+    password,
   })
 
-  if (error) {
+  if (updateError) {
     return {
       success: false,
-      message:
-        '비밀번호 변경 서버 호출에 실패했습니다. Supabase Edge Function(reset-password) 배포를 확인해주세요.',
+      message: mapProfileUpdateAuthError(updateError),
     }
   }
 
-  if (data?.error === 'not_found') {
-    return { success: false, message: AUTH_MESSAGES.memberNotFound }
-  }
-
-  if (data?.error === 'security_mismatch') {
-    return { success: false, message: AUTH_MESSAGES.securityAnswerMismatch }
-  }
-
-  if (data?.error) {
-    return {
-      success: false,
-      message: data.message || '비밀번호 변경에 실패했습니다.',
-    }
-  }
+  await supabase.auth.signOut()
 
   return { success: true, message: AUTH_MESSAGES.passwordChanged }
 }
@@ -82,7 +81,7 @@ export async function changePasswordLoggedIn({
     return {
       success: false,
       errors: validation,
-      message: validation.password || validation.passwordConfirm,
+      message: validation.password || validation.passwordConfirm || AUTH_MESSAGES.passwordMismatch,
     }
   }
 

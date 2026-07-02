@@ -51,6 +51,7 @@ function Auth() {
   const [rememberId, setRememberId] = useState(false)
   const [loginFeedback, setLoginFeedback] = useState(null)
   const [formFeedback, setFormFeedback] = useState(null)
+  const [findIdResult, setFindIdResult] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const activeTab = useMemo(() => {
@@ -72,6 +73,7 @@ function Auth() {
   const handleTabChange = (tabId) => {
     setFormFeedback(null)
     setLoginFeedback(null)
+    setFindIdResult(null)
 
     if (tabId === DEFAULT_TAB) {
       setSearchParams({})
@@ -122,19 +124,21 @@ function Auth() {
       })
 
       if (result.success) {
-        window.alert(AUTH_MESSAGES.findIdSuccess)
-        setFormFeedback({
-          type: 'success',
-          message: result.message,
-        })
+        setFindIdResult({ username: result.username })
+        setFormFeedback(null)
         return
       }
 
+      setFindIdResult(null)
       setFormFeedback({
         type: 'error',
-        message: result.message,
+        message:
+          result.message === AUTH_MESSAGES.memberNotFound
+            ? '일치하는 회원정보가 없습니다.'
+            : result.message,
       })
     } catch {
+      setFindIdResult(null)
       setFormFeedback({
         type: 'error',
         message: '아이디 찾기 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
@@ -254,7 +258,22 @@ function Auth() {
               </form>
             )}
 
-            {activeTab === 'find-id' && (
+            {activeTab === 'find-id' && findIdResult?.username && (
+              <div className="auth-find-id-result">
+                <div className="auth-find-id-result__card">
+                  <p className="auth-find-id-result__lead">회원님의 아이디</p>
+                  <div className="auth-find-id-result__rule" aria-hidden="true" />
+                  <span className="auth-find-id-result__username">{findIdResult.username}</span>
+                  <div className="auth-find-id-result__rule" aria-hidden="true" />
+                  <p className="auth-find-id-result__suffix">입니다.</p>
+                </div>
+                <Link to="/login" className="auth-sub-form__submit auth-find-id-result__login">
+                  로그인 하기
+                </Link>
+              </div>
+            )}
+
+            {activeTab === 'find-id' && !findIdResult?.username && (
               <form className="auth-sub-form" onSubmit={handleFindIdSubmit} autoComplete="off">
                 <input
                   name="name"
@@ -281,13 +300,8 @@ function Auth() {
                 <button type="submit" className="auth-sub-form__submit" disabled={isSubmitting}>
                   {isSubmitting ? '확인 중...' : '아이디 찾기'}
                 </button>
-                {formFeedback && (
-                  <p
-                    className={`auth-form__feedback auth-form__feedback--${formFeedback.type}${
-                      formFeedback.type === 'success' ? ' auth-form__feedback--multiline' : ''
-                    }`}
-                    role={formFeedback.type === 'error' ? 'alert' : 'status'}
-                  >
+                {formFeedback?.type === 'error' && (
+                  <p className="auth-form__feedback auth-form__feedback--error" role="alert">
                     {formFeedback.message}
                   </p>
                 )}
@@ -319,7 +333,7 @@ function Auth() {
                   spellCheck={false}
                 />
                 <button type="submit" className="auth-sub-form__submit" disabled={isSubmitting}>
-                  {isSubmitting ? '확인 중...' : '비밀번호 찾기'}
+                  {isSubmitting ? '확인 중...' : '다음'}
                 </button>
                 {formFeedback && (
                   <p

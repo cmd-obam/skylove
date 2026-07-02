@@ -1,11 +1,23 @@
+export const SECURITY_CUSTOM_QUESTION_ID = 'custom'
+
 export const SECURITY_QUESTIONS = [
+  { id: 'memorable-bible-verse', label: '가장 기억에 남는 성경 구절은 무엇인가요?' },
+  { id: 'favorite-hymn', label: '가장 좋아하는 찬양은 무엇인가요?' },
+  { id: 'respected-bible-figure', label: '가장 존경하는 성경 인물은 누구인가요?' },
+  { id: 'childhood-nickname', label: '어릴 적 가장 기억에 남는 별명은 무엇인가요?' },
+  { id: 'favorite-food', label: '가장 좋아하는 음식은 무엇인가요?' },
+  { id: 'first-church', label: '처음 출석한 교회는 어디인가요?' },
+  { id: SECURITY_CUSTOM_QUESTION_ID, label: '직접 입력' },
+]
+
+/** 이전 버전 회원가입 질문 ID (표시용) */
+const LEGACY_SECURITY_QUESTIONS = [
   { id: 'favorite-character', label: '내가 좋아하는 캐릭터는?' },
   { id: 'body-secret', label: '타인이 모르는 자신만의 신체비밀이 있다면?' },
   { id: 'life-motto', label: '자신의 인생 좌우명은?' },
   { id: 'elementary-partner', label: '초등학교 때 기억에 남는 짝꿍 이름은?' },
   { id: 'childhood-friend', label: '유년시절 가장 생각나는 친구 이름은?' },
   { id: 'memorable-teacher', label: '가장 기억에 남는 선생님 성함은?' },
-  { id: 'childhood-nickname', label: '친구들에게 공개하지 않은 어릴 적 별명이 있다면?' },
   { id: 'reborn-as', label: '다시 태어나면 되고 싶은 것은?' },
   { id: 'impressive-movie', label: '가장 감명깊게 본 영화는?' },
   { id: 'book-quote', label: '읽은 책 중에서 좋아하는 구절이 있다면?' },
@@ -20,6 +32,25 @@ export const SECURITY_QUESTIONS = [
 
 export const SECURITY_QUESTION_PLACEHOLDER = '---------- 선택하세요. ----------'
 
-export function getSecurityQuestionLabel(questionId) {
-  return SECURITY_QUESTIONS.find((item) => item.id === questionId)?.label ?? ''
+export function getSecurityQuestionLabel(storedValue) {
+  if (!storedValue) {
+    return ''
+  }
+
+  const allQuestions = [...SECURITY_QUESTIONS, ...LEGACY_SECURITY_QUESTIONS]
+  const found = allQuestions.find((item) => item.id === storedValue)
+
+  return found?.label ?? storedValue
+}
+
+export function resolveSecurityQuestionForStorage(form) {
+  if (form.securityQuestion === SECURITY_CUSTOM_QUESTION_ID) {
+    return form.securityCustomQuestion.trim()
+  }
+
+  return form.securityQuestion
+}
+
+export function isCustomSecurityQuestionSelected(questionId) {
+  return questionId === SECURITY_CUSTOM_QUESTION_ID
 }

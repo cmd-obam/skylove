@@ -55,7 +55,18 @@ function Hero() {
       <div className="hero__overlay" aria-hidden="true" />
 
       <div className="hero__content">
-        <h1 className="hero__title">{HOME_HERO.title}</h1>
+        <h1 className="hero__title">
+          {(HOME_HERO.titleLines ?? [HOME_HERO.title]).map((line, index) => (
+            <span
+              key={line}
+              className={`hero__title-line${
+                index > 0 ? ' hero__title-line--accent' : ''
+              }`}
+            >
+              {line}
+            </span>
+          ))}
+        </h1>
         <p className="hero__subtitle">{HOME_HERO.subtitle}</p>
         <div className="hero__actions">
           <Link to={HOME_HERO.primaryCta.href} className="hero__btn hero__btn--primary">

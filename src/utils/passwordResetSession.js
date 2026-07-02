@@ -37,12 +37,12 @@ export function setPasswordResetSession({ email, name }) {
     email: String(email ?? '').trim(),
     name: String(name ?? '').trim(),
     securityVerified: false,
-    securityAnswer: '',
+    emailOtpVerified: false,
     expiresAt: Date.now() + TTL_MS,
   })
 }
 
-export function setPasswordResetSecurityVerified(securityAnswer) {
+export function setPasswordResetSecurityVerified() {
   const session = readPasswordResetSessionRaw()
 
   if (!session) {
@@ -52,7 +52,21 @@ export function setPasswordResetSecurityVerified(securityAnswer) {
   writePasswordResetSession({
     ...session,
     securityVerified: true,
-    securityAnswer: String(securityAnswer ?? '').trim(),
+  })
+
+  return true
+}
+
+export function setPasswordResetEmailVerified() {
+  const session = readPasswordResetSessionRaw()
+
+  if (!session) {
+    return false
+  }
+
+  writePasswordResetSession({
+    ...session,
+    emailOtpVerified: true,
   })
 
   return true
@@ -69,7 +83,7 @@ export function getPasswordResetSession() {
     email: parsed.email,
     name: parsed.name,
     securityVerified: Boolean(parsed.securityVerified),
-    securityAnswer: parsed.securityAnswer ?? '',
+    emailOtpVerified: Boolean(parsed.emailOtpVerified),
   }
 }
 

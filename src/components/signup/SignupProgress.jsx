@@ -1,9 +1,10 @@
-import { FiCheck, FiEdit3, FiFileText, FiMonitor } from 'react-icons/fi'
+import { FiCheck, FiEdit3, FiFileText, FiMail, FiMonitor } from 'react-icons/fi'
 
 const STEPS = [
   { id: 1, label: '약관동의', icon: FiFileText },
   { id: 2, label: '정보입력', icon: FiEdit3 },
-  { id: 3, label: '가입완료', icon: FiMonitor },
+  { id: 3, label: '이메일 인증', icon: FiMail },
+  { id: 4, label: '가입완료', icon: FiMonitor },
 ]
 
 function SignupProgress({ currentStep }) {

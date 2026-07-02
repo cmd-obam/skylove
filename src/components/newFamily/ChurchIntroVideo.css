@@ -1,39 +1,247 @@
 .nf-video__inner {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
   align-items: stretch;
-  gap: clamp(1.5rem, 3vw, 2.5rem);
-  padding: clamp(1.25rem, 2.5vw, 1.75rem);
-  overflow: hidden;
-  border-radius: 16px;
-  background-color: #ffffff;
-  box-shadow: 0 10px 28px rgba(90, 169, 255, 0.12);
+  gap: 10px;
 }
 
 .nf-video__panel {
   display: flex;
-  flex: 1 1 0;
   flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
+  align-items: stretch;
+  justify-content: stretch;
   min-width: 0;
-  padding-right: 0.25rem;
-  background: linear-gradient(180deg, #f3f8ff 0%, #ffffff 55%, #f7fbff 100%);
+  background: transparent;
 }
 
-.nf-video__panel-image {
-  display: block;
-  width: 100%;
-  height: auto;
-  flex: 0 0 auto;
-  object-fit: contain;
-  object-position: left top;
+.nf-video__panel-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  min-height: 100%;
+  padding: clamp(0.75rem, 1.6vw, 1.25rem) 0.5rem;
+  color: #1f4e79;
+}
+
+.nf-video__panel-eyebrow {
+  margin: 0;
+  font-size: clamp(0.95rem, 1.35vw, 1.1rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: #587cb6;
+}
+
+.nf-video__panel-title {
+  margin: 0.65rem 0 0;
+  font-family: 'Nanum Myeongjo', 'Noto Serif KR', serif;
+  font-size: clamp(2rem, 3.2vw, 2.8rem);
+  font-weight: 800;
+  line-height: 1.2;
+  color: #123f8a;
+  letter-spacing: -0.05em;
+}
+
+.nf-video__panel-heart {
+  margin-left: 0.25rem;
+  font-size: 0.8em;
+  color: #f5be2f;
+}
+
+.nf-video__panel-description {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 1.2rem 0 0;
+  font-size: clamp(0.98rem, 1.25vw, 1.08rem);
+  font-weight: 500;
+  line-height: 1.8;
+  color: #556273;
+}
+
+.nf-video__panel-illustration {
+  position: relative;
+  flex: 1;
+  min-height: 8.25rem;
+  margin-top: 1.1rem;
+}
+
+.nf-video__panel-ground {
+  position: absolute;
+  right: 0.35rem;
+  bottom: 0.75rem;
+  width: 77%;
+  height: 1.5px;
+  background-color: #7ea5e6;
+}
+
+.nf-video__panel-church {
+  position: absolute;
+  right: 0.85rem;
+  bottom: 0.8rem;
+  width: 4.9rem;
+  height: 6.35rem;
+}
+
+.nf-video__panel-cross-top {
+  position: absolute;
+  top: -0.72rem;
+  left: 50%;
+  width: 1.5px;
+  height: 0.9rem;
+  background-color: #7ea5e6;
+  transform: translateX(-50%);
+}
+
+.nf-video__panel-cross-top::after {
+  content: '';
+  position: absolute;
+  top: 0.22rem;
+  left: 50%;
+  width: 0.62rem;
+  height: 1.5px;
+  background-color: #7ea5e6;
+  transform: translateX(-50%);
+}
+
+.nf-video__panel-roof {
+  position: absolute;
+  top: 0.48rem;
+  width: 2.35rem;
+  height: 1.5px;
+  background-color: #7ea5e6;
+}
+
+.nf-video__panel-roof--left {
+  left: 0.42rem;
+  transform: rotate(41deg);
+  transform-origin: left center;
+}
+
+.nf-video__panel-roof--right {
+  right: 0.42rem;
+  transform: rotate(-41deg);
+  transform-origin: right center;
+}
+
+.nf-video__panel-tower {
+  position: absolute;
+  top: 1.22rem;
+  left: 50%;
+  width: 2.2rem;
+  height: 4rem;
+  border: 1.5px solid #7ea5e6;
+  border-bottom: 0;
+  transform: translateX(-50%);
+}
+
+.nf-video__panel-window {
+  position: absolute;
+  left: 50%;
+  border: 2px solid #7ea5e6;
+  transform: translateX(-50%);
+}
+
+.nf-video__panel-window--round {
+  top: 2.45rem;
+  width: 0.58rem;
+  height: 0.58rem;
+  border-radius: 50%;
+}
+
+.nf-video__panel-door {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0.86rem;
+  height: 1.48rem;
+  border: 1.5px solid #7ea5e6;
+  border-bottom: 0;
+  border-radius: 0.52rem 0.52rem 0 0;
+  transform: translateX(-50%);
+}
+
+.nf-video__panel-wing {
+  position: absolute;
+  bottom: 0;
+  width: 1.18rem;
+  height: 1.72rem;
+  border: 1.5px solid #7ea5e6;
+  border-bottom: 0;
+}
+
+.nf-video__panel-wing--left {
+  left: 0.18rem;
+  border-right: 0;
+}
+
+.nf-video__panel-wing--right {
+  right: 0.18rem;
+  border-left: 0;
+}
+
+.nf-video__panel-tree {
+  position: absolute;
+  right: 4.95rem;
+  bottom: 0.76rem;
+  width: 0.55rem;
+  height: 1.08rem;
+  border: 1.5px solid #7ea5e6;
+  border-radius: 0.45rem 0.45rem 0.25rem 0.25rem;
+  border-bottom: 0;
+}
+
+.nf-video__panel-tree::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -0.32rem;
+  width: 1.5px;
+  height: 0.4rem;
+  background-color: #7ea5e6;
+  transform: translateX(-50%);
+}
+
+.nf-video__panel-cloud {
+  position: absolute;
+  right: 0.1rem;
+  bottom: 0.78rem;
+  width: 1.22rem;
+  height: 0.58rem;
+  border-top: 1.5px solid #7ea5e6;
+}
+
+.nf-video__panel-cloud::before,
+.nf-video__panel-cloud::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  border: 1.5px solid #7ea5e6;
+  border-bottom: 0;
+  border-radius: 50% 50% 0 0;
+}
+
+.nf-video__panel-cloud::before {
+  left: 0.02rem;
+  width: 0.46rem;
+  height: 0.4rem;
+}
+
+.nf-video__panel-cloud::after {
+  left: 0.42rem;
+  width: 0.62rem;
+  height: 0.56rem;
+}
+
+.nf-video__panel-copy,
+.nf-video__media {
+  border-radius: 12px;
 }
 
 .nf-video__media {
   position: relative;
-  flex: 1.5 1 0;
   min-width: 0;
-  min-height: 0;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
   border-radius: 12px;
   box-shadow: 0 8px 22px rgba(15, 23, 42, 0.14);
@@ -44,7 +252,6 @@
   display: block;
   width: 100%;
   height: 100%;
-  min-height: 100%;
   padding: 0;
   border: 0;
   background: #0f172a;
@@ -59,7 +266,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center;
+  object-position: center center;
 }
 
 .nf-video__overlay {
@@ -225,32 +432,32 @@
 
 @media (max-width: 1024px) {
   .nf-video__inner {
+    display: flex;
     flex-direction: column;
     align-items: stretch;
     gap: 1.5rem;
   }
 
   .nf-video__panel {
-    flex: none;
     width: 100%;
-    padding-right: 0;
+    max-width: none;
   }
 
-  .nf-video__panel-image {
-    object-position: center top;
+  .nf-video__panel-copy {
+    min-height: 0;
+    padding: 0;
   }
 
   .nf-video__media {
-    flex: none;
     width: 100%;
+    height: auto;
     aspect-ratio: 16 / 9;
   }
 }
 
 @media (max-width: 768px) {
   .nf-video__inner {
-    padding: 1.25rem;
-    gap: 1.25rem;
+    gap: 1rem;
   }
 
   .nf-video__media {
@@ -258,6 +465,14 @@
   }
 
   .nf-video__caption-name {
+    font-size: 0.9375rem;
+  }
+
+  .nf-video__panel-title {
+    font-size: 1.75rem;
+  }
+
+  .nf-video__panel-description {
     font-size: 0.9375rem;
   }
 

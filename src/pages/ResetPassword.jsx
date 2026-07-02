@@ -27,33 +27,24 @@ function ResetPassword() {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
-    const stateVerification = location.state?.email
-      ? {
-          email: location.state.email,
-          name: location.state.name,
-        }
-      : null
-
     const sessionVerification = getPasswordResetSession()
-    const nextVerification = stateVerification
-      ? {
-          ...stateVerification,
-          securityVerified: sessionVerification?.securityVerified ?? false,
-          securityAnswer: sessionVerification?.securityAnswer ?? '',
-        }
-      : sessionVerification
 
-    if (!nextVerification?.email || !nextVerification?.name) {
+    if (!sessionVerification?.email || !sessionVerification?.name) {
       navigate('/login?tab=find-password', { replace: true })
       return
     }
 
-    if (!nextVerification.securityVerified) {
+    if (!sessionVerification.securityVerified) {
       navigate('/reset-password/security-question', { replace: true })
       return
     }
 
-    setVerification(nextVerification)
+    if (!sessionVerification.emailOtpVerified) {
+      navigate('/reset-password/email-verify', { replace: true })
+      return
+    }
+
+    setVerification(sessionVerification)
   }, [location.state, navigate])
 
   const handleSubmit = async (event) => {
@@ -69,11 +60,10 @@ function ResetPassword() {
 
     try {
       const result = await resetPasswordByVerification({
-        name: verification.name,
         email: verification.email,
         password,
         passwordConfirm,
-        securityAnswer: verification.securityAnswer,
+        emailOtpVerified: verification.emailOtpVerified,
       })
 
       if (result.errors) {

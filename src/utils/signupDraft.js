@@ -48,6 +48,7 @@ export function isSignupFormDirty({
     Boolean(form.email?.trim()) ||
     Boolean(form.phone?.trim()) ||
     Boolean(form.securityQuestion) ||
+    Boolean(form.securityCustomQuestion?.trim()) ||
     Boolean(form.securityAnswer?.trim()) ||
     Boolean(form.agreePrivacy) ||
     Boolean(form.agreeTerms) ||

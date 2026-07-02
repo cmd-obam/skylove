@@ -156,3 +156,124 @@
     max-width: 100%;
   }
 }
+
+.auth-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.auth-form__field-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.auth-form__field-hint {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.auth-form__question-text {
+  margin: 0;
+  padding: 0.875rem 1rem;
+  border: 1px solid #dce5ef;
+  border-radius: 8px;
+  background-color: #f8fafc;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: #1f2937;
+}
+
+.auth-sub-form__secondary {
+  width: 100%;
+  height: 44px;
+  border: 1px solid #dce5ef;
+  border-radius: 8px;
+  background-color: var(--color-white);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  transition: border-color var(--transition), background-color var(--transition);
+}
+
+.auth-sub-form__secondary:hover:not(:disabled),
+.auth-sub-form__secondary:focus-visible:not(:disabled) {
+  border-color: #4da6ff;
+  background-color: #f8fbff;
+}
+
+.auth-sub-form__secondary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.auth-sub-form__back {
+  display: block;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+.auth-find-id-result {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.auth-find-id-result__card {
+  padding: 1.75rem 1.5rem;
+  border: 1px solid #dce5ef;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+  box-shadow: 0 10px 28px rgba(77, 166, 255, 0.08);
+  text-align: center;
+}
+
+.auth-find-id-result__lead,
+.auth-find-id-result__suffix {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #1f3a5f;
+}
+
+.auth-find-id-result__rule {
+  height: 1px;
+  margin: 1rem 0;
+  background: linear-gradient(
+    90deg,
+    rgba(77, 166, 255, 0) 0%,
+    rgba(77, 166, 255, 0.45) 50%,
+    rgba(77, 166, 255, 0) 100%
+  );
+}
+
+.auth-find-id-result__username {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  color: #4da6ff;
+  word-break: break-all;
+}
+
+.auth-find-id-result__login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+@media (max-width: 768px) {
+  .auth-find-id-result__card {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .auth-find-id-result__username {
+    font-size: 1.25rem;
+  }
+}

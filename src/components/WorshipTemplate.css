@@ -171,7 +171,7 @@
 
 .worship-template__intro--banner .worship-template__headline {
   font-family: 'Nanum Brush Script', cursive;
-  font-size: clamp(1.875rem, 4.2vw, 2.5rem);
+  font-size: clamp(2.125rem, 4.6vw, 2.75rem);
   font-weight: 400;
   line-height: 1.3;
   color: #2f6fad;
@@ -203,7 +203,7 @@
 
 .worship-template__intro-title {
   margin: 0 0 1rem;
-  font-size: clamp(1.1875rem, 2.4vw, 1.375rem);
+  font-size: clamp(1.3125rem, 2.7vw, 1.5rem);
   font-weight: 700;
   line-height: 1.45;
   color: #1f2d3d;
@@ -211,7 +211,7 @@
 }
 
 .worship-template__intro--banner .worship-template__description {
-  font-size: clamp(1rem, 2vw, 1.0625rem);
+  font-size: clamp(1.125rem, 2.2vw, 1.1875rem);
   line-height: 1.65;
   color: #374151;
   margin: 0;
@@ -221,7 +221,7 @@
 
 .worship-template__intro--banner-choir .worship-template__headline {
   font-family: 'Nanum Myeongjo', serif;
-  font-size: clamp(1.75rem, 3.6vw, 2.25rem);
+  font-size: clamp(2rem, 4vw, 2.5rem);
   font-weight: 700;
   line-height: 1.35;
   color: #1f2d3d;
@@ -233,7 +233,7 @@
 
 .worship-template__intro--banner-dawn-prayer .worship-template__headline {
   font-family: 'Nanum Myeongjo', serif;
-  font-size: clamp(1.75rem, 3.6vw, 2.25rem);
+  font-size: clamp(2rem, 4vw, 2.5rem);
   font-weight: 700;
   line-height: 1.35;
   color: #1f2d3d;
@@ -246,8 +246,20 @@
 
 .worship-template__intro--banner-dawn-prayer .worship-template__description {
   font-family: 'Nanum Myeongjo', serif;
-  font-size: clamp(0.875rem, 1.9vw, 0.96875rem);
+  font-size: clamp(1rem, 2.1vw, 1.0625rem);
   line-height: 1.8;
+}
+
+.worship-template__intro--typography-classic .worship-template__headline {
+  font-family: 'Nanum Myeongjo', serif;
+  font-size: clamp(2rem, 4vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.35;
+  color: #1f2d3d;
+}
+
+.worship-template__intro--typography-classic .worship-template__headline-line:nth-child(2) {
+  color: #5aa9ff;
 }
 
 .worship-template__intro-cross {
@@ -307,7 +319,7 @@
 
 .worship-template__intro--banner-choir .worship-template__description--rich {
   font-family: 'Nanum Myeongjo', serif;
-  font-size: clamp(0.875rem, 1.9vw, 0.96875rem);
+  font-size: clamp(1rem, 2.1vw, 1.0625rem);
   line-height: 1.8;
   color: #374151;
   text-align: center;
@@ -514,6 +526,80 @@
 
 /* ── Responsive ── */
 
+@media (max-width: 1162px) {
+  .worship-template__intro--banner {
+    aspect-ratio: auto;
+    min-height: clamp(17rem, 38vw, 22.5rem);
+    padding: clamp(1.25rem, 2.8vw, 2rem) clamp(1.5rem, 3vw, 2.25rem);
+  }
+
+  .worship-template__intro--banner-cross-top {
+    min-height: clamp(18rem, 40vw, 23.5rem);
+  }
+
+  .worship-template__intro--banner .worship-template__intro-text {
+    height: auto;
+    width: min(54%, 21rem);
+  }
+
+  .worship-template__intro--banner .worship-template__headline,
+  .worship-template__intro--typography-classic .worship-template__headline,
+  .worship-template__intro--banner-choir .worship-template__headline,
+  .worship-template__intro--banner-dawn-prayer .worship-template__headline {
+    font-size: clamp(1.5rem, 2.8vw, 2rem);
+    line-height: 1.28;
+  }
+
+  .worship-template__intro-title {
+    margin-bottom: 0.75rem;
+    font-size: clamp(1.125rem, 2.2vw, 1.3125rem);
+  }
+
+  .worship-template__intro--banner .worship-template__description,
+  .worship-template__intro--banner-choir .worship-template__description--rich,
+  .worship-template__intro--banner-dawn-prayer .worship-template__description {
+    font-size: clamp(0.9375rem, 1.7vw, 1.0625rem);
+    line-height: 1.6;
+  }
+
+  .worship-template__intro--banner .worship-template__intro-divider,
+  .worship-template__intro-divider--diamond {
+    margin: 0.75rem auto 0.875rem;
+  }
+}
+
+@media (max-width: 1162px) and (max-height: 520px) {
+  .worship-template__intro--banner {
+    min-height: clamp(15rem, 34vw, 19rem);
+    padding: 1rem 1.25rem;
+  }
+
+  .worship-template__intro--banner .worship-template__headline,
+  .worship-template__intro--typography-classic .worship-template__headline,
+  .worship-template__intro--banner-choir .worship-template__headline,
+  .worship-template__intro--banner-dawn-prayer .worship-template__headline {
+    font-size: clamp(1.25rem, 2.4vw, 1.625rem);
+    line-height: 1.22;
+  }
+
+  .worship-template__intro-title {
+    margin-bottom: 0.5rem;
+    font-size: 1.0625rem;
+  }
+
+  .worship-template__intro--banner .worship-template__description,
+  .worship-template__intro--banner-choir .worship-template__description--rich,
+  .worship-template__intro--banner-dawn-prayer .worship-template__description {
+    font-size: 0.9375rem;
+    line-height: 1.55;
+  }
+
+  .worship-template__intro--banner .worship-template__intro-divider,
+  .worship-template__intro-divider--diamond {
+    margin: 0.5rem auto 0.625rem;
+  }
+}
+
 @media (max-width: 900px) {
   .worship-template__intro {
     grid-template-columns: 1fr;
@@ -536,6 +622,33 @@
     max-width: none;
     align-items: center;
     text-align: center;
+  }
+
+  .worship-template__intro--banner .worship-template__headline {
+    font-size: clamp(1.625rem, 5.4vw, 2.25rem);
+    line-height: 1.3;
+  }
+
+  .worship-template__intro--typography-classic .worship-template__headline,
+  .worship-template__intro--banner-choir .worship-template__headline,
+  .worship-template__intro--banner-dawn-prayer .worship-template__headline {
+    font-size: clamp(1.625rem, 5.4vw, 2.25rem);
+  }
+
+  .worship-template__intro-title {
+    margin-bottom: 0.875rem;
+    font-size: clamp(1.25rem, 3vw, 1.375rem);
+  }
+
+  .worship-template__intro--banner .worship-template__description,
+  .worship-template__intro--banner-choir .worship-template__description--rich,
+  .worship-template__intro--banner-dawn-prayer .worship-template__description {
+    font-size: clamp(1.0625rem, 2.7vw, 1.125rem);
+    line-height: 1.7;
+  }
+
+  .worship-template__intro--banner .worship-template__intro-divider {
+    margin: 0.875rem auto 1rem;
   }
 
   .worship-template__intro-media {
@@ -571,6 +684,64 @@
 
   .worship-template__image-slot--hero {
     min-height: auto;
+  }
+
+  .worship-template__intro--banner {
+    min-height: 16rem;
+    padding: 1.5rem 1rem;
+  }
+
+  .worship-template__intro--banner-cross-top {
+    min-height: 18rem;
+  }
+
+  .worship-template__intro--banner .worship-template__headline {
+    font-size: clamp(1.375rem, 7.4vw, 1.875rem);
+    line-height: 1.25;
+  }
+
+  .worship-template__intro--typography-classic .worship-template__headline,
+  .worship-template__intro--banner-choir .worship-template__headline,
+  .worship-template__intro--banner-dawn-prayer .worship-template__headline {
+    font-size: clamp(1.375rem, 7.4vw, 1.875rem);
+  }
+
+  .worship-template__intro-title {
+    font-size: 1.125rem;
+  }
+
+  .worship-template__intro--banner .worship-template__description,
+  .worship-template__intro--banner-choir .worship-template__description--rich,
+  .worship-template__intro--banner-dawn-prayer .worship-template__description {
+    font-size: 1.0625rem;
+    line-height: 1.65;
+  }
+}
+
+@media (max-width: 480px) {
+  .worship-template__intro--banner {
+    min-height: 14rem;
+    padding: 1.25rem 0.875rem;
+  }
+
+  .worship-template__intro--banner-cross-top {
+    min-height: 16rem;
+  }
+
+  .worship-template__intro--banner .worship-template__headline {
+    font-size: clamp(1.25rem, 8vw, 1.625rem);
+    line-height: 1.2;
+  }
+
+  .worship-template__intro-title {
+    margin-bottom: 0.75rem;
+  }
+
+  .worship-template__intro--banner .worship-template__description,
+  .worship-template__intro--banner-choir .worship-template__description--rich,
+  .worship-template__intro--banner-dawn-prayer .worship-template__description {
+    font-size: 1rem;
+    line-height: 1.6;
   }
 }
 

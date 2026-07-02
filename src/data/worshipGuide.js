@@ -35,6 +35,7 @@ export const WORSHIP_GUIDE_CONTENT = {
     ],
     heroImage: null,
     introImage: sundayBlessingIntro,
+    introTypographyVariant: 'classic',
     galleryImages: [null, null, null],
     galleryTitles: ['찬양', '말씀', '교제'],
     footerMessage:
@@ -56,6 +57,7 @@ export const WORSHIP_GUIDE_CONTENT = {
     ],
     heroImage: null,
     introImage: sundayPraiseIntro,
+    introTypographyVariant: 'classic',
     galleryImages: [null, null, null],
     galleryTitles: ['찬양', '말씀', '교제'],
     footerMessage:
@@ -78,6 +80,7 @@ export const WORSHIP_GUIDE_CONTENT = {
     heroImage: null,
     introImage: wednesdayIntro,
     introBannerVariant: 'cross-top',
+    introTypographyVariant: 'classic',
     galleryImages: [null, null, null],
     galleryTitles: ['기도', '말씀', '교제'],
     footerMessage:

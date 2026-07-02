@@ -10,7 +10,14 @@
     "vercel-build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "diagnose:profiles": "node --env-file=.env scripts/diagnose-profiles.mjs"
+    "diagnose:profiles": "node --env-file=.env scripts/diagnose-profiles.mjs",
+    "diagnose:account-recovery": "node --env-file=.env scripts/diagnose-account-recovery.mjs",
+    "test:find-by-name-email": "node --env-file=.env scripts/test-find-by-name-email.mjs",
+    "deploy:find-by-name-email": "npx supabase functions deploy find_by_name_email --project-ref nwsytxwurnaxaabztomh --no-verify-jwt",
+    "deploy:verify-security-answer": "npx supabase functions deploy verify_security_answer --project-ref nwsytxwurnaxaabztomh --no-verify-jwt",
+    "deploy:account-recovery-functions": "npx supabase functions deploy find_by_name_email verify_security_answer --project-ref nwsytxwurnaxaabztomh --no-verify-jwt",
+    "deploy:all-edge-functions": "npx supabase functions deploy find_by_name_email verify_security_answer reset-password --project-ref nwsytxwurnaxaabztomh --no-verify-jwt && npx supabase functions deploy delete-account --project-ref nwsytxwurnaxaabztomh",
+    "test:edge-function-cors": "node --env-file=.env scripts/test-edge-function-cors.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.2",

@@ -51,9 +51,7 @@ export async function deleteAccount() {
 
     logDeleteStep('profiles 삭제', true, { userId: user.id })
 
-    const { data: fnData, error: fnError } = await supabase.functions.invoke('delete-account', {
-      method: 'POST',
-    })
+    const { data: fnData, error: fnError } = await supabase.functions.invoke('delete-account')
 
     if (fnError) {
       logDeleteStep('auth 삭제', false, fnError)

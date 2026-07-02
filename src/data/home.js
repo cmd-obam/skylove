@@ -1,9 +1,10 @@
 import { LOCATION_DATA } from '@/data/location'
 import { WORSHIP_SCHEDULE } from '@/data/worship'
-import welcomeImage from '@/assets/images/newFamily/church-intro-panel.png'
+import welcomeImage from '@/assets/images/home/welcome-church-exterior.png'
 
 export const HOME_HERO = {
-  title: '하나님을 만나 사랑이 행복한 교회',
+  title: '하나님을 만나 사람이 행복한 교회',
+  titleLines: ['하나님을 만나 사람이', '행복한 교회'],
   subtitle:
     '말씀 안에서 성장하고, 사랑으로 섬기며 다음 세대를 세워가는 하늘사랑교회입니다.',
   primaryCta: { label: '처음 오신 분 환영합니다', href: '/new-family' },
@@ -13,10 +14,14 @@ export const HOME_HERO = {
 export const HOME_WELCOME = {
   eyebrow: 'WELCOME',
   title: '하늘사랑교회에 오신 것을 환영합니다',
-  description:
-    '하늘사랑교회는 말씀과 기도, 사랑의 공동체로 하나님 나라를 이루어 가는 교회입니다. 처음 오신 분들도 편안한 마음으로 함께 예배하실 수 있습니다.',
+  descriptionLines: [
+    '처음 오신 한 분도 가족처럼 환영합니다.',
+    '예배를 통해 하나님을 만나고,',
+    '서로 사랑하며 함께 성장하는',
+    '따뜻한 공동체입니다.',
+  ],
   image: welcomeImage,
-  imageAlt: '하늘사랑교회 환영 이미지',
+  imageAlt: '하늘사랑교회 외관',
   links: [
     { label: '교회소개', href: '/about', icon: 'book' },
     { label: '담임목사 인사말', href: '/new-family', icon: 'user' },

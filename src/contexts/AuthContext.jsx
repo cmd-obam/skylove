@@ -58,8 +58,6 @@ export function AuthProvider({ children }) {
     const nextProfile = await loadProfile(nextSession.user)
 
     if (!nextProfile) {
-      await supabase.auth.signOut()
-      setSession(null)
       setProfile(null)
       clearAuthSession()
       return

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { PASSWORD_PLACEHOLDER, PASSWORD_REQUIREMENT_HINT } from '@/services/auth/signup'
 import {
+  isCustomSecurityQuestionSelected,
   SECURITY_QUESTIONS,
   SECURITY_QUESTION_PLACEHOLDER,
 } from '@/data/securityQuestions'
@@ -244,7 +245,12 @@ function SignupStepForm({
             name="securityQuestion"
             className="signup-info-form__input signup-info-form__select"
             value={form.securityQuestion}
-            onChange={(event) => updateField('securityQuestion', event.target.value)}
+            onChange={(event) => {
+              updateField('securityQuestion', event.target.value)
+              if (!isCustomSecurityQuestionSelected(event.target.value)) {
+                updateField('securityCustomQuestion', '')
+              }
+            }}
           >
             <option value="">{SECURITY_QUESTION_PLACEHOLDER}</option>
             {SECURITY_QUESTIONS.map((question) => (
@@ -255,8 +261,28 @@ function SignupStepForm({
           </select>
         </SignupFormRow>
 
+        {isCustomSecurityQuestionSelected(form.securityQuestion) && (
+          <SignupFormRow
+            label="질문 입력"
+            required
+            htmlFor="signup-security-custom-question"
+            error={errors.securityCustomQuestion}
+          >
+            <input
+              id="signup-security-custom-question"
+              name="securityCustomQuestion"
+              type="text"
+              className="signup-info-form__input"
+              placeholder="비밀번호 찾기에 사용할 질문을 입력하세요."
+              value={form.securityCustomQuestion}
+              onChange={(event) => updateField('securityCustomQuestion', event.target.value)}
+              autoComplete="off"
+            />
+          </SignupFormRow>
+        )}
+
         <SignupFormRow
-          label="비밀번호 분실 시 답변"
+          label="답변 입력"
           required
           htmlFor="signup-security-answer"
           error={errors.securityAnswer}
@@ -266,7 +292,7 @@ function SignupStepForm({
             name="securityAnswer"
             type="text"
             className="signup-info-form__input"
-            placeholder="비밀번호 분실 시 사용할 답변을 입력하세요."
+            placeholder="비밀번호 찾기에 사용할 답변을 입력하세요."
             value={form.securityAnswer}
             onChange={(event) => updateField('securityAnswer', event.target.value)}
             autoComplete="off"
@@ -277,8 +303,7 @@ function SignupStepForm({
           <p className="signup-info-form__guide-title">비밀번호 찾기 안내</p>
           <ul className="signup-info-form__guide-list">
             <li>비밀번호를 분실한 경우, 이름·이메일과 함께 등록한 질문과 답변으로 본인 확인 후 재설정할 수 있습니다.</li>
-            <li>비밀번호는 암호화되어 저장되며, 본인 확인 후 재설정할 수 있습니다.</li>
-            <li>입력하신 질문과 답변은 비밀번호 찾기 외 다른 용도로 사용되지 않습니다.</li>
+            <li>답변은 암호화되어 저장되며, 비밀번호 찾기 외 다른 용도로 사용되지 않습니다.</li>
           </ul>
         </div>
 

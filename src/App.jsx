@@ -10,10 +10,12 @@ import Worship from '@/pages/Worship'
 import Location from '@/pages/Location'
 import Auth from '@/pages/Auth'
 import Signup from '@/pages/Signup'
+import AuthCallback from '@/pages/AuthCallback'
 import EmailConfirmSuccess from '@/pages/EmailConfirmSuccess'
 import MemberEdit from '@/pages/MemberEdit'
 import ResetPassword from '@/pages/ResetPassword'
 import ResetPasswordSecurityQuestion from '@/pages/ResetPasswordSecurityQuestion'
+import ResetPasswordEmailVerify from '@/pages/ResetPasswordEmailVerify'
 import ChangePassword from '@/pages/ChangePassword'
 import Admin from '@/pages/Admin'
 import AdminRoute from '@/components/auth/AdminRoute'
@@ -59,8 +61,10 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Auth />} />
             <Route path="/reset-password/security-question" element={<ResetPasswordSecurityQuestion />} />
+            <Route path="/reset-password/email-verify" element={<ResetPasswordEmailVerify />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/email-confirm" element={<EmailConfirmSuccess />} />
             <Route path="/member/edit" element={<MemberEdit />} />
             <Route path="/mypage/change-password" element={<ChangePassword />} />

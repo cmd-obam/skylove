@@ -59,6 +59,7 @@
   max-width: var(--max-width);
   width: 100%;
   padding: 0 var(--section-padding);
+  padding-left: calc(var(--section-padding) + 60px);
   text-align: left;
   color: var(--color-white);
   user-select: text;
@@ -79,14 +80,26 @@
 }
 
 .hero__title {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
   margin: 0 0 1.25rem;
-  max-width: 28rem;
-  font-size: 3rem;
+  max-width: 32rem;
+  font-family: 'Nanum Myeongjo', 'Noto Serif KR', serif;
+  font-size: clamp(2.25rem, 5.2vw, 3.5rem);
   font-weight: 700;
   letter-spacing: -0.02em;
-  line-height: 1.25;
+  line-height: 1.28;
   color: var(--color-white);
   text-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);
+}
+
+.hero__title-line {
+  display: block;
+}
+
+.hero__title-line--accent {
+  color: #a8dfff;
 }
 
 .hero__subtitle {
@@ -178,7 +191,7 @@
   }
 
   .hero__title {
-    font-size: 2.5rem;
+    font-size: clamp(2rem, 6.5vw, 2.75rem);
     max-width: none;
   }
 }
@@ -189,7 +202,7 @@
   }
 
   .hero__title {
-    font-size: 1.875rem;
+    font-size: clamp(1.75rem, 7.5vw, 2.25rem);
   }
 
   .hero__subtitle {

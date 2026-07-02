@@ -1,0 +1,22 @@
+# For detailed configuration reference documentation, visit:
+# https://supabase.com/docs/guides/local-development/cli/config
+project_id = "skylove"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[functions.find_by_name_email]
+verify_jwt = false
+
+[functions.verify_security_answer]
+verify_jwt = false
+
+[functions.reset-password]
+verify_jwt = false
+
+[functions.delete-account]
+verify_jwt = true

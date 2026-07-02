@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
 import { FiPlay } from 'react-icons/fi'
-import introPanel from '@/assets/images/newFamily/church-intro-panel.png'
 import { PlaceholderVideo } from '@/components/newFamily/shared'
 import { getYouTubeThumbnail, NEW_FAMILY_VIDEO } from '@/data/newFamilyGuide'
 import './ChurchIntroVideo.css'
@@ -92,7 +91,6 @@ function PastorGreetingVideoCard({
 }
 
 function ChurchIntroVideo({
-  introImage = NEW_FAMILY_VIDEO.introImage ?? introPanel,
   videoUrl = NEW_FAMILY_VIDEO.videoUrl,
   videoId = NEW_FAMILY_VIDEO.videoId,
   thumbnail = NEW_FAMILY_VIDEO.thumbnail,
@@ -116,12 +114,35 @@ function ChurchIntroVideo({
     <section className="nf-section nf-video nf-fade" aria-label="교회 소개 영상">
       <div className="nf-video__inner">
         <div className="nf-video__panel">
-          <img
-            src={introImage}
-            alt="오직 예수로 세워지는 하늘사랑교회. 예수 그리스도를 중심에 두고 말씀과 사랑으로 걸어가는 하늘사랑교회를 만나보세요."
-            className="nf-video__panel-image"
-            loading="lazy"
-          />
+          <div className="nf-video__panel-copy">
+            <p className="nf-video__panel-eyebrow">오직 예수로 세워지는</p>
+            <h3 className="nf-video__panel-title">
+              하늘사랑교회
+              <span className="nf-video__panel-heart" aria-hidden="true">
+                ♥
+              </span>
+            </h3>
+            <p className="nf-video__panel-description">
+              <span>예수 그리스도를 중심에 두고</span>
+              <span>말씀과 사랑으로 걸어가는</span>
+              <span>하늘사랑교회를 만나보세요.</span>
+            </p>
+            <div className="nf-video__panel-illustration" aria-hidden="true">
+              <span className="nf-video__panel-ground" />
+              <span className="nf-video__panel-church">
+                <span className="nf-video__panel-cross-top" />
+                <span className="nf-video__panel-roof nf-video__panel-roof--left" />
+                <span className="nf-video__panel-roof nf-video__panel-roof--right" />
+                <span className="nf-video__panel-tower" />
+                <span className="nf-video__panel-window nf-video__panel-window--round" />
+                <span className="nf-video__panel-door" />
+                <span className="nf-video__panel-wing nf-video__panel-wing--left" />
+                <span className="nf-video__panel-wing nf-video__panel-wing--right" />
+              </span>
+              <span className="nf-video__panel-tree" />
+              <span className="nf-video__panel-cloud" />
+            </div>
+          </div>
         </div>
 
         <div className="nf-video__media">

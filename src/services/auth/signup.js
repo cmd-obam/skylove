@@ -12,6 +12,10 @@ import {
 } from '@/services/auth/signupErrors'
 import { DEFAULT_MEMBER_ROLE } from '@/services/auth/profileSchema'
 import { validateResetPassword } from '@/services/auth/passwordValidation'
+import {
+  resolveSecurityQuestionForStorage,
+  SECURITY_CUSTOM_QUESTION_ID,
+} from '@/data/securityQuestions'
 
 const LOGIN_ID_PATTERN = /^[a-zA-Z0-9_]{4,20}$/
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -74,6 +78,7 @@ export const INITIAL_SIGNUP_FORM = {
   password: '',
   passwordConfirm: '',
   securityQuestion: '',
+  securityCustomQuestion: '',
   securityAnswer: '',
   name: '',
   birthDate: '',
@@ -110,6 +115,11 @@ export function validateForm(form, { isIdChecked = false, isEmailVerified = fals
 
   if (!form.securityQuestion) {
     errors.securityQuestion = '비밀번호 분실 시 질문을 선택해주세요.'
+  } else if (
+    form.securityQuestion === SECURITY_CUSTOM_QUESTION_ID &&
+    !form.securityCustomQuestion.trim()
+  ) {
+    errors.securityCustomQuestion = '직접 입력 질문을 입력해주세요.'
   }
 
   if (!form.securityAnswer.trim()) {
@@ -161,7 +171,7 @@ export function getEmailConfirmRedirectTo() {
     return undefined
   }
 
-  return new URL('email-confirm', `${window.location.origin}${import.meta.env.BASE_URL}`).href
+  return new URL('auth/callback', `${window.location.origin}${import.meta.env.BASE_URL}`).href
 }
 
 /** @deprecated getEmailConfirmRedirectTo 사용 */
@@ -818,7 +828,7 @@ async function insertProfile(userId, formData) {
   if (!insertError) {
     const { error: securityError } = await supabase.rpc('set_profile_security_recovery', {
       p_user_id: userId,
-      p_security_question: formData.securityQuestion,
+      p_security_question: resolveSecurityQuestionForStorage(formData),
       p_security_answer: formData.securityAnswer.trim(),
     })
 
@@ -839,7 +849,7 @@ async function insertProfile(userId, formData) {
     p_birth_date: birthDate,
     p_email: email,
     p_phone: phone || null,
-    p_security_question: formData.securityQuestion,
+    p_security_question: resolveSecurityQuestionForStorage(formData),
     p_security_answer: formData.securityAnswer.trim(),
   }
 

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import AuthBreadcrumb from '@/components/auth/AuthBreadcrumb'
 import MemberMenuSidebar from '@/components/auth/MemberMenuSidebar'
 import { supabase } from '@/lib/supabase'
@@ -30,6 +30,7 @@ import {
 } from '@/utils/signupDraft'
 import SignupToast from '@/components/signup/SignupToast'
 import SignupProgress from '@/components/signup/SignupProgress'
+import SignupEmailPending from '@/components/signup/SignupEmailPending'
 import SignupStepTerms from '@/components/signup/SignupStepTerms'
 import SignupStepForm from '@/components/signup/SignupStepForm'
 import SignupStepComplete from '@/components/signup/SignupStepComplete'
@@ -38,6 +39,10 @@ import '@/components/layout/SubLayout.css'
 import './Signup.css'
 
 const RESEND_COOLDOWN_SECONDS = 60
+const SIGNUP_STEP_TERMS = 1
+const SIGNUP_STEP_FORM = 2
+const SIGNUP_STEP_EMAIL_PENDING = 3
+const SIGNUP_STEP_COMPLETE = 4
 
 const INITIAL_STEP1_AGREEMENTS = {
   terms: 'disagree',
@@ -129,9 +134,20 @@ function createInitialState() {
 
 function Signup() {
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const initialState = useRef(createInitialState()).current
 
-  const [currentStep, setCurrentStep] = useState(() => getInitialStep(initialState.form))
+  const [currentStep, setCurrentStep] = useState(() => {
+    if (searchParams.get('step') === 'complete') {
+      return SIGNUP_STEP_COMPLETE
+    }
+
+    if (initialState.emailSent) {
+      return SIGNUP_STEP_EMAIL_PENDING
+    }
+
+    return getInitialStep(initialState.form)
+  })
   const [step1Agreements, setStep1Agreements] = useState(() =>
     getInitialStep1Agreements(initialState.form),
   )
@@ -152,6 +168,7 @@ function Signup() {
   const [isCheckingEmail, setIsCheckingEmail] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSyncingEmailVerification, setIsSyncingEmailVerification] = useState(true)
+  const [isAutoCheckingEmail, setIsAutoCheckingEmail] = useState(false)
   const [passwordConfirmTouched, setPasswordConfirmTouched] = useState(false)
   const [toast, setToast] = useState(null)
 
@@ -210,7 +227,7 @@ function Signup() {
       agreePrivacy: true,
       agreeTerms: true,
     }))
-    setCurrentStep(2)
+    setCurrentStep(SIGNUP_STEP_FORM)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -265,18 +282,21 @@ function Signup() {
     setResendCooldown(0)
     setFormFeedback(null)
     setToast(null)
+    setIsAutoCheckingEmail(false)
     setPasswordConfirmTouched(false)
-    setCurrentStep(1)
+    setCurrentStep(SIGNUP_STEP_TERMS)
     setStep1Agreements(INITIAL_STEP1_AGREEMENTS)
     clearSignupDraft()
-  }, [])
+    setSearchParams({}, { replace: true })
+  }, [setSearchParams])
 
   const handleConfirmLeave = useCallback(() => {
     resetSignupForm()
   }, [resetSignupForm])
 
   const { isLeaveModalOpen, cancelLeave, confirmLeave, allowNavigation } = useSignupLeaveGuard({
-    isDirty: currentStep === 2 ? isDirty : false,
+    isDirty:
+      currentStep === SIGNUP_STEP_FORM || currentStep === SIGNUP_STEP_EMAIL_PENDING ? isDirty : false,
     onConfirmLeave: handleConfirmLeave,
   })
 
@@ -321,6 +341,45 @@ function Signup() {
     [form.email],
   )
 
+  const finalizeSignup = useCallback(async () => {
+    setIsSubmitting(true)
+    clearFeedback()
+
+    let signupResult = null
+
+    try {
+      signupResult = await handleSignup(form)
+    } catch (error) {
+      console.error('[Signup] handleSignup 예외', error)
+      showFeedback('error', '회원가입 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.')
+      setIsSubmitting(false)
+      return false
+    }
+
+    if (!signupResult?.success) {
+      if (signupResult?.message === SIGNUP_EMAIL_NOT_VERIFIED_MESSAGE) {
+        setIsEmailVerified(false)
+      }
+
+      showFeedback('error', signupResult?.message ?? '회원가입에 실패했습니다.')
+      setIsSubmitting(false)
+      return false
+    }
+
+    try {
+      allowNavigation()
+      resetSignupForm()
+      setStep1Agreements(INITIAL_STEP1_AGREEMENTS)
+      setCurrentStep(SIGNUP_STEP_COMPLETE)
+    } catch (postProcessError) {
+      console.warn('[Signup] 회원가입 후처리(UI) 실패 — 회원가입은 성공', postProcessError)
+      setCurrentStep(SIGNUP_STEP_COMPLETE)
+    }
+
+    setIsSubmitting(false)
+    return true
+  }, [allowNavigation, clearFeedback, form, resetSignupForm, showFeedback])
+
   useEffect(() => {
     if (!isDirty) {
       clearSignupDraft()
@@ -360,6 +419,14 @@ function Signup() {
   }, [initialState.form.email])
 
   useEffect(() => {
+    if (searchParams.get('step') !== 'complete') {
+      return
+    }
+
+    setCurrentStep(SIGNUP_STEP_COMPLETE)
+  }, [searchParams])
+
+  useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
         syncEmailVerifiedFromSupabase()
@@ -390,6 +457,35 @@ function Signup() {
       subscription.unsubscribe()
     }
   }, [form.email, syncEmailVerifiedFromSupabase])
+
+  useEffect(() => {
+    if (currentStep !== SIGNUP_STEP_EMAIL_PENDING || !emailSent || isEmailVerified) {
+      return undefined
+    }
+
+    const timer = window.setInterval(async () => {
+      setIsAutoCheckingEmail(true)
+
+      try {
+        await syncEmailVerifiedFromSupabase()
+      } finally {
+        setIsAutoCheckingEmail(false)
+      }
+    }, 5000)
+
+    return () => {
+      window.clearInterval(timer)
+      setIsAutoCheckingEmail(false)
+    }
+  }, [currentStep, emailSent, isEmailVerified, syncEmailVerifiedFromSupabase])
+
+  useEffect(() => {
+    if (currentStep !== SIGNUP_STEP_EMAIL_PENDING || !isEmailVerified || isSubmitting) {
+      return
+    }
+
+    finalizeSignup()
+  }, [currentStep, finalizeSignup, isEmailVerified, isSubmitting])
 
   useEffect(() => {
     if (resendCooldown <= 0) {
@@ -518,6 +614,7 @@ function Signup() {
         setEmailStatusMessage(result.message || SIGNUP_EMAIL_SENT_MESSAGE)
         setErrors((prev) => ({ ...prev, email: undefined }))
         startResendCooldown()
+        setCurrentStep(SIGNUP_STEP_EMAIL_PENDING)
         return
       }
 
@@ -555,6 +652,7 @@ function Signup() {
 
       if (verified) {
         setEmailStatusMessage('')
+        setCurrentStep(SIGNUP_STEP_EMAIL_PENDING)
         return
       }
 
@@ -652,40 +750,7 @@ function Signup() {
       return
     }
 
-    setIsSubmitting(true)
-
-    let signupResult = null
-
-    try {
-      signupResult = await handleSignup(form)
-    } catch (error) {
-      console.error('[Signup] handleSignup 예외', error)
-      showFeedback('error', '회원가입 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.')
-      setIsSubmitting(false)
-      return
-    }
-
-    if (!signupResult?.success) {
-      if (signupResult?.message === SIGNUP_EMAIL_NOT_VERIFIED_MESSAGE) {
-        setIsEmailVerified(false)
-      }
-
-      showFeedback('error', signupResult?.message ?? '회원가입에 실패했습니다.')
-      setIsSubmitting(false)
-      return
-    }
-
-    try {
-      allowNavigation()
-      resetSignupForm()
-      setStep1Agreements(INITIAL_STEP1_AGREEMENTS)
-      setCurrentStep(3)
-    } catch (postProcessError) {
-      console.warn('[Signup] 회원가입 후처리(UI) 실패 — 회원가입은 성공', postProcessError)
-      setCurrentStep(3)
-    }
-
-    setIsSubmitting(false)
+    await finalizeSignup()
   }
 
   return (
@@ -713,7 +778,7 @@ function Signup() {
 
           <SignupProgress currentStep={currentStep} />
 
-          {currentStep === 1 && (
+          {currentStep === SIGNUP_STEP_TERMS && (
             <SignupStepTerms
               agreements={step1Agreements}
               onChangeAgreement={handleStep1AgreementChange}
@@ -724,7 +789,7 @@ function Signup() {
             />
           )}
 
-          {currentStep === 2 && (
+          {currentStep === SIGNUP_STEP_FORM && (
             <SignupStepForm
               form={form}
               errors={errors}
@@ -754,7 +819,23 @@ function Signup() {
             />
           )}
 
-          {currentStep === 3 && (
+          {currentStep === SIGNUP_STEP_EMAIL_PENDING && (
+            <div className="signup-card signup-card--embedded">
+              <SignupEmailPending
+                email={form.email.trim()}
+                resendCooldown={resendCooldown}
+                isSendingEmail={isSendingEmail}
+                isCheckingEmail={isCheckingEmail}
+                isAutoChecking={isAutoCheckingEmail}
+                formFeedback={formFeedback}
+                onCheck={handleCheckEmailVerification}
+                onResend={handleResendEmail}
+                onEdit={() => setCurrentStep(SIGNUP_STEP_FORM)}
+              />
+            </div>
+          )}
+
+          {currentStep === SIGNUP_STEP_COMPLETE && (
             <div className="signup-card signup-card--embedded">
               <SignupStepComplete />
             </div>

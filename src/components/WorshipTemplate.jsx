@@ -64,6 +64,7 @@ function WorshipTemplate({
   footerMessage,
   crossIcon = null,
   introBannerVariant = null,
+  introTypographyVariant = null,
   introBackgroundPosition = 'right center',
 }) {
   const rootRef = useRef(null)
@@ -148,6 +149,10 @@ function WorshipTemplate({
         }${introImage ? ' worship-template__intro--banner' : ''}${
           introBannerVariant
             ? ` worship-template__intro--banner-${introBannerVariant}`
+            : ''
+        }${
+          introTypographyVariant
+            ? ` worship-template__intro--typography-${introTypographyVariant}`
             : ''
         }`}
         style={

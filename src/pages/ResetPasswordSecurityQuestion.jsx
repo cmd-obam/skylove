@@ -42,7 +42,7 @@ function ResetPasswordSecurityQuestion() {
     }
 
     if (sessionVerification?.securityVerified) {
-      navigate('/reset-password', { replace: true })
+      navigate('/reset-password/email-verify', { replace: true })
       return
     }
 
@@ -117,8 +117,8 @@ function ResetPasswordSecurityQuestion() {
         return
       }
 
-      setPasswordResetSecurityVerified(trimmedAnswer)
-      navigate('/reset-password', { replace: true })
+      setPasswordResetSecurityVerified()
+      navigate('/reset-password/email-verify', { replace: true })
     } catch {
       setFormFeedback({
         type: 'error',
@@ -148,94 +148,66 @@ function ResetPasswordSecurityQuestion() {
           </div>
 
           <div className="auth-page__body">
-            <form className="signup-info-form" onSubmit={handleSubmit} noValidate autoComplete="off">
-              <header className="signup-info-form__header">
-                <h2 className="signup-info-form__title">본인 확인</h2>
-                <p className="signup-info-form__notice">
-                  {verification.name}님, 등록하신 질문에 정확히 답변해주세요.
-                </p>
-              </header>
-
-              <div className="signup-info-form__panel">
-                <div className="signup-info-form__row">
-                  <div className="signup-info-form__label-cell">
-                    <span className="signup-info-form__label">비밀번호 분실 시 질문</span>
-                  </div>
-                  <div className="signup-info-form__control-cell">
-                    {isLoadingQuestion ? (
-                      <p className="signup-info-form__hint">질문을 불러오는 중...</p>
-                    ) : questionLabel ? (
-                      <p className="signup-info-form__question-text">{questionLabel}</p>
-                    ) : (
-                      <p className="signup-info-form__message signup-info-form__message--error" role="alert">
-                        등록된 비밀번호 찾기 질문이 없습니다.
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                <div
-                  className={`signup-info-form__row${
-                    answerError ? ' signup-info-form__row--error' : ''
-                  }`}
-                >
-                  <div className="signup-info-form__label-cell">
-                    <label className="signup-info-form__label" htmlFor="reset-security-answer">
-                      <span className="signup-info-form__required" aria-hidden="true">
-                        *
-                      </span>
-                      비밀번호 분실 시 답변
-                    </label>
-                  </div>
-                  <div className="signup-info-form__control-cell">
-                    <input
-                      id="reset-security-answer"
-                      name="securityAnswer"
-                      type="text"
-                      className="signup-info-form__input"
-                      placeholder="회원가입 시 입력한 답변을 입력하세요."
-                      value={answer}
-                      onChange={(event) => {
-                        setAnswer(event.target.value)
-                        setAnswerError('')
-                        setFormFeedback(null)
-                      }}
-                      disabled={!questionLabel || isLoadingQuestion}
-                      autoComplete="off"
-                    />
-                    {answerError && (
-                      <p
-                        className="signup-info-form__message signup-info-form__message--error"
-                        role="alert"
-                      >
-                        {answerError}
-                      </p>
-                    )}
-                  </div>
-                </div>
+            <form className="auth-sub-form" onSubmit={handleSubmit} noValidate autoComplete="off">
+              <div className="auth-form__field">
+                <label className="auth-form__field-label" htmlFor="reset-security-question">
+                  비밀번호 분실 시 질문
+                </label>
+                {isLoadingQuestion ? (
+                  <p className="auth-form__field-hint">질문을 불러오는 중...</p>
+                ) : questionLabel ? (
+                  <p className="auth-form__question-text" id="reset-security-question">
+                    {questionLabel}
+                  </p>
+                ) : (
+                  <p className="auth-form__feedback auth-form__feedback--error" role="alert">
+                    등록된 비밀번호 찾기 질문이 없습니다.
+                  </p>
+                )}
               </div>
+
+              <input
+                id="reset-security-answer"
+                name="securityAnswer"
+                type="text"
+                className="auth-form__input"
+                placeholder="회원가입 시 입력한 답변을 입력하세요."
+                value={answer}
+                onChange={(event) => {
+                  setAnswer(event.target.value)
+                  setAnswerError('')
+                  setFormFeedback(null)
+                }}
+                disabled={!questionLabel || isLoadingQuestion}
+                autoComplete="off"
+                aria-label="비밀번호 분실 시 답변"
+              />
+              {answerError && (
+                <p className="auth-form__feedback auth-form__feedback--error" role="alert">
+                  {answerError}
+                </p>
+              )}
 
               {formFeedback && (
                 <p
-                  className={`signup-form__feedback signup-form__feedback--${formFeedback.type}`}
+                  className={`auth-form__feedback auth-form__feedback--${formFeedback.type}`}
                   role={formFeedback.type === 'error' ? 'alert' : 'status'}
                 >
                   {formFeedback.message}
                 </p>
               )}
 
-              <div className="signup-info-form__actions">
-                <button
-                  type="submit"
-                  className="signup-btn signup-btn--dark"
-                  disabled={isSubmitting || isLoadingQuestion || !questionLabel}
-                >
-                  {isSubmitting ? '확인 중...' : '답변 확인'}
-                </button>
-                <Link to="/login?tab=find-password" className="signup-btn signup-btn--cancel">
-                  처음으로
-                </Link>
-              </div>
+              <button
+                type="submit"
+                className="auth-sub-form__submit"
+                disabled={isSubmitting || isLoadingQuestion || !questionLabel}
+              >
+                {isSubmitting ? '확인 중...' : '다음'}
+              </button>
+
+              <Link to="/login?tab=find-password" className="auth-page__footer-link auth-sub-form__back">
+                처음으로
+              </Link>
             </form>
           </div>
         </div>

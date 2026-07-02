@@ -53,6 +53,24 @@ async function uploadAlbumImages(postType, postId, images) {
   return { success: true, images: uploaded }
 }
 
+function mapBoardWriteErrorMessage(message) {
+  if (!message) {
+    return '게시글 등록 중 오류가 발생했습니다.'
+  }
+
+  if (
+    message.includes('Could not find the table') ||
+    message.includes('schema cache') ||
+    message.includes('board_posts') ||
+    message.includes('board_post_meta') ||
+    message.includes('ensure_board_post_meta')
+  ) {
+    return '게시판 DB가 아직 준비되지 않았습니다. Supabase에 게시판 마이그레이션을 먼저 적용해 주세요.'
+  }
+
+  return message
+}
+
 function BoardPostWritePage({
   postType,
   pageTitle,
@@ -171,6 +189,7 @@ function BoardPostWritePage({
 
     const writer = profile?.name?.trim() || '관리자'
     const targetPostId = isEdit ? postId : crypto.randomUUID()
+    const uploadedPaths = []
 
     let attachmentUrl = existingAttachment?.url ?? null
     let attachmentName = existingAttachment?.name ?? null
@@ -187,6 +206,7 @@ function BoardPostWritePage({
 
       attachmentUrl = uploadResult.url
       attachmentName = attachmentFile.name
+      uploadedPaths.push(uploadResult.path)
     } else if (!existingAttachment) {
       attachmentUrl = null
       attachmentName = null
@@ -206,6 +226,7 @@ function BoardPostWritePage({
 
       imagesPayload = uploadResult.images
       thumbnail = imagesPayload[0]?.url ?? null
+      uploadedPaths.push(...uploadResult.images.map((image) => image.path).filter(Boolean))
     }
 
     const payload = {
@@ -227,7 +248,11 @@ function BoardPostWritePage({
         })
 
     if (!result.success) {
-      setError(result.message)
+      if (!isEdit && uploadedPaths.length > 0) {
+        await deleteBoardFiles(uploadedPaths)
+      }
+
+      setError(mapBoardWriteErrorMessage(result.message))
       setSubmitting(false)
       return
     }
