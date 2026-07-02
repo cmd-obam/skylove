@@ -341,7 +341,7 @@
 .nf-first-visit__card-head {
   display: flex;
   align-items: center;
-  gap: 0.625rem;
+  gap: 0.875rem;
 }
 
 .nf-first-visit__step-badge {
@@ -369,7 +369,7 @@
 }
 
 .nf-first-visit__card-body {
-  --nf-first-visit-indent: calc(1.75rem + 0.625rem);
+  --nf-first-visit-indent: calc(1.75rem + 0.875rem);
   margin-top: 0.625rem;
   padding-left: var(--nf-first-visit-indent);
 }

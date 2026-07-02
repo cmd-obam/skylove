@@ -36,7 +36,7 @@
 
 .map-link-bar__item:hover,
 .map-link-bar__item:focus-visible {
-  background-color: #f7fbff;
+  background-color: #ffffff;
   color: var(--color-primary);
 }
 

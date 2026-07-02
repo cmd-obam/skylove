@@ -1161,7 +1161,7 @@
 .signup-btn--outline:focus-visible:not(:disabled) {
   border-color: #4da6ff;
   color: #4da6ff;
-  background-color: #f7fbff;
+  background-color: #ffffff;
 }
 
 .signup-btn--outline:disabled {

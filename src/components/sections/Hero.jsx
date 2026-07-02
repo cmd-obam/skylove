@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { HOME_HERO } from '@/data/home'
-import hero01 from '@/assets/images/hero/hero01.jpg'
+import hero01 from '@/assets/images/hero/hero01.png'
 import hero02 from '@/assets/images/hero/hero02.jpg'
+import hero03 from '@/assets/images/hero/hero03.png'
 import './Hero.css'
 
-const heroImages = [hero01, hero02]
+const heroImages = [hero01, hero02, hero03]
 const SLIDE_INTERVAL = 5000
 
 function Hero() {

@@ -134,8 +134,9 @@ function SiteHeader() {
 
   return (
     <div className="site-header-wrap">
-      <header className="site-header">
-        <div className="site-header__inner">
+      <div className="site-header__align">
+        <header className="site-header">
+          <div className="site-header__inner">
           <Link to="/" className="site-header__brand" aria-label="하늘사랑교회 홈으로 이동">
             <img
               src={churchLogo}
@@ -212,8 +213,9 @@ function SiteHeader() {
           >
             ☰
           </button>
+            </div>
+          </header>
         </div>
-      </header>
 
       <div
         className={`site-header__overlay${isMobileMenuOpen ? ' site-header__overlay--visible' : ''}`}
