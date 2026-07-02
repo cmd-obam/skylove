@@ -128,9 +128,19 @@
   color: #5f6670;
 }
 
+.location-visitor__card--bus .location-visitor__card-header {
+  padding-left: calc(1.5rem + 5px);
+  padding-right: calc(1.5rem + 5px);
+}
+
 .location-visitor__table-wrap {
   padding: 0 1.5rem 1.5rem;
   flex: 1;
+}
+
+.location-visitor__card--bus .location-visitor__table-wrap {
+  padding-left: calc(1.5rem + 5px);
+  padding-right: calc(1.5rem + 5px);
 }
 
 .location-visitor__table {
@@ -150,12 +160,12 @@
 
 .location-visitor__table th:nth-child(2),
 .location-visitor__table td:nth-child(2) {
-  width: 18%;
+  width: calc(18% + 10px);
 }
 
 .location-visitor__table th:nth-child(3),
 .location-visitor__table td:nth-child(3) {
-  width: 60%;
+  width: calc(60% - 10px);
 }
 
 .location-visitor__table th {
@@ -260,6 +270,12 @@
   .location-visitor__card-footer {
     padding-left: 1.25rem;
     padding-right: 1.25rem;
+  }
+
+  .location-visitor__card--bus .location-visitor__card-header,
+  .location-visitor__card--bus .location-visitor__table-wrap {
+    padding-left: calc(1.25rem + 5px);
+    padding-right: calc(1.25rem + 5px);
   }
 
   .location-visitor__table th,
