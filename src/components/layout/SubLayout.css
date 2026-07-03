@@ -1,9 +1,11 @@
-.sub-layout--custom-header {
-  margin-top: 0;
+.sub-layout--about {
+  width: 100%;
+  max-width: 100%;
 }
 
 .sub-layout__header--about {
   margin-bottom: 0;
+  padding-inline: var(--about-card-inline-padding, 2.5rem);
 }
 
 .sub-layout__heading--spacer {

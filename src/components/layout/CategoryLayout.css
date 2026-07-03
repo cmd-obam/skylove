@@ -36,6 +36,16 @@
   box-shadow: none;
 }
 
+.category-layout__main--about {
+  --about-card-inline-padding: 2.5rem;
+  width: 100%;
+  max-width: none;
+  padding-inline: 0;
+  background-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
+}
+
 @media (max-width: 1024px) {
   .category-layout {
     padding: 2rem 0 4rem;
@@ -62,6 +72,16 @@
     padding: 0;
     border-radius: 0;
   }
+
+  .category-layout__main--about {
+    --about-card-inline-padding: 1.5rem;
+    width: 100%;
+    max-width: none;
+    padding-inline: 0;
+    background-color: transparent;
+    border-radius: 0;
+    box-shadow: none;
+  }
 }
 
 @media (max-width: 768px) {
@@ -79,5 +99,15 @@
     width: 100%;
     padding: 0;
     border-radius: 0;
+  }
+
+  .category-layout__main--about {
+    --about-card-inline-padding: 1.25rem;
+    width: 100%;
+    max-width: none;
+    padding-inline: 0;
+    background-color: transparent;
+    border-radius: 0;
+    box-shadow: none;
   }
 }

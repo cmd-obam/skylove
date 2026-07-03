@@ -12,6 +12,7 @@
     "preview": "vite preview",
     "diagnose:profiles": "node --env-file=.env scripts/diagnose-profiles.mjs",
     "diagnose:account-recovery": "node --env-file=.env scripts/diagnose-account-recovery.mjs",
+    "seed:temp-board-posts": "node --env-file=.env scripts/seed-temp-board-posts.mjs",
     "test:find-by-name-email": "node --env-file=.env scripts/test-find-by-name-email.mjs",
     "deploy:find-by-name-email": "npx supabase functions deploy find_by_name_email --project-ref nwsytxwurnaxaabztomh --no-verify-jwt",
     "deploy:verify-security-answer": "npx supabase functions deploy verify_security_answer --project-ref nwsytxwurnaxaabztomh --no-verify-jwt",

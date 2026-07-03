@@ -3,7 +3,6 @@
   height: 650px;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
   overflow: hidden;
 }
 
@@ -53,13 +52,20 @@
   pointer-events: none;
 }
 
-.hero__content {
+.hero__content-wrap {
   position: relative;
   z-index: 2;
-  max-width: var(--max-width);
   width: 100%;
-  padding: 0 var(--section-padding);
-  padding-left: calc(var(--section-padding) + 60px);
+  padding-inline: var(--section-padding);
+}
+
+.hero__container {
+  width: 100%;
+  max-width: var(--max-width);
+  margin-inline: auto;
+}
+
+.hero__content {
   text-align: left;
   color: var(--color-white);
   user-select: text;

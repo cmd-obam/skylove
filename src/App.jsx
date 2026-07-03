@@ -6,6 +6,7 @@ import SubLayout from '@/components/layout/SubLayout'
 import ImageProtection from '@/components/common/ImageProtection'
 import Home from '@/pages/Home'
 import About from '@/pages/About'
+import ChurchHistory from '@/pages/ChurchHistory'
 import Worship from '@/pages/Worship'
 import Location from '@/pages/Location'
 import Auth from '@/pages/Auth'
@@ -90,7 +91,7 @@ function App() {
             <Route element={<CategoryLayout />}>
               <Route element={<SubLayout />}>
                 <Route path="/about" element={<About />} />
-                <Route path="/about/history" element={<About />} />
+                <Route path="/about/history" element={<ChurchHistory />} />
                 <Route path="/about/facility-vr" element={<FacilityVr />} />
                 <Route path="/about/facilities" element={<Facilities />} />
                 <Route path="/about/location" element={<Location />} />

@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabase'
 import { isAdminRole } from '@/services/auth/roles'
 import { fetchPostMeta } from '@/services/board/postStats'
 import { deleteBoardFiles } from '@/services/board/storage'
+import { getTempBoardPost, getTempBoardPosts } from '@/data/tempBoardPosts'
 
 const PERMISSION_DENIED = '권한이 없습니다.'
 
@@ -82,6 +83,12 @@ export async function fetchBoardPosts(postType) {
     .order('created_at', { ascending: false })
 
   if (error) {
+    const tempPosts = getTempBoardPosts(postType)
+
+    if (tempPosts.length > 0) {
+      return { success: true, posts: tempPosts }
+    }
+
     return { success: false, message: error.message, posts: [] }
   }
 
@@ -94,6 +101,14 @@ export async function fetchBoardPosts(postType) {
     ...mapBoardPostRow(row, metaMap[String(row.id)]),
     no: (data ?? []).length - index,
   }))
+
+  if (posts.length === 0) {
+    const tempPosts = getTempBoardPosts(postType)
+
+    if (tempPosts.length > 0) {
+      return { success: true, posts: tempPosts }
+    }
+  }
 
   return { success: true, posts }
 }
@@ -111,6 +126,12 @@ export async function fetchBoardPost(postType, postId) {
   }
 
   if (!data) {
+    const tempPost = getTempBoardPost(postType, postId)
+
+    if (tempPost) {
+      return { success: true, post: tempPost }
+    }
+
     return { success: false, notFound: true }
   }
 

@@ -8,27 +8,46 @@
   --about-leaf-bottom: 34%;
   --about-oval-top: 86.5%;
   position: relative;
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-width: 100%;
+  max-width: none;
   margin-top: 10px;
-  margin-inline: -2.5rem;
   margin-bottom: 0;
   aspect-ratio: var(--about-bg-ratio);
+  border-radius: 0 0 20px 20px;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.about-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   background-image: var(--about-intro-bg);
   background-repeat: no-repeat;
   background-position: top center;
   background-size: 100% 100%;
-  border-radius: 0 0 20px 20px;
-  overflow: hidden;
+  border-radius: inherit;
+  z-index: 0;
+  pointer-events: none;
 }
 
 .about-page__intro {
   position: relative;
   z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 70px;
   padding: 50px 2rem 0 50px;
 }
 
 .about-page__title {
   margin: 0;
-  font-size: 3rem;
+  font-size: 3.5rem;
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: 0;
@@ -39,7 +58,7 @@
 .about-page__quote {
   position: relative;
   max-width: 48rem;
-  margin: 50px auto 0;
+  margin: 0 auto;
   text-align: center;
 }
 
@@ -73,7 +92,7 @@
 
 .about-page__quote-text {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.625rem;
   font-weight: 500;
   line-height: 1.65;
   letter-spacing: 0;
@@ -93,7 +112,7 @@
 
 .about-page__scripture {
   max-width: 34rem;
-  margin: 50px auto 0;
+  margin: 0 auto;
   text-align: center;
 }
 
@@ -123,7 +142,7 @@
 .about-page__scripture-ref {
   margin: 0;
   flex-shrink: 0;
-  font-size: 1.0625rem;
+  font-size: 1.1875rem;
   font-weight: 700;
   letter-spacing: 2px;
   color: var(--about-scripture-gold);
@@ -132,7 +151,7 @@
 
 .about-page__scripture-text {
   margin: 0;
-  font-size: 1rem;
+  font-size: 1.125rem;
   font-weight: 600;
   line-height: 1.6;
   letter-spacing: 2px;
@@ -142,8 +161,8 @@
 .about-page__pastor-zone {
   position: absolute;
   z-index: 1;
-  left: 30px;
-  right: 30px;
+  left: 50px;
+  right: 0;
   top: calc(var(--about-leaf-bottom) + 10px);
   bottom: calc(100% - var(--about-oval-top) + 10px);
 }
@@ -159,16 +178,12 @@
 }
 
 @media (max-width: 1024px) {
-  .about-page {
-    margin-inline: -1.5rem;
-  }
-
   .about-page__intro {
     padding: 50px 1.75rem 0 50px;
   }
 
   .about-page__title {
-    font-size: 2.25rem;
+    font-size: 2.5rem;
   }
 
   .about-page__quote {
@@ -185,13 +200,12 @@
   }
 
   .about-page__quote-text {
-    font-size: 1.375rem;
+    font-size: 1.5rem;
   }
 }
 
 @media (max-width: 768px) {
   .about-page {
-    margin-inline: -1.25rem;
     border-radius: 0 0 16px 16px;
   }
 
@@ -200,7 +214,7 @@
   }
 
   .about-page__title {
-    font-size: 2rem;
+    font-size: 2.25rem;
   }
 
   .about-page__quote {
@@ -217,7 +231,7 @@
     right: auto;
     top: auto;
     bottom: auto;
-    margin: 2rem 30px 2.5rem;
+    margin: 2rem 0 2.5rem 50px;
   }
 
   .about-page__quote-line {
@@ -230,15 +244,15 @@
   }
 
   .about-page__quote-text {
-    font-size: 1.1875rem;
+    font-size: 1.3125rem;
     line-height: 1.7;
   }
 
   .about-page__scripture-ref {
-    font-size: 1rem;
+    font-size: 1.125rem;
   }
 
   .about-page__scripture-text {
-    font-size: 0.9375rem;
+    font-size: 1.0625rem;
   }
 }

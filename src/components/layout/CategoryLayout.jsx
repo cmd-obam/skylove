@@ -3,10 +3,12 @@ import CategorySidebar from '@/components/layout/CategorySidebar'
 import './CategoryLayout.css'
 
 const CANVAS_MAIN_PATHS = new Set(['/new-family'])
+const ABOUT_MAIN_PATHS = new Set(['/about'])
 
 function CategoryLayout() {
   const { pathname } = useLocation()
   const isCanvasMain = CANVAS_MAIN_PATHS.has(pathname)
+  const isAboutMain = ABOUT_MAIN_PATHS.has(pathname)
 
   return (
     <div className={`category-layout${isCanvasMain ? ' category-layout--canvas' : ''}`}>
@@ -15,7 +17,7 @@ function CategoryLayout() {
         <div
           className={`category-layout__main${
             isCanvasMain ? ' category-layout__main--canvas' : ''
-          }`}
+          }${isAboutMain ? ' category-layout__main--about' : ''}`}
         >
           <Outlet />
         </div>

@@ -79,7 +79,11 @@ function SubLayout() {
   const isBreadcrumbOnly = BREADCRUMB_ONLY_PATHS.has(pathname)
 
   return (
-    <div className={`sub-layout${hasCustomHeader ? ' sub-layout--custom-header' : ''}`}>
+    <div
+      className={`sub-layout${hasCustomHeader ? ' sub-layout--custom-header' : ''}${
+        isBreadcrumbOnly ? ' sub-layout--about' : ''
+      }`}
+    >
       {!hasCustomHeader && isBreadcrumbOnly && (
         <div className="sub-layout__header sub-layout__header--about">
           <div className="sub-layout__heading sub-layout__heading--spacer" aria-hidden="true" />
