@@ -27,10 +27,11 @@
 
 .footer__title {
   margin: 0;
-  font-size: 28px;
+  font-size: clamp(1.375rem, 3vw, 28px);
   font-weight: 700;
   color: #fff;
-  white-space: nowrap;
+  white-space: normal;
+  word-break: keep-all;
 }
 
 .footer__subtitle {
@@ -115,6 +116,10 @@
 }
 
 @media (max-width: 768px) {
+  .footer {
+    padding: 2.5rem 1.25rem;
+  }
+
   .footer-container {
     flex-direction: column;
     align-items: flex-start;
@@ -133,5 +138,22 @@
 
   .footer__copyright {
     text-align: left;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer {
+    padding: 2rem 1rem;
+  }
+
+  .footer__info {
+    font-size: 13px;
+    line-height: 1.75;
+  }
+
+  .footer__info-label {
+    display: block;
+    margin-right: 0;
+    margin-bottom: 0.125rem;
   }
 }

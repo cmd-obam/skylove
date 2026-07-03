@@ -1,6 +1,6 @@
 .hero {
   position: relative;
-  height: 650px;
+  min-height: clamp(400px, 55vh, 650px);
   display: flex;
   align-items: center;
   overflow: hidden;
@@ -128,8 +128,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 148px;
-  padding: 16px 48px;
+  min-width: 0;
+  padding: 16px clamp(1.5rem, 4vw, 48px);
   font-size: 1rem;
   font-weight: 500;
   text-decoration: none;
@@ -193,7 +193,7 @@
 
 @media (max-width: 992px) {
   .hero {
-    height: 550px;
+    min-height: clamp(380px, 50vh, 550px);
   }
 
   .hero__title {
@@ -204,7 +204,7 @@
 
 @media (max-width: 768px) {
   .hero {
-    height: 450px;
+    min-height: clamp(360px, 62vh, 480px);
   }
 
   .hero__title {

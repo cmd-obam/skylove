@@ -1156,21 +1156,22 @@
     min-width: 0;
   }
 
-  .church-news-board__col-date,
-  .church-news-board__col-views,
-  .church-news-board__col-date-header,
-  .church-news-board__col-views-header,
-  .church-news-board__col-date-cell,
-  .church-news-board__col-views-cell {
-    display: none;
-  }
-
   .church-news-board__col-no {
-    width: 64px;
+    width: 56px;
   }
 
-  .church-news-board__col-title {
-    width: auto;
+  .church-news-board__col-date {
+    width: 120px;
+  }
+
+  .church-news-board__col-views {
+    width: 56px;
+  }
+
+  .church-news-board__table thead th,
+  .church-news-board__table tbody td {
+    padding-inline: 0.5rem;
+    font-size: 0.8125rem;
   }
 
   .board-post-extras__section {

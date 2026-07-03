@@ -43,7 +43,7 @@ function MemberMenuSidebar({ activeTab, onTabChange }) {
                   >
                     <span className="category-sidebar__link-text">{item.label}</span>
                     <span className="category-sidebar__link-icon" aria-hidden="true">
-                      {isActive ? '>' : '+'}
+                      +
                     </span>
                   </Link>
                 </li>
@@ -61,7 +61,7 @@ function MemberMenuSidebar({ activeTab, onTabChange }) {
                 >
                   <span className="category-sidebar__link-text">{item.label}</span>
                   <span className="category-sidebar__link-icon" aria-hidden="true">
-                    {isActive ? '>' : '+'}
+                    +
                   </span>
                 </button>
               </li>

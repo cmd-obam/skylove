@@ -1270,6 +1270,12 @@
     width: 100%;
   }
 
+  .signup-info-form__email-actions .signup-btn--full,
+  .signup-btn--gray,
+  .signup-info-form__actions .signup-btn {
+    min-width: 0;
+  }
+
   .signup-policy-scroll {
     max-height: 140px;
   }

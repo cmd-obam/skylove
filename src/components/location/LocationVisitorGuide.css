@@ -288,9 +288,18 @@
 @media (max-width: 560px) {
   .location-visitor__table-wrap {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .location-visitor__table {
-    min-width: 500px;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .location-visitor__table th,
+  .location-visitor__table td {
+    white-space: normal;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
   }
 }

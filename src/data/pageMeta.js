@@ -5,7 +5,7 @@ export const PAGE_META = {
   },
   '/about/history': {
     title: '교회역사',
-    subtitle: '하늘사랑교회의 발자취를 소개합니다',
+    subtitle: '',
   },
   '/about/facility-vr': {
     title: 'VR 둘러보기',

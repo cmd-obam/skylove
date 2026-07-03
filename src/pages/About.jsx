@@ -1,4 +1,5 @@
 import aboutIntroBg from '@/assets/images/about/about-intro-bg.png'
+import pastorSignatureText from '@/assets/images/about/pastor-signature-text.png'
 import PastorIntro from '@/components/about/PastorIntro'
 import './About.css'
 
@@ -48,6 +49,14 @@ function About() {
 
       <div className="about-page__pastor-zone">
         <PastorIntro className="pastor-intro--about-page" />
+      </div>
+
+      <div className="about-page__signature" aria-hidden="true">
+        <img
+          src={pastorSignatureText}
+          alt=""
+          className="about-page__signature-image"
+        />
       </div>
     </div>
   )

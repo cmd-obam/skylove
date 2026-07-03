@@ -10,7 +10,7 @@
   color: #1f2d3d;
   background-color: #f7f2f8;
   background-image: var(--nf-page-bg);
-  background-size: contain;
+  background-size: 100% 100%;
   background-position: center top;
   background-repeat: no-repeat;
 }
@@ -577,10 +577,15 @@
   justify-content: center;
   width: 4.5rem;
   height: 4.5rem;
-  border-radius: 50%;
-  background-color: rgba(90, 169, 255, 0.14);
-  color: var(--nf-accent);
   flex-shrink: 0;
+  background: transparent;
+}
+
+.nf-cell__banner-icon-image {
+  display: block;
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
 }
 
 .nf-cell__banner-text {
@@ -1022,5 +1027,25 @@
 
   .nf-first-visit__arrow {
     display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .new-family-page__content {
+    padding: 0.875rem 0.75rem 0;
+  }
+
+  .nf-section {
+    margin-bottom: 2.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .new-family-page__content {
+    padding: 0.875rem 0.75rem 0;
+  }
+
+  .nf-section {
+    margin-bottom: 2.5rem;
   }
 }

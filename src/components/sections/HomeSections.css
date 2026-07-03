@@ -75,8 +75,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 180px;
-  padding: 0.875rem 2rem;
+  min-width: 0;
+  padding: 0.875rem clamp(1.25rem, 3vw, 2rem);
   font-size: 0.9375rem;
   font-weight: 500;
   text-decoration: none;
@@ -397,7 +397,9 @@
 }
 
 .home-worship .home-section__button {
-  min-width: 220px;
+  min-width: 0;
+  width: fit-content;
+  max-width: 100%;
   padding: 0.8rem 1.5rem;
   border-radius: 6px;
   border-color: #cfc9c0;
@@ -415,7 +417,7 @@
 /* Story */
 .home-story__layout {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
   gap: 2rem;
   align-items: start;
 }
@@ -698,6 +700,16 @@
   }
 
   .home-worship__time {
-    font-size: 2.4rem;
+    font-size: clamp(2rem, 9vw, 2.4rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .home-section {
+    padding: 3rem 1rem;
+  }
+
+  .home-worship .home-section__button {
+    width: 100%;
   }
 }

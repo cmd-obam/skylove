@@ -28,10 +28,12 @@
 
 .sub-layout__title {
   margin: 0 0 0.75rem;
-  font-size: 2.5rem;
+  font-size: clamp(1.75rem, 4.5vw, 2.5rem);
   font-weight: 700;
   color: var(--color-text);
   letter-spacing: -0.02em;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
 }
 
 .sub-layout__title--worship {
@@ -55,8 +57,10 @@
 
 .sub-layout__subtitle {
   margin: 1.25rem 0 0;
-  font-size: 1.0625rem;
+  font-size: clamp(0.9375rem, 2vw, 1.0625rem);
   color: var(--color-text-muted);
+  word-break: keep-all;
+  overflow-wrap: anywhere;
 }
 
 @media (max-width: 768px) {
@@ -65,12 +69,14 @@
     gap: 0.75rem;
     margin-bottom: 1.75rem;
   }
+}
 
-  .sub-layout__title {
-    font-size: 2rem;
+@media (max-width: 480px) {
+  .sub-layout__header {
+    margin-bottom: 1.5rem;
   }
 
-  .sub-layout__subtitle {
-    font-size: 0.9375rem;
+  .sub-layout__header--about {
+    padding-inline: var(--about-card-inline-padding, 1rem);
   }
 }

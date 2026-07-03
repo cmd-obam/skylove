@@ -1,18 +1,17 @@
-export const CHURCH_HISTORY_FILTERS = [
-  { id: 'all', label: '전체' },
-  { id: 'foundation', label: '창립&성전' },
-  { id: 'mission', label: '사역&선교' },
-  { id: 'education', label: '교육&행사' },
-]
+import historySanctuary1 from '@/assets/images/about/history/sanctuary-1.png'
+import historySanctuary2 from '@/assets/images/about/history/sanctuary-2.png'
+import historySanctuary3 from '@/assets/images/about/history/sanctuary-3.png'
 
 export const CHURCH_HISTORY_INTRO = {
-  description:
-    '하늘사랑교회의 역사는 하나님의 은혜로 이어져 온 발자취입니다. 앞으로 이곳에 교회 역사 소개 문구가 업데이트됩니다.',
+  lines: [
+    '하나님의 은혜와 인도하심으로 오늘까지 걸어온',
+    '하늘사랑교회의 발자취를 소개합니다.',
+  ],
 }
 
 export const CHURCH_HISTORY_QUOTE = {
-  text: '여호와의 집에 들어갈 자는 누구뇨 정직하게 행하며 공의를 구하며 진실을 말하는 자니라',
-  reference: '시편 15편 1-2절',
+  text: '여호와께서 여기까지 우리를 도우셨다',
+  reference: '(사무엘상 7:12)',
 }
 
 export const CHURCH_HISTORY_PERIODS = [
@@ -20,66 +19,133 @@ export const CHURCH_HISTORY_PERIODS = [
     id: '2009-2012',
     period: '2009~2012',
     title: '개척과 섬김 이전',
-    category: 'foundation',
+    category: 'pioneering',
     events: [
-      { date: '2009.03.15', name: '행사명 예시', description: '내용이 추후 업데이트됩니다.' },
-      { date: '2010.06.20', name: '행사명 예시', description: '내용이 추후 업데이트됩니다.' },
-      { date: '2011.11.08', name: '행사명 예시', description: '내용이 추후 업데이트됩니다.' },
-      { date: '2012.12.25', name: '행사명 예시', description: '내용이 추후 업데이트됩니다.' },
+      {
+        date: '2009. 1. 4.',
+        name: '하늘사랑교회 첫 예배',
+        description: '쌍용동 한 성도 가정에서 10명이 모여 하늘사랑교회 첫 예배를 드렸습니다.',
+      },
+      {
+        date: '2009. 2. 8.',
+        name: '제1성전 첫 예배',
+        description: '쌍용동 1652번지 3층 56평에서 제1성전 첫 예배를 드렸습니다.',
+      },
+      {
+        date: '2009. 4. 26.',
+        name: '교회 창립예배',
+        description: '15명이 출석한 가운데 교회 창립예배를 드렸습니다.',
+      },
+      {
+        date: '2009. 4. 27.',
+        name: '하늘사랑교회 창립예배',
+        description: '할렐루야교회 담임 김상복 목사님을 초청하여 하늘사랑교회 창립예배를 드렸습니다.',
+      },
+      {
+        date: '2009. 12. 24.',
+        name: '아프리카 모잠비크 세라이카 교회 건축',
+        description: '하늘사랑교회가 아프리카 모잠비크 세라이카 교회를 건축하였습니다.',
+      },
+      {
+        date: '2009. 12. 24.',
+        name: '제2성전 첫 예배',
+        description: '제2성전인 신방동 74-62번지 3층 120평에서 첫 예배를 드렸습니다.',
+      },
+      {
+        date: '2010. 10. 10.',
+        name: '1010 이웃초청 전교인 체육대회',
+        description:
+          '1010 이웃초청 전교인 체육대회를 개최하여 동정지구 인라인경기장에서 80여 명이 참석하였습니다.',
+      },
+      {
+        date: '2012. 1. 10.',
+        name: '성전 매입',
+        description: '신방동 1957번지, 구 동심교회 성전을 매입하였습니다.',
+      },
+      {
+        date: '2012. 1. 22.',
+        name: '제3성전 첫 예배',
+        description: '신방동 제3성전에서 첫 예배를 드렸습니다.',
+      },
     ],
     photos: [
-      { id: 'p1', caption: '사진 설명 예시' },
-      { id: 'p2', caption: '사진 설명 예시' },
-      { id: 'p3', caption: '사진 설명 예시' },
-      { id: 'p4', caption: '사진 설명 예시' },
-      { id: 'p5', caption: '사진 설명 예시' },
+      { id: 'sanctuary-1', src: historySanctuary1, caption: '제 1성전' },
+      { id: 'sanctuary-2', src: historySanctuary2, caption: '제 2성전' },
+      { id: 'sanctuary-3', src: historySanctuary3, caption: '제 3성전' },
     ],
   },
   {
-    id: '2013-2016',
-    period: '2013~2016',
-    title: '성전 건축과 공동체 성장',
-    category: 'foundation',
+    id: '2016-2022',
+    period: '2016~2022',
+    title: '공간 확장과 더 숲 카페',
+    category: 'space-cafe',
     events: [
-      { date: '2013.04.10', name: '행사명 예시', description: '내용이 추후 업데이트됩니다.' },
-      { date: '2014.08.17', name: '행사명 예시', description: '내용이 추후 업데이트됩니다.' },
-      { date: '2015.10.05', name: '행사명 예시', description: '내용이 추후 업데이트됩니다.' },
-      { date: '2016.12.31', name: '행사명 예시', description: '내용이 추후 업데이트됩니다.' },
+      {
+        date: '2016. 7. 12.',
+        name: '목사관 증축',
+        description: '3층 목사관을 증축하였습니다.',
+      },
+      {
+        date: '2022. 8. 7.',
+        name: '더 숲 카페 조성',
+        description:
+          '1층 애찬실을 카페로 리모델링하는 공사를 시작하여 더 숲 카페를 조성하였습니다.',
+      },
     ],
-    photos: [
-      { id: 'p1', caption: '사진 설명 예시' },
-      { id: 'p2', caption: '사진 설명 예시' },
-      { id: 'p3', caption: '사진 설명 예시' },
-      { id: 'p4', caption: '사진 설명 예시' },
-    ],
+    photos: [],
   },
   {
-    id: '2017-2020',
-    period: '2017~2020',
-    title: '사역 확장과 선교의 발걸음',
-    category: 'mission',
+    id: '2023',
+    period: '2023',
+    title: '지역 섬김과 공동체의 발자취',
+    category: 'community',
     events: [
-      { date: '2017.02.14', name: '행사명 예시', description: '내용이 추후 업데이트됩니다.' },
-      { date: '2018.07.22', name: '행사명 예시', description: '내용이 추후 업데이트됩니다.' },
-      { date: '2019.09.30', name: '행사명 예시', description: '내용이 추후 업데이트됩니다.' },
-      { date: '2020.11.15', name: '행사명 예시', description: '내용이 추후 업데이트됩니다.' },
+      {
+        date: '2023. 3. 26.',
+        name: '전도 거리 청소',
+        description: '중앙공원 일대 거리 청소를 통해 지역사회 섬김과 전도 사역을 실천하였습니다.',
+      },
+      {
+        date: '2023. 10. 29.',
+        name: '전교인 체육대회',
+        description: '성도 간 교제와 화합을 위한 전교인 체육대회를 진행하였습니다.',
+      },
+      {
+        date: '2023. 12. 25.',
+        name: '성탄절 세례예식',
+        description: '유아세례 노온, 장년세례 민재석 성도가 세례를 받았습니다.',
+      },
     ],
-    photos: [
-      { id: 'p1', caption: '사진 설명 예시' },
-      { id: 'p2', caption: '사진 설명 예시' },
-      { id: 'p3', caption: '사진 설명 예시' },
-    ],
+    photos: [],
   },
   {
-    id: '2021-now',
-    period: '2021~현재',
-    title: '다음 세대와 공동체 사명',
-    category: 'education',
+    id: '2025-2026',
+    period: '2025~2026',
+    title: '전도와 다음 걸음',
+    category: 'evangelism',
     events: [
-      { date: '2021.01.03', name: '행사명 예시', description: '내용이 추후 업데이트됩니다.' },
-      { date: '2022.05.18', name: '행사명 예시', description: '내용이 추후 업데이트됩니다.' },
-      { date: '2023.08.09', name: '행사명 예시', description: '내용이 추후 업데이트됩니다.' },
-      { date: '2024.12.01', name: '행사명 예시', description: '내용이 추후 업데이트됩니다.' },
+      {
+        date: '2025. 6. 29.',
+        name: '전도 거리 청소',
+        description: '주일 오후에 전도 거리 청소를 진행하였습니다.',
+      },
+      {
+        date: '2025. 7. 13. ~ 7. 19.',
+        name: '담임목사님 필리핀 선교',
+        description:
+          '담임목사님이 필리핀 빈민촌 마을과 현지 교회를 방문하여 선교 사역을 진행하였습니다.',
+      },
+      {
+        date: '2025. 12. 25.',
+        name: '성탄절 세례예식',
+        description: '장년세례 박초희, 한관우 성도가 세례를 받았습니다.',
+      },
+      {
+        date: '2026. 3. 1. ~ 3. 4.',
+        name: '일본 단기선교',
+        description:
+          '일본 치바영광교회를 방문하여 현지 교회와 연합예배 및 단기선교 사역을 진행하였으며, 성도 10명이 참여하였습니다.',
+      },
     ],
     photos: [
       { id: 'p1', caption: '사진 설명 예시' },

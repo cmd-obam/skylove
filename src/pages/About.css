@@ -7,6 +7,10 @@
   --about-scripture-gold: #c9a045;
   --about-leaf-bottom: 34%;
   --about-oval-top: 86.5%;
+  --about-signature-oval-top: 85%;
+  --about-signature-oval-left: 38.5%;
+  --about-signature-oval-right: 3%;
+  --about-signature-oval-bottom: 2%;
   position: relative;
   box-sizing: border-box;
   display: block;
@@ -167,6 +171,31 @@
   bottom: calc(100% - var(--about-oval-top) + 10px);
 }
 
+.about-page__signature {
+  position: absolute;
+  z-index: 2;
+  left: var(--about-signature-oval-left);
+  right: var(--about-signature-oval-right);
+  top: var(--about-signature-oval-top);
+  bottom: var(--about-signature-oval-bottom);
+  box-sizing: border-box;
+  padding: 0;
+  pointer-events: none;
+}
+
+.about-page__signature-image {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: block;
+  width: min(72%, 26rem);
+  height: auto;
+  max-height: 76%;
+  object-fit: contain;
+  object-position: center center;
+  transform: translate(calc(-50% + 5% - 33px), calc(-50% - 9% - 4px));
+}
+
 .about-page__content {
   text-align: center;
 }
@@ -234,6 +263,24 @@
     margin: 2rem 0 2.5rem 50px;
   }
 
+  .about-page__signature {
+    position: static;
+    width: calc(100% - 50px);
+    margin: 0 0 2rem 50px;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+  }
+
+  .about-page__signature-image {
+    position: static;
+    top: auto;
+    left: auto;
+    transform: none;
+    width: min(100%, 26rem);
+    margin: 0 auto;
+  }
+
   .about-page__quote-line {
     white-space: normal;
   }
@@ -254,5 +301,38 @@
 
   .about-page__scripture-text {
     font-size: 1.0625rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .about-page__intro {
+    gap: 2.5rem;
+    padding: 2rem 1rem 0;
+  }
+
+  .about-page__title {
+    font-size: clamp(1.75rem, 8vw, 2.25rem);
+  }
+
+  .about-page__pastor-zone {
+    margin: 1.5rem 1rem 2rem;
+  }
+
+  .about-page__signature {
+    width: calc(100% - 2rem);
+    margin: 0 1rem 1.5rem;
+  }
+
+  .about-page__quote-inner {
+    padding-inline: 1.5rem;
+  }
+
+  .about-page__quote-open,
+  .about-page__quote-close {
+    font-size: 2.75rem;
+  }
+
+  .about-page__quote-text {
+    font-size: 1.125rem;
   }
 }

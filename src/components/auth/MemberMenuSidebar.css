@@ -17,6 +17,12 @@
 
 @media (max-width: 768px) {
   .member-menu-sidebar.category-sidebar {
-    width: calc(100% - 32px);
+    width: calc(100% - 24px);
+  }
+}
+
+@media (max-width: 480px) {
+  .member-menu-sidebar.category-sidebar {
+    width: calc(100% - 16px);
   }
 }
