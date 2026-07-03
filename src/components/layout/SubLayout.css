@@ -2,6 +2,15 @@
   margin-top: 0;
 }
 
+.sub-layout__header--about {
+  margin-bottom: 0;
+}
+
+.sub-layout__heading--spacer {
+  flex: 1;
+  min-width: 0;
+}
+
 .sub-layout__header {
   display: flex;
   justify-content: space-between;

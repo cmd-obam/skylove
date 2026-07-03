@@ -4,6 +4,7 @@ import { getPageMeta } from '@/data/pageMeta'
 import './SubLayout.css'
 
 const LOCATION_PATH = '/about/location'
+const ABOUT_PATH = '/about'
 const WORSHIP_PATH = '/worship'
 const CHURCH_NEWS_PATH = '/church-news'
 const CHURCH_ALBUM_PATH = '/church-news/album'
@@ -18,6 +19,8 @@ const STYLED_WORSHIP_TITLES = {
   [SUNDAY_BLESSING_PATH]: { before: '주일 ', accent: '축복', after: ' 예배' },
   [SUNDAY_PRAISE_PATH]: { before: '주일 ', accent: '찬양', after: ' 예배' },
 }
+
+const BREADCRUMB_ONLY_PATHS = new Set([ABOUT_PATH])
 
 const CUSTOM_HEADER_PATHS = new Set([
   LOCATION_PATH,
@@ -73,9 +76,17 @@ function SubLayout() {
     isChurchNewsPostDetail(pathname) ||
     isWorshipGuidePath(pathname)
 
+  const isBreadcrumbOnly = BREADCRUMB_ONLY_PATHS.has(pathname)
+
   return (
     <div className={`sub-layout${hasCustomHeader ? ' sub-layout--custom-header' : ''}`}>
-      {!hasCustomHeader && (
+      {!hasCustomHeader && isBreadcrumbOnly && (
+        <div className="sub-layout__header sub-layout__header--about">
+          <div className="sub-layout__heading sub-layout__heading--spacer" aria-hidden="true" />
+          <Breadcrumb />
+        </div>
+      )}
+      {!hasCustomHeader && !isBreadcrumbOnly && (
         <div className="sub-layout__header">
           <div className="sub-layout__heading">
             <PageTitle pathname={pathname} title={title} />

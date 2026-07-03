@@ -1,3 +1,153 @@
+.about-page {
+  --about-intro-bg: none;
+  --about-bg-ratio: 680 / 1024;
+  --about-quote-mark: #1a3d6e;
+  --about-quote-text: #333333;
+  --about-quote-accent: #0088e8;
+  --about-scripture-gold: #c9a045;
+  --about-leaf-bottom: 34%;
+  --about-oval-top: 86.5%;
+  position: relative;
+  margin-top: 10px;
+  margin-inline: -2.5rem;
+  margin-bottom: 0;
+  aspect-ratio: var(--about-bg-ratio);
+  background-image: var(--about-intro-bg);
+  background-repeat: no-repeat;
+  background-position: top center;
+  background-size: 100% 100%;
+  border-radius: 0 0 20px 20px;
+  overflow: hidden;
+}
+
+.about-page__intro {
+  position: relative;
+  z-index: 1;
+  padding: 50px 2rem 0 50px;
+}
+
+.about-page__title {
+  margin: 0;
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0;
+  color: var(--about-quote-mark);
+  text-align: left;
+}
+
+.about-page__quote {
+  position: relative;
+  max-width: 48rem;
+  margin: 50px auto 0;
+  text-align: center;
+}
+
+.about-page__quote-inner {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  padding: 0.25rem calc(2.35rem + 10px) 0.25rem;
+  text-align: center;
+}
+
+.about-page__quote-open,
+.about-page__quote-close {
+  position: absolute;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 4.25rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--about-quote-mark);
+}
+
+.about-page__quote-open {
+  top: -0.25rem;
+  left: 0.2rem;
+}
+
+.about-page__quote-close {
+  right: 0.2rem;
+  bottom: 0;
+}
+
+.about-page__quote-text {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 500;
+  line-height: 1.65;
+  letter-spacing: 0;
+  color: var(--about-quote-text);
+}
+
+.about-page__quote-line {
+  display: block;
+  white-space: nowrap;
+}
+
+.about-page__quote-highlight {
+  color: var(--about-quote-accent);
+  font-weight: 600;
+  font-size: calc(1em + 3px);
+}
+
+.about-page__scripture {
+  max-width: 34rem;
+  margin: 50px auto 0;
+  text-align: center;
+}
+
+.about-page__scripture-ref-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  margin-bottom: 0.625rem;
+}
+
+.about-page__ref-line {
+  flex: 1;
+  max-width: 4rem;
+  height: 1px;
+  background-color: var(--about-scripture-gold);
+}
+
+.about-page__ref-diamond {
+  flex-shrink: 0;
+  width: 5px;
+  height: 5px;
+  background-color: var(--about-scripture-gold);
+  transform: rotate(45deg);
+}
+
+.about-page__scripture-ref {
+  margin: 0;
+  flex-shrink: 0;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--about-scripture-gold);
+  white-space: nowrap;
+}
+
+.about-page__scripture-text {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.6;
+  letter-spacing: 2px;
+  color: var(--about-scripture-gold);
+}
+
+.about-page__pastor-zone {
+  position: absolute;
+  z-index: 1;
+  left: 30px;
+  right: 30px;
+  top: calc(var(--about-leaf-bottom) + 10px);
+  bottom: calc(100% - var(--about-oval-top) + 10px);
+}
+
 .about-page__content {
   text-align: center;
 }
@@ -6,4 +156,89 @@
   margin: 0;
   font-size: 1.0625rem;
   color: var(--color-text-muted);
+}
+
+@media (max-width: 1024px) {
+  .about-page {
+    margin-inline: -1.5rem;
+  }
+
+  .about-page__intro {
+    padding: 50px 1.75rem 0 50px;
+  }
+
+  .about-page__title {
+    font-size: 2.25rem;
+  }
+
+  .about-page__quote {
+    max-width: 42rem;
+  }
+
+  .about-page__quote-inner {
+    padding-inline: calc(2rem + 10px);
+  }
+
+  .about-page__quote-open,
+  .about-page__quote-close {
+    font-size: 3.75rem;
+  }
+
+  .about-page__quote-text {
+    font-size: 1.375rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .about-page {
+    margin-inline: -1.25rem;
+    border-radius: 0 0 16px 16px;
+  }
+
+  .about-page__intro {
+    padding: 40px 1.25rem 0 40px;
+  }
+
+  .about-page__title {
+    font-size: 2rem;
+  }
+
+  .about-page__quote {
+    max-width: none;
+  }
+
+  .about-page__quote-inner {
+    padding-inline: calc(1.75rem + 10px);
+  }
+
+  .about-page__pastor-zone {
+    position: static;
+    left: auto;
+    right: auto;
+    top: auto;
+    bottom: auto;
+    margin: 2rem 30px 2.5rem;
+  }
+
+  .about-page__quote-line {
+    white-space: normal;
+  }
+
+  .about-page__quote-open,
+  .about-page__quote-close {
+    font-size: 3.25rem;
+  }
+
+  .about-page__quote-text {
+    font-size: 1.1875rem;
+    line-height: 1.7;
+  }
+
+  .about-page__scripture-ref {
+    font-size: 1rem;
+  }
+
+  .about-page__scripture-text {
+    font-size: 0.9375rem;
+  }
 }
