@@ -5,10 +5,18 @@
 import sundayBlessingIntro from '@/assets/images/worship/sunday-blessing-intro.png'
 import sundayPraiseIntro from '@/assets/images/worship/sunday-praise-intro.png'
 import wednesdayIntro from '@/assets/images/worship/wednesday-intro.png'
+import wednesdayHero from '@/assets/images/worship/wednesday-hero.png'
+import wednesdayGallery1 from '@/assets/images/worship/wednesday-gallery-1.png'
+import wednesdayGallery2 from '@/assets/images/worship/wednesday-gallery-2.png'
+import wednesdayGallery3 from '@/assets/images/worship/wednesday-gallery-3.png'
 import elShaddaiChoirHero from '@/assets/images/worship/el-shaddai-choir-hero.png'
 import elShaddaiChoirIntro from '@/assets/images/worship/el-shaddai-choir-intro.png'
 import cellMeetingIntro from '@/assets/images/worship/cell-meeting-intro.png'
 import dawnPrayerIntro from '@/assets/images/worship/dawn-prayer-intro.png'
+import dawnPrayerHero from '@/assets/images/worship/dawn-prayer-hero.png'
+import dawnPrayerGallery1 from '@/assets/images/worship/dawn-prayer-gallery-1.png'
+import dawnPrayerGallery2 from '@/assets/images/worship/dawn-prayer-gallery-2.png'
+import dawnPrayerGallery3 from '@/assets/images/worship/dawn-prayer-gallery-3.png'
 import { WORSHIP_SCHEDULE } from '@/data/worship'
 
 const WORSHIP_SCHEDULE_BY_PATH = {
@@ -37,7 +45,6 @@ export const WORSHIP_GUIDE_CONTENT = {
     introImage: sundayBlessingIntro,
     introTypographyVariant: 'classic',
     galleryImages: [null, null, null],
-    galleryTitles: ['찬양', '말씀', '교제'],
     footerMessage:
       '하나님의 은혜가 가득한 주일, 온 가족이 함께 예배에 참석하시길 축복합니다.',
     crossIcon: null,
@@ -59,7 +66,6 @@ export const WORSHIP_GUIDE_CONTENT = {
     introImage: sundayPraiseIntro,
     introTypographyVariant: 'classic',
     galleryImages: [null, null, null],
-    galleryTitles: ['찬양', '말씀', '교제'],
     footerMessage:
       '찬양으로 하나님께 영광 돌리는 주일, 함께 예배하며 은혜를 누리시길 바랍니다.',
     crossIcon: null,
@@ -77,12 +83,11 @@ export const WORSHIP_GUIDE_CONTENT = {
       '말씀과 기도로 하나님 앞에 나아가며',
       '은혜와 새 힘을 얻는 시간입니다.',
     ],
-    heroImage: null,
+    heroImage: wednesdayHero,
     introImage: wednesdayIntro,
     introBannerVariant: 'cross-top',
     introTypographyVariant: 'classic',
-    galleryImages: [null, null, null],
-    galleryTitles: ['기도', '말씀', '교제'],
+    galleryImages: [wednesdayGallery1, wednesdayGallery2, wednesdayGallery3],
     footerMessage:
       '한 주의 중심에서 하나님을 만나는 수요 저녁, 함께 예배하며 은혜를 나누시길 바랍니다.',
     crossIcon: null,
@@ -103,11 +108,10 @@ export const WORSHIP_GUIDE_CONTENT = {
       '새로운 힘과 소망을 얻는',
       '하늘사랑교회의 새벽기도입니다.',
     ],
-    heroImage: null,
+    heroImage: dawnPrayerHero,
     introImage: dawnPrayerIntro,
     introBannerVariant: 'dawn-prayer',
-    galleryImages: [null, null, null],
-    galleryTitles: ['기도', '말씀', '교제'],
+    galleryImages: [dawnPrayerGallery1, dawnPrayerGallery2, dawnPrayerGallery3],
     footerMessage:
       '새벽의 고요 가운데 하나님을 만나는 시간, 함께 기도하며 하루를 시작하시길 바랍니다.',
     crossIcon: null,

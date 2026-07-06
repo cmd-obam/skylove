@@ -18,9 +18,6 @@ function ImageSlot({ src, alt, label, variant = 'default', className = '' }) {
     return (
       <div className={`worship-template__image-slot worship-template__image-slot--${variant} ${className}`.trim()}>
         <img src={src} alt={alt || label || ''} className="worship-template__image" loading="lazy" />
-        {label && variant === 'gallery' && (
-          <span className="worship-template__gallery-label">{label}</span>
-        )}
       </div>
     )
   }
@@ -29,14 +26,9 @@ function ImageSlot({ src, alt, label, variant = 'default', className = '' }) {
     <div
       className={`worship-template__image-slot worship-template__image-slot--placeholder worship-template__image-slot--${variant} ${className}`.trim()}
       role="img"
-      aria-label={label ? `${label} 이미지 영역` : '이미지 영역'}
+      aria-label="이미지 준비중"
     >
-      <span className="worship-template__placeholder-icon" aria-hidden="true">
-        🖼
-      </span>
-      <span className="worship-template__placeholder-text">
-        {label ? `${label} 이미지` : '이미지 영역'}
-      </span>
+      <span className="worship-template__placeholder-text">이미지 준비중</span>
     </div>
   )
 }
@@ -59,7 +51,7 @@ function WorshipTemplate({
   heroImageFit = 'cover',
   introImage = null,
   galleryImages = [null, null, null],
-  galleryTitles = ['찬양', '말씀', '교제'],
+  galleryTitles = ['', '', ''],
   showGallery = true,
   footerMessage,
   crossIcon = null,
@@ -264,11 +256,11 @@ function WorshipTemplate({
       {showGallery && (
       <section className="worship-template__gallery worship-template__fade" aria-label="예배 모습">
         <ul className="worship-template__gallery-list">
-          {galleryItems.map((item) => (
-            <li key={item.title} className="worship-template__gallery-item">
+          {galleryItems.map((item, index) => (
+            <li key={item.title || `${title}-gallery-${index}`} className="worship-template__gallery-item">
               <ImageSlot
                 src={item.src}
-                alt={`${title} ${item.title}`}
+                alt={item.title ? `${title} ${item.title}` : `${title} 사진 ${index + 1}`}
                 label={item.title}
                 variant="gallery"
                 className="worship-template__gallery-card"
