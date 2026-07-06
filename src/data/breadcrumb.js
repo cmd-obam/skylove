@@ -3,6 +3,15 @@ import { findMenuSection, findMenuItemInSection } from '@/data/menu'
 export function getBreadcrumbItems(pathname) {
   const items = [{ label: '홈', path: '/', isHome: true, isCurrent: false }]
 
+  if (pathname === '/about/facilities') {
+    items.push({
+      label: '시설안내',
+      path: '/about/facilities',
+      isCurrent: true,
+    })
+    return items
+  }
+
   const section = findMenuSection(pathname)
   if (!section) {
     return items

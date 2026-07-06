@@ -1,10 +1,7 @@
 .nf-hero {
   position: relative;
-  display: flex;
-  align-items: center;
-  min-height: clamp(22rem, 52vw, 32rem);
-  margin-bottom: 2.75rem;
-  padding: clamp(2rem, 4.5vw, 3.25rem) 0 clamp(1.5rem, 3.5vw, 2.5rem);
+  margin: 0;
+  padding: 0;
 }
 
 .nf-hero__content {
@@ -13,19 +10,17 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  justify-content: center;
-  gap: 0;
-  width: min(100%, 38rem);
-  max-width: 56%;
+  width: 100%;
+  max-width: 100%;
 }
 
 .nf-hero__welcome {
-  margin: 0 0 1.25rem;
+  margin: 0 0 0.625rem;
 }
 
 .nf-hero__welcome-text {
   font-family: 'Nanum Brush Script', cursive;
-  font-size: clamp(1.625rem, 3.8vw, 2.125rem);
+  font-size: clamp(1.5rem, 3.5vw, 2rem);
   font-weight: 400;
   line-height: 1.1;
   color: #2f4f72;
@@ -35,13 +30,13 @@
 .nf-hero__main-title {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  margin: 0 0 1.5rem;
+  gap: 0.125rem;
+  margin: 0 0 0.75rem;
 }
 
 .nf-hero__main-line {
   font-family: 'Nanum Myeongjo', 'Noto Serif KR', serif;
-  font-size: clamp(2rem, 5.2vw, 3.125rem);
+  font-size: clamp(1.75rem, 4.8vw, 2.75rem);
   font-weight: 800;
   line-height: 1.28;
   color: #1e3a5f;
@@ -76,38 +71,33 @@
 .nf-hero__subcopy {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.125rem;
   margin: 0;
 }
 
 .nf-hero__subcopy-line {
   display: block;
   font-family: 'Noto Sans KR', var(--font-family-brand), sans-serif;
-  font-size: clamp(0.9375rem, 2vw, 1.0625rem);
+  font-size: clamp(0.875rem, 1.9vw, 1rem);
   font-weight: 400;
-  line-height: 1.75;
+  line-height: 1.65;
   color: #5f6b7a;
   letter-spacing: -0.01em;
   word-break: keep-all;
 }
 
-@media (max-width: 768px) {
-  .nf-hero {
-    min-height: 20rem;
-    margin-bottom: 2rem;
-    padding: 1.75rem 0 2.25rem;
+@media (max-width: 430px) {
+  .nf-hero__main-line {
+    font-size: clamp(1.625rem, 7.5vw, 1.875rem);
   }
+}
 
-  .nf-hero__content {
-    max-width: none;
-    width: 100%;
-  }
-
+@media (max-width: 320px) {
   .nf-hero__welcome {
-    margin-bottom: 0.875rem;
+    margin-bottom: 0.5rem;
   }
 
   .nf-hero__main-title {
-    margin-bottom: 1.125rem;
+    margin-bottom: 0.625rem;
   }
 }

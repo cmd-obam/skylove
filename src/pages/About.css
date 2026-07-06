@@ -1,43 +1,23 @@
 .about-page {
   --about-intro-bg: none;
-  --about-bg-ratio: 680 / 1024;
   --about-quote-mark: #1a3d6e;
   --about-quote-text: #333333;
   --about-quote-accent: #0088e8;
   --about-scripture-gold: #c9a045;
-  --about-leaf-bottom: 34%;
-  --about-oval-top: 86.5%;
-  --about-signature-oval-top: 85%;
-  --about-signature-oval-left: 38.5%;
-  --about-signature-oval-right: 3%;
-  --about-signature-oval-bottom: 2%;
   position: relative;
   box-sizing: border-box;
-  display: block;
+  display: flex;
+  flex-direction: column;
   width: 100%;
-  min-width: 100%;
-  max-width: none;
+  min-width: 0;
   margin-top: 10px;
   margin-bottom: 0;
-  aspect-ratio: var(--about-bg-ratio);
   border-radius: 0 0 20px 20px;
-  overflow: hidden;
-  isolation: isolate;
-}
-
-.about-page::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  background-color: transparent;
   background-image: var(--about-intro-bg);
   background-repeat: no-repeat;
   background-position: top center;
   background-size: 100% 100%;
-  border-radius: inherit;
-  z-index: 0;
-  pointer-events: none;
 }
 
 .about-page__intro {
@@ -105,7 +85,6 @@
 
 .about-page__quote-line {
   display: block;
-  white-space: nowrap;
 }
 
 .about-page__quote-highlight {
@@ -150,7 +129,6 @@
   font-weight: 700;
   letter-spacing: 2px;
   color: var(--about-scripture-gold);
-  white-space: nowrap;
 }
 
 .about-page__scripture-text {
@@ -160,50 +138,30 @@
   line-height: 1.6;
   letter-spacing: 2px;
   color: var(--about-scripture-gold);
+  word-break: keep-all;
 }
 
 .about-page__pastor-zone {
-  position: absolute;
+  position: relative;
   z-index: 1;
-  left: 50px;
-  right: 0;
-  top: calc(var(--about-leaf-bottom) + 10px);
-  bottom: calc(100% - var(--about-oval-top) + 10px);
+  padding: 2.5rem 0 1.5rem 50px;
 }
 
 .about-page__signature {
-  position: absolute;
-  z-index: 2;
-  left: var(--about-signature-oval-left);
-  right: var(--about-signature-oval-right);
-  top: var(--about-signature-oval-top);
-  bottom: var(--about-signature-oval-bottom);
-  box-sizing: border-box;
-  padding: 0;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  padding: 1.5rem 2rem 3rem 50px;
   pointer-events: none;
 }
 
 .about-page__signature-image {
-  position: absolute;
-  top: 50%;
-  left: 50%;
   display: block;
   width: min(72%, 26rem);
   height: auto;
-  max-height: 76%;
   object-fit: contain;
   object-position: center center;
-  transform: translate(calc(-50% + 5% - 33px), calc(-50% - 9% - 4px));
-}
-
-.about-page__content {
-  text-align: center;
-}
-
-.about-page__placeholder {
-  margin: 0;
-  font-size: 1.0625rem;
-  color: var(--color-text-muted);
 }
 
 @media (max-width: 1024px) {
@@ -231,58 +189,72 @@
   .about-page__quote-text {
     font-size: 1.5rem;
   }
+
+  .about-page__pastor-zone {
+    padding: 2rem 0 1.25rem 50px;
+  }
 }
 
 @media (max-width: 768px) {
   .about-page {
+    --about-mobile-gutter: 1.25rem;
+    --about-mobile-content-max: 36rem;
+    align-items: center;
     border-radius: 0 0 16px 16px;
   }
 
   .about-page__intro {
-    padding: 40px 1.25rem 0 40px;
+    gap: 2.5rem;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: var(--about-mobile-content-max);
+    margin-inline: auto;
+    padding: 40px var(--about-mobile-gutter) 0;
   }
 
   .about-page__title {
+    width: 100%;
+    max-width: 100%;
+    margin-inline: auto;
     font-size: 2.25rem;
+    text-align: left;
   }
 
   .about-page__quote {
-    max-width: none;
+    width: 100%;
+    max-width: 100%;
+    margin-inline: auto;
   }
 
   .about-page__quote-inner {
     padding-inline: calc(1.75rem + 10px);
   }
 
+  .about-page__scripture {
+    width: 100%;
+    max-width: 100%;
+    margin-inline: auto;
+  }
+
   .about-page__pastor-zone {
-    position: static;
-    left: auto;
-    right: auto;
-    top: auto;
-    bottom: auto;
-    margin: 2rem 0 2.5rem 50px;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: var(--about-mobile-content-max);
+    margin-inline: auto;
+    padding: 2rem var(--about-mobile-gutter) 1.25rem;
   }
 
   .about-page__signature {
-    position: static;
-    width: calc(100% - 50px);
-    margin: 0 0 2rem 50px;
-    padding: 0;
-    display: flex;
-    justify-content: center;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: var(--about-mobile-content-max);
+    margin-inline: auto;
+    padding: 1.25rem var(--about-mobile-gutter) 2.5rem;
   }
 
   .about-page__signature-image {
-    position: static;
-    top: auto;
-    left: auto;
-    transform: none;
     width: min(100%, 26rem);
-    margin: 0 auto;
-  }
-
-  .about-page__quote-line {
-    white-space: normal;
+    margin-inline: auto;
   }
 
   .about-page__quote-open,
@@ -305,9 +277,14 @@
 }
 
 @media (max-width: 480px) {
+  .about-page {
+    --about-mobile-gutter: 1rem;
+    --about-mobile-content-max: 100%;
+  }
+
   .about-page__intro {
     gap: 2.5rem;
-    padding: 2rem 1rem 0;
+    padding: 2rem var(--about-mobile-gutter) 0;
   }
 
   .about-page__title {
@@ -315,12 +292,11 @@
   }
 
   .about-page__pastor-zone {
-    margin: 1.5rem 1rem 2rem;
+    padding: 1.5rem var(--about-mobile-gutter) 1rem;
   }
 
   .about-page__signature {
-    width: calc(100% - 2rem);
-    margin: 0 1rem 1.5rem;
+    padding: 1rem var(--about-mobile-gutter) 2rem;
   }
 
   .about-page__quote-inner {

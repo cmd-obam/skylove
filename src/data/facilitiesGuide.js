@@ -1,71 +1,71 @@
 /**
  * 시설안내 페이지 콘텐츠
- * image 필드는 추후 실제 사진으로 교체
+ * images 배열의 null 항목은 추후 실제 사진으로 교체
  */
-import facilityGuideHero from '@/assets/images/facilities/facility-guide-hero.png'
-import mainSanctuaryImage from '@/assets/images/facilities/main-sanctuary.png'
-import smallSanctuaryImage from '@/assets/images/facilities/small-sanctuary.png'
-import forestCafeImage from '@/assets/images/facilities/forest-cafe.png'
-import motherBabyRoomImage from '@/assets/images/facilities/mother-baby-room.png'
+
+import exterior1 from '@/assets/images/facilities/exterior-1.png'
+import exterior2 from '@/assets/images/facilities/exterior-2.png'
+import exterior3 from '@/assets/images/facilities/exterior-3.png'
+import cafe1 from '@/assets/images/facilities/cafe-1.png'
+import cafe2 from '@/assets/images/facilities/cafe-2.png'
+import cafe3 from '@/assets/images/facilities/cafe-3.png'
+import dining1 from '@/assets/images/facilities/dining-1.png'
+import dining2 from '@/assets/images/facilities/dining-2.png'
+import dining3 from '@/assets/images/facilities/dining-3.png'
+import smallSanctuary1 from '@/assets/images/facilities/small-sanctuary-1.png'
+import smallSanctuary2 from '@/assets/images/facilities/small-sanctuary-2.png'
+import smallSanctuary3 from '@/assets/images/facilities/small-sanctuary-3.png'
+import mainSanctuary1 from '@/assets/images/facilities/main-sanctuary-1.png'
+import mainSanctuary2 from '@/assets/images/facilities/main-sanctuary-2.png'
+import mainSanctuary3 from '@/assets/images/facilities/main-sanctuary-3.png'
+import motherBabyRoom1 from '@/assets/images/facilities/mother-baby-room-1.png'
+import motherBabyRoom2 from '@/assets/images/facilities/mother-baby-room-2.png'
+import motherBabyRoom3 from '@/assets/images/facilities/mother-baby-room-3.png'
+
+const PLACEHOLDER_IMAGES = [null, null, null]
 
 export const FACILITIES_GUIDE = {
-  eyebrow: 'FACILITY GUIDE',
-  title: '시설 안내',
-  introLines: [
-    '하늘사랑교회의 공간은 예배와 교제, 그리고 섬김을 위한 공간입니다.',
-    '각 시설은 공동체가 함께 하나님을 예배하고 서로 사랑하며 성장할 수 있도록 준비되어 있습니다.',
-  ],
-  heroImage: facilityGuideHero,
-  footerMessage: '방문하시는 모든 분들을 따뜻한 마음으로 환영합니다.',
-  items: [
+  pageTitle: '교회시설안내',
+  sections: [
     {
-      id: 'main-sanctuary',
-      number: '01',
-      title: '대예배실',
-      descriptionLines: [
-        '하늘사랑교회의 대표 예배 공간입니다.',
-        '넓고 정돈된 예배 공간에서 성도들이 함께 모여 하나님께 예배드립니다.',
-      ],
-      image: mainSanctuaryImage,
+      id: 'exterior',
+      title: '교회전경',
+      images: [exterior1, exterior2, exterior3],
     },
     {
-      id: 'small-sanctuary',
-      number: '02',
-      title: '소예배실',
-      descriptionLines: [
-        '소규모 예배와 기도회, 교육 프로그램을 위한 공간입니다.',
-        '따뜻한 분위기 속에서 예배와 교제가 이루어집니다.',
+      id: 'floor-1',
+      title: '1층',
+      subsections: [
+        { id: 'cafe', label: '카페', images: [cafe1, cafe2, cafe3] },
+        { id: 'dining', label: '식당', images: [dining1, dining2, dining3] },
+        { id: 'small-sanctuary', label: '소예배실', images: [smallSanctuary1, smallSanctuary2, smallSanctuary3] },
       ],
-      image: smallSanctuaryImage,
     },
     {
-      id: 'forest-cafe',
-      number: '03',
-      title: '더 숲 카페',
-      descriptionLines: [
-        '성도와 방문객이 편안하게 머물며 교제할 수 있는 공간입니다.',
+      id: 'floor-2',
+      title: '2층',
+      subsections: [
+        { id: 'main-sanctuary', label: '대예배실', images: [mainSanctuary1, mainSanctuary2, mainSanctuary3] },
+        { id: 'mother-baby-room', label: '자모실', images: [motherBabyRoom1, motherBabyRoom2, motherBabyRoom3] },
       ],
-      image: forestCafeImage,
     },
     {
-      id: 'kitchen-dining',
-      number: '04',
-      title: '주방 / 식당',
-      descriptionLines: [
-        '공동체 식사와 교제를 위한 공간으로,',
-        '함께 나누는 시간이 이어집니다.',
+      id: 'floor-3',
+      title: '3층',
+      subsections: [
+        {
+          id: 'pastoral-office',
+          label: '목양실',
+          images: [...PLACEHOLDER_IMAGES],
+          placeholderText: '이미지 준비중',
+        },
+        {
+          id: 'praise-association',
+          label: '(재)한국찬송가공회',
+          images: [...PLACEHOLDER_IMAGES],
+          placeholderText: '이미지 준비중',
+        },
       ],
-      image: null,
-    },
-    {
-      id: 'mother-baby-room',
-      number: '05',
-      title: '자모실',
-      descriptionLines: [
-        '영유아와 보호자가 편안하게 머무를 수 있는 공간입니다.',
-        '예배 시간 동안 아이들이 안전하게 돌봄받을 수 있도록 준비되어 있습니다.',
-      ],
-      image: motherBabyRoomImage,
     },
   ],
 }

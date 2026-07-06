@@ -45,10 +45,14 @@ function NewFamilyGuide() {
       ref={pageRef}
       style={{ '--nf-page-bg': `url(${pageBg})` }}
     >
-      <div className="new-family-page__content">
-        <WelcomeHero />
+      <section className="new-family-page__landing" aria-label="새가족 환영">
+        <div className="new-family-page__landing-inner">
+          <WelcomeHero />
+          <ChurchIntroVideo />
+        </div>
+      </section>
 
-        <ChurchIntroVideo />
+      <div className="new-family-page__body">
         <ChurchFeatureCards />
         <WelcomeReasonCards />
         <FirstVisitGuide />

@@ -13,7 +13,7 @@ export const PAGE_META = {
   },
   '/about/facilities': {
     title: '시설안내',
-    subtitle: 'FACILITY GUIDE',
+    subtitle: '',
   },
   '/about/location': {
     title: '찾아오시는 길',
