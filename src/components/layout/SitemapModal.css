@@ -11,7 +11,7 @@
 
 .sitemap-modal__dialog {
   width: 100%;
-  max-width: 1120px;
+  max-width: var(--max-width);
   max-height: min(90vh, 860px);
   display: flex;
   flex-direction: column;

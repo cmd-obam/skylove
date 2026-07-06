@@ -5,7 +5,7 @@
 @media (max-width: 1024px) {
   .member-mypage-sidebar.category-sidebar {
     width: calc(100% - 40px);
-    max-width: 1100px;
+    max-width: var(--category-layout-max-width);
     margin: 0 auto 1rem;
   }
 }

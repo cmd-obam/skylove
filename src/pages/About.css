@@ -4,7 +4,9 @@
   --about-quote-text: #333333;
   --about-quote-accent: #0088e8;
   --about-scripture-gold: #c9a045;
+  --about-inline-start: clamp(1.25rem, 4vw, 3.125rem);
   position: relative;
+  isolation: isolate;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -12,26 +14,39 @@
   min-width: 0;
   margin-top: 10px;
   margin-bottom: 0;
-  border-radius: 0 0 20px 20px;
-  background-color: transparent;
+  border-radius: 20px;
+  background-color: #fff;
+  overflow: hidden;
+}
+
+.about-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
   background-image: var(--about-intro-bg);
   background-repeat: no-repeat;
   background-position: top center;
-  background-size: 100% 100%;
+  background-size: 100% auto;
+  pointer-events: none;
 }
 
-.about-page__intro {
+.about-page > * {
   position: relative;
   z-index: 1;
+}
+
+.about-page__top {
   display: flex;
-  flex-direction: column;
-  gap: 70px;
-  padding: 50px 2rem 0 50px;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 2.25rem var(--about-card-inline-padding, 2.5rem) 0 var(--about-inline-start);
 }
 
 .about-page__title {
   margin: 0;
-  font-size: 3.5rem;
+  font-size: clamp(2rem, 4vw, 3.5rem);
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: 0;
@@ -39,9 +54,17 @@
   text-align: left;
 }
 
+.about-page__hero {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2rem, 4vw, 3.5rem);
+  padding: clamp(1.75rem, 3.5vw, 2.75rem) var(--about-card-inline-padding, 2.5rem) 0;
+  padding-left: var(--about-inline-start);
+}
+
 .about-page__quote {
   position: relative;
-  max-width: 48rem;
+  max-width: 44rem;
   margin: 0 auto;
   text-align: center;
 }
@@ -58,7 +81,7 @@
 .about-page__quote-close {
   position: absolute;
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 4.25rem;
+  font-size: clamp(2.75rem, 5vw, 4.25rem);
   font-weight: 600;
   line-height: 1;
   color: var(--about-quote-mark);
@@ -76,7 +99,7 @@
 
 .about-page__quote-text {
   margin: 0;
-  font-size: 1.625rem;
+  font-size: clamp(1.125rem, 2.2vw, 1.625rem);
   font-weight: 500;
   line-height: 1.65;
   letter-spacing: 0;
@@ -142,129 +165,92 @@
 }
 
 .about-page__pastor-zone {
-  position: relative;
-  z-index: 1;
-  padding: 2.5rem 0 1.5rem 50px;
+  padding: clamp(1.5rem, 3vw, 2rem) var(--about-card-inline-padding, 2.5rem) 0.75rem;
+  padding-left: var(--about-inline-start);
 }
 
-.about-page__signature {
-  position: relative;
-  z-index: 1;
+.about-page__signature-zone {
   display: flex;
-  justify-content: center;
-  padding: 1.5rem 2rem 3rem 50px;
-  pointer-events: none;
+  justify-content: flex-end;
+  padding: 0 var(--about-card-inline-padding, 2.5rem) clamp(1.75rem, 4vw, 2.75rem);
+  padding-left: var(--about-inline-start);
+  background-color: #fff;
 }
 
-.about-page__signature-image {
+.about-page__signature-visual {
+  position: relative;
+  width: min(46%, 24rem);
+  margin-right: 4%;
+}
+
+.about-page__signature-oval {
   display: block;
-  width: min(72%, 26rem);
+  width: 100%;
+  height: auto;
+}
+
+.about-page__signature-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 51%;
+  max-width: 11rem;
   height: auto;
   object-fit: contain;
-  object-position: center center;
+  transform: translate(calc(-50% - 3px), calc(-52% + 8px));
 }
 
 @media (max-width: 1024px) {
-  .about-page__intro {
-    padding: 50px 1.75rem 0 50px;
+  .about-page__top {
+    padding-top: 2rem;
   }
 
-  .about-page__title {
-    font-size: 2.5rem;
+  .about-page__hero {
+    gap: 2.25rem;
   }
 
-  .about-page__quote {
-    max-width: 42rem;
-  }
-
-  .about-page__quote-inner {
-    padding-inline: calc(2rem + 10px);
-  }
-
-  .about-page__quote-open,
-  .about-page__quote-close {
-    font-size: 3.75rem;
-  }
-
-  .about-page__quote-text {
-    font-size: 1.5rem;
-  }
-
-  .about-page__pastor-zone {
-    padding: 2rem 0 1.25rem 50px;
+  .about-page__signature-visual {
+    width: min(52%, 20rem);
+    margin-right: 2%;
   }
 }
 
 @media (max-width: 768px) {
   .about-page {
-    --about-mobile-gutter: 1.25rem;
-    --about-mobile-content-max: 36rem;
-    align-items: center;
-    border-radius: 0 0 16px 16px;
+    border-radius: 16px;
   }
 
-  .about-page__intro {
-    gap: 2.5rem;
-    box-sizing: border-box;
-    width: 100%;
-    max-width: var(--about-mobile-content-max);
-    margin-inline: auto;
-    padding: 40px var(--about-mobile-gutter) 0;
+  .about-page__top {
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1.75rem var(--about-card-inline-padding, 1.25rem) 0;
+    padding-left: var(--about-inline-start);
   }
 
-  .about-page__title {
-    width: 100%;
-    max-width: 100%;
-    margin-inline: auto;
-    font-size: 2.25rem;
-    text-align: left;
-  }
-
-  .about-page__quote {
-    width: 100%;
-    max-width: 100%;
-    margin-inline: auto;
+  .about-page__hero {
+    gap: 2rem;
+    padding-inline: var(--about-card-inline-padding, 1.25rem);
+    padding-left: var(--about-inline-start);
   }
 
   .about-page__quote-inner {
     padding-inline: calc(1.75rem + 10px);
   }
 
-  .about-page__scripture {
-    width: 100%;
-    max-width: 100%;
-    margin-inline: auto;
-  }
-
   .about-page__pastor-zone {
-    box-sizing: border-box;
-    width: 100%;
-    max-width: var(--about-mobile-content-max);
-    margin-inline: auto;
-    padding: 2rem var(--about-mobile-gutter) 1.25rem;
+    padding-inline: var(--about-card-inline-padding, 1.25rem);
+    padding-left: var(--about-inline-start);
   }
 
-  .about-page__signature {
-    box-sizing: border-box;
-    width: 100%;
-    max-width: var(--about-mobile-content-max);
-    margin-inline: auto;
-    padding: 1.25rem var(--about-mobile-gutter) 2.5rem;
+  .about-page__signature-zone {
+    justify-content: center;
+    padding-inline: var(--about-card-inline-padding, 1.25rem);
+    padding-left: var(--about-inline-start);
   }
 
-  .about-page__signature-image {
-    width: min(100%, 26rem);
-    margin-inline: auto;
-  }
-
-  .about-page__quote-open,
-  .about-page__quote-close {
-    font-size: 3.25rem;
-  }
-
-  .about-page__quote-text {
-    font-size: 1.3125rem;
-    line-height: 1.7;
+  .about-page__signature-visual {
+    width: min(88%, 22rem);
+    margin-right: 0;
   }
 
   .about-page__scripture-ref {
@@ -278,37 +264,18 @@
 
 @media (max-width: 480px) {
   .about-page {
-    --about-mobile-gutter: 1rem;
-    --about-mobile-content-max: 100%;
+    border-radius: 12px;
   }
 
-  .about-page__intro {
-    gap: 2.5rem;
-    padding: 2rem var(--about-mobile-gutter) 0;
-  }
-
-  .about-page__title {
-    font-size: clamp(1.75rem, 8vw, 2.25rem);
-  }
-
-  .about-page__pastor-zone {
-    padding: 1.5rem var(--about-mobile-gutter) 1rem;
-  }
-
-  .about-page__signature {
-    padding: 1rem var(--about-mobile-gutter) 2rem;
+  .about-page__top {
+    padding-top: 1.5rem;
   }
 
   .about-page__quote-inner {
     padding-inline: 1.5rem;
   }
 
-  .about-page__quote-open,
-  .about-page__quote-close {
-    font-size: 2.75rem;
-  }
-
-  .about-page__quote-text {
-    font-size: 1.125rem;
+  .about-page__signature-visual {
+    width: min(100%, 18rem);
   }
 }

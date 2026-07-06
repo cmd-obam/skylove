@@ -10,18 +10,20 @@
 
 .worship-hero {
   --worship-hero-bg: none;
+  --worship-hero-ratio: 1024 / 322;
 
   position: relative;
   display: flex;
   align-items: center;
-  min-height: clamp(220px, 32vh, 360px);
+  aspect-ratio: var(--worship-hero-ratio);
+  min-height: unset;
   margin-left: -2.5rem;
   margin-right: -2.5rem;
   width: calc(100% + 5rem);
   max-width: 100vw;
   background-image: var(--worship-hero-bg);
-  background-size: cover;
-  background-position: center right;
+  background-size: 100% 100%;
+  background-position: center;
   background-repeat: no-repeat;
   overflow: hidden;
 }
@@ -74,7 +76,6 @@
 
 @media (max-width: 992px) {
   .worship-hero {
-    min-height: clamp(200px, 28vh, 300px);
     margin-left: -1.5rem;
     margin-right: -1.5rem;
     width: calc(100% + 3rem);
@@ -88,7 +89,6 @@
 
 @media (max-width: 768px) {
   .worship-hero {
-    min-height: clamp(220px, 38vh, 280px);
     align-items: flex-end;
     padding-bottom: 1.75rem;
     margin-left: -1rem;

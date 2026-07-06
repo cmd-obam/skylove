@@ -18,10 +18,10 @@ export const MENU_ITEMS = [
       { title: '예배시간 안내', path: '/worship' },
       {
         title: '교회 둘러보기',
-        path: '/about/facility-vr',
+        path: '/about/facilities',
         children: [
-          { title: 'VR 둘러보기', path: '/about/facility-vr' },
           { title: '시설안내', path: '/about/facilities' },
+          { title: 'VR 둘러보기', path: '/about/facility-vr' },
         ],
       },
       { title: '찾아오시는 길', path: '/about/location' },

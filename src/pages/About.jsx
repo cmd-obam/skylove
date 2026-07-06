@@ -1,5 +1,7 @@
 import aboutIntroBg from '@/assets/images/about/about-intro-bg.png'
+import pastorOvalBase from '@/assets/images/about/pastor-oval-base.png'
 import pastorSignatureText from '@/assets/images/about/pastor-signature-text.png'
+import Breadcrumb from '@/components/Breadcrumb'
 import PastorIntro from '@/components/about/PastorIntro'
 import './About.css'
 
@@ -9,9 +11,12 @@ function About() {
       className="about-page"
       style={{ '--about-intro-bg': `url(${aboutIntroBg})` }}
     >
-      <div className="about-page__intro">
+      <header className="about-page__top">
         <h1 className="about-page__title">담임목사 인사</h1>
+        <Breadcrumb />
+      </header>
 
+      <div className="about-page__hero">
         <blockquote className="about-page__quote">
           <div className="about-page__quote-inner">
             <span className="about-page__quote-open" aria-hidden="true">
@@ -19,7 +24,7 @@ function About() {
             </span>
             <p className="about-page__quote-text">
               <span className="about-page__quote-line">
-                우리 하늘사랑교회의 진짜 그리스도인이 되신것을
+                우리 하늘사랑교회 진짜 그리스도인이 되신 것을
               </span>
               <span className="about-page__quote-line">
                 가슴깊이{' '}
@@ -51,12 +56,19 @@ function About() {
         <PastorIntro className="pastor-intro--about-page" />
       </div>
 
-      <div className="about-page__signature" aria-hidden="true">
-        <img
-          src={pastorSignatureText}
-          alt=""
-          className="about-page__signature-image"
-        />
+      <div className="about-page__signature-zone" aria-hidden="true">
+        <div className="about-page__signature-visual">
+          <img
+            src={pastorOvalBase}
+            alt=""
+            className="about-page__signature-oval"
+          />
+          <img
+            src={pastorSignatureText}
+            alt=""
+            className="about-page__signature-text"
+          />
+        </div>
       </div>
     </div>
   )

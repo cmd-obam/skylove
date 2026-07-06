@@ -1,6 +1,6 @@
 .worship-template {
   --worship-accent: #5aa9ff;
-  --worship-max-width: 1200px;
+  --worship-max-width: var(--max-width);
   max-width: var(--worship-max-width);
   margin: 0 auto;
   padding: 0 1.5rem 4rem;

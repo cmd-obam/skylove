@@ -1,7 +1,7 @@
 .facilities {
   --facilities-accent: #1a6b7a;
   --facilities-line: #1a6b7a;
-  max-width: 1120px;
+  max-width: var(--max-width);
   margin: 0 auto;
   padding-bottom: 2rem;
   font-family: var(--font-family-brand);
@@ -96,12 +96,21 @@
   color: #374151;
 }
 
+.facilities__subsection--label-only .facilities__subsection-title {
+  margin: 0;
+}
+
+.facilities__subsections:has(.facilities__subsection--label-only) {
+  gap: 0.75rem;
+}
+
 /* ── Image gallery ── */
 
 .facilities__gallery {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: clamp(0.75rem, 2vw, 1rem);
+  align-items: start;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -111,32 +120,64 @@
   min-width: 0;
 }
 
-.facilities__gallery-image,
-.facilities__gallery-slot {
+.facilities__gallery-trigger {
   display: block;
   width: 100%;
-  aspect-ratio: 4 / 3;
-  border-radius: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
   overflow: hidden;
+  text-align: left;
+}
+
+.facilities__gallery-trigger:focus-visible {
+  outline: 2px solid var(--facilities-accent);
+  outline-offset: 2px;
 }
 
 .facilities__gallery-image {
+  display: block;
+  width: 100%;
   height: auto;
-  object-fit: cover;
+  border-radius: 0;
 }
 
-.facilities__gallery-slot {
+/* ── Exterior mosaic: left 1 + right 2×2 ── */
+
+.facilities__gallery--mosaic {
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+}
+
+.facilities__gallery--mosaic .facilities__gallery-item {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #eef2f6;
-  border: 1px solid #dde4ec;
+  min-height: 0;
+  overflow: hidden;
 }
 
-.facilities__gallery-slot-text {
-  font-size: 1.0625rem;
-  font-weight: 500;
-  color: #9ca3af;
+.facilities__gallery--mosaic .facilities__gallery-trigger {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+}
+
+.facilities__gallery--mosaic .facilities__gallery-item--featured {
+  grid-row: 1 / span 2;
+  grid-column: 1;
+}
+
+.facilities__gallery--mosaic .facilities__gallery-image {
+  width: 100%;
+  height: 100%;
+  min-height: 8.5rem;
+  object-fit: cover;
+  object-position: center;
+}
+
+.facilities__gallery--mosaic .facilities__gallery-item--featured .facilities__gallery-image {
+  object-position: center top;
 }
 
 /* ── Responsive ── */
@@ -146,8 +187,21 @@
     margin-bottom: 1rem;
   }
 
-  .facilities__gallery {
+  .facilities__gallery,
+  .facilities__gallery--mosaic {
     grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+
+  .facilities__gallery--mosaic .facilities__gallery-item--featured {
+    grid-row: auto;
+    grid-column: auto;
+  }
+
+  .facilities__gallery--mosaic .facilities__gallery-image {
+    height: auto;
+    min-height: 0;
+    object-fit: contain;
   }
 }
 
@@ -155,4 +209,66 @@
   .facilities__gallery {
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
   }
+}
+
+/* ── Image lightbox ── */
+
+.facilities-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1rem, 3vw, 2rem);
+}
+
+.facilities-lightbox__backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background-color: rgba(0, 0, 0, 0.82);
+  cursor: pointer;
+}
+
+.facilities-lightbox__dialog {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: min(96vw, 100%);
+  max-height: 92vh;
+}
+
+.facilities-lightbox__image {
+  display: block;
+  max-width: min(96vw, 100%);
+  max-height: 92vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
+.facilities-lightbox__close {
+  position: fixed;
+  top: clamp(0.75rem, 2vw, 1.25rem);
+  right: clamp(0.75rem, 2vw, 1.25rem);
+  z-index: 2;
+  padding: 0.55rem 1rem;
+  border: 0;
+  border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.95);
+  color: #1f2d3d;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.facilities-lightbox__close:hover,
+.facilities-lightbox__close:focus-visible {
+  background-color: #ffffff;
 }
