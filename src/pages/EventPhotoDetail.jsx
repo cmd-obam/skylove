@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import AlbumImageGallery from '@/components/board/AlbumImageGallery'
 import BoardPostDetail from '@/components/board/BoardPostDetail'
 import PostUtilityBar from '@/components/board/PostUtilityBar'
 import { fetchRelatedBoardPosts } from '@/services/board/posts'
@@ -49,21 +50,13 @@ function EventPhotoDetail() {
         relatedPosts={relatedPosts}
         ariaLabel="교회앨범 상세"
         listButtonLabel="목록"
-      >
-        {post?.images?.length > 0 && (
-          <div className="church-news-detail__images">
-            {post.images.map((image, index) => (
-              <figure key={`${post.id}-image-${index}`} className="church-news-detail__figure">
-                <img
-                  src={image.src}
-                  alt={image.alt || `${post.title} 사진 ${index + 1}`}
-                  className="church-news-detail__image"
-                />
-              </figure>
-            ))}
-          </div>
-        )}
-      </BoardPostDetail>
+        detailVariant="album"
+        afterBody={
+          post?.images?.length > 0 ? (
+            <AlbumImageGallery images={post.images} title={post.title} />
+          ) : null
+        }
+      />
       {post && <PostUtilityBar />}
     </>
   )

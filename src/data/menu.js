@@ -31,7 +31,14 @@ export const MENU_ITEMS = [
     title: '예배안내',
     path: '/worship-guide',
     children: [
-      { title: '주일 축복 예배', path: '/worship-guide/sunday-blessing' },
+      {
+        title: '주일 축복 예배',
+        path: '/worship-guide/sunday-blessing',
+        children: [
+          { title: '주일 예배', path: '/worship-guide/sunday-blessing' },
+          { title: '성찬식', path: '/worship-guide/sunday-blessing/communion' },
+        ],
+      },
       { title: '주일 찬양 예배', path: '/worship-guide/sunday-praise' },
       { title: '수요예배', path: '/worship-guide/wednesday' },
       { title: '새벽기도', path: '/worship-guide/dawn-prayer' },

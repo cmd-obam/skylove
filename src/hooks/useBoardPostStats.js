@@ -1,8 +1,15 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { fetchPostMeta, incrementPostViews, subscribePostMeta } from '@/services/board/postStats'
 import { fetchUserPostLike, subscribePostLikes } from '@/services/board/postLikes'
+import {
+  getBoardViewSessionKey,
+  hasRecordedBoardView,
+  recordBoardView,
+} from '@/utils/boardViewSession'
 
 export function useBoardPostStats(postType, postId, fallbackViews = 0) {
+  const location = useLocation()
   const [stats, setStats] = useState({
     viewsCount: fallbackViews,
     likesCount: 0,
@@ -41,19 +48,31 @@ export function useBoardPostStats(postType, postId, fallbackViews = 0) {
     }
 
     let isMounted = true
+    const viewSessionKey = getBoardViewSessionKey(location.key, postType, postId)
+    const shouldIncrementViews = !hasRecordedBoardView(viewSessionKey)
 
     async function bootstrap() {
       setIsLoading(true)
 
-      const viewResult = await incrementPostViews(postType, postId)
+      if (shouldIncrementViews) {
+        recordBoardView(viewSessionKey)
 
-      if (isMounted && viewResult.success) {
-        setStats({
-          viewsCount: viewResult.stats.views_count ?? fallbackViews,
-          likesCount: viewResult.stats.likes_count ?? 0,
-          commentsCount: viewResult.stats.comments_count ?? 0,
-        })
-      } else if (isMounted) {
+        const viewResult = await incrementPostViews(postType, postId)
+
+        if (!isMounted) {
+          return
+        }
+
+        if (viewResult.success) {
+          setStats({
+            viewsCount: viewResult.stats.views_count ?? fallbackViews,
+            likesCount: viewResult.stats.likes_count ?? 0,
+            commentsCount: viewResult.stats.comments_count ?? 0,
+          })
+        } else {
+          await refreshStats()
+        }
+      } else {
         await refreshStats()
       }
 
@@ -81,7 +100,7 @@ export function useBoardPostStats(postType, postId, fallbackViews = 0) {
       unsubscribeMeta()
       unsubscribeLikes()
     }
-  }, [fallbackViews, postId, postType, refreshStats])
+  }, [fallbackViews, location.key, postId, postType, refreshStats])
 
   return {
     stats,

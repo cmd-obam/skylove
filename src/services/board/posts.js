@@ -129,7 +129,7 @@ export async function fetchBoardPost(postType, postId) {
     const tempPost = getTempBoardPost(postType, postId)
 
     if (tempPost) {
-      return { success: true, post: tempPost }
+      return { success: true, post: tempPost, postType }
     }
 
     return { success: false, notFound: true }
@@ -140,6 +140,39 @@ export async function fetchBoardPost(postType, postId) {
   return {
     success: true,
     post: mapBoardPostRow(data, metaResult.success ? metaResult.stats : null),
+    postType,
+  }
+}
+
+export async function fetchBoardPostById(postId) {
+  const { data, error } = await supabase
+    .from('board_posts')
+    .select('*')
+    .eq('id', postId)
+    .maybeSingle()
+
+  if (error) {
+    return { success: false, message: error.message }
+  }
+
+  if (!data) {
+    for (const postType of ['album', 'church_news']) {
+      const tempPost = getTempBoardPost(postType, postId)
+
+      if (tempPost) {
+        return { success: true, post: tempPost, postType }
+      }
+    }
+
+    return { success: false, notFound: true }
+  }
+
+  const metaResult = await fetchPostMeta(data.post_type, postId)
+
+  return {
+    success: true,
+    post: mapBoardPostRow(data, metaResult.success ? metaResult.stats : null),
+    postType: data.post_type,
   }
 }
 

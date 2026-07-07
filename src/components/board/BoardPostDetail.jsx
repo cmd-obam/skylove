@@ -10,6 +10,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { togglePostLike } from '@/services/board/postLikes'
 import { formatPostRegistrationDate } from '@/utils/formatBoardDate'
 import { getPostAuthor } from '@/utils/getPostAuthor'
+import { openBoardPostViewer } from '@/utils/boardPostViewer'
 import '@/pages/ChurchNews.css'
 
 function BoardPostDetail({
@@ -22,10 +23,13 @@ function BoardPostDetail({
   relatedPosts = [],
   listButtonLabel = '목록',
   ariaLabel = '게시글 상세',
+  detailVariant = 'default',
+  afterBody = null,
   children,
 }) {
   const { isLoggedIn, user } = useAuth()
   const postId = post?.id
+  const isAlbumDetail = detailVariant === 'album'
 
   const {
     stats,
@@ -65,17 +69,11 @@ function BoardPostDetail({
   }
 
   const handleOpenViewer = () => {
-    const imagesSection = document.querySelector('.church-news-detail__images')
-
-    if (imagesSection) {
-      imagesSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    if (!post?.images?.length || postId == null) {
       return
     }
 
-    document.querySelector('.church-news-detail__body')?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
-    })
+    openBoardPostViewer(postId)
   }
 
   const hasImages = Boolean(post?.images?.length)
@@ -124,43 +122,51 @@ function BoardPostDetail({
 
           <div className="church-news-detail__meta-row">
             <div className="church-news-detail__meta-items">
-              <span className="church-news-detail__meta-item">
-                <span className="church-news-detail__meta-label">작성자</span>
-                <span className="church-news-detail__meta-value">{getPostAuthor(post)}</span>
-              </span>
-              <span className="church-news-detail__meta-divider" aria-hidden="true">
-                |
-              </span>
+              {!isAlbumDetail && (
+                <>
+                  <span className="church-news-detail__meta-item">
+                    <span className="church-news-detail__meta-label">작성자</span>
+                    <span className="church-news-detail__meta-value">{getPostAuthor(post)}</span>
+                  </span>
+                  <span className="church-news-detail__meta-divider" aria-hidden="true">
+                    |
+                  </span>
+                </>
+              )}
               <span className="church-news-detail__meta-item">
                 <span className="church-news-detail__meta-label">등록일</span>
                 <span className="church-news-detail__meta-value">
                   {formatPostRegistrationDate(post)}
                 </span>
               </span>
-              <span className="church-news-detail__meta-divider" aria-hidden="true">
-                |
-              </span>
-              <span className="church-news-detail__meta-item">
-                <button
-                  type="button"
-                  className={`church-news-detail__like-button${
-                    likedByMe ? ' church-news-detail__like-button--active' : ''
-                  }`}
-                  onClick={handleToggleLike}
-                  aria-pressed={likedByMe}
-                >
-                  <FiHeart aria-hidden="true" />
-                  <span className="church-news-detail__meta-label">추천</span>
-                  <span className="church-news-detail__meta-value">{stats.likesCount}</span>
-                </button>
-              </span>
-              <span className="church-news-detail__meta-divider" aria-hidden="true">
-                |
-              </span>
-              <span className="church-news-detail__meta-item">
-                <span className="church-news-detail__meta-label">댓글</span>
-                <span className="church-news-detail__meta-value">{stats.commentsCount}</span>
-              </span>
+              {!isAlbumDetail && (
+                <>
+                  <span className="church-news-detail__meta-divider" aria-hidden="true">
+                    |
+                  </span>
+                  <span className="church-news-detail__meta-item">
+                    <button
+                      type="button"
+                      className={`church-news-detail__like-button${
+                        likedByMe ? ' church-news-detail__like-button--active' : ''
+                      }`}
+                      onClick={handleToggleLike}
+                      aria-pressed={likedByMe}
+                    >
+                      <FiHeart aria-hidden="true" />
+                      <span className="church-news-detail__meta-label">추천</span>
+                      <span className="church-news-detail__meta-value">{stats.likesCount}</span>
+                    </button>
+                  </span>
+                  <span className="church-news-detail__meta-divider" aria-hidden="true">
+                    |
+                  </span>
+                  <span className="church-news-detail__meta-item">
+                    <span className="church-news-detail__meta-label">댓글</span>
+                    <span className="church-news-detail__meta-value">{stats.commentsCount}</span>
+                  </span>
+                </>
+              )}
               <span className="church-news-detail__meta-divider" aria-hidden="true">
                 |
               </span>
@@ -176,9 +182,11 @@ function BoardPostDetail({
 
         {post.content && <p className="church-news-detail__body">{post.content}</p>}
 
+        {afterBody}
+
         <BoardPostExtras
           attachments={post.attachments}
-          imageAttachments={post.images}
+          imageAttachments={isAlbumDetail ? [] : post.images}
           relatedPosts={relatedPosts}
           detailPathPrefix={detailPathPrefix}
         />

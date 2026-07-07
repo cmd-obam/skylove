@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useParams, Outlet } from 'react-router-dom'
 import SiteHeader from '@/components/layout/SiteHeader'
 import Footer from '@/components/layout/Footer'
 import CategoryLayout from '@/components/layout/CategoryLayout'
@@ -26,6 +26,7 @@ import ChurchNewsWrite from '@/pages/ChurchNewsWrite'
 import ChurchNewsEdit from '@/pages/ChurchNewsEdit'
 import EventPhotos from '@/pages/EventPhotos'
 import EventPhotoDetail from '@/pages/EventPhotoDetail'
+import BoardPostViewerPage from '@/pages/BoardPostViewerPage'
 import AlbumWrite from '@/pages/AlbumWrite'
 import AlbumEdit from '@/pages/AlbumEdit'
 import BoardAdminRoute from '@/components/auth/BoardAdminRoute'
@@ -47,6 +48,23 @@ function LegacyEventPhotoDetailRedirect() {
   return <Navigate to={`/church-news/album/${postId}`} replace />
 }
 
+function LegacyBoardPostViewerRedirect() {
+  const { postId } = useParams()
+  return <Navigate to={`/viewer/${postId}`} replace />
+}
+
+function SiteShell() {
+  return (
+    <div className="app">
+      <SiteHeader />
+      <main className="main">
+        <Outlet />
+      </main>
+      <Footer />
+    </div>
+  )
+}
+
 function App() {
   const basename = import.meta.env.BASE_URL.replace(/\/$/, '')
 
@@ -55,10 +73,11 @@ function App() {
       <ScrollToTop />
       <AuthProvider>
         <ImageProtection />
-        <div className="app">
-          <SiteHeader />
-          <main className="main">
-            <Routes>
+        <Routes>
+          <Route path="/viewer/:postId" element={<BoardPostViewerPage />} />
+          <Route path="/church-news/album/:postId/viewer" element={<LegacyBoardPostViewerRedirect />} />
+          <Route path="/church-news/:postId/viewer" element={<LegacyBoardPostViewerRedirect />} />
+          <Route element={<SiteShell />}>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Auth />} />
             <Route path="/reset-password/security-question" element={<ResetPasswordSecurityQuestion />} />
@@ -97,6 +116,7 @@ function App() {
                 <Route path="/about/location" element={<Location />} />
                 <Route path="/worship" element={<Worship />} />
                 <Route path="/worship-guide" element={<Navigate to="/worship-guide/sunday-blessing" replace />} />
+                <Route path="/worship-guide/sunday-blessing/communion" element={<WorshipGuidePage />} />
                 <Route path="/worship-guide/sunday-blessing" element={<WorshipGuidePage />} />
                 <Route path="/worship-guide/sunday-praise" element={<WorshipGuidePage />} />
                 <Route path="/worship-guide/wednesday" element={<WorshipGuidePage />} />
@@ -147,10 +167,8 @@ function App() {
                 <Route path="/church-news/:postId" element={<ChurchNewsDetail />} />
               </Route>
             </Route>
-          </Routes>
-        </main>
-        <Footer />
-      </div>
+          </Route>
+        </Routes>
       </AuthProvider>
     </BrowserRouter>
   )

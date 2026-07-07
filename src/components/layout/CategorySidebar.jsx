@@ -20,8 +20,8 @@ function CategorySidebarItem({ item, sectionPath, pathname }) {
         <button
           type="button"
           className={`category-sidebar__link category-sidebar__trigger${
-            isGroupActive ? ' category-sidebar__link--active' : ''
-          }${isExpanded ? ' category-sidebar__link--expanded' : ''}`}
+            isExpanded ? ' category-sidebar__link--expanded' : ''
+          }`}
           aria-expanded={isExpanded}
           aria-controls={sublistId}
           onClick={() => setIsExpanded((prev) => !prev)}
@@ -41,6 +41,7 @@ function CategorySidebarItem({ item, sectionPath, pathname }) {
             <li key={child.path} className="category-sidebar__subitem">
               <NavLink
                 to={child.path}
+                end
                 className={({ isActive }) =>
                   `category-sidebar__sublink${isActive ? ' category-sidebar__sublink--active' : ''}`
                 }

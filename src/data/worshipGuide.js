@@ -3,6 +3,10 @@
  * 이미지 URL(introImage, galleryImages)은 추후 관리자 업로드로 교체
  */
 import sundayBlessingIntro from '@/assets/images/worship/sunday-blessing-intro.png'
+import sundayBlessingHero from '@/assets/images/worship/sunday-blessing-hero.png'
+import sundayBlessingGallery1 from '@/assets/images/worship/sunday-blessing-gallery-1.png'
+import sundayBlessingGallery2 from '@/assets/images/worship/sunday-blessing-gallery-2.png'
+import sundayBlessingGallery3 from '@/assets/images/worship/sunday-blessing-gallery-3.png'
 import sundayPraiseIntro from '@/assets/images/worship/sunday-praise-intro.png'
 import wednesdayIntro from '@/assets/images/worship/wednesday-intro.png'
 import wednesdayHero from '@/assets/images/worship/wednesday-hero.png'
@@ -17,10 +21,16 @@ import dawnPrayerHero from '@/assets/images/worship/dawn-prayer-hero.png'
 import dawnPrayerGallery1 from '@/assets/images/worship/dawn-prayer-gallery-1.png'
 import dawnPrayerGallery2 from '@/assets/images/worship/dawn-prayer-gallery-2.png'
 import dawnPrayerGallery3 from '@/assets/images/worship/dawn-prayer-gallery-3.png'
+import communionHero from '@/assets/images/worship/communion-hero.png'
+import communionIntro from '@/assets/images/worship/communion-intro.png'
+import communionGallery1 from '@/assets/images/worship/communion-gallery-1.png'
+import communionGallery2 from '@/assets/images/worship/communion-gallery-2.png'
+import communionGallery3 from '@/assets/images/worship/communion-gallery-3.png'
 import { WORSHIP_SCHEDULE } from '@/data/worship'
 
 const WORSHIP_SCHEDULE_BY_PATH = {
   '/worship-guide/sunday-blessing': 'sunday-blessing',
+  '/worship-guide/sunday-blessing/communion': 'sunday-blessing',
   '/worship-guide/sunday-praise': 'sunday-praise',
   '/worship-guide/wednesday': 'wednesday',
   '/worship-guide/dawn-prayer': 'dawn-prayer',
@@ -41,12 +51,34 @@ export const WORSHIP_GUIDE_CONTENT = {
       '하나님의 사랑과  은혜를',
       '함께 누리는 시간입니다.',
     ],
-    heroImage: null,
+    heroImage: sundayBlessingHero,
     introImage: sundayBlessingIntro,
     introTypographyVariant: 'classic',
-    galleryImages: [null, null, null],
+    galleryImages: [sundayBlessingGallery1, sundayBlessingGallery2, sundayBlessingGallery3],
     footerMessage:
       '하나님의 은혜가 가득한 주일, 온 가족이 함께 예배에 참석하시길 축복합니다.',
+    crossIcon: null,
+  },
+  '/worship-guide/sunday-blessing/communion': {
+    title: '성찬식',
+    subtitle: 'Holy Communion',
+    time: '오전 11시',
+    location: '대예배실',
+    headlineLines: ['예수 그리스도의', '몸과 피를 기억하는 예배'],
+    introTitle: '성찬식',
+    descriptionLines: [
+      '성찬식은',
+      '예수 그리스도의 몸과 피를 기념하며',
+      '그리스도와 하나 되는',
+      '은혜의 성례입니다.',
+    ],
+    heroImage: communionHero,
+    introImage: communionIntro,
+    introLayout: 'split',
+    introTypographyVariant: 'classic',
+    galleryImages: [communionGallery1, communionGallery2, communionGallery3],
+    footerMessage:
+      '성찬식을 통해 그리스도의 사랑과 은혜를 나누며, 함께 예배하시길 축복합니다.',
     crossIcon: null,
   },
   '/worship-guide/sunday-praise': {
@@ -143,7 +175,6 @@ export const WORSHIP_GUIDE_CONTENT = {
       ],
     ],
     heroImage: elShaddaiChoirHero,
-    heroImageFit: 'contain',
     introImage: elShaddaiChoirIntro,
     introBannerVariant: 'choir',
     showGallery: false,

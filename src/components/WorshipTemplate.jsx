@@ -48,7 +48,7 @@ function WorshipTemplate({
   descriptionLines = null,
   descriptionParagraphs = null,
   heroImage = null,
-  heroImageFit = 'cover',
+  heroImageFit = 'contain',
   introImage = null,
   galleryImages = [null, null, null],
   galleryTitles = ['', '', ''],
@@ -57,9 +57,12 @@ function WorshipTemplate({
   crossIcon = null,
   introBannerVariant = null,
   introTypographyVariant = null,
+  introLayout = 'banner',
   introBackgroundPosition = 'right center',
 }) {
   const rootRef = useRef(null)
+  const isSplitIntro = Boolean(introImage) && introLayout === 'split'
+  const isBannerIntro = Boolean(introImage) && introLayout === 'banner'
 
   useEffect(() => {
     const root = rootRef.current
@@ -119,7 +122,7 @@ function WorshipTemplate({
           src={heroImage}
           alt={`${title} 대표 이미지`}
           variant="hero"
-          className={heroImageFit === 'contain' ? 'worship-template__image-slot--hero-fit-contain' : ''}
+          className={heroImageFit === 'cover' ? 'worship-template__image-slot--hero-fit-cover' : ''}
         />
       </div>
 
@@ -137,8 +140,10 @@ function WorshipTemplate({
 
       <section
         className={`worship-template__intro${
-          introImage ? '' : ' worship-template__fade'
-        }${introImage ? ' worship-template__intro--banner' : ''}${
+          isBannerIntro ? '' : ' worship-template__fade'
+        }${isBannerIntro ? ' worship-template__intro--banner' : ''}${
+          isSplitIntro ? ' worship-template__intro--split' : ''
+        }${
           introBannerVariant
             ? ` worship-template__intro--banner-${introBannerVariant}`
             : ''
@@ -148,7 +153,7 @@ function WorshipTemplate({
             : ''
         }`}
         style={
-          introImage
+          isBannerIntro
             ? {
                 '--worship-intro-bg': `url(${introImage})`,
                 ...(introBackgroundPosition !== 'right center'
@@ -246,9 +251,13 @@ function WorshipTemplate({
             </p>
           )}
         </div>
-        {!introImage && (
+        {(isSplitIntro || !introImage) && (
           <div className="worship-template__intro-media">
-            <ImageSlot alt={`${title} 소개 이미지`} variant="intro" />
+            <ImageSlot
+              src={isSplitIntro ? introImage : null}
+              alt={`${title} 소개 이미지`}
+              variant="intro"
+            />
           </div>
         )}
       </section>

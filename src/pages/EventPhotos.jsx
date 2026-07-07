@@ -3,7 +3,9 @@ import { Link } from 'react-router-dom'
 import { FiFileText } from 'react-icons/fi'
 import Breadcrumb from '@/components/Breadcrumb'
 import BoardWriteButton from '@/components/board/BoardWriteButton'
+import churchPlaceholder from '@/assets/images/home/welcome-church-exterior.png'
 import { fetchBoardPosts } from '@/services/board/posts'
+import { getAlbumThumbnailSrc } from '@/utils/albumThumbnail'
 import { formatBoardDate } from '@/utils/formatBoardDate'
 import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 import './ChurchNews.css'
@@ -79,71 +81,47 @@ function EventPhotos() {
         <BoardWriteButton to="/album/write" />
       </div>
 
-      <div className="church-news-board__table-wrap">
-        <table className="church-news-board__table">
-          <colgroup>
-            <col className="church-news-board__col-no" />
-            <col className="church-news-board__col-title" />
-            <col className="church-news-board__col-date" />
-            <col className="church-news-board__col-views" />
-          </colgroup>
-          <thead>
-            <tr>
-              <th scope="col">번호</th>
-              <th scope="col">제목</th>
-              <th scope="col" className="church-news-board__col-date-header">
-                작성일
-              </th>
-              <th scope="col" className="church-news-board__col-views-header">
-                조회
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan={4} className="church-news-board__empty">
-                  <div className="church-news-board__empty-inner">
-                    <span>불러오는 중...</span>
-                  </div>
-                </td>
-              </tr>
-            ) : filteredPosts.length === 0 ? (
-              <tr>
-                <td colSpan={4} className="church-news-board__empty">
-                  <div className="church-news-board__empty-inner">
-                    <FiFileText className="church-news-board__empty-icon" aria-hidden="true" />
-                    <span>등록된 게시글이 없습니다.</span>
-                  </div>
-                </td>
-              </tr>
-            ) : (
-              filteredPosts.map((post) => (
-                <tr key={post.id}>
-                  <td>{post.no}</td>
-                  <td className="church-news-board__post-title">
-                    <Link to={`${LIST_PATH}/${post.id}`} className="church-news-board__post-link">
-                      {post.title}
-                    </Link>
-                  </td>
-                  <td className="church-news-board__col-date-cell">{formatBoardDate(post.date)}</td>
-                  <td className="church-news-board__col-views-cell">{post.views}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      {loading ? (
+        <div className="event-photos-empty" role="status">
+          <span>불러오는 중...</span>
+        </div>
+      ) : filteredPosts.length === 0 ? (
+        <div className="event-photos-empty">
+          <FiFileText className="event-photos-empty__icon" aria-hidden="true" />
+          <span>등록된 게시글이 없습니다.</span>
+        </div>
+      ) : (
+        <ul className="event-photos-grid">
+          {filteredPosts.map((post) => {
+            const thumbnailSrc = getAlbumThumbnailSrc(post, churchPlaceholder)
 
-      <nav className="church-news-board__pagination" aria-label="게시판 페이지">
-        <button
-          type="button"
-          className="church-news-board__page church-news-board__page--active"
-          aria-current="page"
-        >
-          1
-        </button>
-      </nav>
+            return (
+              <li key={post.id} className="event-photos-grid__item">
+                <Link to={`${LIST_PATH}/${post.id}`} className="event-photos-card">
+                  <div className="event-photos-card__image-wrap">
+                    <img
+                      src={thumbnailSrc}
+                      alt={post.images?.[0]?.alt || `${post.title} 대표 이미지`}
+                      className="event-photos-card__image"
+                      loading="lazy"
+                    />
+                  </div>
+                  <div className="event-photos-card__body">
+                    <h2 className="event-photos-card__title">{post.title}</h2>
+                    <p className="event-photos-card__meta">
+                      <span>{formatBoardDate(post.date)}</span>
+                      <span className="event-photos-card__meta-divider" aria-hidden="true">
+                        ·
+                      </span>
+                      <span>조회 {post.views ?? 0}</span>
+                    </p>
+                  </div>
+                </Link>
+              </li>
+            )
+          })}
+        </ul>
+      )}
     </div>
   )
 }

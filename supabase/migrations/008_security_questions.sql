@@ -18,7 +18,7 @@ CREATE OR REPLACE FUNCTION public.create_profile_after_signup(
 RETURNS uuid
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, extensions
 AS $$
 DECLARE
   new_id uuid;
@@ -96,7 +96,7 @@ RETURNS text
 LANGUAGE sql
 STABLE
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, extensions
 AS $$
   SELECT security_question
   FROM public.profiles
@@ -116,7 +116,7 @@ RETURNS boolean
 LANGUAGE sql
 STABLE
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, extensions
 AS $$
   SELECT EXISTS (
     SELECT 1
@@ -138,7 +138,7 @@ CREATE OR REPLACE FUNCTION public.set_profile_security_recovery(
 RETURNS void
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, extensions
 AS $$
 BEGIN
   IF p_security_question IS NULL OR trim(p_security_question) = '' THEN

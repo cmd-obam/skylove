@@ -27,6 +27,10 @@ export const PAGE_META = {
     title: '주일 축복 예배',
     subtitle: '주일 축복 예배를 안내합니다',
   },
+  '/worship-guide/sunday-blessing/communion': {
+    title: '성찬식',
+    subtitle: '주일 축복 예배 성찬식을 안내합니다',
+  },
   '/worship-guide/sunday-praise': {
     title: '주일 찬양 예배',
     subtitle: '주일 찬양 예배를 안내합니다',

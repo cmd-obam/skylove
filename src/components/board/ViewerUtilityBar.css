@@ -1,0 +1,21 @@
+.viewer-utility-bar {
+  right: max(0.75rem, calc((100vw - 900px) / 2 - 4.5rem));
+  z-index: 200;
+}
+
+.viewer-utility-mobile {
+  z-index: 200;
+}
+
+@media (max-width: 1100px) {
+  .viewer-utility-bar {
+    right: 0.75rem;
+  }
+}
+
+@media print {
+  .viewer-utility-bar,
+  .viewer-utility-mobile {
+    display: none !important;
+  }
+}
