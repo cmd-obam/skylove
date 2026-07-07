@@ -2,7 +2,7 @@ import { Outlet, useLocation } from 'react-router-dom'
 import CategorySidebar from '@/components/layout/CategorySidebar'
 import './CategoryLayout.css'
 
-const CANVAS_MAIN_PATHS = new Set(['/new-family'])
+const CANVAS_MAIN_PATHS = new Set([])
 const ABOUT_MAIN_PATHS = new Set(['/about'])
 
 function CategoryLayout() {

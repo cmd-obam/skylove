@@ -1,184 +1,78 @@
-/* ── New Family Guide — full-page canvas layout ── */
+/* ── New Family Guide — worship-template layout + page sections ── */
 
-.nf-page {
+.nf-guide {
   --nf-accent: #5aa9ff;
   --nf-accent-dark: #1f4e79;
-  --nf-content-max: min(100%, var(--max-width));
-  --nf-gutter: clamp(0.875rem, 2.5vw, 1.5rem);
-  --nf-gap: clamp(0.875rem, 2vw, 1.25rem);
-  position: relative;
-  width: 100%;
-  margin: 0;
-  overflow-x: clip;
-  font-family: var(--font-family-brand);
-  color: #1f2d3d;
+  --nf-section-gap: clamp(0.65rem, 1.35vw, 1rem);
 }
 
-.nf-page__bg {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: fill;
-  object-position: top center;
-  pointer-events: none;
-  user-select: none;
+.nf-guide.worship-template {
+  padding: 0 1.5rem 1.25rem;
 }
 
-.nf-page__content {
-  position: relative;
-  z-index: 1;
-  box-sizing: border-box;
-  width: min(100%, var(--nf-content-max));
-  margin: 0 auto;
-  padding:
-    clamp(1.375rem, 4vw, 2.5rem)
-    var(--nf-gutter)
-    clamp(1.75rem, 4vw, 2.75rem);
-  display: flex;
-  flex-direction: column;
-  gap: var(--nf-gap);
+.nf-guide .worship-template__header {
+  padding: 0.35rem 0 0.75rem;
 }
 
-.nf-page__content > .nf-hero + .nf-video {
-  margin-top: -0.25rem;
+.nf-guide .worship-template__subtitle {
+  margin-top: 0.25rem;
 }
 
-/* ── Reveal ── */
-
-.nf-reveal {
-  opacity: 0;
-  transform: translateY(18px);
-  transition:
-    opacity 0.55s ease,
-    transform 0.55s ease;
+.nf-guide .worship-template__title-line {
+  margin-top: 0.4rem;
 }
 
-.nf-reveal--visible {
-  opacity: 1;
-  transform: translateY(0);
+.nf-guide .worship-template__hero {
+  margin-bottom: 0.85rem;
 }
 
-/* ── Hero ── */
+/* ── Intro: panel image + YouTube ── */
 
-.nf-hero {
-  max-width: 38rem;
-}
-
-.nf-hero__welcome {
-  margin: 0 0 0.5rem;
-  font-family: 'Nanum Brush Script', cursive;
-  font-size: clamp(1.375rem, 3.2vw, 1.875rem);
-  line-height: 1.1;
-  color: #2f4f72;
-}
-
-.nf-hero__title {
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-  margin: 0 0 0.625rem;
-}
-
-.nf-hero__title-line {
-  font-family: 'Nanum Myeongjo', 'Noto Serif KR', serif;
-  font-size: clamp(1.75rem, 4.6vw, 2.625rem);
-  font-weight: 800;
-  line-height: 1.28;
-  color: #1e3a5f;
-  letter-spacing: -0.03em;
-  word-break: keep-all;
-}
-
-.nf-hero__highlight {
-  position: relative;
-  display: inline-block;
-  padding: 0 0.28em;
-  margin-right: 0.05em;
-}
-
-.nf-hero__highlight::before {
-  content: '';
-  position: absolute;
-  inset: -0.14em -0.1em -0.12em;
-  border: 2.5px solid #ffd44d;
-  border-radius: 50%;
-  transform: rotate(-4deg);
-  pointer-events: none;
-}
-
-.nf-hero__desc {
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-  margin: 0;
-}
-
-.nf-hero__desc-line {
-  font-size: clamp(0.875rem, 1.9vw, 1rem);
-  line-height: 1.65;
-  color: #5f6b7a;
-  word-break: keep-all;
-}
-
-/* ── Video ── */
-
-.nf-video__grid {
+.nf-guide__intro {
   display: grid;
-  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.3fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(0.45rem, 1vw, 0.85rem);
+  align-items: stretch;
+  margin-bottom: 1rem;
+}
+
+.nf-guide__intro-panel {
+  display: flex;
   align-items: center;
-  gap: clamp(0.625rem, 1.6vw, 1rem);
-}
-
-.nf-video__intro {
   min-width: 0;
+  height: 100%;
 }
 
-.nf-video__eyebrow {
-  margin: 0;
-  font-size: clamp(0.8125rem, 1.2vw, 0.9375rem);
-  font-weight: 500;
-  color: #587cb6;
+.nf-guide__intro-panel-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  vertical-align: top;
 }
 
-.nf-video__title {
-  margin: 0.25rem 0 0;
-  font-family: 'Nanum Myeongjo', 'Noto Serif KR', serif;
-  font-size: clamp(1.5rem, 2.6vw, 2.125rem);
-  font-weight: 800;
-  line-height: 1.2;
-  color: #123f8a;
-  letter-spacing: -0.04em;
+.nf-guide__intro-video {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  height: 100%;
 }
 
-.nf-video__heart {
-  margin-left: 0.2rem;
-  font-size: 0.82em;
-  color: #f5be2f;
+.nf-guide__intro-video .nf-video__card {
+  height: 100%;
+  min-height: clamp(12rem, 24vw, 16rem);
+  aspect-ratio: auto;
 }
 
-.nf-video__copy {
+/* ── Body sections ── */
+
+.nf-guide__body {
   display: flex;
   flex-direction: column;
-  gap: 0.125rem;
-  margin: 0.5rem 0 0;
-  font-size: clamp(0.8125rem, 1.15vw, 0.9375rem);
-  line-height: 1.65;
-  color: #556273;
+  gap: var(--nf-section-gap);
 }
 
-.nf-video__illustration {
-  display: block;
-  width: min(72%, 9rem);
-  margin: 0.5rem 0 0 auto;
-  object-fit: contain;
-}
-
-.nf-video__player {
-  min-width: 0;
-}
+/* ── Video card ── */
 
 .nf-video__card {
   position: relative;
@@ -187,11 +81,13 @@
   aspect-ratio: 16 / 9;
   padding: 0;
   border: 0;
-  border-radius: 12px;
   overflow: hidden;
   background: #0f172a;
   cursor: pointer;
-  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.14);
+}
+
+.nf-guide__intro-video .nf-video__card {
+  aspect-ratio: auto;
 }
 
 .nf-video__thumb {
@@ -223,7 +119,6 @@
   align-items: center;
   gap: 0.3rem;
   padding: 0.4rem 0.75rem;
-  border-radius: 999px;
   background: rgba(15, 23, 42, 0.72);
   color: #fff;
   font-size: 0.75rem;
@@ -246,7 +141,6 @@
   justify-content: center;
   width: clamp(3rem, 7vw, 3.75rem);
   height: clamp(3rem, 7vw, 3.75rem);
-  border-radius: 50%;
   background: rgba(255, 255, 255, 0.94);
   color: #1f2d3d;
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
@@ -302,7 +196,7 @@
 .nf-features__grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.75rem;
+  gap: 0.25rem;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -320,9 +214,7 @@
   overflow: hidden;
   text-align: center;
   border: 1px solid #edf1f6;
-  border-radius: 14px;
   background: #fff;
-  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
 }
 
 .nf-features__card-body {
@@ -341,7 +233,6 @@
   width: 2.875rem;
   height: 2.875rem;
   margin-bottom: 0.875rem;
-  border-radius: 50%;
   background: var(--feature-icon-bg);
   color: var(--feature-accent);
   font-size: 1.125rem;
@@ -407,7 +298,7 @@
 /* ── First visit ── */
 
 .nf-visit__heading {
-  margin: 0 0 1rem;
+  margin: 0 0 0.35rem;
   font-size: clamp(1.125rem, 2.4vw, 1.5rem);
   font-weight: 700;
   line-height: 1.45;
@@ -442,9 +333,7 @@
   height: 100%;
   padding: 1rem 0.875rem 0.875rem;
   border: 1px solid #e3ebf4;
-  border-radius: 12px;
   background: #fff;
-  box-shadow: 0 4px 14px rgba(31, 78, 121, 0.05);
 }
 
 .nf-visit__arrow {
@@ -472,7 +361,6 @@
   flex-shrink: 0;
   width: 1.625rem;
   height: 1.625rem;
-  border-radius: 50%;
   background: var(--nf-accent);
   color: #fff;
   font-size: 0.875rem;
@@ -512,7 +400,6 @@
   margin-top: 0.625rem;
   padding: 0 0.75rem;
   border: 1px solid #c5d8eb;
-  border-radius: 8px;
   background: #fff;
   color: var(--nf-accent-dark);
   font-size: 0.8125rem;
@@ -534,10 +421,8 @@
   align-items: center;
   gap: 1rem;
   padding: clamp(1rem, 2.5vw, 1.375rem) clamp(1rem, 2.5vw, 1.5rem);
-  border-radius: 14px;
   border: 1px solid rgba(90, 169, 255, 0.18);
   background: linear-gradient(135deg, rgba(237, 246, 255, 0.96) 0%, rgba(220, 238, 255, 0.96) 100%);
-  box-shadow: 0 8px 22px rgba(90, 169, 255, 0.1);
 }
 
 .nf-cell__icon-img {
@@ -578,7 +463,7 @@
 .nf-bottom__grid {
   display: grid;
   grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-  gap: clamp(1rem, 2.5vw, 1.5rem);
+  gap: clamp(0.35rem, 0.85vw, 0.5rem);
   align-items: start;
 }
 
@@ -590,13 +475,11 @@
 }
 
 .nf-section-desc {
-  margin: 0 0 1rem;
+  margin: 0 0 0.35rem;
   font-size: 0.875rem;
   line-height: 1.6;
   color: #6b7280;
 }
-
-/* FAQ */
 
 .nf-faq__list {
   list-style: none;
@@ -668,8 +551,6 @@
   white-space: pre-line;
 }
 
-/* Contact */
-
 .nf-contact__list {
   margin: 0 0 1rem;
 }
@@ -724,10 +605,8 @@
   min-height: 11rem;
   margin-bottom: 0.875rem;
   border: 1px solid rgba(77, 166, 255, 0.12);
-  border-radius: 10px;
   overflow: hidden;
   background: #fff;
-  box-shadow: 0 6px 18px rgba(77, 166, 255, 0.1);
 }
 
 .nf-map .kakao-roughmap {
@@ -740,8 +619,6 @@
   gap: 0.625rem;
 }
 
-/* ── Buttons ── */
-
 .nf-btn {
   display: inline-flex;
   align-items: center;
@@ -749,7 +626,6 @@
   gap: 0.2rem;
   min-height: 2.5rem;
   padding: 0 1rem;
-  border-radius: 9px;
   font-family: inherit;
   font-size: 0.8125rem;
   font-weight: 600;
@@ -803,9 +679,7 @@
   width: min(960px, 100%);
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  border-radius: 14px;
   background: #000;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
 }
 
 .nf-video-modal__iframe {
@@ -822,7 +696,6 @@
   z-index: 2;
   padding: 0.5rem 0.875rem;
   border: 0;
-  border-radius: 999px;
   background: rgba(0, 0, 0, 0.65);
   color: #fff;
   font-family: inherit;
@@ -839,23 +712,26 @@
   }
 }
 
-@media (max-width: 768px) {
-  .nf-page {
-    --nf-gap: 1.125rem;
-  }
-
-  .nf-video__grid {
+@media (max-width: 900px) {
+  .nf-guide__intro {
     grid-template-columns: 1fr;
+    gap: 0.6rem;
   }
 
-  .nf-video__illustration {
-    width: min(58%, 8rem);
-    margin-top: 0.375rem;
+  .nf-guide__intro-video .nf-video__card {
+    min-height: auto;
+    aspect-ratio: 16 / 9;
+  }
+}
+
+@media (max-width: 768px) {
+  .nf-guide {
+    padding-bottom: 1rem;
   }
 
   .nf-visit__grid {
     flex-direction: column;
-    gap: 0.625rem;
+    gap: 0.2rem;
   }
 
   .nf-visit__arrow-slot,
@@ -918,27 +794,5 @@
   .nf-cell__btn {
     width: 100%;
     justify-self: stretch;
-  }
-}
-
-@media (max-width: 360px) {
-  .nf-page {
-    --nf-gutter: 0.75rem;
-  }
-
-  .nf-hero__title-line {
-    font-size: 1.625rem;
-  }
-}
-
-@media (min-width: 1280px) {
-  .nf-page {
-    --nf-content-max: 54rem;
-  }
-}
-
-@media (min-width: 1920px) {
-  .nf-page {
-    --nf-content-max: 56rem;
   }
 }

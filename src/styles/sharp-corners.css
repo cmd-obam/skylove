@@ -1,0 +1,17 @@
+/* Site-wide sharp rectangular corners */
+*,
+*::before,
+*::after {
+  border-radius: 0 !important;
+}
+
+/* Keep only functional circular controls */
+.hero__indicator,
+.post-utility-mobile__fab,
+.nf-video__play {
+  border-radius: 50% !important;
+}
+
+.nf-video__cta {
+  border-radius: 999px !important;
+}

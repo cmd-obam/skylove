@@ -1,8 +1,6 @@
 import { Fragment, useCallback, useEffect, useId, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FiChevronDown, FiPlay } from 'react-icons/fi'
-import pageBg from '@/assets/images/newFamily/new-family-page-bg.png'
-import churchIntroIllustration from '@/assets/images/newFamily/church-intro-illustration.png'
 import cellMeetingIcon from '@/assets/images/newFamily/cell-meeting-icon.png'
 import KakaoRoughMap from '@/components/location/KakaoRoughMap'
 import { FeatureIcon } from '@/components/newFamily/shared'
@@ -13,9 +11,11 @@ import {
   FAQ_ITEMS,
   FIRST_VISIT_STEPS,
   NEW_FAMILY_HERO,
+  NEW_FAMILY_INTRO,
   NEW_FAMILY_VIDEO,
   getYouTubeThumbnail,
 } from '@/data/newFamilyGuide'
+import '@/components/WorshipTemplate.css'
 import '@/components/newFamily/NewFamilyGuide.css'
 
 function FirstVisitArrow() {
@@ -149,101 +149,94 @@ function NewFamilyGuide() {
       return undefined
     }
 
-    const targets = root.querySelectorAll('.nf-reveal')
+    const targets = root.querySelectorAll('.worship-template__fade')
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add('nf-reveal--visible')
+            entry.target.classList.add('worship-template__fade--visible')
             observer.unobserve(entry.target)
           }
         })
       },
-      { threshold: 0.08, rootMargin: '0px 0px -24px 0px' },
+      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' },
     )
 
-    targets.forEach((target) => observer.observe(target))
+    targets.forEach((target) => {
+      target.classList.remove('worship-template__fade--visible')
+      observer.observe(target)
+
+      const rect = target.getBoundingClientRect()
+      const isAlreadyVisible = rect.top < window.innerHeight * 0.92 && rect.bottom > 0
+
+      if (isAlreadyVisible) {
+        target.classList.add('worship-template__fade--visible')
+        observer.unobserve(target)
+      }
+    })
 
     return () => observer.disconnect()
   }, [])
 
   return (
-    <div className="nf-page" ref={pageRef}>
-      <img src={pageBg} alt="" className="nf-page__bg" aria-hidden="true" decoding="async" />
+    <article className="worship-template nf-guide" ref={pageRef}>
+      <header className="worship-template__header worship-template__fade">
+        <h2 className="worship-template__title">{NEW_FAMILY_HERO.title}</h2>
+        <p className="worship-template__subtitle">{NEW_FAMILY_HERO.subtitle}</p>
+        <div className="worship-template__title-line" aria-hidden="true" />
+      </header>
 
-      <div className="nf-page__content">
-        <section className="nf-hero nf-reveal" aria-label="환영">
-          <p className="nf-hero__welcome">{NEW_FAMILY_HERO.welcomeLine}</p>
-          <h2 className="nf-hero__title">
-            <span className="nf-hero__title-line">{NEW_FAMILY_HERO.headlineLine1}</span>
-            <span className="nf-hero__title-line">
-              <span className="nf-hero__highlight">{NEW_FAMILY_HERO.headlineHighlight}</span>
-              {NEW_FAMILY_HERO.headlineLine2Prefix}
-              {NEW_FAMILY_HERO.headlineLine2Suffix}
+      <div className="worship-template__hero worship-template__fade">
+        <div className="worship-template__image-slot worship-template__image-slot--hero">
+          <img
+            src={NEW_FAMILY_HERO.heroImage}
+            alt="새가족을 환영합니다"
+            className="worship-template__image"
+            loading="eager"
+          />
+        </div>
+      </div>
+
+      <section className="nf-guide__intro worship-template__fade" aria-label="교회 소개">
+        <div className="nf-guide__intro-panel">
+          <img
+            src={NEW_FAMILY_INTRO.panelImage}
+            alt={NEW_FAMILY_INTRO.panelAlt}
+            className="nf-guide__intro-panel-image"
+            loading="lazy"
+          />
+        </div>
+
+        <div className="nf-guide__intro-video">
+          <button
+            type="button"
+            className="nf-video__card"
+            onClick={openVideo}
+            aria-label={NEW_FAMILY_VIDEO.playButtonLabel}
+          >
+            <img src={thumbnailUrl} alt="" className="nf-video__thumb" loading="lazy" />
+            <span className="nf-video__overlay" aria-hidden="true" />
+            <span className="nf-video__cta">
+              <FiPlay aria-hidden="true" />
+              {NEW_FAMILY_VIDEO.playButtonLabel}
             </span>
-          </h2>
-          <p className="nf-hero__desc">
-            {NEW_FAMILY_HERO.descriptionLines.map((line) => (
-              <span key={line} className="nf-hero__desc-line">
-                {line}
+            <span className="nf-video__play" aria-hidden="true">
+              <FiPlay />
+            </span>
+            <span className="nf-video__caption">
+              <span className="nf-video__caption-line" aria-hidden="true" />
+              <span className="nf-video__caption-text">
+                <span className="nf-video__caption-name">{NEW_FAMILY_VIDEO.pastorName}</span>
+                <span className="nf-video__caption-role">{NEW_FAMILY_VIDEO.pastorRole}</span>
               </span>
-            ))}
-          </p>
-        </section>
+            </span>
+          </button>
+        </div>
+      </section>
 
-        <section className="nf-video nf-reveal" aria-label="교회 소개 영상">
-          <div className="nf-video__grid">
-            <div className="nf-video__intro">
-              <p className="nf-video__eyebrow">오직 예수로 세워지는</p>
-              <h3 className="nf-video__title">
-                하늘사랑교회
-                <span className="nf-video__heart" aria-hidden="true">
-                  ♥
-                </span>
-              </h3>
-              <p className="nf-video__copy">
-                <span>예수 그리스도를 중심에 두고</span>
-                <span>말씀과 사랑으로 걸어가는</span>
-                <span>하늘사랑교회를 만나보세요.</span>
-              </p>
-              <img
-                src={churchIntroIllustration}
-                alt=""
-                className="nf-video__illustration"
-                loading="lazy"
-              />
-            </div>
-
-            <div className="nf-video__player">
-              <button
-                type="button"
-                className="nf-video__card"
-                onClick={openVideo}
-                aria-label={NEW_FAMILY_VIDEO.playButtonLabel}
-              >
-                <img src={thumbnailUrl} alt="" className="nf-video__thumb" loading="lazy" />
-                <span className="nf-video__overlay" aria-hidden="true" />
-                <span className="nf-video__cta">
-                  <FiPlay aria-hidden="true" />
-                  {NEW_FAMILY_VIDEO.playButtonLabel}
-                </span>
-                <span className="nf-video__play" aria-hidden="true">
-                  <FiPlay />
-                </span>
-                <span className="nf-video__caption">
-                  <span className="nf-video__caption-line" aria-hidden="true" />
-                  <span className="nf-video__caption-text">
-                    <span className="nf-video__caption-name">{NEW_FAMILY_VIDEO.pastorName}</span>
-                    <span className="nf-video__caption-role">{NEW_FAMILY_VIDEO.pastorRole}</span>
-                  </span>
-                </span>
-              </button>
-            </div>
-          </div>
-        </section>
-
-        <section className="nf-features nf-reveal" aria-label="교회 핵심 가치">
+      <div className="nf-guide__body">
+        <section className="nf-features worship-template__fade" aria-label="교회 핵심 가치">
           <ul className="nf-features__grid">
             {CHURCH_FEATURE_CARDS.map((card) => (
               <li key={card.id}>
@@ -262,7 +255,7 @@ function NewFamilyGuide() {
           </ul>
         </section>
 
-        <section className="nf-visit nf-reveal" aria-label="처음 방문 안내">
+        <section className="nf-visit worship-template__fade" aria-label="처음 방문 안내">
           <h2 className="nf-visit__heading">처음 방문하셨다면 이렇게 해보세요</h2>
           <ol className="nf-visit__grid">
             {FIRST_VISIT_STEPS.map((step, index) => {
@@ -303,7 +296,7 @@ function NewFamilyGuide() {
           </ol>
         </section>
 
-        <section className="nf-cell nf-reveal" aria-label="셀모임 소개">
+        <section className="nf-cell worship-template__fade" aria-label="셀모임 소개">
           <div className="nf-cell__banner">
             <div className="nf-cell__icon" aria-hidden="true">
               <img src={cellMeetingIcon} alt="" className="nf-cell__icon-img" />
@@ -320,7 +313,7 @@ function NewFamilyGuide() {
           </div>
         </section>
 
-        <section className="nf-bottom nf-reveal" aria-label="문의 및 안내">
+        <section className="nf-bottom worship-template__fade" aria-label="문의 및 안내">
           <div className="nf-bottom__grid">
             <div className="nf-faq">
               <h2 className="nf-section-title">자주 묻는 질문</h2>
@@ -407,7 +400,7 @@ function NewFamilyGuide() {
         videoTitle={NEW_FAMILY_VIDEO.videoTitle}
         onClose={closeVideo}
       />
-    </div>
+    </article>
   )
 }
 

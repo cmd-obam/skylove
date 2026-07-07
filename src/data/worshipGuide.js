@@ -26,11 +26,11 @@ import communionIntro from '@/assets/images/worship/communion-intro.png'
 import communionGallery1 from '@/assets/images/worship/communion-gallery-1.png'
 import communionGallery2 from '@/assets/images/worship/communion-gallery-2.png'
 import communionGallery3 from '@/assets/images/worship/communion-gallery-3.png'
+import communionGallery4 from '@/assets/images/worship/communion-gallery-4.png'
 import { WORSHIP_SCHEDULE } from '@/data/worship'
 
 const WORSHIP_SCHEDULE_BY_PATH = {
   '/worship-guide/sunday-blessing': 'sunday-blessing',
-  '/worship-guide/sunday-blessing/communion': 'sunday-blessing',
   '/worship-guide/sunday-praise': 'sunday-praise',
   '/worship-guide/wednesday': 'wednesday',
   '/worship-guide/dawn-prayer': 'dawn-prayer',
@@ -54,7 +54,7 @@ export const WORSHIP_GUIDE_CONTENT = {
     heroImage: sundayBlessingHero,
     introImage: sundayBlessingIntro,
     introTypographyVariant: 'classic',
-    galleryImages: [sundayBlessingGallery1, sundayBlessingGallery2, sundayBlessingGallery3],
+    galleryImages: [sundayBlessingGallery1, sundayBlessingGallery3, sundayBlessingGallery2],
     footerMessage:
       '하나님의 은혜가 가득한 주일, 온 가족이 함께 예배에 참석하시길 축복합니다.',
     crossIcon: null,
@@ -62,21 +62,23 @@ export const WORSHIP_GUIDE_CONTENT = {
   '/worship-guide/sunday-blessing/communion': {
     title: '성찬식',
     subtitle: 'Holy Communion',
-    time: '오전 11시',
-    location: '대예배실',
-    headlineLines: ['예수 그리스도의', '몸과 피를 기억하는 예배'],
-    introTitle: '성찬식',
+    timeLabel: '주기',
+    time: '매월 첫째 주',
+    infoCardLayout: 'single',
+    headlineLines: ['그리스도의 사랑을', '기억하는 예배'],
+    introTitle: '매월 첫 주 성찬 예식',
     descriptionLines: [
-      '성찬식은',
-      '예수 그리스도의 몸과 피를 기념하며',
-      '그리스도와 하나 되는',
-      '은혜의 성례입니다.',
+      '매월 첫 주 성찬을 통해',
+      '주님의 희생과 사랑을 기억하고',
+      '구원의 은혜를 되새기며',
+      '믿음을 새롭게 하는',
+      '은혜의 시간을 가집니다.',
     ],
     heroImage: communionHero,
     introImage: communionIntro,
-    introLayout: 'split',
     introTypographyVariant: 'classic',
-    galleryImages: [communionGallery1, communionGallery2, communionGallery3],
+    introBackgroundPosition: 'right center',
+    galleryImages: [communionGallery1, communionGallery2, communionGallery3, communionGallery4],
     footerMessage:
       '성찬식을 통해 그리스도의 사랑과 은혜를 나누며, 함께 예배하시길 축복합니다.',
     crossIcon: null,
@@ -151,10 +153,10 @@ export const WORSHIP_GUIDE_CONTENT = {
   '/worship-guide/el-shaddai-choir': {
     title: '엘샤다이 찬양단',
     subtitle: 'El Shaddai Praise Team',
-    timeLabel: '사역',
-    time: '찬양 사역',
-    locationLabel: '사역시간',
-    location: '주일축복예배 시',
+    timeLabel: '시간',
+    time: '주일축복예배 시',
+    locationLabel: '사역',
+    location: '찬양사역',
     headlineLines: ['찬양으로', '하나님께 영광을'],
     introTitle: '엘샤다이 찬양단',
     descriptionParagraphs: [

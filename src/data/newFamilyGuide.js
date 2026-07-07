@@ -1,5 +1,7 @@
 import { WORSHIP_SCHEDULE } from '@/data/worship'
 import { LOCATION_DATA } from '@/data/location'
+import newFamilyHero from '@/assets/images/newFamily/new-family-hero.png'
+import churchIntroPanel from '@/assets/images/newFamily/church-intro-panel.png'
 import welcomeReasonIcon01 from '@/assets/images/newFamily/welcome-reason-icon-01.png'
 import welcomeReasonIcon02 from '@/assets/images/newFamily/welcome-reason-icon-02.png'
 import welcomeReasonIcon03 from '@/assets/images/newFamily/welcome-reason-icon-03.png'
@@ -9,17 +11,13 @@ import welcomeReasonIcon06 from '@/assets/images/newFamily/welcome-reason-icon-0
 
 export const NEW_FAMILY_HERO = {
   title: '새가족안내',
-  subtitle: 'WELCOME',
-  welcomeLine: '여러분들을 환영합니다',
-  headlineLine1: '당신을 축복하고',
-  headlineHighlight: '사랑으로',
-  headlineLine2Prefix: '환영합니',
-  headlineLine2Suffix: '다.',
-  descriptionLines: [
-    '하나님의 은혜가 가득한 이곳에서',
-    '행복한 믿음의 여정을 함께 시작해요.',
-  ],
-  heroImage: null,
+  subtitle: 'New Family Guide',
+  heroImage: newFamilyHero,
+}
+
+export const NEW_FAMILY_INTRO = {
+  panelImage: churchIntroPanel,
+  panelAlt: '오직 예수로 세워지는 하늘사랑교회',
 }
 
 export const NEW_FAMILY_VIDEO = {

@@ -136,6 +136,14 @@
   outline-offset: 2px;
 }
 
+.facilities__gallery:not(.facilities__gallery--mosaic) .facilities__gallery-image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  height: auto;
+  object-fit: cover;
+  object-position: center;
+}
+
 .facilities__gallery-image {
   display: block;
   width: 100%;

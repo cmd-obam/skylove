@@ -40,6 +40,7 @@ function WorshipTemplate({
   location,
   timeLabel = '예배시간',
   locationLabel = '장소',
+  infoCardLayout = 'split',
   headline,
   headlineLines = null,
   headlineRichLines = null,
@@ -101,8 +102,9 @@ function WorshipTemplate({
     return () => observer.disconnect()
   }, [title])
 
-  const galleryItems = galleryTitles.map((galleryTitle, index) => ({
-    title: galleryTitle,
+  const galleryCount = Math.max(galleryImages.length, galleryTitles.length)
+  const galleryItems = Array.from({ length: galleryCount }, (_, index) => ({
+    title: galleryTitles[index] ?? '',
     src: galleryImages[index] ?? null,
   }))
 
@@ -126,16 +128,25 @@ function WorshipTemplate({
         />
       </div>
 
-      <section className="worship-template__info-card worship-template__fade" aria-label="예배 정보">
+      <section
+        className={`worship-template__info-card worship-template__fade${
+          infoCardLayout === 'single' ? ' worship-template__info-card--single' : ''
+        }`}
+        aria-label="예배 정보"
+      >
         <div className="worship-template__info-item">
           <span className="worship-template__info-label">{timeLabel}</span>
           <p className="worship-template__info-value">{time}</p>
         </div>
-        <div className="worship-template__info-divider" aria-hidden="true" />
-        <div className="worship-template__info-item">
-          <span className="worship-template__info-label">{locationLabel}</span>
-          <p className="worship-template__info-value">{location}</p>
-        </div>
+        {infoCardLayout !== 'single' && (
+          <>
+            <div className="worship-template__info-divider" aria-hidden="true" />
+            <div className="worship-template__info-item">
+              <span className="worship-template__info-label">{locationLabel}</span>
+              <p className="worship-template__info-value">{location}</p>
+            </div>
+          </>
+        )}
       </section>
 
       <section
@@ -264,7 +275,11 @@ function WorshipTemplate({
 
       {showGallery && (
       <section className="worship-template__gallery worship-template__fade" aria-label="예배 모습">
-        <ul className="worship-template__gallery-list">
+        <ul
+          className={`worship-template__gallery-list${
+            galleryItems.length === 4 ? ' worship-template__gallery-list--quad' : ''
+          }`}
+        >
           {galleryItems.map((item, index) => (
             <li key={item.title || `${title}-gallery-${index}`} className="worship-template__gallery-item">
               <ImageSlot
