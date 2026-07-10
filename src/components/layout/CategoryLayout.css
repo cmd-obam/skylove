@@ -41,7 +41,7 @@
   --about-card-inline-padding: 2.5rem;
   width: 100%;
   max-width: none;
-  padding-inline: 0;
+  padding: 0;
   background-color: transparent;
   border-radius: 0;
   box-shadow: none;
@@ -82,7 +82,7 @@
     --about-card-inline-padding: 1.5rem;
     width: 100%;
     max-width: none;
-    padding-inline: 0;
+    padding: 0;
     background-color: transparent;
     border-radius: 0;
     box-shadow: none;
@@ -114,7 +114,7 @@
     --about-card-inline-padding: 1.25rem;
     width: 100%;
     max-width: none;
-    padding-inline: 0;
+    padding: 0;
     background-color: transparent;
     border-radius: 0;
     box-shadow: none;
@@ -138,5 +138,7 @@
 
   .category-layout__main--about {
     --about-card-inline-padding: 1rem;
+    padding: 0;
+    box-shadow: none;
   }
 }

@@ -100,17 +100,11 @@ function FacilitiesGuide({
 }) {
   return (
     <article className="facilities">
-      <div className="facilities__top">
-        <Breadcrumb />
-      </div>
-
       <header className="facilities__page-header">
-        <h1 className="facilities__page-title">{pageTitle}</h1>
-        <div className="facilities__page-divider" aria-hidden="true">
-          <span className="facilities__page-divider-line" />
-          <span className="facilities__page-divider-dot" />
-          <span className="facilities__page-divider-line" />
+        <div className="facilities__page-heading">
+          <h1 className="sub-layout__title">{pageTitle}</h1>
         </div>
+        <Breadcrumb />
       </header>
 
       <div className="facilities__sections">

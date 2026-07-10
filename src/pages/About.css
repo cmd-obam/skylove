@@ -16,6 +16,7 @@
   margin-bottom: 0;
   border-radius: 0;
   background-color: #fff;
+  box-shadow: none;
   overflow: hidden;
 }
 
@@ -44,16 +45,6 @@
   padding: 2.25rem var(--about-card-inline-padding, 2.5rem) 0 var(--about-inline-start);
 }
 
-.about-page__title {
-  margin: 0;
-  font-size: clamp(2rem, 4vw, 3.5rem);
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: 0;
-  color: var(--about-quote-mark);
-  text-align: left;
-}
-
 .about-page__hero {
   display: flex;
   flex-direction: column;
@@ -73,7 +64,7 @@
   position: relative;
   display: inline-block;
   max-width: 100%;
-  padding: 0.25rem calc(2.35rem + 10px) 0.25rem;
+  padding: 0.25rem calc(2.35rem + 15px) 0.25rem;
   text-align: center;
 }
 
@@ -118,7 +109,7 @@
 
 .about-page__scripture {
   max-width: 34rem;
-  margin: 0 auto;
+  margin: -10px auto 0;
   text-align: center;
 }
 
@@ -165,6 +156,7 @@
 }
 
 .about-page__pastor-zone {
+  margin-top: 10px;
   padding: clamp(1.5rem, 3vw, 2rem) var(--about-card-inline-padding, 2.5rem) 0.75rem;
   padding-left: var(--about-inline-start);
 }
@@ -181,12 +173,14 @@
   position: relative;
   width: min(46%, 24rem);
   margin-right: 4%;
+  box-shadow: none;
 }
 
 .about-page__signature-oval {
   display: block;
   width: 100%;
   height: auto;
+  box-shadow: none;
 }
 
 .about-page__signature-text {
@@ -198,6 +192,7 @@
   height: auto;
   object-fit: contain;
   transform: translate(calc(-50% - 3px), calc(-52% + 8px));
+  box-shadow: none;
 }
 
 @media (max-width: 1024px) {
@@ -234,7 +229,7 @@
   }
 
   .about-page__quote-inner {
-    padding-inline: calc(1.75rem + 10px);
+    padding-inline: calc(1.75rem + 15px);
   }
 
   .about-page__pastor-zone {

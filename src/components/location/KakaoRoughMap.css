@@ -1,18 +1,27 @@
 .kakao-roughmap {
   width: 100%;
-  min-height: 420px;
-  height: 100%;
+  min-height: 320px;
 }
 
 .kakao-roughmap .wrap_map,
 .kakao-roughmap iframe {
   display: block;
   width: 100% !important;
-  height: 100% !important;
+}
+
+.kakao-roughmap--compact .border1,
+.kakao-roughmap--compact .wrap_controllers,
+.kakao-roughmap--compact .section_address,
+.kakao-roughmap--compact .section_tel,
+.kakao-roughmap--compact .section_phone,
+.kakao-roughmap--compact .cont_address,
+.kakao-roughmap--compact .cont_tel,
+.kakao-roughmap--compact .cont_phone {
+  display: none !important;
 }
 
 @media (max-width: 768px) {
   .kakao-roughmap {
-    min-height: 320px;
+    min-height: 280px;
   }
 }

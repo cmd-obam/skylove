@@ -526,8 +526,8 @@
 
 .worship-template__footer-cross {
   flex-shrink: 0;
-  width: 35px;
-  height: 35px;
+  width: auto;
+  height: 2.75rem;
   object-fit: contain;
 }
 

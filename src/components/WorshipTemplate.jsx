@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import footerCrossImage from '@/assets/images/worship/footer-cross.png'
+import footerCrossImage from '@/assets/images/worship/footer-cross-cloud.png'
 import './WorshipTemplate.css'
 
 function FooterDividerCross() {

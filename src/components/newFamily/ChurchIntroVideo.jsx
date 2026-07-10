@@ -1,59 +1,33 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { FiPlay } from 'react-icons/fi'
 import churchIntroIllustration from '@/assets/images/newFamily/church-intro-illustration.png'
 import { PlaceholderVideo } from '@/components/newFamily/shared'
-import { getYouTubeThumbnail, NEW_FAMILY_VIDEO } from '@/data/newFamilyGuide'
+import { getYouTubeThumbnail, NEW_FAMILY_INTRO, NEW_FAMILY_VIDEO } from '@/data/newFamilyGuide'
 import './ChurchIntroVideo.css'
 
-function PastorVideoModal({ isOpen, videoUrl, videoTitle, onClose }) {
-  useEffect(() => {
-    if (!isOpen) {
-      return undefined
-    }
-
-    const handleKeyDown = (event) => {
-      if (event.key === 'Escape') {
-        onClose()
-      }
-    }
-
-    const previousOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    window.addEventListener('keydown', handleKeyDown)
-
-    return () => {
-      document.body.style.overflow = previousOverflow
-      window.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [isOpen, onClose])
-
-  if (!isOpen) {
-    return null
-  }
-
-  const autoplayUrl = videoUrl.includes('?')
-    ? `${videoUrl}&autoplay=1`
-    : `${videoUrl}?autoplay=1`
-
+function ChurchIntroPanel({
+  eyebrow = NEW_FAMILY_INTRO.eyebrow,
+  title = NEW_FAMILY_INTRO.title,
+  descriptionLines = NEW_FAMILY_INTRO.descriptionLines,
+}) {
   return (
-    <div className="nf-video-modal" role="presentation" onClick={onClose}>
-      <div
-        className="nf-video-modal__dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-label={videoTitle}
-        onClick={(event) => event.stopPropagation()}
-      >
-        <button type="button" className="nf-video-modal__close" onClick={onClose}>
-          닫기
-        </button>
-        <iframe
-          src={autoplayUrl}
-          title={videoTitle}
-          className="nf-video-modal__iframe"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        />
+    <div className="nf-video__panel">
+      <div className="nf-video__panel-copy">
+        <p className="nf-video__panel-eyebrow">{eyebrow}</p>
+        <h3 className="nf-video__panel-title">
+          {title}
+          <span className="nf-video__panel-heart" aria-hidden="true">
+            ♥
+          </span>
+        </h3>
+        <p className="nf-video__panel-description">
+          {descriptionLines.map((line) => (
+            <span key={line}>{line}</span>
+          ))}
+        </p>
+        <div className="nf-video__panel-illustration" aria-hidden="true">
+          <img src={churchIntroIllustration} alt="" className="nf-video__panel-church-image" />
+        </div>
       </div>
     </div>
   )
@@ -92,6 +66,7 @@ function PastorGreetingVideoCard({
 }
 
 function ChurchIntroVideo({
+  className = '',
   videoUrl = NEW_FAMILY_VIDEO.videoUrl,
   videoId = NEW_FAMILY_VIDEO.videoId,
   thumbnail = NEW_FAMILY_VIDEO.thumbnail,
@@ -99,66 +74,49 @@ function ChurchIntroVideo({
   playButtonLabel = NEW_FAMILY_VIDEO.playButtonLabel,
   pastorName = NEW_FAMILY_VIDEO.pastorName,
   pastorRole = NEW_FAMILY_VIDEO.pastorRole,
+  eyebrow = NEW_FAMILY_INTRO.eyebrow,
+  title = NEW_FAMILY_INTRO.title,
+  descriptionLines = NEW_FAMILY_INTRO.descriptionLines,
 }) {
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isPlaying, setIsPlaying] = useState(false)
   const thumbnailUrl = thumbnail ?? getYouTubeThumbnail(videoId)
 
-  const openModal = useCallback(() => {
-    setIsModalOpen(true)
+  const startPlayback = useCallback(() => {
+    setIsPlaying(true)
   }, [])
 
-  const closeModal = useCallback(() => {
-    setIsModalOpen(false)
-  }, [])
+  const autoplayUrl = videoUrl.includes('?') ? `${videoUrl}&autoplay=1` : `${videoUrl}?autoplay=1`
 
   return (
-    <section className="nf-section nf-video nf-fade" aria-label="교회 소개 영상">
+    <section
+      className={`nf-section nf-video nf-fade${className ? ` ${className}` : ''}`}
+      aria-label="교회 소개 영상"
+    >
       <div className="nf-video__inner">
-        <div className="nf-video__panel">
-          <div className="nf-video__panel-copy">
-            <p className="nf-video__panel-eyebrow">오직 예수로 세워지는</p>
-            <h3 className="nf-video__panel-title">
-              하늘사랑교회
-              <span className="nf-video__panel-heart" aria-hidden="true">
-                ♥
-              </span>
-            </h3>
-            <p className="nf-video__panel-description">
-              <span>예수 그리스도를 중심에 두고</span>
-              <span>말씀과 사랑으로 걸어가는</span>
-              <span>하늘사랑교회를 만나보세요.</span>
-            </p>
-            <div className="nf-video__panel-illustration" aria-hidden="true">
-              <img
-                src={churchIntroIllustration}
-                alt=""
-                className="nf-video__panel-church-image"
-              />
-            </div>
-          </div>
-        </div>
+        <ChurchIntroPanel eyebrow={eyebrow} title={title} descriptionLines={descriptionLines} />
 
-        <div className="nf-video__media">
-          {videoUrl ? (
+        <div className={`nf-video__media${isPlaying ? ' nf-video__media--playing' : ''}`}>
+          {isPlaying && videoUrl ? (
+            <iframe
+              src={autoplayUrl}
+              title={videoTitle}
+              className="nf-video__iframe"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          ) : videoUrl ? (
             <PastorGreetingVideoCard
               thumbnail={thumbnailUrl}
               playButtonLabel={playButtonLabel}
               pastorName={pastorName}
               pastorRole={pastorRole}
-              onPlay={openModal}
+              onPlay={startPlayback}
             />
           ) : (
             <PlaceholderVideo label="영상 영역" thumbnail={thumbnail} className="nf-video__placeholder" />
           )}
         </div>
       </div>
-
-      <PastorVideoModal
-        isOpen={isModalOpen}
-        videoUrl={videoUrl}
-        videoTitle={videoTitle}
-        onClose={closeModal}
-      />
     </section>
   )
 }

@@ -1,6 +1,6 @@
 export const PAGE_META = {
   '/about': {
-    title: '교회소개',
+    title: '담임목사 인사',
     subtitle: '하나님의 사랑으로 세워진 하늘사랑교회를 소개합니다',
   },
   '/about/history': {

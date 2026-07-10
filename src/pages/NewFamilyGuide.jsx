@@ -1,19 +1,16 @@
-import { Fragment, useCallback, useEffect, useId, useRef, useState } from 'react'
+import { Fragment, useEffect, useId, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { FiChevronDown, FiPlay } from 'react-icons/fi'
-import cellMeetingIcon from '@/assets/images/newFamily/cell-meeting-icon.png'
+import { FiChevronDown } from 'react-icons/fi'
 import KakaoRoughMap from '@/components/location/KakaoRoughMap'
+import ChurchIntroVideo from '@/components/newFamily/ChurchIntroVideo'
 import { FeatureIcon } from '@/components/newFamily/shared'
+import WelcomeHero from '@/components/newFamily/WelcomeHero'
 import {
-  CELL_MEETING,
   CHURCH_FEATURE_CARDS,
   CONTACT_INFO,
   FAQ_ITEMS,
   FIRST_VISIT_STEPS,
   NEW_FAMILY_HERO,
-  NEW_FAMILY_INTRO,
-  NEW_FAMILY_VIDEO,
-  getYouTubeThumbnail,
 } from '@/data/newFamilyGuide'
 import '@/components/WorshipTemplate.css'
 import '@/components/newFamily/NewFamilyGuide.css'
@@ -79,68 +76,9 @@ function FeatureLeaf() {
   )
 }
 
-function PastorVideoModal({ isOpen, videoUrl, videoTitle, onClose }) {
-  useEffect(() => {
-    if (!isOpen) {
-      return undefined
-    }
-
-    const handleKeyDown = (event) => {
-      if (event.key === 'Escape') {
-        onClose()
-      }
-    }
-
-    const previousOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    window.addEventListener('keydown', handleKeyDown)
-
-    return () => {
-      document.body.style.overflow = previousOverflow
-      window.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [isOpen, onClose])
-
-  if (!isOpen) {
-    return null
-  }
-
-  const autoplayUrl = videoUrl.includes('?') ? `${videoUrl}&autoplay=1` : `${videoUrl}?autoplay=1`
-
-  return (
-    <div className="nf-video-modal" role="presentation" onClick={onClose}>
-      <div
-        className="nf-video-modal__dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-label={videoTitle}
-        onClick={(event) => event.stopPropagation()}
-      >
-        <button type="button" className="nf-video-modal__close" onClick={onClose}>
-          닫기
-        </button>
-        <iframe
-          src={autoplayUrl}
-          title={videoTitle}
-          className="nf-video-modal__iframe"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        />
-      </div>
-    </div>
-  )
-}
-
 function NewFamilyGuide() {
   const pageRef = useRef(null)
   const [openFaqId, setOpenFaqId] = useState(null)
-  const [isVideoOpen, setIsVideoOpen] = useState(false)
-
-  const thumbnailUrl =
-    NEW_FAMILY_VIDEO.thumbnail ?? getYouTubeThumbnail(NEW_FAMILY_VIDEO.videoId)
-
-  const openVideo = useCallback(() => setIsVideoOpen(true), [])
-  const closeVideo = useCallback(() => setIsVideoOpen(false), [])
 
   useEffect(() => {
     const root = pageRef.current
@@ -188,52 +126,10 @@ function NewFamilyGuide() {
       </header>
 
       <div className="worship-template__hero worship-template__fade">
-        <div className="worship-template__image-slot worship-template__image-slot--hero">
-          <img
-            src={NEW_FAMILY_HERO.heroImage}
-            alt="새가족을 환영합니다"
-            className="worship-template__image"
-            loading="eager"
-          />
-        </div>
+        <WelcomeHero />
       </div>
 
-      <section className="nf-guide__intro worship-template__fade" aria-label="교회 소개">
-        <div className="nf-guide__intro-panel">
-          <img
-            src={NEW_FAMILY_INTRO.panelImage}
-            alt={NEW_FAMILY_INTRO.panelAlt}
-            className="nf-guide__intro-panel-image"
-            loading="lazy"
-          />
-        </div>
-
-        <div className="nf-guide__intro-video">
-          <button
-            type="button"
-            className="nf-video__card"
-            onClick={openVideo}
-            aria-label={NEW_FAMILY_VIDEO.playButtonLabel}
-          >
-            <img src={thumbnailUrl} alt="" className="nf-video__thumb" loading="lazy" />
-            <span className="nf-video__overlay" aria-hidden="true" />
-            <span className="nf-video__cta">
-              <FiPlay aria-hidden="true" />
-              {NEW_FAMILY_VIDEO.playButtonLabel}
-            </span>
-            <span className="nf-video__play" aria-hidden="true">
-              <FiPlay />
-            </span>
-            <span className="nf-video__caption">
-              <span className="nf-video__caption-line" aria-hidden="true" />
-              <span className="nf-video__caption-text">
-                <span className="nf-video__caption-name">{NEW_FAMILY_VIDEO.pastorName}</span>
-                <span className="nf-video__caption-role">{NEW_FAMILY_VIDEO.pastorRole}</span>
-              </span>
-            </span>
-          </button>
-        </div>
-      </section>
+      <ChurchIntroVideo className="nf-guide__intro-block worship-template__fade" />
 
       <div className="nf-guide__body">
         <section className="nf-features worship-template__fade" aria-label="교회 핵심 가치">
@@ -294,23 +190,6 @@ function NewFamilyGuide() {
               )
             })}
           </ol>
-        </section>
-
-        <section className="nf-cell worship-template__fade" aria-label="셀모임 소개">
-          <div className="nf-cell__banner">
-            <div className="nf-cell__icon" aria-hidden="true">
-              <img src={cellMeetingIcon} alt="" className="nf-cell__icon-img" />
-            </div>
-            <div className="nf-cell__text">
-              <p className="nf-cell__eyebrow">{CELL_MEETING.eyebrow}</p>
-              <h2 className="nf-cell__title">{CELL_MEETING.title}</h2>
-              <p className="nf-cell__desc">{CELL_MEETING.description}</p>
-            </div>
-            <Link to={CELL_MEETING.buttonPath} className="nf-btn nf-btn--primary nf-cell__btn">
-              {CELL_MEETING.buttonLabel}
-              <span aria-hidden="true"> →</span>
-            </Link>
-          </div>
         </section>
 
         <section className="nf-bottom worship-template__fade" aria-label="문의 및 안내">
@@ -376,7 +255,7 @@ function NewFamilyGuide() {
               </dl>
 
               <div className="nf-map">
-                <KakaoRoughMap />
+                <KakaoRoughMap hideInfoHeader />
               </div>
 
               <div className="nf-contact__actions">
@@ -393,13 +272,6 @@ function NewFamilyGuide() {
           </div>
         </section>
       </div>
-
-      <PastorVideoModal
-        isOpen={isVideoOpen}
-        videoUrl={NEW_FAMILY_VIDEO.videoUrl}
-        videoTitle={NEW_FAMILY_VIDEO.videoTitle}
-        onClose={closeVideo}
-      />
     </article>
   )
 }

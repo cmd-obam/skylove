@@ -1,19 +1,17 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import './KakaoRoughMap.css'
 
-const MAP_CONTAINER_ID = 'daumRoughmapContainer1782224245823'
 const MAP_CONFIG = {
   timestamp: '1782224245823',
   key: 'q2di2932duo',
 }
-const ROUGHMAP_LANDER_SCRIPT_ID = 'daum-roughmap-lander-script'
 
-function waitFor(predicate, interval = 100, timeout = 15000) {
+function waitForLander(interval = 100, timeout = 20000) {
   return new Promise((resolve, reject) => {
     const startedAt = Date.now()
 
     const check = () => {
-      if (predicate()) {
+      if (window.daum?.roughmap?.Lander) {
         resolve()
         return
       }
@@ -30,41 +28,10 @@ function waitFor(predicate, interval = 100, timeout = 15000) {
   })
 }
 
-function ensureRoughmapLander() {
-  if (window.daum?.roughmap?.Lander) {
-    return Promise.resolve()
-  }
-
-  if (!window.daum?.roughmap?.cdn) {
-    const protocol = location.protocol === 'https:' ? 'https:' : 'http:'
-    const cdn = '207038f2_1774248312945'
-    const phase = 'prod'
-
-    window.daum = window.daum || {}
-    window.daum.roughmap = {
-      phase,
-      cdn,
-      URL_KEY_DATA_LOAD_PRE: `${protocol}//t1.kakaocdn.net/roughmap/`,
-      url_protocal: protocol,
-      url_cdn_domain: '//t1.kakaocdn.net',
-    }
-
-    if (!document.getElementById(ROUGHMAP_LANDER_SCRIPT_ID)) {
-      const script = document.createElement('script')
-      script.id = ROUGHMAP_LANDER_SCRIPT_ID
-      script.charset = 'UTF-8'
-      script.src = `${protocol}//t1.kakaocdn.net/kakaomapweb/roughmap/place/${phase}/${cdn}/roughmapLander.js`
-      document.head.appendChild(script)
-    }
-  }
-
-  return waitFor(() => Boolean(window.daum?.roughmap?.Lander))
-}
-
-function waitForContainerSize(container) {
+function waitForContainerWidth(container) {
   return new Promise((resolve) => {
     const check = () => {
-      if (container.clientWidth > 0 && container.clientHeight > 0) {
+      if (container.clientWidth > 0) {
         resolve()
         return
       }
@@ -76,34 +43,56 @@ function waitForContainerSize(container) {
   })
 }
 
-function renderRoughmap(mapWidth, mapHeight) {
-  if (!window.daum?.roughmap?.Lander) {
-    return
-  }
+function hideExtraMapInfo(container) {
+  const selectors = [
+    '.border1',
+    '.wrap_controllers',
+    '.section_address',
+    '.section_tel',
+    '.section_phone',
+    '.cont_address',
+    '.cont_tel',
+    '.cont_phone',
+    '.info_bus',
+    '.info_station',
+    '.map_address',
+  ]
 
-  new window.daum.roughmap.Lander({
-    timestamp: MAP_CONFIG.timestamp,
-    key: MAP_CONFIG.key,
-    mapWidth: String(mapWidth),
-    mapHeight: String(mapHeight),
-  }).render()
+  selectors.forEach((selector) => {
+    container.querySelectorAll(selector).forEach((node) => {
+      node.style.setProperty('display', 'none', 'important')
+    })
+  })
+
+  container.querySelectorAll('tr, dl, li, p, dt, dd, th, td').forEach((node) => {
+    if (node.closest('.wrap_map') || node.querySelector('iframe')) {
+      return
+    }
+
+    const text = node.textContent?.replace(/\s+/g, ' ').trim() ?? ''
+    if ((text.startsWith('주소') || text.startsWith('전화')) && text.length < 120) {
+      node.style.setProperty('display', 'none', 'important')
+    }
+  })
 }
 
-function KakaoRoughMap() {
+function KakaoRoughMap({ height = 360, hideInfoHeader = false }) {
   const containerRef = useRef(null)
+  const containerId = useMemo(() => `daumRoughmapContainer${MAP_CONFIG.timestamp}`, [])
 
   useEffect(() => {
+    const container = containerRef.current
+    if (!container) {
+      return undefined
+    }
+
     let cancelled = false
+    let infoObserver = null
 
-    const initMap = async () => {
-      const container = containerRef.current
-      if (!container || cancelled) {
-        return
-      }
-
+    const renderMap = async () => {
       try {
-        await ensureRoughmapLander()
-        await waitForContainerSize(container)
+        await waitForLander()
+        await waitForContainerWidth(container)
 
         if (cancelled) {
           return
@@ -112,26 +101,41 @@ function KakaoRoughMap() {
         container.innerHTML = ''
 
         const mapWidth = container.clientWidth || 640
-        const mapHeight = container.clientHeight || 420
-        renderRoughmap(mapWidth, mapHeight)
+
+        new window.daum.roughmap.Lander({
+          timestamp: MAP_CONFIG.timestamp,
+          key: MAP_CONFIG.key,
+          mapWidth: String(mapWidth),
+          mapHeight: String(height),
+        }).render()
+
+        if (hideInfoHeader) {
+          const applyHide = () => hideExtraMapInfo(container)
+          applyHide()
+          infoObserver = new MutationObserver(applyHide)
+          infoObserver.observe(container, { childList: true, subtree: true })
+        }
       } catch {
         // Keep the container empty when the map cannot be initialized.
       }
     }
 
-    initMap()
+    renderMap()
 
     return () => {
       cancelled = true
+      infoObserver?.disconnect()
     }
-  }, [])
+  }, [containerId, height, hideInfoHeader])
 
   return (
     <div
-      id={MAP_CONTAINER_ID}
+      id={containerId}
       ref={containerRef}
-      className="kakao-roughmap root_daum_roughmap root_daum_roughmap_landing"
-      style={{ width: '100%' }}
+      className={`kakao-roughmap root_daum_roughmap root_daum_roughmap_landing${
+        hideInfoHeader ? ' kakao-roughmap--compact' : ''
+      }`}
+      style={{ width: '100%', minHeight: height }}
       aria-label="하늘사랑교회 카카오 지도"
     />
   )

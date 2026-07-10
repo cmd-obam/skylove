@@ -17,11 +17,6 @@
   margin-top: 0;
 }
 
-.location-page .root_daum_roughmap .border2,
-.location-page .root_daum_roughmap .wrap_controllers {
-  display: none;
-}
-
 .location-page .location-visitor {
   margin-top: 2.5rem;
 }

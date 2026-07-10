@@ -2,6 +2,7 @@ import { NEW_FAMILY_HERO } from '@/data/newFamilyGuide'
 import './WelcomeHero.css'
 
 function WelcomeHero({
+  heroBackground = NEW_FAMILY_HERO.heroBackground,
   welcomeLine = NEW_FAMILY_HERO.welcomeLine,
   headlineLine1 = NEW_FAMILY_HERO.headlineLine1,
   headlineHighlight = NEW_FAMILY_HERO.headlineHighlight,
@@ -10,7 +11,16 @@ function WelcomeHero({
   descriptionLines = NEW_FAMILY_HERO.descriptionLines,
 }) {
   return (
-    <section className="nf-hero nf-fade" aria-label="환영">
+    <section className="nf-hero nf-hero--banner" aria-label="환영">
+      <img
+        src={heroBackground}
+        alt=""
+        className="nf-hero__bg-image"
+        loading="eager"
+        decoding="async"
+        draggable={false}
+      />
+
       <div className="nf-hero__content">
         <p className="nf-hero__welcome">
           <span className="nf-hero__welcome-text">{welcomeLine}</span>

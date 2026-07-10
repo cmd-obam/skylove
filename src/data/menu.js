@@ -13,7 +13,7 @@ export const MENU_ITEMS = [
     title: '교회소개',
     path: '/about',
     children: [
-      { title: '교회소개', path: '/about' },
+      { title: '담임목사 인사', path: '/about' },
       { title: '교회역사', path: '/about/history' },
       { title: '예배시간 안내', path: '/worship' },
       {

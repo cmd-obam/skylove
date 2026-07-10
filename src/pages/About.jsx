@@ -12,7 +12,7 @@ function About() {
       style={{ '--about-intro-bg': `url(${aboutIntroBg})` }}
     >
       <header className="about-page__top">
-        <h1 className="about-page__title">담임목사 인사</h1>
+        <h1 className="sub-layout__title">담임목사 인사</h1>
         <Breadcrumb />
       </header>
 
