@@ -5,10 +5,11 @@
 }
 
 .nf-hero--banner {
+  /* 배경 왼쪽 십자가/세로선에서 약 10px 떨어지도록 배치 */
   --nf-hero-text-top: 20px;
-  --nf-hero-text-left: 20px;
+  --nf-hero-text-left: calc(3.2% + 10px);
   --nf-hero-text-bottom: 20px;
-  --nf-hero-text-width: calc(52% - 20px);
+  --nf-hero-text-width: calc(52% - (3.2% + 10px));
   position: relative;
   width: 100%;
   aspect-ratio: 1024 / 447;
@@ -111,8 +112,8 @@
 
 @media (max-width: 768px) {
   .nf-hero--banner {
-    --nf-hero-text-width: calc(58% - 16px);
-    --nf-hero-text-left: 16px;
+    --nf-hero-text-left: calc(3.2% + 10px);
+    --nf-hero-text-width: calc(58% - (3.2% + 10px));
     --nf-hero-text-top: 16px;
     --nf-hero-text-bottom: 16px;
   }
@@ -120,8 +121,8 @@
 
 @media (max-width: 480px) {
   .nf-hero--banner {
-    --nf-hero-text-width: calc(62% - 12px);
-    --nf-hero-text-left: 12px;
+    --nf-hero-text-left: calc(3.2% + 10px);
+    --nf-hero-text-width: calc(62% - (3.2% + 10px));
     --nf-hero-text-top: 12px;
     --nf-hero-text-bottom: 12px;
   }
