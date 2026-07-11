@@ -26,6 +26,17 @@ function MobileBannerExpand({
     )
   }
 
+  if (!showHeadlineOverlay) {
+    return (
+      <div
+        className={`mobile-banner-expand mobile-banner-expand--title-only ${className}`.trim()}
+        style={style}
+      >
+        {children}
+      </div>
+    )
+  }
+
   const handleOpen = () => setOpen(true)
   const handleClose = () => setOpen(false)
 

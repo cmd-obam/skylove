@@ -77,8 +77,8 @@
     display: none;
   }
 
-  .mobile-banner-expand.worship-hero,
-  .mobile-banner-expand.location-hero,
+  .mobile-banner-expand.worship-hero:not(.mobile-banner-expand--title-only),
+  .mobile-banner-expand.location-hero:not(.mobile-banner-expand--title-only),
   .mobile-banner-expand.nf-reasons__banner {
     aspect-ratio: auto;
     min-height: 0;
@@ -89,8 +89,8 @@
     background-color: #f8fafc;
   }
 
-  .mobile-banner-expand.worship-hero,
-  .mobile-banner-expand.location-hero {
+  .mobile-banner-expand.worship-hero:not(.mobile-banner-expand--title-only),
+  .mobile-banner-expand.location-hero:not(.mobile-banner-expand--title-only) {
     min-height: 10rem;
   }
 
@@ -98,8 +98,8 @@
     min-height: 11rem;
   }
 
-  .mobile-banner-expand.worship-hero::before,
-  .mobile-banner-expand.location-hero::before {
+  .mobile-banner-expand.worship-hero:not(.mobile-banner-expand--title-only)::before,
+  .mobile-banner-expand.location-hero:not(.mobile-banner-expand--title-only)::before {
     display: none;
   }
 
@@ -363,5 +363,113 @@
   .mobile-banner-expand.nf-hero--banner .nf-hero__highlight {
     font-size: clamp(0.75rem, 8.8cqi, 0.9375rem);
     line-height: 1.28;
+  }
+
+  /* 예배시간 안내 / 찾아오시는 길: 타이틀만 표시, 확대 버튼 없음 */
+  .mobile-banner-expand--title-only.worship-hero {
+    display: flex;
+    align-items: center;
+    aspect-ratio: 1024 / 322;
+    min-height: 0;
+    margin-left: -1rem;
+    margin-right: -1rem;
+    width: calc(100% + 2rem);
+    padding: 0;
+    overflow: hidden;
+    border-radius: 0;
+    background-size: 100% 100% !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-color: #ffffff;
+  }
+
+  .mobile-banner-expand--title-only.worship-hero::before {
+    display: block;
+  }
+
+  .mobile-banner-expand--title-only.worship-hero .worship-hero__content {
+    position: relative;
+    z-index: 1;
+    display: flex !important;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    width: 42%;
+    min-height: 100%;
+    margin: 0;
+    padding: clamp(0.5rem, 2vw, 1rem) clamp(0.75rem, 3vw, 1.5rem);
+    text-align: left;
+  }
+
+  .mobile-banner-expand--title-only.worship-hero .worship-hero__subtitle {
+    display: none !important;
+  }
+
+  .mobile-banner-expand--title-only.worship-hero .worship-hero__title {
+    margin: 0;
+    font-size: clamp(0.875rem, 7.5cqi, 1.25rem);
+    line-height: 1.25;
+  }
+
+  .mobile-banner-expand--title-only.worship-hero .worship-hero__title::after {
+    width: 1.75rem;
+    height: 2px;
+    margin-top: 0.375rem;
+    margin-left: 0;
+    margin-right: auto;
+  }
+
+  .mobile-banner-expand--title-only.location-hero {
+    display: flex;
+    align-items: center;
+    aspect-ratio: 16 / 7;
+    min-height: clamp(180px, 42vw, 260px);
+    margin-left: -1rem;
+    margin-right: -1rem;
+    width: calc(100% + 2rem);
+    padding: 0;
+    overflow: hidden;
+    border-radius: 0;
+    background-size: cover !important;
+    background-position: center right !important;
+    background-repeat: no-repeat !important;
+    background-color: #ffffff;
+  }
+
+  .mobile-banner-expand--title-only.location-hero::before {
+    display: block;
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.88) 0%,
+      rgba(255, 255, 255, 0.55) 42%,
+      transparent 68%
+    );
+  }
+
+  .mobile-banner-expand--title-only.location-hero .location-hero__content {
+    position: relative;
+    z-index: 1;
+    display: flex !important;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    width: 46%;
+    min-height: 100%;
+    margin: 0;
+    padding: clamp(0.5rem, 2vw, 1rem) clamp(0.75rem, 3vw, 1.5rem);
+    text-align: left;
+  }
+
+  .mobile-banner-expand--title-only.location-hero .location-hero__welcome,
+  .mobile-banner-expand--title-only.location-hero .location-hero__tagline {
+    display: none !important;
+  }
+
+  .mobile-banner-expand--title-only.location-hero .location-hero__title {
+    margin: 0;
+    font-size: clamp(0.875rem, 7.5cqi, 1.25rem);
+    line-height: 1.25;
+    white-space: normal;
+    word-break: keep-all;
   }
 }
