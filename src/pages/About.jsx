@@ -24,12 +24,12 @@ function About() {
             </span>
             <p className="about-page__quote-text">
               <span className="about-page__quote-line">
-                우리 하늘사랑교회 진짜 그리스도인이 되신 것을
+                우리 하늘사랑교회의 진짜 그리스도인이 되신 것을
               </span>
               <span className="about-page__quote-line">
-                가슴깊이{' '}
+                가슴 깊이{' '}
                 <span className="about-page__quote-highlight">사랑</span>
-                하는 마음으로 환영합니다
+                하는 마음으로 환영합니다.
               </span>
             </p>
             <span className="about-page__quote-close" aria-hidden="true">

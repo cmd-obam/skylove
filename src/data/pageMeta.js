@@ -12,7 +12,7 @@ export const PAGE_META = {
     subtitle: '교회 시설을 가상으로 둘러보세요',
   },
   '/about/facilities': {
-    title: '시설안내',
+    title: '교회시설 안내',
     subtitle: '',
   },
   '/about/location': {

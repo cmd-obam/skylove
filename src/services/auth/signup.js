@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { peekEmailVerifiedBeacon } from '@/utils/signupDraft'
 import {
   classifyProfileSaveError,
   formatSupabaseError,
@@ -336,55 +337,174 @@ export async function checkDuplicateId(loginId) {
   throw error
 }
 
-export async function checkEmailVerificationStatus(expectedEmail) {
-  const trimmedEmail = expectedEmail.trim().toLowerCase()
-
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabase.auth.getSession()
-
-  if (sessionError) {
-    console.error('[Signup] getSession 실패', formatSupabaseError(sessionError), sessionError)
-    return { verified: false, error: formatSupabaseError(sessionError) }
-  }
-
-  if (session?.user) {
-    const sessionResult = evaluateEmailVerification(session.user, trimmedEmail)
-
-    if (sessionResult.verified) {
-      return { verified: true, user: session.user, source: 'session' }
-    }
-  }
-
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser()
-
-  if (userError) {
-    console.error('[Signup] getUser 실패', formatSupabaseError(userError), userError)
-    return { verified: false, error: formatSupabaseError(userError) }
-  }
-
-  const userResult = evaluateEmailVerification(user, trimmedEmail)
-
-  return {
-    verified: userResult.verified,
-    user: userResult.verified ? user : undefined,
-    source: userResult.verified ? 'getUser' : undefined,
-  }
+function isEmailConfirmed(user) {
+  return Boolean(user?.email_confirmed_at || user?.confirmed_at)
 }
 
 function evaluateEmailVerification(user, trimmedEmail) {
   if (!user?.email) {
-    return { verified: false, emailMatch: false }
+    return { verified: false, emailMatch: false, reason: 'no_session' }
   }
 
   const emailMatch = user.email.toLowerCase() === trimmedEmail
-  const verified = emailMatch && Boolean(user.email_confirmed_at)
 
-  return { verified, emailMatch }
+  if (!emailMatch) {
+    return {
+      verified: false,
+      emailMatch: false,
+      reason: 'email_mismatch',
+      sessionEmail: user.email,
+    }
+  }
+
+  const confirmed = isEmailConfirmed(user)
+
+  return {
+    verified: confirmed,
+    emailMatch: true,
+    reason: confirmed ? 'verified' : 'not_confirmed',
+  }
+}
+
+async function refreshAuthSessionIfPresent() {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+
+  if (!session) {
+    return null
+  }
+
+  const { data, error } = await supabase.auth.refreshSession()
+
+  if (error) {
+    console.warn('[Signup] refreshSession 실패 — getSession 결과 사용', formatSupabaseError(error))
+    return session
+  }
+
+  return data.session ?? session
+}
+
+export async function checkEmailVerificationStatus(expectedEmail) {
+  const trimmedEmail = expectedEmail.trim().toLowerCase()
+  const beacon = peekEmailVerifiedBeacon(trimmedEmail)
+
+  const checkSession = async () => {
+    let session = await refreshAuthSessionIfPresent()
+
+    if (session?.user) {
+      const sessionResult = evaluateEmailVerification(session.user, trimmedEmail)
+
+      if (sessionResult.verified) {
+        return {
+          verified: true,
+          user: session.user,
+          source: 'session',
+          reason: 'verified',
+        }
+      }
+    }
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
+
+    if (userError) {
+      const isMissingSession =
+        userError.message?.includes('Auth session missing') ||
+        userError.name === 'AuthSessionMissingError'
+
+      if (isMissingSession) {
+        return null
+      }
+
+      console.error('[Signup] getUser 실패', formatSupabaseError(userError), userError)
+      return {
+        verified: false,
+        reason: 'auth_error',
+        error: formatSupabaseError(userError),
+        hint: '인증 상태 확인 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+      }
+    }
+
+    const userResult = evaluateEmailVerification(user, trimmedEmail)
+
+    if (userResult.verified) {
+      return {
+        verified: true,
+        user,
+        source: 'getUser',
+        reason: 'verified',
+      }
+    }
+
+    if (userResult.reason === 'email_mismatch') {
+      return {
+        verified: false,
+        user,
+        reason: 'email_mismatch',
+        sessionEmail: userResult.sessionEmail,
+        hint: `다른 계정(${userResult.sessionEmail})으로 로그인되어 있습니다. 로그아웃 후 다시 시도해주세요.`,
+      }
+    }
+
+    return {
+      verified: false,
+      user,
+      reason: userResult.reason ?? 'not_confirmed',
+    }
+  }
+
+  let result = await checkSession()
+
+  if (result?.verified) {
+    return result
+  }
+
+  if (beacon && !result?.verified) {
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      await new Promise((resolve) => {
+        window.setTimeout(resolve, 400)
+      })
+
+      result = await checkSession()
+
+      if (result?.verified) {
+        return result
+      }
+    }
+
+    return {
+      verified: false,
+      reason: 'pending_sync',
+      hint: '인증 링크 처리는 완료되었습니다. 잠시 후 다시 확인해주세요.',
+    }
+  }
+
+  if (result?.reason === 'auth_error' || result?.reason === 'email_mismatch') {
+    return {
+      ...result,
+      hint:
+        result.hint ??
+        '인증 상태 확인 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+    }
+  }
+
+  if (!result) {
+    return {
+      verified: false,
+      reason: 'no_session',
+      hint: '인증 메일의 링크를 클릭한 뒤, 다시 확인해주세요.',
+    }
+  }
+
+  return {
+    verified: false,
+    user: result.user,
+    reason: result.reason ?? 'not_confirmed',
+    hint: '아직 이메일 인증이 완료되지 않았습니다. 메일함의 인증 링크를 클릭해주세요.',
+  }
 }
 
 export async function sendEmailVerification(email) {

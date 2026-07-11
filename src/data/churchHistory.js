@@ -1,6 +1,10 @@
 import historySanctuary1 from '@/assets/images/about/history/sanctuary-1.png'
 import historySanctuary2 from '@/assets/images/about/history/sanctuary-2.png'
 import historySanctuary3 from '@/assets/images/about/history/sanctuary-3.png'
+import history2025StreetCleaning from '@/assets/images/about/history/2025-street-cleaning.png'
+import history2025PhilippinesMission from '@/assets/images/about/history/2025-philippines-mission.png'
+import history2025ChristmasBaptism from '@/assets/images/about/history/2025-christmas-baptism.png'
+import history2026JapanMission from '@/assets/images/about/history/2026-japan-mission.png'
 
 export const CHURCH_HISTORY_INTRO = {
   lines: [
@@ -113,7 +117,7 @@ export const CHURCH_HISTORY_PERIODS = [
       {
         date: '2023. 12. 25.',
         name: '성탄절 세례예식',
-        description: '유아세례 노온, 장년세례 민재석 성도가 세례를 받았습니다.',
+        description: '유아세례 노은, 장년세례 한재석 성도가 세례를 받았습니다.',
       },
     ],
     photos: [],
@@ -133,12 +137,12 @@ export const CHURCH_HISTORY_PERIODS = [
         date: '2025. 7. 13. ~ 7. 19.',
         name: '담임목사님 필리핀 선교',
         description:
-          '담임목사님이 필리핀 빈민촌 마을과 현지 교회를 방문하여 선교 사역을 진행하였습니다.',
+          '담임목사님이 필리핀 빈민촌 마을과 현지 교회를 방문하여 선교 사역을 하셨습니다.',
       },
       {
         date: '2025. 12. 25.',
         name: '성탄절 세례예식',
-        description: '장년세례 박초희, 한관우 성도가 세례를 받았습니다.',
+        description: '장년세례 박초희, 한찬우 성도가 세례를 받았습니다.',
       },
       {
         date: '2026. 3. 1. ~ 3. 4.',
@@ -148,10 +152,26 @@ export const CHURCH_HISTORY_PERIODS = [
       },
     ],
     photos: [
-      { id: 'p1', caption: '사진 설명 예시' },
-      { id: 'p2', caption: '사진 설명 예시' },
-      { id: 'p3', caption: '사진 설명 예시' },
-      { id: 'p4', caption: '사진 설명 예시' },
+      {
+        id: '2025-street-cleaning',
+        src: history2025StreetCleaning,
+        caption: '전도 거리 청소',
+      },
+      {
+        id: '2025-philippines-mission',
+        src: history2025PhilippinesMission,
+        caption: '담임목사님 필리핀 선교',
+      },
+      {
+        id: '2025-christmas-baptism',
+        src: history2025ChristmasBaptism,
+        caption: '성탄절 세례예식',
+      },
+      {
+        id: '2026-japan-mission',
+        src: history2026JapanMission,
+        caption: '일본 단기선교',
+      },
     ],
   },
 ]

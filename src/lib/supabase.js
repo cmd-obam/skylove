@@ -22,6 +22,13 @@ console.log('[Supabase] Client initializing', {
   baseUrl: import.meta.env.BASE_URL,
 })
 
-export const supabase = createClient(supabaseUrl, supabaseKey)
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    detectSessionInUrl: true,
+    flowType: 'implicit',
+    persistSession: true,
+    autoRefreshToken: true,
+  },
+})
 
 console.log('[Supabase] Client ready')

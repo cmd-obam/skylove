@@ -689,6 +689,23 @@
   color: #6b7280;
 }
 
+.signup-verify-panel__otp-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  margin-top: 1rem;
+}
+
+.signup-verify-panel__otp-label {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.signup-verify-panel__otp-input {
+  width: 100%;
+}
+
 .signup-verify-panel__actions {
   display: flex;
   flex-direction: column;

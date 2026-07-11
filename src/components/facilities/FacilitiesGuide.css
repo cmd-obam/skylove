@@ -206,6 +206,14 @@
   max-height: 92vh;
 }
 
+.facilities-lightbox__image-button {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
 .facilities-lightbox__image {
   display: block;
   max-width: min(96vw, 100%);

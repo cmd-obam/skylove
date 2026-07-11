@@ -20,7 +20,7 @@ export const MENU_ITEMS = [
         title: '교회 둘러보기',
         path: '/about/facilities',
         children: [
-          { title: '시설안내', path: '/about/facilities' },
+          { title: '교회시설 안내', path: '/about/facilities' },
           { title: 'VR 둘러보기', path: '/about/facility-vr' },
         ],
       },

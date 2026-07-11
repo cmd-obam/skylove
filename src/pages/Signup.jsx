@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import AuthBreadcrumb from '@/components/auth/AuthBreadcrumb'
 import MemberMenuSidebar from '@/components/auth/MemberMenuSidebar'
 import { supabase } from '@/lib/supabase'
@@ -21,12 +21,15 @@ import {
   SIGNUP_RESEND_SUCCESS_MESSAGE,
 } from '@/services/auth/signupErrors'
 import {
+  clearEmailVerifiedBeacon,
   clearSignupDraft,
-  consumeSignupDraftDiscarded,
   getResendCooldownRemaining,
+  getSupabaseAuthStorageKeyHint,
   isSignupFormDirty,
-  loadSignupDraft,
-  saveSignupDraft,
+  markSignupDraftDiscarded,
+  releaseSignupLock,
+  subscribeEmailVerified,
+  tryAcquireSignupLock,
 } from '@/utils/signupDraft'
 import SignupToast from '@/components/signup/SignupToast'
 import SignupProgress from '@/components/signup/SignupProgress'
@@ -54,22 +57,12 @@ function isStep1Agreed(value) {
   return value === 'agree'
 }
 
-function getInitialStep(form) {
-  if (form.agreePrivacy && form.agreeTerms) {
-    return 2
-  }
-
-  return 1
-}
-
-function getInitialStep1Agreements(form) {
-  const completed = form.agreePrivacy && form.agreeTerms
-
-  return {
-    terms: completed ? 'agree' : 'disagree',
-    privacy: completed ? 'agree' : 'disagree',
-    consignment: completed ? 'agree' : 'disagree',
-  }
+function hasStep1Progress(agreements) {
+  return (
+    isStep1Agreed(agreements.terms) ||
+    isStep1Agreed(agreements.privacy) ||
+    isStep1Agreed(agreements.consignment)
+  )
 }
 
 function SignupLeaveConfirmModal({ isOpen, onCancel, onConfirm }) {
@@ -108,66 +101,30 @@ function SignupLeaveConfirmModal({ isOpen, onCancel, onConfirm }) {
   )
 }
 
-function createInitialState() {
-  if (consumeSignupDraftDiscarded()) {
-    return {
-      form: INITIAL_SIGNUP_FORM,
-      isIdChecked: false,
-      idCheckMessage: '',
-      emailSent: false,
-      emailStatusMessage: '',
-      resendAvailableAt: null,
-    }
-  }
-
-  const draft = loadSignupDraft()
-
-  return {
-    form: draft?.form ? { ...INITIAL_SIGNUP_FORM, ...draft.form } : INITIAL_SIGNUP_FORM,
-    isIdChecked: draft?.isIdChecked ?? false,
-    idCheckMessage: draft?.idCheckMessage ?? '',
-    emailSent: draft?.emailSent ?? false,
-    emailStatusMessage: draft?.emailStatusMessage ?? '',
-    resendAvailableAt: draft?.resendAvailableAt ?? null,
-  }
-}
-
 function Signup() {
-  const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
-  const initialState = useRef(createInitialState()).current
+  const isCompleteEntry = searchParams.get('step') === 'complete'
+  const allowLeaveOnUnmountRef = useRef(isCompleteEntry)
 
-  const [currentStep, setCurrentStep] = useState(() => {
-    if (searchParams.get('step') === 'complete') {
-      return SIGNUP_STEP_COMPLETE
-    }
-
-    if (initialState.emailSent) {
-      return SIGNUP_STEP_EMAIL_PENDING
-    }
-
-    return getInitialStep(initialState.form)
-  })
-  const [step1Agreements, setStep1Agreements] = useState(() =>
-    getInitialStep1Agreements(initialState.form),
+  const [currentStep, setCurrentStep] = useState(() =>
+    isCompleteEntry ? SIGNUP_STEP_COMPLETE : SIGNUP_STEP_TERMS,
   )
-  const [form, setForm] = useState(initialState.form)
+  const [step1Agreements, setStep1Agreements] = useState(INITIAL_STEP1_AGREEMENTS)
+  const [form, setForm] = useState(INITIAL_SIGNUP_FORM)
   const [errors, setErrors] = useState({})
-  const [isIdChecked, setIsIdChecked] = useState(initialState.isIdChecked)
+  const [isIdChecked, setIsIdChecked] = useState(false)
   const [isEmailVerified, setIsEmailVerified] = useState(false)
-  const [idCheckMessage, setIdCheckMessage] = useState(initialState.idCheckMessage)
-  const [emailSent, setEmailSent] = useState(initialState.emailSent)
-  const [emailStatusMessage, setEmailStatusMessage] = useState(initialState.emailStatusMessage)
-  const [resendAvailableAt, setResendAvailableAt] = useState(initialState.resendAvailableAt)
-  const [resendCooldown, setResendCooldown] = useState(() =>
-    getResendCooldownRemaining(initialState.resendAvailableAt),
-  )
+  const [idCheckMessage, setIdCheckMessage] = useState('')
+  const [emailSent, setEmailSent] = useState(false)
+  const [emailStatusMessage, setEmailStatusMessage] = useState('')
+  const [resendAvailableAt, setResendAvailableAt] = useState(null)
+  const [resendCooldown, setResendCooldown] = useState(0)
   const [formFeedback, setFormFeedback] = useState(null)
   const [isCheckingId, setIsCheckingId] = useState(false)
   const [isSendingEmail, setIsSendingEmail] = useState(false)
   const [isCheckingEmail, setIsCheckingEmail] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isSyncingEmailVerification, setIsSyncingEmailVerification] = useState(true)
+  const [isSyncingEmailVerification, setIsSyncingEmailVerification] = useState(false)
   const [isAutoCheckingEmail, setIsAutoCheckingEmail] = useState(false)
   const [passwordConfirmTouched, setPasswordConfirmTouched] = useState(false)
   const [toast, setToast] = useState(null)
@@ -192,17 +149,6 @@ function Signup() {
     isStep1Agreed(step1Agreements.privacy) &&
     isStep1Agreed(step1Agreements.consignment)
   const allStep1Checked = allStep1RequiredChecked
-
-  const handleSidebarTabChange = (tab) => {
-    if (tab === 'login') {
-      navigate('/login')
-      return
-    }
-
-    if (tab === 'find-id' || tab === 'find-password') {
-      navigate(`/login?tab=${tab}`)
-    }
-  }
 
   const handleStep1AgreementChange = (key, value) => {
     setStep1Agreements((prev) => ({ ...prev, [key]: value }))
@@ -270,6 +216,26 @@ function Signup() {
     ],
   )
 
+  const shouldGuardLeave = useMemo(() => {
+    if (currentStep === SIGNUP_STEP_COMPLETE) {
+      return false
+    }
+
+    if (currentStep === SIGNUP_STEP_EMAIL_PENDING) {
+      return true
+    }
+
+    if (currentStep === SIGNUP_STEP_FORM) {
+      return isDirty
+    }
+
+    if (currentStep === SIGNUP_STEP_TERMS) {
+      return hasStep1Progress(step1Agreements)
+    }
+
+    return false
+  }, [currentStep, isDirty, step1Agreements])
+
   const resetSignupForm = useCallback(() => {
     setForm(INITIAL_SIGNUP_FORM)
     setErrors({})
@@ -286,7 +252,9 @@ function Signup() {
     setPasswordConfirmTouched(false)
     setCurrentStep(SIGNUP_STEP_TERMS)
     setStep1Agreements(INITIAL_STEP1_AGREEMENTS)
+    markSignupDraftDiscarded()
     clearSignupDraft()
+    clearEmailVerifiedBeacon()
     setSearchParams({}, { replace: true })
   }, [setSearchParams])
 
@@ -294,27 +262,27 @@ function Signup() {
     resetSignupForm()
   }, [resetSignupForm])
 
-  const { isLeaveModalOpen, cancelLeave, confirmLeave, allowNavigation } = useSignupLeaveGuard({
-    isDirty:
-      currentStep === SIGNUP_STEP_FORM || currentStep === SIGNUP_STEP_EMAIL_PENDING ? isDirty : false,
-    onConfirmLeave: handleConfirmLeave,
-  })
+  const { isLeaveModalOpen, cancelLeave, confirmLeave, allowNavigation, requestNavigation } =
+    useSignupLeaveGuard({
+      isDirty: shouldGuardLeave,
+      onConfirmLeave: handleConfirmLeave,
+    })
 
-  const persistDraft = useCallback(
-    (overrides = {}) => {
-      saveSignupDraft({
-        form,
-        isIdChecked,
-        isEmailVerified,
-        idCheckMessage,
-        emailSent,
-        emailStatusMessage,
-        resendAvailableAt,
-        ...overrides,
-      })
-    },
-    [form, isIdChecked, isEmailVerified, idCheckMessage, emailSent, emailStatusMessage, resendAvailableAt],
-  )
+  const allowNavigationAndLeave = useCallback(() => {
+    allowLeaveOnUnmountRef.current = true
+    allowNavigation()
+  }, [allowNavigation])
+
+  const handleSidebarTabChange = (tab) => {
+    if (tab === 'login') {
+      requestNavigation('/login')
+      return
+    }
+
+    if (tab === 'find-id' || tab === 'find-password') {
+      requestNavigation(`/login?tab=${tab}`)
+    }
+  }
 
   const syncEmailVerifiedFromSupabase = useCallback(
     async (email = form.email) => {
@@ -323,7 +291,7 @@ function Signup() {
 
       if (!trimmedEmail) {
         setIsEmailVerified(false)
-        return false
+        return { verified: false, result: null }
       }
 
       const result = await checkEmailVerificationStatus(trimmedEmail)
@@ -332,16 +300,22 @@ function Signup() {
         setIsEmailVerified(true)
         setEmailSent(true)
         setErrors((prev) => ({ ...prev, email: undefined }))
-        return true
+        return { verified: true, result }
       }
 
       setIsEmailVerified(false)
-      return false
+      return { verified: false, result }
     },
     [form.email],
   )
 
   const finalizeSignup = useCallback(async () => {
+    const lock = tryAcquireSignupLock('signup')
+
+    if (!lock.acquired) {
+      return false
+    }
+
     setIsSubmitting(true)
     clearFeedback()
 
@@ -353,6 +327,7 @@ function Signup() {
       console.error('[Signup] handleSignup 예외', error)
       showFeedback('error', '회원가입 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.')
       setIsSubmitting(false)
+      releaseSignupLock('signup')
       return false
     }
 
@@ -363,11 +338,13 @@ function Signup() {
 
       showFeedback('error', signupResult?.message ?? '회원가입에 실패했습니다.')
       setIsSubmitting(false)
+      releaseSignupLock('signup')
       return false
     }
 
     try {
-      allowNavigation()
+      allowNavigationAndLeave()
+      clearEmailVerifiedBeacon()
       resetSignupForm()
       setStep1Agreements(INITIAL_STEP1_AGREEMENTS)
       setCurrentStep(SIGNUP_STEP_COMPLETE)
@@ -376,47 +353,27 @@ function Signup() {
       setCurrentStep(SIGNUP_STEP_COMPLETE)
     }
 
+    releaseSignupLock('signup')
     setIsSubmitting(false)
     return true
-  }, [allowNavigation, clearFeedback, form, resetSignupForm, showFeedback])
+  }, [allowNavigationAndLeave, clearFeedback, form, resetSignupForm, showFeedback])
 
   useEffect(() => {
-    if (!isDirty) {
-      clearSignupDraft()
+    if (isCompleteEntry) {
       return
     }
 
-    persistDraft()
-  }, [isDirty, persistDraft])
+    markSignupDraftDiscarded()
+    clearSignupDraft()
+  }, [isCompleteEntry])
 
   useEffect(() => {
-    let isMounted = true
-
-    async function bootstrapEmailVerification() {
-      setIsSyncingEmailVerification(true)
-
-      const email = initialState.form.email.trim()
-
-      if (email) {
-        const result = await checkEmailVerificationStatus(email)
-
-        if (isMounted && result.verified) {
-          setIsEmailVerified(true)
-          setEmailSent(true)
-        }
-      }
-
-      if (isMounted) {
-        setIsSyncingEmailVerification(false)
-      }
-    }
-
-    bootstrapEmailVerification()
-
     return () => {
-      isMounted = false
+      if (!allowLeaveOnUnmountRef.current && shouldGuardLeave) {
+        markSignupDraftDiscarded()
+      }
     }
-  }, [initialState.form.email])
+  }, [shouldGuardLeave])
 
   useEffect(() => {
     if (searchParams.get('step') !== 'complete') {
@@ -427,6 +384,31 @@ function Signup() {
   }, [searchParams])
 
   useEffect(() => {
+    const authStorageKey = getSupabaseAuthStorageKeyHint()
+    const trimmedEmail = form.email.trim().toLowerCase()
+
+    const handleStorage = (event) => {
+      if (!event.key) {
+        return
+      }
+
+      const isAuthStorageEvent =
+        event.key.includes('-auth-token') || (authStorageKey && event.key === authStorageKey)
+      const isBeaconEvent = event.key === 'skylove_signup_email_verified'
+
+      if (isAuthStorageEvent || isBeaconEvent) {
+        syncEmailVerifiedFromSupabase()
+      }
+    }
+
+    const unsubscribeBroadcast = subscribeEmailVerified((email) => {
+      if (email === trimmedEmail) {
+        syncEmailVerifiedFromSupabase(email)
+      }
+    })
+
+    window.addEventListener('storage', handleStorage)
+
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
         syncEmailVerifiedFromSupabase()
@@ -445,16 +427,18 @@ function Signup() {
     } = supabase.auth.onAuthStateChange((event, session) => {
       if (
         (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') &&
-        session?.user?.email?.toLowerCase() === form.email.trim().toLowerCase()
+        session?.user?.email?.toLowerCase() === trimmedEmail
       ) {
         syncEmailVerifiedFromSupabase(session.user.email)
       }
     })
 
     return () => {
+      window.removeEventListener('storage', handleStorage)
       window.removeEventListener('focus', handleWindowFocus)
       document.removeEventListener('visibilitychange', handleVisibilityChange)
       subscription.unsubscribe()
+      unsubscribeBroadcast()
     }
   }, [form.email, syncEmailVerifiedFromSupabase])
 
@@ -503,7 +487,6 @@ function Signup() {
     const nextAvailableAt = Date.now() + RESEND_COOLDOWN_SECONDS * 1000
     setResendAvailableAt(nextAvailableAt)
     setResendCooldown(RESEND_COOLDOWN_SECONDS)
-    persistDraft({ resendAvailableAt: nextAvailableAt })
   }
 
   const updateField = (name, value) => {
@@ -596,7 +579,7 @@ function Signup() {
     try {
       const alreadyVerified = await syncEmailVerifiedFromSupabase(email)
 
-      if (alreadyVerified) {
+      if (alreadyVerified.verified) {
         setEmailStatusMessage('')
         return
       }
@@ -648,7 +631,7 @@ function Signup() {
     setIsCheckingEmail(true)
 
     try {
-      const verified = await syncEmailVerifiedFromSupabase(email)
+      const { verified, result } = await syncEmailVerifiedFromSupabase(email)
 
       if (verified) {
         setEmailStatusMessage('')
@@ -656,7 +639,9 @@ function Signup() {
         return
       }
 
-      const message = '아직 이메일 인증이 완료되지 않았습니다. 메일함을 확인해주세요.'
+      const message =
+        result?.hint ||
+        '아직 이메일 인증이 완료되지 않았습니다. 메일함의 인증 링크를 클릭한 뒤 다시 확인해주세요.'
       setErrors((prev) => ({
         ...prev,
         email: message,
@@ -686,7 +671,7 @@ function Signup() {
     try {
       const alreadyVerified = await syncEmailVerifiedFromSupabase()
 
-      if (alreadyVerified) {
+      if (alreadyVerified.verified) {
         setEmailStatusMessage('')
         return
       }
@@ -728,7 +713,7 @@ function Signup() {
     event.preventDefault()
     clearFeedback()
 
-    const verified = await syncEmailVerifiedFromSupabase()
+    const { verified } = await syncEmailVerifiedFromSupabase()
 
     if (!verified) {
       showFeedback('error', SIGNUP_EMAIL_NOT_VERIFIED_MESSAGE)
@@ -808,7 +793,7 @@ function Signup() {
               isSyncingEmailVerification={isSyncingEmailVerification}
               formFeedback={formFeedback}
               onSubmit={onSubmit}
-              onCancel={() => navigate('/login')}
+              onCancel={() => requestNavigation('/login')}
               updateField={updateField}
               setPasswordConfirmTouched={setPasswordConfirmTouched}
               handleDuplicateCheck={handleDuplicateCheck}

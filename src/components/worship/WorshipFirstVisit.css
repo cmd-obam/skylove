@@ -13,9 +13,17 @@
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  width: 3.5rem;
-  height: 3.5rem;
-  color: #4da6ff;
+  width: 5.5rem;
+  height: 5.5rem;
+}
+
+.worship-first-visit__icon-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: contain;
+  object-position: center;
 }
 
 .worship-first-visit__text {

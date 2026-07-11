@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { fetchProfileByUserId } from '@/services/auth/profile'
+import { recoverSessionFromAuthUrl } from '@/services/auth/authCallbackSession'
 import { clearAuthSession, setAuthSession } from '@/utils/auth'
 
 const AuthContext = createContext(null)
@@ -70,6 +71,12 @@ export function AuthProvider({ children }) {
     let isMounted = true
 
     async function initAuth() {
+      try {
+        await recoverSessionFromAuthUrl()
+      } catch (error) {
+        console.error('[Auth] recoverSessionFromAuthUrl failed', error)
+      }
+
       const {
         data: { session: initialSession },
         error,

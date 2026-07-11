@@ -38,7 +38,14 @@ function FacilityImageLightbox({ src, alt, onClose }) {
         <button type="button" className="facilities-lightbox__close" onClick={onClose}>
           닫기
         </button>
-        <img src={src} alt={alt} className="facilities-lightbox__image" />
+        <button
+          type="button"
+          className="facilities-lightbox__image-button"
+          onClick={onClose}
+          aria-label="이미지 닫기"
+        >
+          <img src={src} alt={alt} className="facilities-lightbox__image" />
+        </button>
       </div>
     </div>
   )

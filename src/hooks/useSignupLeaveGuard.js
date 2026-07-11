@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { clearAllSignupStorage } from '@/utils/signupDraft'
+import { markSignupDraftDiscarded } from '@/utils/signupDraft'
 
 const BACK_NAVIGATION = '__BACK__'
 
@@ -21,12 +21,7 @@ export function useSignupLeaveGuard({ isDirty, onConfirmLeave }) {
   const basename = import.meta.env.BASE_URL ?? '/'
   const allowLeaveRef = useRef(false)
   const pendingNavigationRef = useRef(null)
-  const isDirtyRef = useRef(isDirty)
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false)
-
-  useEffect(() => {
-    isDirtyRef.current = isDirty
-  }, [isDirty])
 
   const allowNavigation = useCallback(() => {
     allowLeaveRef.current = true
@@ -40,6 +35,7 @@ export function useSignupLeaveGuard({ isDirty, onConfirmLeave }) {
   const confirmLeave = useCallback(() => {
     allowLeaveRef.current = true
     setIsLeaveModalOpen(false)
+    markSignupDraftDiscarded()
     onConfirmLeave()
 
     const pending = pendingNavigationRef.current
@@ -54,6 +50,19 @@ export function useSignupLeaveGuard({ isDirty, onConfirmLeave }) {
       navigate(pending)
     }
   }, [navigate, onConfirmLeave])
+
+  const requestNavigation = useCallback(
+    (to) => {
+      if (!isDirty || allowLeaveRef.current) {
+        navigate(to)
+        return
+      }
+
+      pendingNavigationRef.current = to
+      setIsLeaveModalOpen(true)
+    },
+    [isDirty, navigate],
+  )
 
   useEffect(() => {
     if (!isDirty || allowLeaveRef.current) {
@@ -73,12 +82,16 @@ export function useSignupLeaveGuard({ isDirty, onConfirmLeave }) {
   }, [isDirty])
 
   useEffect(() => {
+    if (!isDirty || allowLeaveRef.current) {
+      return undefined
+    }
+
     const handlePageHide = (event) => {
-      if (event.persisted || allowLeaveRef.current || !isDirtyRef.current) {
+      if (event.persisted || allowLeaveRef.current) {
         return
       }
 
-      clearAllSignupStorage()
+      markSignupDraftDiscarded()
     }
 
     window.addEventListener('pagehide', handlePageHide)
@@ -86,7 +99,7 @@ export function useSignupLeaveGuard({ isDirty, onConfirmLeave }) {
     return () => {
       window.removeEventListener('pagehide', handlePageHide)
     }
-  }, [])
+  }, [isDirty])
 
   useEffect(() => {
     if (!isDirty || allowLeaveRef.current) {
@@ -170,5 +183,6 @@ export function useSignupLeaveGuard({ isDirty, onConfirmLeave }) {
     cancelLeave,
     confirmLeave,
     allowNavigation,
+    requestNavigation,
   }
 }

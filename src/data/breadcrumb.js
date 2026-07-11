@@ -5,7 +5,7 @@ export function getBreadcrumbItems(pathname) {
 
   if (pathname === '/about/facilities') {
     items.push({
-      label: '시설안내',
+      label: '교회시설 안내',
       path: '/about/facilities',
       isCurrent: true,
     })

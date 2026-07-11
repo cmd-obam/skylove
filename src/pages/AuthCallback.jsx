@@ -1,136 +1,60 @@
-import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { supabase } from '@/lib/supabase'
-import { handleSignup } from '@/services/auth/signup'
-import { clearSignupDraft, loadSignupDraft } from '@/utils/signupDraft'
+import { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
+import {
+  isEmailConfirmed,
+  resolveAuthCallbackSession,
+} from '@/services/auth/authCallbackSession'
+import {
+  broadcastEmailVerified,
+  setEmailVerifiedBeacon,
+} from '@/utils/signupDraft'
 import './Signup.css'
 
-function getAuthParams() {
-  const url = new URL(window.location.href)
-  const hashParams = new URLSearchParams(url.hash.replace(/^#/, ''))
-
-  return {
-    code: url.searchParams.get('code'),
-    type: url.searchParams.get('type') ?? hashParams.get('type'),
-    tokenHash: url.searchParams.get('token_hash'),
-    accessToken: hashParams.get('access_token'),
-    refreshToken: hashParams.get('refresh_token'),
-    error: url.searchParams.get('error') ?? hashParams.get('error'),
-    errorDescription:
-      url.searchParams.get('error_description') ?? hashParams.get('error_description'),
-  }
-}
-
-async function resolveSessionFromCallback() {
-  const params = getAuthParams()
-
-  if (params.error) {
-    throw new Error(params.errorDescription || '이메일 인증 처리에 실패했습니다.')
-  }
-
-  if (params.accessToken && params.refreshToken) {
-    const { data, error } = await supabase.auth.setSession({
-      access_token: params.accessToken,
-      refresh_token: params.refreshToken,
-    })
-
-    if (error) {
-      throw error
-    }
-
-    return data.session
-  }
-
-  if (params.code) {
-    const { data, error } = await supabase.auth.exchangeCodeForSession(params.code)
-
-    if (error) {
-      throw error
-    }
-
-    return data.session
-  }
-
-  if (params.tokenHash && params.type) {
-    const { data, error } = await supabase.auth.verifyOtp({
-      token_hash: params.tokenHash,
-      type: params.type,
-    })
-
-    if (error) {
-      throw error
-    }
-
-    return data.session
-  }
-
-  const {
-    data: { session },
-    error,
-  } = await supabase.auth.getSession()
-
-  if (error) {
-    throw error
-  }
-
-  return session
-}
-
 function AuthCallback() {
-  const navigate = useNavigate()
   const [status, setStatus] = useState('loading')
   const [message, setMessage] = useState('이메일 인증을 처리하고 있습니다...')
+  const hasStartedRef = useRef(false)
 
   useEffect(() => {
+    if (hasStartedRef.current) {
+      return undefined
+    }
+
+    hasStartedRef.current = true
     let isMounted = true
 
-    async function completeSignupFromCallback() {
+    async function completeEmailVerification() {
       try {
-        const session = await resolveSessionFromCallback()
+        const session = await resolveAuthCallbackSession()
         const user = session?.user
 
-        if (!user?.email || !user.email_confirmed_at) {
+        if (!user?.email) {
+          throw new Error('이메일 인증 정보를 확인하지 못했습니다. 인증 메일의 링크를 다시 클릭해주세요.')
+        }
+
+        if (!isEmailConfirmed(user)) {
           throw new Error('이메일 인증 상태를 확인하지 못했습니다. 인증 메일의 링크를 다시 클릭해주세요.')
         }
 
-        const draft = loadSignupDraft()
-        const draftEmail = draft?.form?.email?.trim()?.toLowerCase()
         const sessionEmail = user.email.trim().toLowerCase()
 
-        if (!draft?.form) {
-          if (!isMounted) {
-            return
-          }
-
-          setStatus('success')
-          setMessage('이메일 인증이 완료되었습니다. 회원가입 페이지에서 가입 완료 여부를 확인해주세요.')
-          window.setTimeout(() => {
-            navigate('/signup', { replace: true })
-          }, 1200)
-          return
-        }
-
-        if (draftEmail !== sessionEmail) {
-          throw new Error('인증한 이메일과 회원가입 중인 이메일이 일치하지 않습니다.')
-        }
-
-        const result = await handleSignup(draft.form)
-
-        if (!result.success) {
-          throw new Error(result.message || '회원가입 완료 처리 중 오류가 발생했습니다.')
-        }
-
-        clearSignupDraft()
+        setEmailVerifiedBeacon(sessionEmail)
+        broadcastEmailVerified(sessionEmail)
 
         if (!isMounted) {
           return
         }
 
         setStatus('success')
-        setMessage('이메일 인증과 회원가입 완료 처리가 정상적으로 완료되었습니다.')
-        window.setTimeout(() => {
-          navigate('/signup?step=complete', { replace: true })
-        }, 1000)
+        setMessage(
+          '이메일 인증이 완료되었습니다.\n\n회원가입 페이지로 돌아가시면 자동으로 가입이 완료됩니다.\n이 탭은 닫으셔도 됩니다.',
+        )
+
+        if (window.opener && !window.opener.closed) {
+          window.setTimeout(() => {
+            window.close()
+          }, 1500)
+        }
       } catch (error) {
         console.error('[AuthCallback] 이메일 인증 콜백 처리 실패', error)
 
@@ -147,12 +71,12 @@ function AuthCallback() {
       }
     }
 
-    completeSignupFromCallback()
+    completeEmailVerification()
 
     return () => {
       isMounted = false
     }
-  }, [navigate])
+  }, [])
 
   return (
     <div className="signup-page">
@@ -177,6 +101,11 @@ function AuthCallback() {
                   : '이메일 인증 처리에 실패했습니다.'}
             </h2>
             <p className="signup-verify-panel__text">{message}</p>
+            {status === 'success' && (
+              <Link to="/signup" className="signup-btn signup-btn--primary signup-btn--full">
+                회원가입 페이지로 이동
+              </Link>
+            )}
           </div>
         </section>
       </div>

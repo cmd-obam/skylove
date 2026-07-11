@@ -32,7 +32,7 @@ import motherBabyRoom5 from '@/assets/images/facilities/mother-baby-room-5.png'
 import motherBabyRoom6 from '@/assets/images/facilities/mother-baby-room-6.png'
 
 export const FACILITIES_GUIDE = {
-  pageTitle: '시설안내',
+  pageTitle: '교회시설 안내',
   sections: [
     {
       id: 'exterior',
