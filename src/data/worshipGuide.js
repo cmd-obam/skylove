@@ -53,7 +53,6 @@ export const WORSHIP_GUIDE_CONTENT = {
     ],
     heroImage: sundayBlessingHero,
     introImage: sundayBlessingIntro,
-    introBannerVariant: 'sunday-blessing',
     introTypographyVariant: 'classic',
     galleryImages: [sundayBlessingGallery1, sundayBlessingGallery3, sundayBlessingGallery2],
     footerMessage:

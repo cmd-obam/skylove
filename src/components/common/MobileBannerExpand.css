@@ -59,7 +59,6 @@
   .mobile-banner-expand__preview .nf-hero__content,
   .mobile-banner-expand__preview .worship-hero__content,
   .mobile-banner-expand__preview .location-hero__content,
-  .mobile-banner-expand__preview .worship-template__intro-text,
   .mobile-banner-expand__preview .nf-reasons__banner-text,
   .mobile-banner-expand__preview .nf-reasons__grid {
     display: none;
@@ -82,9 +81,6 @@
 
   .mobile-banner-expand.worship-hero,
   .mobile-banner-expand.location-hero,
-  .mobile-banner-expand.worship-template__intro--banner:not(
-      .worship-template__intro--banner-sunday-blessing
-    ),
   .mobile-banner-expand.nf-reasons__banner {
     aspect-ratio: auto;
     min-height: 0;
@@ -98,12 +94,6 @@
   .mobile-banner-expand.worship-hero,
   .mobile-banner-expand.location-hero {
     min-height: 10rem;
-  }
-
-  .mobile-banner-expand.worship-template__intro--banner:not(
-      .worship-template__intro--banner-sunday-blessing
-    ) {
-    min-height: 9.5rem;
   }
 
   .mobile-banner-expand.nf-reasons__banner {
@@ -214,8 +204,8 @@
     padding-bottom: 6.5rem;
   }
 
-  /* 주일축복예배: 모바일 미리보기에 헤드라인만 이미지 위에 표시 */
-  .mobile-banner-expand.worship-template__intro--banner-sunday-blessing {
+  /* 예배안내 카테고리: 모바일 미리보기에 헤드라인만 이미지 위에 표시 */
+  .mobile-banner-expand.worship-template__intro--banner {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
@@ -229,8 +219,7 @@
     background: transparent !important;
   }
 
-  .mobile-banner-expand.worship-template__intro--banner-sunday-blessing
-    .mobile-banner-expand__preview {
+  .mobile-banner-expand.worship-template__intro--banner .mobile-banner-expand__preview {
     position: relative;
     inset: auto;
     width: 100%;
@@ -238,12 +227,12 @@
     min-height: 0;
     border-radius: 12px;
     overflow: hidden;
-    background: var(--worship-intro-bg) right center / 100% 100% no-repeat;
+    background: var(--worship-intro-bg) var(--worship-intro-bg-position, right center) / 100% 100%
+      no-repeat;
     background-color: #ffffff;
   }
 
-  .mobile-banner-expand.worship-template__intro--banner-sunday-blessing
-    .mobile-banner-expand__preview-hit {
+  .mobile-banner-expand.worship-template__intro--banner .mobile-banner-expand__preview-hit {
     position: relative;
     display: block;
     width: 100%;
@@ -251,14 +240,13 @@
     min-height: 100%;
   }
 
-  .mobile-banner-expand.worship-template__intro--banner-sunday-blessing
-    .mobile-banner-expand__trigger {
+  .mobile-banner-expand.worship-template__intro--banner .mobile-banner-expand__trigger {
     order: 2;
     flex-shrink: 0;
     margin-top: 0;
   }
 
-  .mobile-banner-expand.worship-template__intro--banner-sunday-blessing
+  .mobile-banner-expand.worship-template__intro--banner
     .mobile-banner-expand__preview
     .worship-template__intro-text {
     display: flex !important;
@@ -274,21 +262,36 @@
     pointer-events: none;
   }
 
-  .mobile-banner-expand.worship-template__intro--banner-sunday-blessing
-    .worship-template__intro-divider,
-  .mobile-banner-expand.worship-template__intro--banner-sunday-blessing
-    .worship-template__intro-title,
-  .mobile-banner-expand.worship-template__intro--banner-sunday-blessing
-    .worship-template__description {
+  .mobile-banner-expand.worship-template__intro--banner .worship-template__intro-cross,
+  .mobile-banner-expand.worship-template__intro--banner .worship-template__intro-divider,
+  .mobile-banner-expand.worship-template__intro--banner .worship-template__intro-title,
+  .mobile-banner-expand.worship-template__intro--banner .worship-template__description,
+  .mobile-banner-expand.worship-template__intro--banner .worship-template__description-blocks,
+  .mobile-banner-expand.worship-template__intro--banner .worship-template__description-block {
     display: none !important;
   }
 
-  .mobile-banner-expand.worship-template__intro--banner-sunday-blessing
-    .worship-template__headline,
-  .mobile-banner-expand.worship-template__intro--banner-sunday-blessing
-    .worship-template__headline-line {
+  .mobile-banner-expand.worship-template__intro--banner .worship-template__headline,
+  .mobile-banner-expand.worship-template__intro--banner .worship-template__headline-line,
+  .mobile-banner-expand.worship-template__intro--banner .worship-template__headline-accent {
     font-size: clamp(0.5rem, 6.8cqi, 0.6875rem);
     line-height: 1.28;
+  }
+
+  .mobile-banner-expand.worship-template__intro--banner.worship-template__intro--typography-classic
+    .worship-template__headline,
+  .mobile-banner-expand.worship-template__intro--banner.worship-template__intro--typography-classic
+    .worship-template__headline-line {
     color: #2f6fad;
+  }
+
+  .mobile-banner-expand.worship-template__intro--banner-choir
+    .worship-template__headline-line:nth-child(2) {
+    color: #5aa9ff;
+  }
+
+  .mobile-banner-expand.worship-template__intro--banner-dawn-prayer
+    .worship-template__headline-accent {
+    color: #5aa9ff;
   }
 }
