@@ -610,6 +610,11 @@
   color: #047857;
 }
 
+.signup-form__feedback--info {
+  background-color: #eff6ff;
+  color: #1d4ed8;
+}
+
 .signup-form__login {
   margin: 0;
   text-align: center;
@@ -1196,6 +1201,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
+  max-width: 520px;
+  margin-inline: auto;
   padding: 2rem 1rem 1rem;
   text-align: center;
 }
@@ -1215,31 +1223,56 @@
 
 .signup-step-complete__title {
   margin: 0;
-  font-size: 1.5rem;
+  max-width: 100%;
+  font-size: clamp(1.25rem, 4.2vw, 1.5rem);
   font-weight: 700;
+  line-height: 1.4;
   color: #1f2d3d;
   letter-spacing: -0.02em;
+  word-break: keep-all;
+  overflow-wrap: normal;
 }
 
 .signup-step-complete__message {
-  margin: 1rem 0 0;
-  font-size: 1rem;
-  line-height: 1.7;
+  margin: 1rem 0 2rem;
+  max-width: 24em;
+  font-size: clamp(0.9375rem, 3.2vw, 1rem);
+  line-height: 1.6;
   color: #4b5563;
-}
-
-.signup-step-complete__note {
-  margin: 1.25rem 0 2rem;
-  font-size: 0.9375rem;
-  line-height: 1.7;
-  color: #6b7280;
+  word-break: keep-all;
+  overflow-wrap: normal;
 }
 
 .signup-step-complete__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: min(100%, 280px);
+  height: 48px;
+  min-height: 48px;
+  padding: 0 1.25rem;
+  border: none;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  color: #ffffff;
+}
+
+.signup-step-complete__button:hover,
+.signup-step-complete__button:focus-visible {
+  text-decoration: none;
+  color: #ffffff;
 }
 
 @media (max-width: 768px) {
+  .signup-step-complete__button {
+    width: 100%;
+    max-width: 280px;
+    height: 48px;
+    font-size: 0.875rem;
+  }
+
   .signup-progress__list {
     flex-direction: column;
     align-items: stretch;
@@ -1313,6 +1346,14 @@
   .signup-info-form__inline {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .signup-info-form__inline--email .signup-btn {
+    width: 100%;
+  }
+
+  .signup-info-form__email-composer {
+    width: 100%;
   }
 
   .signup-info-form__actions {
@@ -1423,6 +1464,42 @@
 
 .signup-info-form__inline .signup-info-form__input {
   flex: 1;
+  min-width: 0;
+}
+
+.signup-info-form__inline--email {
+  align-items: stretch;
+}
+
+.signup-info-form__email-composer {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem;
+  min-width: 0;
+}
+
+.signup-info-form__email-local {
+  flex: 1 1 120px;
+  min-width: 96px;
+}
+
+.signup-info-form__email-at {
+  flex-shrink: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #374151;
+  line-height: 1;
+}
+
+.signup-info-form__email-domain {
+  flex: 1 1 140px;
+  min-width: 120px;
+}
+
+.signup-info-form__email-custom-domain {
+  flex: 1 1 100%;
   min-width: 0;
 }
 

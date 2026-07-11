@@ -109,13 +109,19 @@ export function mapSupabaseProfileError(error) {
     return '인증 계정과 이메일이 일치하지 않습니다. 이메일을 확인해주세요.'
   }
 
-  if (code === '42501' || message.includes('row-level security') || message.includes('permission denied')) {
-    return error?.message || '회원 정보 저장 권한이 없습니다. 관리자에게 문의해주세요.'
+  if (
+    message.includes('invalid input syntax for type date') ||
+    message.includes('invalid date') ||
+    code === '22007'
+  ) {
+    return '생년월일 형식이 올바르지 않습니다. 회원가입 정보를 다시 확인해주세요.'
   }
 
-  const parts = [error?.message, error?.details, error?.hint].filter(Boolean)
+  if (code === '42501' || message.includes('row-level security') || message.includes('permission denied')) {
+    return '회원 정보 저장 권한이 없습니다. 관리자에게 문의해주세요.'
+  }
 
-  return parts.join(' ') || '회원 정보 저장에 실패했습니다. 잠시 후 다시 시도해주세요.'
+  return '회원 정보 저장에 실패했습니다. 잠시 후 다시 시도해주세요.'
 }
 
 export function formatSupabaseError(error) {

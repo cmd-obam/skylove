@@ -7,6 +7,7 @@ import {
 } from '@/data/securityQuestions'
 import BirthDateSelect from '@/components/signup/BirthDateSelect'
 import PasswordInput from '@/components/signup/PasswordInput'
+import SignupEmailInput from '@/components/signup/SignupEmailInput'
 
 const SIGNUP_PASSWORD_CONFIRM_PLACEHOLDER = '비밀번호를 다시 입력해주세요'
 
@@ -75,7 +76,25 @@ function SignupStepForm({
   formatPhoneNumber,
 }) {
   return (
-    <form className="signup-info-form" onSubmit={onSubmit} noValidate autoComplete="off">
+    <form
+      className="signup-info-form"
+      onSubmit={onSubmit}
+      noValidate
+      autoComplete="off"
+      onKeyDown={(event) => {
+        if (event.key !== 'Enter' || event.target instanceof HTMLTextAreaElement) {
+          return
+        }
+
+        const target = event.target
+
+        if (!(target instanceof HTMLInputElement || target instanceof HTMLSelectElement)) {
+          return
+        }
+
+        event.preventDefault()
+      }}
+    >
       <header className="signup-info-form__header">
         <h2 className="signup-info-form__title">기본정보 입력</h2>
         <p className="signup-info-form__notice">
@@ -141,22 +160,16 @@ function SignupStepForm({
         <SignupFormRow
           label="이메일"
           required
-          htmlFor="signup-email"
+          htmlFor="signup-email-local"
           hint="이메일 인증을 완료해야 회원가입이 가능합니다."
           error={errors.email}
           success={emailFieldSuccess}
         >
-          <div className="signup-info-form__inline">
-            <input
-              id="signup-email"
-              name="email"
-              type="email"
-              className="signup-info-form__input"
-              placeholder="example@email.com"
-              value={form.email}
-              onChange={(event) => updateField('email', event.target.value)}
-              readOnly={isEmailVerified}
-              autoComplete="off"
+          <div className="signup-info-form__inline signup-info-form__inline--email">
+            <SignupEmailInput
+              email={form.email}
+              disabled={isEmailVerified}
+              onEmailChange={(nextEmail) => updateField('email', nextEmail)}
             />
             <button
               type="button"

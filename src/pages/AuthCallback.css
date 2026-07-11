@@ -1,0 +1,94 @@
+.auth-callback-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.25rem;
+  background: linear-gradient(180deg, #f8fbff 0%, #eef4fa 100%);
+}
+
+.auth-callback-page__card {
+  width: 100%;
+  max-width: 28rem;
+  padding: 2.5rem 2rem;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 18px 48px rgba(31, 45, 61, 0.08);
+}
+
+.auth-callback-page__panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  text-align: center;
+}
+
+.auth-callback-page__spinner {
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 3px solid #dbeafe;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: auth-callback-spin 0.85s linear infinite;
+}
+
+@keyframes auth-callback-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.auth-callback-page__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  background: #ecfdf5;
+  color: #059669;
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.auth-callback-page__icon--error {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.auth-callback-page__title {
+  margin: 0;
+  font-size: 1.375rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #1f2d3d;
+  letter-spacing: -0.02em;
+}
+
+.auth-callback-page__text {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.75;
+  color: #6b7280;
+  white-space: pre-line;
+}
+
+.auth-callback-page__button {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.9375rem 1.25rem;
+  border: none;
+  border-radius: 12px;
+  background: #1f2d3d;
+  color: #fff;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.auth-callback-page__button:hover,
+.auth-callback-page__button:focus-visible {
+  background: #374151;
+}

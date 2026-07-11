@@ -1,5 +1,7 @@
 import { supabase } from '@/lib/supabase'
 import { peekEmailVerifiedBeacon } from '@/utils/signupDraft'
+import { syncSupabaseAuthSession } from '@/services/auth/authCallbackSession'
+import { clearAuthSession } from '@/utils/auth'
 import {
   classifyProfileSaveError,
   formatSupabaseError,
@@ -48,6 +50,16 @@ export function normalizeBirthDate(value) {
   const day = match[3].padStart(2, '0').slice(0, 2)
 
   return `${year}-${month}-${day}`
+}
+
+export function resolveBirthDateForDatabase(value) {
+  const normalized = normalizeBirthDate(value)
+
+  if (!normalized || !BIRTH_DATE_PATTERN.test(normalized)) {
+    return null
+  }
+
+  return normalized
 }
 
 export const PASSWORD_REQUIREMENT_HINT = '8자 이상, 영문·숫자 포함'
@@ -163,6 +175,23 @@ export function validateForm(form, { isIdChecked = false, isEmailVerified = fals
 
   return {
     valid: Object.keys(errors).length === 0,
+    errors,
+  }
+}
+
+/** 이메일 인증 메일 발송 전 — 형식만 검사 (인증 완료·다른 필드는 검사하지 않음) */
+export function validateSignupEmail(email) {
+  const trimmed = email.trim()
+  const errors = {}
+
+  if (!trimmed) {
+    errors.email = '이메일을 입력해주세요.'
+  } else if (!EMAIL_PATTERN.test(trimmed)) {
+    errors.email = '올바른 이메일 형식을 입력해주세요.'
+  }
+
+  return {
+    valid: !errors.email,
     errors,
   }
 }
@@ -367,30 +396,22 @@ function evaluateEmailVerification(user, trimmedEmail) {
 }
 
 async function refreshAuthSessionIfPresent() {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
-
-  if (!session) {
-    return null
-  }
-
-  const { data, error } = await supabase.auth.refreshSession()
-
-  if (error) {
-    console.warn('[Signup] refreshSession 실패 — getSession 결과 사용', formatSupabaseError(error))
-    return session
-  }
-
-  return data.session ?? session
+  const session = await syncSupabaseAuthSession({ retries: 2, retryDelayMs: 150 })
+  return session
 }
 
 export async function checkEmailVerificationStatus(expectedEmail) {
   const trimmedEmail = expectedEmail.trim().toLowerCase()
   const beacon = peekEmailVerifiedBeacon(trimmedEmail)
+  const syncRetries = beacon ? 10 : 4
+  const syncDelayMs = beacon ? 350 : 200
 
   const checkSession = async () => {
-    let session = await refreshAuthSessionIfPresent()
+    await syncSupabaseAuthSession({ retries: syncRetries, retryDelayMs: syncDelayMs })
+
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
 
     if (session?.user) {
       const sessionResult = evaluateEmailVerification(session.user, trimmedEmail)
@@ -463,9 +484,9 @@ export async function checkEmailVerificationStatus(expectedEmail) {
   }
 
   if (beacon && !result?.verified) {
-    for (let attempt = 0; attempt < 3; attempt += 1) {
+    for (let attempt = 0; attempt < 8; attempt += 1) {
       await new Promise((resolve) => {
-        window.setTimeout(resolve, 400)
+        window.setTimeout(resolve, 500)
       })
 
       result = await checkSession()
@@ -678,6 +699,45 @@ async function stepEnsureAuthUser(user) {
   return { success: true, user }
 }
 
+async function stepValidateSignupForm(formData) {
+  const validation = validateForm(formData, { isIdChecked: true, isEmailVerified: true })
+
+  if (!validation.valid) {
+    const message =
+      validation.errors.birthDate ||
+      validation.errors.loginId ||
+      validation.errors.password ||
+      validation.errors.name ||
+      validation.errors.email ||
+      '입력 정보를 확인해주세요.'
+
+    logSignupStep('회원가입 입력값 검증', false, validation.errors)
+
+    return {
+      success: false,
+      step: 'validation',
+      message,
+      errors: validation.errors,
+    }
+  }
+
+  const birthDate = resolveBirthDateForDatabase(formData.birthDate)
+
+  if (!birthDate) {
+    logSignupStep('회원가입 입력값 검증', false, 'birth_date empty or invalid')
+
+    return {
+      success: false,
+      step: 'birthDate',
+      message: '생년월일을 올바르게 선택해주세요.',
+      errors: { birthDate: '생년월일을 올바르게 선택해주세요.' },
+    }
+  }
+
+  logSignupStep('회원가입 입력값 검증', true)
+  return { success: true, birthDate }
+}
+
 async function stepSaveProfile(userId, formData) {
   const existingProfile = await fetchProfileByUserId(userId)
 
@@ -808,6 +868,22 @@ async function stepUpdateAuthPassword(user, formData) {
   }
 }
 
+export async function releasePostSignupSession() {
+  try {
+    const { error } = await supabase.auth.signOut()
+
+    if (error) {
+      console.warn('[Signup] 회원가입 완료 후 signOut 실패', formatAuthError(error), error)
+    } else {
+      logSignupStep('회원가입 후 세션 해제', true)
+    }
+  } catch (error) {
+    console.warn('[Signup] 회원가입 완료 후 signOut 예외', error)
+  }
+
+  clearAuthSession()
+}
+
 export async function handleSignup(formData) {
   console.group('[Signup]')
 
@@ -867,6 +943,14 @@ export async function handleSignup(formData) {
 
     const user = authStep.user
 
+    const formValidationStep = await stepValidateSignupForm(formData)
+
+    if (!formValidationStep.success) {
+      logSignupStep('회원가입 최종 결과', false, formValidationStep)
+      console.groupEnd()
+      return { success: false, ...formValidationStep }
+    }
+
     const profileStep = await stepSaveProfile(user.id, formData)
 
     if (!profileStep.success) {
@@ -900,6 +984,8 @@ export async function handleSignup(formData) {
       profileId: finalVerification.profile.id,
       passwordUpdateFailed: passwordStep.passwordUpdateFailed ?? false,
     })
+
+    await releasePostSignupSession()
     console.groupEnd()
 
     return {
@@ -930,8 +1016,15 @@ async function insertProfile(userId, formData) {
   const phone = formData.phone.trim()
   const username = formData.loginId.trim()
   const name = formData.name.trim()
-  const birthDate = normalizeBirthDate(formData.birthDate)
+  const birthDate = resolveBirthDateForDatabase(formData.birthDate)
   const email = formData.email.trim().toLowerCase()
+
+  if (!birthDate) {
+    return {
+      code: '22007',
+      message: 'invalid input syntax for type date: ""',
+    }
+  }
 
   const profilePayload = {
     user_id: userId,

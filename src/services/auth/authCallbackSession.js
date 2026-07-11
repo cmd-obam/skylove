@@ -166,11 +166,55 @@ export async function recoverSessionFromAuthUrl() {
   }
 }
 
+/** 다른 탭 인증·URL 토큰 처리 후 현재 탭 Supabase 세션을 최대한 동기화 */
+export async function syncSupabaseAuthSession(options = {}) {
+  const { retries = 5, retryDelayMs = 200 } = options
+
+  try {
+    await recoverSessionFromAuthUrl()
+  } catch (error) {
+    console.warn('[Auth] recoverSessionFromAuthUrl during sync failed', error)
+  }
+
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
+
+    if (session?.user) {
+      const { data, error } = await supabase.auth.refreshSession()
+
+      if (!error && data.session) {
+        return data.session
+      }
+
+      return session
+    }
+
+    if (attempt < retries) {
+      await new Promise((resolve) => {
+        window.setTimeout(resolve, retryDelayMs)
+      })
+    }
+  }
+
+  return null
+}
+
 export async function resolveAuthCallbackSession() {
   const params = parseAuthCallbackParams()
 
   if (params.error) {
     throw new Error(params.errorDescription || '이메일 인증 처리에 실패했습니다.')
+  }
+
+  const {
+    data: { session: existingSession },
+  } = await supabase.auth.getSession()
+
+  if (existingSession?.user?.email && isEmailConfirmed(existingSession.user)) {
+    clearAuthParamsFromUrl()
+    return existingSession
   }
 
   const dedupeKey = getCallbackDedupeKey(params)
@@ -196,7 +240,7 @@ export async function resolveAuthCallbackSession() {
     }
   }
 
-  let session = null
+  let session = existingSession ?? null
 
   if (params.accessToken && params.refreshToken) {
     const { data, error } = await supabase.auth.setSession({
@@ -227,9 +271,9 @@ export async function resolveAuthCallbackSession() {
     session = await verifyOtpWithFallback(params.tokenHash, params.type)
   } else if (autoSession) {
     session = autoSession
-  } else {
+  } else if (!session) {
     const {
-      data: { session: existingSession },
+      data: { session: fallbackSession },
       error,
     } = await supabase.auth.getSession()
 
@@ -237,7 +281,7 @@ export async function resolveAuthCallbackSession() {
       throw error
     }
 
-    session = existingSession
+    session = fallbackSession
   }
 
   if (session && dedupeKey) {

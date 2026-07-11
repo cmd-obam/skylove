@@ -77,6 +77,8 @@ function App() {
           <Route path="/viewer/:postId" element={<BoardPostViewerPage />} />
           <Route path="/church-news/album/:postId/viewer" element={<LegacyBoardPostViewerRedirect />} />
           <Route path="/church-news/:postId/viewer" element={<LegacyBoardPostViewerRedirect />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/email-confirm" element={<EmailConfirmSuccess />} />
           <Route element={<SiteShell />}>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Auth />} />
@@ -84,8 +86,6 @@ function App() {
             <Route path="/reset-password/email-verify" element={<ResetPasswordEmailVerify />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/signup" element={<Signup />} />
-            <Route path="/auth/callback" element={<AuthCallback />} />
-            <Route path="/email-confirm" element={<EmailConfirmSuccess />} />
             <Route path="/member/edit" element={<MemberEdit />} />
             <Route path="/mypage/change-password" element={<ChangePassword />} />
             <Route

@@ -13,6 +13,7 @@ import {
   handleSignup,
   sendEmailVerification,
   validateForm,
+  validateSignupEmail,
 } from '@/services/auth/signup'
 import {
   SIGNUP_EMAIL_NOT_VERIFIED_MESSAGE,
@@ -129,7 +130,9 @@ function Signup() {
   const [passwordConfirmTouched, setPasswordConfirmTouched] = useState(false)
   const [toast, setToast] = useState(null)
 
-  const showFeedback = useCallback((type, message) => {
+  const showFeedback = useCallback((type, message, options = {}) => {
+    const { toast = true } = options
+
     if (!type || !message) {
       setFormFeedback(null)
       setToast(null)
@@ -137,7 +140,12 @@ function Signup() {
     }
 
     setFormFeedback({ type, message })
-    setToast({ type, message })
+
+    if (toast) {
+      setToast({ type, message })
+    } else {
+      setToast(null)
+    }
   }, [])
 
   const clearFeedback = useCallback(() => {
@@ -319,6 +327,17 @@ function Signup() {
     setIsSubmitting(true)
     clearFeedback()
 
+    const validation = validateForm(form, { isIdChecked, isEmailVerified: true })
+
+    if (!validation.valid) {
+      setErrors(validation.errors)
+      setCurrentStep(SIGNUP_STEP_FORM)
+      showFeedback('error', '입력 정보를 확인한 뒤 다시 가입을 진행해주세요.')
+      setIsSubmitting(false)
+      releaseSignupLock('signup')
+      return false
+    }
+
     let signupResult = null
 
     try {
@@ -334,6 +353,13 @@ function Signup() {
     if (!signupResult?.success) {
       if (signupResult?.message === SIGNUP_EMAIL_NOT_VERIFIED_MESSAGE) {
         setIsEmailVerified(false)
+      }
+
+      if (signupResult?.errors) {
+        setErrors(signupResult.errors)
+        setCurrentStep(SIGNUP_STEP_FORM)
+      } else if (signupResult?.step === 'validation' || signupResult?.step === 'birthDate') {
+        setCurrentStep(SIGNUP_STEP_FORM)
       }
 
       showFeedback('error', signupResult?.message ?? '회원가입에 실패했습니다.')
@@ -356,7 +382,7 @@ function Signup() {
     releaseSignupLock('signup')
     setIsSubmitting(false)
     return true
-  }, [allowNavigationAndLeave, clearFeedback, form, resetSignupForm, showFeedback])
+  }, [allowNavigationAndLeave, clearFeedback, form, isEmailVerified, isIdChecked, resetSignupForm, showFeedback])
 
   useEffect(() => {
     if (isCompleteEntry) {
@@ -447,7 +473,7 @@ function Signup() {
       return undefined
     }
 
-    const timer = window.setInterval(async () => {
+    const runSync = async () => {
       setIsAutoCheckingEmail(true)
 
       try {
@@ -455,7 +481,11 @@ function Signup() {
       } finally {
         setIsAutoCheckingEmail(false)
       }
-    }, 5000)
+    }
+
+    runSync()
+
+    const timer = window.setInterval(runSync, 5000)
 
     return () => {
       window.clearInterval(timer)
@@ -559,18 +589,13 @@ function Signup() {
 
   const handleEmailVerify = async () => {
     const email = form.email.trim()
-    const emailValidation = validateForm(
-      { ...form, email },
-      { isIdChecked: true, isEmailVerified: true },
-    )
+    const emailValidation = validateSignupEmail(email)
 
-    if (!email) {
-      setErrors((prev) => ({ ...prev, email: '이메일을 입력해주세요.' }))
-      return
-    }
+    clearFeedback()
 
-    if (emailValidation.errors.email && !emailValidation.errors.email.includes('인증')) {
+    if (!emailValidation.valid) {
       setErrors((prev) => ({ ...prev, email: emailValidation.errors.email }))
+      showFeedback('error', emailValidation.errors.email)
       return
     }
 
@@ -629,32 +654,27 @@ function Signup() {
     }
 
     setIsCheckingEmail(true)
+    setToast(null)
 
     try {
       const { verified, result } = await syncEmailVerifiedFromSupabase(email)
 
       if (verified) {
+        setFormFeedback(null)
+        setErrors((prev) => ({ ...prev, email: undefined }))
         setEmailStatusMessage('')
-        setCurrentStep(SIGNUP_STEP_EMAIL_PENDING)
         return
       }
 
       const message =
         result?.hint ||
         '아직 이메일 인증이 완료되지 않았습니다. 메일함의 인증 링크를 클릭한 뒤 다시 확인해주세요.'
-      setErrors((prev) => ({
-        ...prev,
-        email: message,
-      }))
-      showFeedback('error', message)
+
+      showFeedback('info', message, { toast: false })
     } catch (error) {
       console.error('[Signup] checkEmailVerificationStatus 예외', error)
       const message = '이메일 인증 확인에 실패했습니다. 다시 시도해주세요.'
-      setErrors((prev) => ({
-        ...prev,
-        email: message,
-      }))
-      showFeedback('error', message)
+      showFeedback('error', message, { toast: false })
     } finally {
       setIsCheckingEmail(false)
     }
