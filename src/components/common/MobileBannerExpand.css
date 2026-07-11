@@ -274,7 +274,7 @@
   .mobile-banner-expand.worship-template__intro--banner .worship-template__headline,
   .mobile-banner-expand.worship-template__intro--banner .worship-template__headline-line,
   .mobile-banner-expand.worship-template__intro--banner .worship-template__headline-accent {
-    font-size: clamp(0.5rem, 6.8cqi, 0.6875rem);
+    font-size: clamp(0.75rem, 8.8cqi, 0.9375rem);
     line-height: 1.28;
   }
 
