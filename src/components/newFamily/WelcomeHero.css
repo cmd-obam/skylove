@@ -6,7 +6,7 @@
 
 .nf-hero--banner {
   /* 배경 왼쪽 십자가/세로선에서 약 10px 떨어지도록 배치 */
-  --nf-hero-text-top: 20px;
+  --nf-hero-text-top: 5px;
   --nf-hero-text-left: calc(3.2% + 40px);
   --nf-hero-text-bottom: 20px;
   --nf-hero-text-width: calc(52% - (3.2% + 40px));
