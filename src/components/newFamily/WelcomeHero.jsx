@@ -16,6 +16,7 @@ function WelcomeHero({
       imageSrc={heroBackground}
       imageAlt="새가족 안내"
       className="nf-hero nf-hero--banner"
+      style={{ '--nf-hero-bg': `url(${heroBackground})` }}
     >
       <img
         src={heroBackground}

@@ -56,17 +56,11 @@
   }
 
   /* Preview: show image, hide overlaid text that would be cropped */
-  .mobile-banner-expand__preview .nf-hero__content,
   .mobile-banner-expand__preview .worship-hero__content,
   .mobile-banner-expand__preview .location-hero__content,
   .mobile-banner-expand__preview .nf-reasons__banner-text,
   .mobile-banner-expand__preview .nf-reasons__grid {
     display: none;
-  }
-
-  .mobile-banner-expand.nf-hero--banner {
-    aspect-ratio: auto;
-    min-height: 0;
   }
 
   .mobile-banner-expand__preview .nf-hero__bg-image {
@@ -77,6 +71,10 @@
     max-height: 14rem;
     object-fit: contain;
     object-position: center;
+  }
+
+  .mobile-banner-expand.nf-hero--banner .mobile-banner-expand__preview .nf-hero__bg-image {
+    display: none;
   }
 
   .mobile-banner-expand.worship-hero,
@@ -293,5 +291,77 @@
   .mobile-banner-expand.worship-template__intro--banner-dawn-prayer
     .worship-template__headline-accent {
     color: #5aa9ff;
+  }
+
+  /* 새가족안내 히어로: 모바일 미리보기에 메인 타이틀만 표시 */
+  .mobile-banner-expand.nf-hero--banner {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    position: relative;
+    width: 100%;
+    aspect-ratio: unset;
+    min-height: 0;
+    padding: 0;
+    overflow: visible;
+    border-radius: 0;
+    background: transparent !important;
+  }
+
+  .mobile-banner-expand.nf-hero--banner .mobile-banner-expand__preview {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    aspect-ratio: 1024 / 447;
+    min-height: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--nf-hero-bg) center / 100% 100% no-repeat;
+    background-color: #ffffff;
+  }
+
+  .mobile-banner-expand.nf-hero--banner .mobile-banner-expand__preview-hit {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+  }
+
+  .mobile-banner-expand.nf-hero--banner .mobile-banner-expand__trigger {
+    order: 2;
+    flex-shrink: 0;
+    margin-top: 0;
+  }
+
+  .mobile-banner-expand.nf-hero--banner .mobile-banner-expand__preview .nf-hero__content {
+    display: flex !important;
+    position: absolute;
+    top: 0;
+    right: auto;
+    bottom: 0;
+    left: clamp(4px, 1.8vw, 12px);
+    width: calc(58% - clamp(4px, 1.8vw, 12px));
+    height: 100%;
+    margin: 0;
+    justify-content: center;
+    align-items: flex-start;
+    pointer-events: none;
+  }
+
+  .mobile-banner-expand.nf-hero--banner .nf-hero__welcome,
+  .mobile-banner-expand.nf-hero--banner .nf-hero__subcopy {
+    display: none !important;
+  }
+
+  .mobile-banner-expand.nf-hero--banner .nf-hero__main-title {
+    margin: 0;
+    gap: 0.08em;
+  }
+
+  .mobile-banner-expand.nf-hero--banner .nf-hero__main-line,
+  .mobile-banner-expand.nf-hero--banner .nf-hero__highlight {
+    font-size: clamp(0.75rem, 8.8cqi, 0.9375rem);
+    line-height: 1.28;
   }
 }
