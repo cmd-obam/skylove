@@ -109,7 +109,6 @@
   }
 
   /* Lightbox text: readable mobile sizing */
-  .mobile-banner-expand__lightbox-text .nf-hero__content,
   .mobile-banner-expand__lightbox-text .worship-hero__content,
   .mobile-banner-expand__lightbox-text .location-hero__content,
   .mobile-banner-expand__lightbox-text .worship-template__intro-text,
@@ -121,27 +120,6 @@
     overflow: visible;
   }
 
-  .mobile-banner-expand__lightbox-text .nf-hero__bg-image {
-    display: none;
-  }
-
-  .mobile-banner-expand__lightbox-text .nf-hero__welcome--preview {
-    display: none !important;
-  }
-
-  .mobile-banner-expand__lightbox-text .nf-hero__lightbox-only {
-    display: block;
-  }
-
-  .mobile-banner-expand__lightbox-text .worship-template__intro-divider.nf-hero__lightbox-only {
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .mobile-banner-expand__lightbox-text .nf-hero__headline .nf-hero__main-line {
-    color: #2f6fad;
-  }
-
   .mobile-banner-expand__lightbox-text .worship-hero__title,
   .mobile-banner-expand__lightbox-text .location-hero__title {
     font-size: 1.125rem;
@@ -150,16 +128,33 @@
 
   .mobile-banner-expand__lightbox-text .worship-hero__subtitle,
   .mobile-banner-expand__lightbox-text .location-hero__subtitle,
-  .mobile-banner-expand__lightbox-text .worship-template__description,
-  .mobile-banner-expand__lightbox-text .worship-template__intro-title {
+  .mobile-banner-expand__lightbox-text .worship-template__description {
     font-size: 0.8125rem;
     line-height: 1.6;
+  }
+
+  .mobile-banner-expand__lightbox-text .worship-template__intro-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    line-height: 1.45;
+    color: #1f2d3d;
+  }
+
+  .mobile-banner-expand__lightbox-text .worship-template__intro--typography-classic .worship-template__headline,
+  .mobile-banner-expand__lightbox-text .worship-template__intro--typography-classic .worship-template__headline-line {
+    font-size: 1rem;
+    line-height: 1.45;
+    color: #2f6fad;
   }
 
   .mobile-banner-expand__lightbox-text .worship-template__headline,
   .mobile-banner-expand__lightbox-text .worship-template__headline-line {
     font-size: 1rem;
     line-height: 1.45;
+  }
+
+  .mobile-banner-expand__lightbox-text .worship-template__headline-accent {
+    color: #d64545;
   }
 
   .mobile-banner-expand__lightbox-text .nf-reasons__grid {
@@ -361,14 +356,12 @@
     pointer-events: none;
   }
 
-  .mobile-banner-expand.nf-hero--banner .nf-hero__welcome--preview,
-  .mobile-banner-expand.nf-hero--banner .worship-template__intro-divider,
-  .mobile-banner-expand.nf-hero--banner .worship-template__intro-title,
-  .mobile-banner-expand.nf-hero--banner .worship-template__description {
+  .mobile-banner-expand.nf-hero--banner .nf-hero__welcome,
+  .mobile-banner-expand.nf-hero--banner .nf-hero__subcopy {
     display: none !important;
   }
 
-  .mobile-banner-expand.nf-hero--banner .nf-hero__headline {
+  .mobile-banner-expand.nf-hero--banner .nf-hero__main-title {
     margin: 0;
     gap: 0.08em;
   }

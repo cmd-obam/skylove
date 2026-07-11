@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom'
 import { useEffect } from 'react'
 import './MobileImageLightbox.css'
 
@@ -19,7 +20,7 @@ function MobileImageLightbox({ imageSrc, imageAlt = '', onClose, children }) {
     }
   }, [onClose])
 
-  return (
+  return createPortal(
     <div className="mobile-image-lightbox" role="presentation">
       <button
         type="button"
@@ -42,7 +43,8 @@ function MobileImageLightbox({ imageSrc, imageAlt = '', onClose, children }) {
           {children ? <div className="mobile-image-lightbox__content">{children}</div> : null}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
 
