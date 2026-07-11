@@ -61,6 +61,16 @@ export const MENU_ITEMS = [
   },
 ]
 
+export function getFirstSubMenuPath(item) {
+  const firstChild = item.children?.[0]
+
+  if (!firstChild) {
+    return item.path
+  }
+
+  return firstChild.path
+}
+
 export function menuItemContainsPath(item, pathname) {
   if (item.path === pathname) {
     return true
