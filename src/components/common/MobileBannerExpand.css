@@ -419,7 +419,7 @@
     width: 42% !important;
     max-width: 42%;
     min-height: 100%;
-    margin: 0 !important;
+    margin: 0 0 0 20px !important;
     padding: clamp(0.5rem, 2vw, 0.875rem) clamp(0.5rem, 2vw, 0.875rem)
       clamp(0.5rem, 2vw, 0.875rem) clamp(0.875rem, 4vw, 1.75rem) !important;
     text-align: left !important;
