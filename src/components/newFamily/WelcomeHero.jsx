@@ -15,7 +15,7 @@ function WelcomeHero({
     <MobileBannerExpand
       imageSrc={heroBackground}
       imageAlt="새가족 안내"
-      className="nf-hero nf-hero--banner"
+      className="nf-hero nf-hero--banner worship-template__intro--typography-classic"
       style={{ '--nf-hero-bg': `url(${heroBackground})` }}
     >
       <img
@@ -28,26 +28,34 @@ function WelcomeHero({
       />
 
       <div className="nf-hero__content">
-        <p className="nf-hero__welcome">
-          <span className="nf-hero__welcome-text">{welcomeLine}</span>
-        </p>
+        <div className="worship-template__intro-text">
+          <p className="nf-hero__welcome nf-hero__welcome--preview">
+            <span className="nf-hero__welcome-text">{welcomeLine}</span>
+          </p>
 
-        <h2 className="nf-hero__main-title">
-          <span className="nf-hero__main-line">{headlineLine1}</span>
-          <span className="nf-hero__main-line nf-hero__main-line--second">
-            <span className="nf-hero__highlight">{headlineHighlight}</span>
-            {headlineLine2Prefix}
-            {headlineLine2Suffix}
-          </span>
-        </h2>
-
-        <p className="nf-hero__subcopy">
-          {descriptionLines.map((line) => (
-            <span key={line} className="nf-hero__subcopy-line">
-              {line}
+          <p className="worship-template__headline nf-hero__headline">
+            <span className="worship-template__headline-line nf-hero__main-line">{headlineLine1}</span>
+            <span className="worship-template__headline-line nf-hero__main-line nf-hero__main-line--second">
+              <span className="worship-template__headline-accent nf-hero__highlight">
+                {headlineHighlight}
+              </span>
+              {headlineLine2Prefix}
+              {headlineLine2Suffix}
             </span>
-          ))}
-        </p>
+          </p>
+
+          <div className="worship-template__intro-divider nf-hero__lightbox-only" aria-hidden="true" />
+
+          <p className="worship-template__intro-title nf-hero__lightbox-only">{welcomeLine}</p>
+
+          <p className="worship-template__description nf-hero__description">
+            {descriptionLines.map((line) => (
+              <span key={line} className="worship-template__description-line nf-hero__subcopy-line">
+                {line}
+              </span>
+            ))}
+          </p>
+        </div>
       </div>
     </MobileBannerExpand>
   )

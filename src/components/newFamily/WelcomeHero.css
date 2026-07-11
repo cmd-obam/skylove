@@ -64,7 +64,11 @@
   background-size: 6rem 0.25rem;
 }
 
-.nf-hero__main-title {
+.nf-hero__lightbox-only {
+  display: none;
+}
+
+.nf-hero__headline {
   display: flex;
   flex-direction: column;
   gap: 0.06em;
@@ -81,6 +85,10 @@
   word-break: keep-all;
 }
 
+.nf-hero--banner.worship-template__intro--typography-classic .nf-hero__headline .nf-hero__main-line {
+  color: #1e3a5f;
+}
+
 .nf-hero__main-line--second {
   display: inline-flex;
   flex-wrap: wrap;
@@ -92,7 +100,8 @@
   color: #d64545;
 }
 
-.nf-hero__subcopy {
+.nf-hero__subcopy,
+.nf-hero__description {
   display: flex;
   flex-direction: column;
   gap: 0.12em;

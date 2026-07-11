@@ -125,78 +125,21 @@
     display: none;
   }
 
-  /* 새가족안내 히어로: 라이트박스 — 예배안내 배너와 동일 구조 */
-  .mobile-banner-expand__lightbox-text .nf-hero__content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0;
-    text-align: center;
+  .mobile-banner-expand__lightbox-text .nf-hero__welcome--preview {
+    display: none !important;
   }
 
-  .mobile-banner-expand__lightbox-text .nf-hero__main-title {
-    order: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.08em;
-    margin: 0 0 0.5rem;
-    font-size: unset;
-    line-height: inherit;
-  }
-
-  .mobile-banner-expand__lightbox-text .nf-hero__main-title::after {
-    content: '';
+  .mobile-banner-expand__lightbox-text .nf-hero__lightbox-only {
     display: block;
-    width: 2.5rem;
-    height: 2px;
-    margin: 0.5rem 0 0.25rem;
-    background-color: #2f6fad;
   }
 
-  .mobile-banner-expand__lightbox-text .nf-hero__main-line,
-  .mobile-banner-expand__lightbox-text .nf-hero__main-line--second {
-    justify-content: center;
-    font-family: 'Nanum Myeongjo', serif;
-    font-size: 1rem;
-    font-weight: 700;
-    line-height: 1.45;
+  .mobile-banner-expand__lightbox-text .worship-template__intro-divider.nf-hero__lightbox-only {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .mobile-banner-expand__lightbox-text .nf-hero__headline .nf-hero__main-line {
     color: #2f6fad;
-    text-align: center;
-  }
-
-  .mobile-banner-expand__lightbox-text .nf-hero__highlight {
-    color: #d64545;
-  }
-
-  .mobile-banner-expand__lightbox-text .nf-hero__welcome {
-    order: 2;
-    margin: 0 0 0.5rem;
-  }
-
-  .mobile-banner-expand__lightbox-text .nf-hero__welcome-text {
-    display: inline;
-    padding: 0;
-    font-family: 'Nanum Myeongjo', serif;
-    font-size: 1.125rem;
-    font-weight: 700;
-    line-height: 1.45;
-    color: #1f2d3d;
-    letter-spacing: -0.02em;
-    background: none;
-  }
-
-  .mobile-banner-expand__lightbox-text .nf-hero__subcopy {
-    order: 3;
-    gap: 0.25em;
-    margin: 0;
-  }
-
-  .mobile-banner-expand__lightbox-text .nf-hero__subcopy-line {
-    font-size: 0.8125rem;
-    line-height: 1.6;
-    color: #374151;
-    text-align: center;
   }
 
   .mobile-banner-expand__lightbox-text .worship-hero__title,
@@ -418,12 +361,14 @@
     pointer-events: none;
   }
 
-  .mobile-banner-expand.nf-hero--banner .nf-hero__welcome,
-  .mobile-banner-expand.nf-hero--banner .nf-hero__subcopy {
+  .mobile-banner-expand.nf-hero--banner .nf-hero__welcome--preview,
+  .mobile-banner-expand.nf-hero--banner .worship-template__intro-divider,
+  .mobile-banner-expand.nf-hero--banner .worship-template__intro-title,
+  .mobile-banner-expand.nf-hero--banner .worship-template__description {
     display: none !important;
   }
 
-  .mobile-banner-expand.nf-hero--banner .nf-hero__main-title {
+  .mobile-banner-expand.nf-hero--banner .nf-hero__headline {
     margin: 0;
     gap: 0.08em;
   }
