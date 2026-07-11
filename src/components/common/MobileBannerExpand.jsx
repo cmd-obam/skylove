@@ -12,6 +12,7 @@ function MobileBannerExpand({
   previewClassName = '',
   lightboxContentClassName = '',
   previewMode = 'banner',
+  showHeadlineOverlay = true,
   children,
 }) {
   const isMobile = useIsMobile()
@@ -31,7 +32,9 @@ function MobileBannerExpand({
   return (
     <>
       <div
-        className={`mobile-banner-expand mobile-banner-expand--${previewMode} ${className}`.trim()}
+        className={`mobile-banner-expand mobile-banner-expand--${previewMode}${
+          showHeadlineOverlay ? '' : ' mobile-banner-expand--no-headline-overlay'
+        } ${className}`.trim()}
         style={style}
       >
         <div className={`mobile-banner-expand__preview ${previewClassName}`.trim()}>
@@ -55,7 +58,7 @@ function MobileBannerExpand({
 
       {open && imageSrc ? (
         <MobileImageLightbox imageSrc={imageSrc} imageAlt={imageAlt} onClose={handleClose}>
-          {previewMode === 'banner' && children ? (
+          {showHeadlineOverlay && previewMode === 'banner' && children ? (
             <div className={`mobile-banner-expand__lightbox-text ${lightboxContentClassName}`.trim()}>
               {children}
             </div>

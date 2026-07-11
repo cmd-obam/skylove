@@ -13,6 +13,7 @@ function LocationHero() {
         imageSrc={heroBannerImage}
         imageAlt="찾아오시는 길"
         className="location-hero"
+        showHeadlineOverlay={false}
         style={{ '--location-hero-bg': `url(${heroBannerImage})` }}
       >
         <div className="location-hero__content">

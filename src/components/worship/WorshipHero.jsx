@@ -18,6 +18,7 @@ function WorshipHero() {
         imageSrc={worshipHeroImage}
         imageAlt="예배 안내"
         className="worship-hero"
+        showHeadlineOverlay={false}
         style={{ '--worship-hero-bg': `url(${worshipHeroImage})` }}
       >
         <div className="worship-hero__content">

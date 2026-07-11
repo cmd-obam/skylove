@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom'
-import MobileBannerExpand from '@/components/common/MobileBannerExpand'
 import directionsBg from '@/assets/images/location/location-info-col-directions.png'
 import phoneBg from '@/assets/images/location/location-info-col-phone.png'
 import worshipBg from '@/assets/images/location/location-info-col-worship.png'
@@ -43,21 +42,16 @@ function IconClock() {
 
 const WORSHIP_PATH = '/worship'
 
-function LocationInfoColumn({ variant, bgImage, imageAlt, children }) {
+function LocationInfoColumn({ variant, bgImage, children }) {
   return (
-    <MobileBannerExpand
-      imageSrc={bgImage}
-      imageAlt={imageAlt}
-      previewMode="background"
-      className={`location-info__column location-info__column--${variant}`}
-    >
+    <div className={`location-info__column location-info__column--${variant}`}>
       <div
         className="location-info__column-bg"
         style={{ '--location-col-bg': `url(${bgImage})` }}
         aria-hidden="true"
       />
       <div className="location-info__column-inner">{children}</div>
-    </MobileBannerExpand>
+    </div>
   )
 }
 
@@ -68,7 +62,7 @@ function LocationInfo() {
     <section className="location-info" aria-label="교회 연락처 및 예배 안내">
       <div className="location-info__card">
         <div className="location-info__content">
-          <LocationInfoColumn variant="directions" bgImage={directionsBg} imageAlt="오시는 길 안내">
+          <LocationInfoColumn variant="directions" bgImage={directionsBg}>
             <div className="location-info__header">
               <span className="location-info__icon" aria-hidden="true">
                 <IconPin />
@@ -81,7 +75,7 @@ function LocationInfo() {
             </div>
           </LocationInfoColumn>
 
-          <LocationInfoColumn variant="phone" bgImage={phoneBg} imageAlt="전화 문의 안내">
+          <LocationInfoColumn variant="phone" bgImage={phoneBg}>
             <div className="location-info__phone-top">
               <div className="location-info__header">
                 <span className="location-info__icon" aria-hidden="true">
@@ -108,7 +102,7 @@ function LocationInfo() {
             </div>
           </LocationInfoColumn>
 
-          <LocationInfoColumn variant="worship" bgImage={worshipBg} imageAlt="예배 시간 안내">
+          <LocationInfoColumn variant="worship" bgImage={worshipBg}>
             <Link to={WORSHIP_PATH} className="location-info__worship-compact">
               <div className="location-info__header">
                 <span className="location-info__icon" aria-hidden="true">
