@@ -1,4 +1,5 @@
 import { NEW_FAMILY_HERO } from '@/data/newFamilyGuide'
+import MobileBannerExpand from '@/components/common/MobileBannerExpand'
 import './WelcomeHero.css'
 
 function WelcomeHero({
@@ -11,7 +12,11 @@ function WelcomeHero({
   descriptionLines = NEW_FAMILY_HERO.descriptionLines,
 }) {
   return (
-    <section className="nf-hero nf-hero--banner" aria-label="환영">
+    <MobileBannerExpand
+      imageSrc={heroBackground}
+      imageAlt="새가족 안내"
+      className="nf-hero nf-hero--banner"
+    >
       <img
         src={heroBackground}
         alt=""
@@ -43,7 +48,7 @@ function WelcomeHero({
           ))}
         </p>
       </div>
-    </section>
+    </MobileBannerExpand>
   )
 }
 

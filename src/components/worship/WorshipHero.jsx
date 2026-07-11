@@ -1,4 +1,5 @@
 import Breadcrumb from '@/components/Breadcrumb'
+import MobileBannerExpand from '@/components/common/MobileBannerExpand'
 import { getPageMeta } from '@/data/pageMeta'
 import worshipHeroImage from '@/assets/images/worship/worship-hero.png'
 import './WorshipHero.css'
@@ -13,16 +14,17 @@ function WorshipHero() {
       <div className="worship-hero__breadcrumb">
         <Breadcrumb />
       </div>
-      <section
+      <MobileBannerExpand
+        imageSrc={worshipHeroImage}
+        imageAlt="예배 안내"
         className="worship-hero"
-        aria-label="예배 안내"
         style={{ '--worship-hero-bg': `url(${worshipHeroImage})` }}
       >
         <div className="worship-hero__content">
           <h1 className="worship-hero__title">{title}</h1>
           {subtitle && <p className="worship-hero__subtitle">{subtitle}</p>}
         </div>
-      </section>
+      </MobileBannerExpand>
     </div>
   )
 }

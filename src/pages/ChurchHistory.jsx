@@ -1,5 +1,8 @@
 import { useCallback, useState } from 'react'
 import churchHistoryIcon from '@/assets/images/about/church-history-icon.png'
+import useIsMobile from '@/hooks/useIsMobile'
+import MobileImageLightbox from '@/components/common/MobileImageLightbox'
+import '@/components/common/MobileImageLightbox.css'
 import {
   CHURCH_HISTORY_INTRO,
   CHURCH_HISTORY_PERIODS,
@@ -71,6 +74,19 @@ function ChurchHistoryEventTable({ events }) {
 }
 
 function ChurchHistoryPhotoGrid({ photos }) {
+  const isMobile = useIsMobile()
+  const [lightbox, setLightbox] = useState(null)
+
+  const openLightbox = useCallback((photo) => {
+    if (isMobile && photo.src) {
+      setLightbox(photo)
+    }
+  }, [isMobile])
+
+  const closeLightbox = useCallback(() => {
+    setLightbox(null)
+  }, [])
+
   return (
     <div className="church-history-photos">
       <h3 className="church-history-photos__title">대표 사진</h3>
@@ -78,12 +94,28 @@ function ChurchHistoryPhotoGrid({ photos }) {
         {photos.map((photo) => (
           <li key={photo.id} className="church-history-photos__item">
             {photo.src ? (
-              <img
-                src={photo.src}
-                alt={photo.caption}
-                className="church-history-photos__image"
-                loading="lazy"
-              />
+              isMobile ? (
+                <button
+                  type="button"
+                  className="church-history-photos__trigger"
+                  onClick={() => openLightbox(photo)}
+                  aria-label={`${photo.caption} 원본 보기`}
+                >
+                  <img
+                    src={photo.src}
+                    alt={photo.caption}
+                    className="church-history-photos__image"
+                    loading="lazy"
+                  />
+                </button>
+              ) : (
+                <img
+                  src={photo.src}
+                  alt={photo.caption}
+                  className="church-history-photos__image"
+                  loading="lazy"
+                />
+              )
             ) : (
               <div className="church-history-photos__placeholder" aria-hidden="true">
                 <span>이미지 준비 중</span>
@@ -93,6 +125,14 @@ function ChurchHistoryPhotoGrid({ photos }) {
           </li>
         ))}
       </ul>
+
+      {lightbox ? (
+        <MobileImageLightbox
+          imageSrc={lightbox.src}
+          imageAlt={lightbox.caption}
+          onClose={closeLightbox}
+        />
+      ) : null}
     </div>
   )
 }

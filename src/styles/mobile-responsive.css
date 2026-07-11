@@ -1,0 +1,338 @@
+/* Mobile-only responsive enhancements (max-width: 767px). Desktop (1024px+) unchanged. */
+
+@media (max-width: 767px) {
+  body {
+    font-size: 0.9375rem;
+  }
+
+  .sub-layout__title {
+    font-size: clamp(1.25rem, 5.2vw, 1.625rem);
+  }
+
+  .sub-layout__subtitle,
+  .category-layout__description {
+    font-size: 0.875rem;
+    line-height: 1.65;
+  }
+
+  .main,
+  .category-layout__main,
+  .category-layout__inner {
+    min-width: 0;
+    overflow-x: clip;
+  }
+
+  .category-layout,
+  .sub-layout,
+  .signup-page,
+  .auth-page {
+    overflow-x: clip;
+  }
+
+  .home-section__title,
+  .gallery__title,
+  .worship-table__title,
+  .facilities__section-title {
+    font-size: clamp(1.125rem, 4.8vw, 1.375rem);
+  }
+
+  .home-welcome__description,
+  .home-worship__description,
+  .nf-hero__subcopy-line,
+  .church-history-intro__text {
+    font-size: 0.875rem;
+    line-height: 1.65;
+  }
+
+  .auth-page__footer-link,
+  .auth-form__field-label,
+  .auth-form__field-hint {
+    font-size: 0.8125rem;
+  }
+
+  .auth-login__remember {
+    font-size: 0.8125rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .signup-page .signup-birth-date,
+  .signup-info-form .signup-birth-date {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr) minmax(0, 1fr);
+    gap: 0.5rem;
+    align-items: stretch;
+    width: 100%;
+    max-width: none !important;
+    min-height: 0;
+    flex-direction: row;
+  }
+
+  .signup-birth-date__dropdown {
+    flex: none;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .signup-birth-date__select {
+    min-width: 0;
+    min-height: 44px;
+    height: auto;
+    padding-left: 0.625rem;
+    padding-right: 1.625rem;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .signup-info-form .signup-birth-date__select {
+    min-height: 44px;
+    height: auto;
+  }
+
+  .signup-birth-date__menu {
+    max-height: 12rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .church-history-table-wrap {
+    overflow: visible;
+  }
+
+  .church-history-table {
+    display: block;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .church-history-table thead {
+    display: none;
+  }
+
+  .church-history-table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+  }
+
+  .church-history-table tbody tr {
+    display: block;
+    border: 1px solid #dfe8f2;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+  }
+
+  .church-history-table td {
+    display: block;
+    width: 100% !important;
+    padding: 0.75rem 0.875rem;
+    border: 0;
+    border-bottom: 1px solid #eef1f5;
+    text-align: left;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  .church-history-table td:last-child {
+    border-bottom: 0;
+  }
+
+  .church-history-table td::before {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #1f2d3d;
+  }
+
+  .church-history-table td:nth-child(1)::before {
+    content: '날짜';
+  }
+
+  .church-history-table td:nth-child(2)::before {
+    content: '행사명';
+  }
+
+  .church-history-table td:nth-child(3)::before {
+    content: '내용';
+  }
+
+  .church-history-filters__button {
+    min-width: 5.5rem;
+    padding: 0.625rem 1rem;
+    font-size: 0.8125rem;
+  }
+
+  .church-history-photos__trigger {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .church-history-photos__caption {
+    font-size: 0.8125rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .about-page::before {
+    display: none;
+  }
+
+  .about-page__quote-text {
+    font-size: clamp(1rem, 4.2vw, 1.25rem);
+  }
+
+  .about-page__scripture-text {
+    font-size: 0.875rem;
+    letter-spacing: 1px;
+  }
+
+  .about-page__scripture-ref {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .worship-table__wrap {
+    overflow: visible;
+  }
+
+  .worship-table__table {
+    display: block;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .worship-table__table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .worship-table__table tbody tr {
+    display: block;
+    border: 1px solid rgba(77, 166, 255, 0.35);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .worship-table__table th[scope='row'],
+  .worship-table__table td {
+    display: block;
+    width: 100% !important;
+    border: 0;
+    border-bottom: 1px solid rgba(77, 166, 255, 0.2);
+    text-align: left;
+    padding: 0.75rem 0.875rem;
+    font-size: 0.875rem;
+  }
+
+  .worship-table__table tbody tr:last-child th[scope='row'],
+  .worship-table__table tbody tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .worship-table__table td::before {
+    display: block;
+    margin-bottom: 0.2rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #1f2d3d;
+  }
+
+  .worship-table__table td:nth-child(2)::before {
+    content: '예배 시간';
+  }
+
+  .worship-table__table td:nth-child(3)::before {
+    content: '장소';
+  }
+}
+
+@media (max-width: 767px) {
+  .auth-card,
+  .signup-card {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .signup-info-form__input,
+  .signup-info-form__select,
+  .auth-form__input {
+    font-size: 1rem;
+    min-height: 44px;
+  }
+
+  .auth-page__body {
+    padding-inline: 0.25rem;
+  }
+
+  .auth-login__submit,
+  .auth-sub-form__submit {
+    min-height: 48px;
+    font-size: 0.9375rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .hero {
+    min-height: clamp(320px, 58vh, 440px);
+  }
+
+  .hero__title {
+    font-size: clamp(1.5rem, 6.8vw, 2rem);
+  }
+
+  .hero__subtitle {
+    font-size: 0.9375rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero__btn {
+    font-size: 0.875rem;
+    padding: 12px 1rem;
+  }
+
+  .worship-first-visit {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.875rem;
+  }
+
+  .worship-first-visit__title {
+    font-size: 1rem;
+  }
+
+  .worship-first-visit__desc {
+    font-size: 0.875rem;
+  }
+
+  .gallery__grid {
+    gap: 0.75rem;
+  }
+
+  .modal__dialog,
+  .sitemap-modal__panel {
+    width: min(calc(100vw - 1.5rem), 28rem);
+    max-height: min(92vh, 720px);
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  body {
+    font-size: 0.96875rem;
+  }
+
+  .sub-layout__title {
+    font-size: clamp(1.375rem, 3vw, 1.75rem);
+  }
+}

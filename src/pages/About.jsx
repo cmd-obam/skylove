@@ -3,6 +3,7 @@ import pastorOvalBase from '@/assets/images/about/pastor-oval-base.png'
 import pastorSignatureText from '@/assets/images/about/pastor-signature-text.png'
 import Breadcrumb from '@/components/Breadcrumb'
 import PastorIntro from '@/components/about/PastorIntro'
+import AboutBackgroundExpand from '@/components/about/AboutBackgroundExpand'
 import './About.css'
 
 function About() {
@@ -11,6 +12,7 @@ function About() {
       className="about-page"
       style={{ '--about-intro-bg': `url(${aboutIntroBg})` }}
     >
+      <AboutBackgroundExpand imageSrc={aboutIntroBg} />
       <header className="about-page__top">
         <h1 className="sub-layout__title">담임목사 인사</h1>
         <Breadcrumb />

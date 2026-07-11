@@ -201,8 +201,13 @@ export async function syncSupabaseAuthSession(options = {}) {
   return null
 }
 
-export async function resolveAuthCallbackSession() {
+export async function resolveAuthCallbackSession(debugRunId = 'unknown') {
+  const log = (step, details = {}) => {
+    console.log(`[AuthCallbackSession][run:${debugRunId}][${step}]`, details)
+  }
+
   const params = parseAuthCallbackParams()
+  log('parseAuthCallbackParams', { params, url: typeof window !== 'undefined' ? window.location.href : null })
 
   if (params.error) {
     throw new Error(params.errorDescription || '이메일 인증 처리에 실패했습니다.')
@@ -210,15 +215,27 @@ export async function resolveAuthCallbackSession() {
 
   const {
     data: { session: existingSession },
+    error: existingSessionError,
   } = await supabase.auth.getSession()
 
+  log('getSession(initial)', {
+    email: existingSession?.user?.email ?? null,
+    emailConfirmedAt: existingSession?.user?.email_confirmed_at ?? null,
+    error: existingSessionError?.message ?? null,
+  })
+
   if (existingSession?.user?.email && isEmailConfirmed(existingSession.user)) {
+    log('getSession(initial) confirmed — early return')
     clearAuthParamsFromUrl()
     return existingSession
   }
 
   const dedupeKey = getCallbackDedupeKey(params)
   const autoSession = await waitForAutoDetectedSession()
+  log('waitForAutoDetectedSession', {
+    email: autoSession?.user?.email ?? null,
+    emailConfirmedAt: autoSession?.user?.email_confirmed_at ?? null,
+  })
 
   if (autoSession?.user?.email && isEmailConfirmed(autoSession.user)) {
     if (dedupeKey) {
@@ -226,6 +243,7 @@ export async function resolveAuthCallbackSession() {
     }
 
     clearAuthParamsFromUrl()
+    log('autoSession confirmed — return')
     return autoSession
   }
 
@@ -233,6 +251,11 @@ export async function resolveAuthCallbackSession() {
     const {
       data: { session },
     } = await supabase.auth.getSession()
+
+    log('wasCallbackProcessed', {
+      dedupeKey,
+      email: session?.user?.email ?? null,
+    })
 
     if (session?.user?.email) {
       clearAuthParamsFromUrl()
@@ -243,9 +266,15 @@ export async function resolveAuthCallbackSession() {
   let session = existingSession ?? null
 
   if (params.accessToken && params.refreshToken) {
+    log('setSession start')
     const { data, error } = await supabase.auth.setSession({
       access_token: params.accessToken,
       refresh_token: params.refreshToken,
+    })
+
+    log('setSession result', {
+      email: data.session?.user?.email ?? null,
+      error: error?.message ?? null,
     })
 
     if (error) {
@@ -254,10 +283,22 @@ export async function resolveAuthCallbackSession() {
 
     session = data.session
   } else if (params.code) {
+    log('exchangeCodeForSession start', { codePrefix: params.code.slice(0, 8) })
     const { data, error } = await supabase.auth.exchangeCodeForSession(params.code)
+
+    log('exchangeCodeForSession result', {
+      email: data.session?.user?.email ?? null,
+      emailConfirmedAt: data.session?.user?.email_confirmed_at ?? null,
+      error: error?.message ?? null,
+      errorCode: error?.code ?? null,
+    })
 
     if (error) {
       const recovered = await waitForAutoDetectedSession(5)
+
+      log('exchangeCodeForSession recover', {
+        email: recovered?.user?.email ?? null,
+      })
 
       if (recovered?.user?.email) {
         session = recovered
@@ -268,14 +309,24 @@ export async function resolveAuthCallbackSession() {
       session = data.session
     }
   } else if (params.tokenHash) {
+    log('verifyOtpWithFallback start')
     session = await verifyOtpWithFallback(params.tokenHash, params.type)
+    log('verifyOtpWithFallback result', {
+      email: session?.user?.email ?? null,
+    })
   } else if (autoSession) {
+    log('use autoSession fallback')
     session = autoSession
   } else if (!session) {
     const {
       data: { session: fallbackSession },
       error,
     } = await supabase.auth.getSession()
+
+    log('getSession(fallback)', {
+      email: fallbackSession?.user?.email ?? null,
+      error: error?.message ?? null,
+    })
 
     if (error) {
       throw error
@@ -289,6 +340,11 @@ export async function resolveAuthCallbackSession() {
   }
 
   clearAuthParamsFromUrl()
+
+  log('resolveAuthCallbackSession done', {
+    email: session?.user?.email ?? null,
+    emailConfirmedAt: session?.user?.email_confirmed_at ?? null,
+  })
 
   return session
 }

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import footerCrossImage from '@/assets/images/worship/footer-cross-cloud.png'
+import MobileBannerExpand from '@/components/common/MobileBannerExpand'
 import './WorshipTemplate.css'
 
 function FooterDividerCross() {
@@ -111,6 +112,107 @@ function WorshipTemplate({
   const usesDiamondDivider =
     introBannerVariant === 'choir' || introBannerVariant === 'dawn-prayer'
 
+  const introClassName = `worship-template__intro${
+    isBannerIntro ? '' : ' worship-template__fade'
+  }${isBannerIntro ? ' worship-template__intro--banner' : ''}${
+    isSplitIntro ? ' worship-template__intro--split' : ''
+  }${
+    introBannerVariant ? ` worship-template__intro--banner-${introBannerVariant}` : ''
+  }${
+    introTypographyVariant ? ` worship-template__intro--typography-${introTypographyVariant}` : ''
+  }`
+
+  const introStyle = isBannerIntro
+    ? {
+        '--worship-intro-bg': `url(${introImage})`,
+        ...(introBackgroundPosition !== 'right center'
+          ? { '--worship-intro-bg-position': introBackgroundPosition }
+          : {}),
+      }
+    : undefined
+
+  const introText = (
+    <div className="worship-template__intro-text">
+      {introBannerVariant === 'dawn-prayer' && (
+        <>
+          <span className="worship-template__intro-cross" aria-hidden="true">
+            <svg width="16" height="20" viewBox="0 0 16 20" fill="none">
+              <path d="M8 0v20M0 6h16" stroke="currentColor" strokeWidth="2" />
+            </svg>
+          </span>
+          <div
+            className="worship-template__intro-divider worship-template__intro-divider--diamond worship-template__intro-divider--top"
+            aria-hidden="true"
+          >
+            <span className="worship-template__intro-divider-diamond" />
+          </div>
+        </>
+      )}
+      <p className="worship-template__headline">
+        {headlineRichLines
+          ? headlineRichLines.map((line, lineIndex) => (
+              <span key={lineIndex} className="worship-template__headline-line">
+                {line.map((part, partIndex) => (
+                  <span
+                    key={partIndex}
+                    className={part.accent ? 'worship-template__headline-accent' : undefined}
+                  >
+                    {part.text}
+                  </span>
+                ))}
+              </span>
+            ))
+          : (headlineLines ?? [headline]).map((line) => (
+              <span key={line} className="worship-template__headline-line">
+                {line}
+              </span>
+            ))}
+      </p>
+      {introTitle && (
+        <>
+          <div
+            className={`worship-template__intro-divider${
+              usesDiamondDivider ? ' worship-template__intro-divider--diamond' : ''
+            }`}
+            aria-hidden="true"
+          >
+            {usesDiamondDivider && <span className="worship-template__intro-divider-diamond" />}
+          </div>
+          <p className="worship-template__intro-title">{introTitle}</p>
+        </>
+      )}
+      {descriptionParagraphs ? (
+        <div className="worship-template__description-blocks">
+          {descriptionParagraphs.map((paragraph, paragraphIndex) => (
+            <div key={paragraphIndex} className="worship-template__description-block">
+              {paragraphIndex > 0 && (
+                <div className="worship-template__description-divider" aria-hidden="true" />
+              )}
+              <p className="worship-template__description worship-template__description--rich">
+                {paragraph.map((part, partIndex) => (
+                  <span
+                    key={partIndex}
+                    className={part.accent ? 'worship-template__description-accent' : undefined}
+                  >
+                    {part.text}
+                  </span>
+                ))}
+              </p>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="worship-template__description">
+          {(descriptionLines ?? [description]).map((line) => (
+            <span key={line} className="worship-template__description-line">
+              {line}
+            </span>
+          ))}
+        </p>
+      )}
+    </div>
+  )
+
   return (
     <article className="worship-template" ref={rootRef}>
       <header className="worship-template__header worship-template__fade">
@@ -149,129 +251,29 @@ function WorshipTemplate({
         )}
       </section>
 
-      <section
-        className={`worship-template__intro${
-          isBannerIntro ? '' : ' worship-template__fade'
-        }${isBannerIntro ? ' worship-template__intro--banner' : ''}${
-          isSplitIntro ? ' worship-template__intro--split' : ''
-        }${
-          introBannerVariant
-            ? ` worship-template__intro--banner-${introBannerVariant}`
-            : ''
-        }${
-          introTypographyVariant
-            ? ` worship-template__intro--typography-${introTypographyVariant}`
-            : ''
-        }`}
-        style={
-          isBannerIntro
-            ? {
-                '--worship-intro-bg': `url(${introImage})`,
-                ...(introBackgroundPosition !== 'right center'
-                  ? { '--worship-intro-bg-position': introBackgroundPosition }
-                  : {}),
-              }
-            : undefined
-        }
-        aria-label="예배 소개"
-      >
-        <div className="worship-template__intro-text">
-          {introBannerVariant === 'dawn-prayer' && (
-            <>
-              <span className="worship-template__intro-cross" aria-hidden="true">
-                <svg width="16" height="20" viewBox="0 0 16 20" fill="none">
-                  <path d="M8 0v20M0 6h16" stroke="currentColor" strokeWidth="2" />
-                </svg>
-              </span>
-              <div
-                className="worship-template__intro-divider worship-template__intro-divider--diamond worship-template__intro-divider--top"
-                aria-hidden="true"
-              >
-                <span className="worship-template__intro-divider-diamond" />
-              </div>
-            </>
-          )}
-          <p className="worship-template__headline">
-            {headlineRichLines ? (
-              headlineRichLines.map((line, lineIndex) => (
-                <span key={lineIndex} className="worship-template__headline-line">
-                  {line.map((part, partIndex) => (
-                    <span
-                      key={partIndex}
-                      className={
-                        part.accent ? 'worship-template__headline-accent' : undefined
-                      }
-                    >
-                      {part.text}
-                    </span>
-                  ))}
-                </span>
-              ))
-            ) : (
-              (headlineLines ?? [headline]).map((line) => (
-                <span key={line} className="worship-template__headline-line">
-                  {line}
-                </span>
-              ))
-            )}
-          </p>
-          {introTitle && (
-            <>
-              <div
-                className={`worship-template__intro-divider${
-                  usesDiamondDivider ? ' worship-template__intro-divider--diamond' : ''
-                }`}
-                aria-hidden="true"
-              >
-                {usesDiamondDivider && (
-                  <span className="worship-template__intro-divider-diamond" />
-                )}
-              </div>
-              <p className="worship-template__intro-title">{introTitle}</p>
-            </>
-          )}
-          {descriptionParagraphs ? (
-            <div className="worship-template__description-blocks">
-              {descriptionParagraphs.map((paragraph, paragraphIndex) => (
-                <div key={paragraphIndex} className="worship-template__description-block">
-                  {paragraphIndex > 0 && (
-                    <div className="worship-template__description-divider" aria-hidden="true" />
-                  )}
-                  <p className="worship-template__description worship-template__description--rich">
-                    {paragraph.map((part, partIndex) => (
-                      <span
-                        key={partIndex}
-                        className={
-                          part.accent ? 'worship-template__description-accent' : undefined
-                        }
-                      >
-                        {part.text}
-                      </span>
-                    ))}
-                  </p>
-                </div>
-              ))}
+      {isBannerIntro ? (
+        <MobileBannerExpand
+          imageSrc={introImage}
+          imageAlt={`${title} 소개`}
+          className={introClassName}
+          style={introStyle}
+        >
+          {introText}
+        </MobileBannerExpand>
+      ) : (
+        <section className={introClassName} style={introStyle} aria-label="예배 소개">
+          {introText}
+          {(isSplitIntro || !introImage) && (
+            <div className="worship-template__intro-media">
+              <ImageSlot
+                src={isSplitIntro ? introImage : null}
+                alt={`${title} 소개 이미지`}
+                variant="intro"
+              />
             </div>
-          ) : (
-            <p className="worship-template__description">
-              {(descriptionLines ?? [description]).map((line) => (
-                <span key={line} className="worship-template__description-line">
-                  {line}
-                </span>
-              ))}
-            </p>
           )}
-        </div>
-        {(isSplitIntro || !introImage) && (
-          <div className="worship-template__intro-media">
-            <ImageSlot
-              src={isSplitIntro ? introImage : null}
-              alt={`${title} 소개 이미지`}
-              variant="intro"
-            />
-          </div>
-        )}
-      </section>
+        </section>
+      )}
 
       {showGallery && (
       <section className="worship-template__gallery worship-template__fade" aria-label="예배 모습">

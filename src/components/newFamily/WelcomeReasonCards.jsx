@@ -1,5 +1,6 @@
 import welcomeBanner from '@/assets/images/newFamily/welcome-reason-banner.png'
 import { WELCOME_REASON } from '@/data/newFamilyGuide'
+import MobileBannerExpand from '@/components/common/MobileBannerExpand'
 import './WelcomeReasonCards.css'
 
 function WelcomeReasonCards({
@@ -11,7 +12,9 @@ function WelcomeReasonCards({
 }) {
   return (
     <section className="nf-section nf-reasons nf-fade" aria-label="환영 대상">
-      <div
+      <MobileBannerExpand
+        imageSrc={bannerImage}
+        imageAlt="환영 대상 안내"
         className="nf-reasons__banner"
         style={{ '--nf-reasons-banner-bg': `url(${bannerImage})` }}
       >
@@ -50,7 +53,7 @@ function WelcomeReasonCards({
             ))}
           </ul>
         </div>
-      </div>
+      </MobileBannerExpand>
     </section>
   )
 }

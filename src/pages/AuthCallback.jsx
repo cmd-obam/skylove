@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { FiAlertCircle, FiCheckCircle } from 'react-icons/fi'
 import { supabase } from '@/lib/supabase'
 import {
   isEmailConfirmed,
+  parseAuthCallbackParams,
   resolveAuthCallbackSession,
   syncSupabaseAuthSession,
 } from '@/services/auth/authCallbackSession'
@@ -17,10 +18,72 @@ const SUCCESS_DISPLAY_DELAY_MS = 3000
 const SUCCESS_BODY =
   '기존에 작성 중인 회원가입 탭으로 이동하여\n회원가입을 계속 진행해주세요.\n\n회원가입 페이지는 이미 인증 완료 상태로 변경되어 있습니다.\n\n이 창은 닫으셔도 됩니다.'
 
-async function waitForConfirmedUser(initialUser, maxAttempts = 6) {
+function sleep(ms) {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, ms)
+  })
+}
+
+async function logAuthSnapshot(runId, step) {
+  const {
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession()
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
+
+  let refreshResult = null
+
+  if (session) {
+    const { data, error } = await supabase.auth.refreshSession()
+    refreshResult = {
+      hasSession: Boolean(data.session),
+      userEmail: data.session?.user?.email ?? null,
+      emailConfirmedAt: data.session?.user?.email_confirmed_at ?? null,
+      error: error?.message ?? null,
+    }
+  }
+
+  console.log(`[AuthCallback][run:${runId}][${step}]`, {
+    callbackState: step,
+    url: window.location.href,
+    params: parseAuthCallbackParams(),
+    session: session
+      ? {
+          userId: session.user?.id ?? null,
+          email: session.user?.email ?? null,
+          emailConfirmedAt: session.user?.email_confirmed_at ?? null,
+        }
+      : null,
+    sessionError: sessionError?.message ?? null,
+    user: user
+      ? {
+          id: user.id,
+          email: user.email,
+          emailConfirmedAt: user.email_confirmed_at ?? null,
+          confirmedAt: user.confirmed_at ?? null,
+        }
+      : null,
+    userError: userError?.message ?? null,
+    refreshSession: refreshResult,
+  })
+
+  return { session, user, sessionError, userError }
+}
+
+async function waitForConfirmedUser(runId, initialUser, maxAttempts = 6) {
   let user = initialUser
 
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    console.log(`[AuthCallback][run:${runId}][waitForConfirmedUser] attempt ${attempt + 1}`, {
+      email: user?.email ?? null,
+      emailConfirmedAt: user?.email_confirmed_at ?? null,
+      isEmailConfirmed: user ? isEmailConfirmed(user) : false,
+    })
+
     if (user?.email && isEmailConfirmed(user)) {
       return user
     }
@@ -40,12 +103,33 @@ async function waitForConfirmedUser(initialUser, maxAttempts = 6) {
       return user
     }
 
-    await new Promise((resolve) => {
-      window.setTimeout(resolve, 350)
-    })
+    await sleep(350)
   }
 
   return user
+}
+
+async function resolveVerifiedUserFromSession(runId, initialSession) {
+  let user = initialSession?.user ?? null
+
+  if (user?.email && isEmailConfirmed(user)) {
+    console.log(`[AuthCallback][run:${runId}][resolveVerifiedUserFromSession] already confirmed`)
+    return user
+  }
+
+  console.log(`[AuthCallback][run:${runId}][resolveVerifiedUserFromSession] syncing session`)
+  await syncSupabaseAuthSession({ retries: 10, retryDelayMs: 300 })
+  await logAuthSnapshot(runId, 'after-syncSupabaseAuthSession')
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+
+  if (session?.user) {
+    user = session.user
+  }
+
+  return waitForConfirmedUser(runId, user)
 }
 
 function AuthCallbackLoading() {
@@ -85,37 +169,67 @@ function AuthCallbackError() {
   )
 }
 
-async function resolveVerifiedUserFromSession(initialSession) {
-  let user = initialSession?.user ?? null
-
-  if (user?.email && isEmailConfirmed(user)) {
-    return user
-  }
-
-  await syncSupabaseAuthSession({ retries: 10, retryDelayMs: 300 })
-
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
-
-  if (session?.user) {
-    user = session.user
-  }
-
-  return waitForConfirmedUser(user)
-}
-
 function AuthCallback() {
   const [status, setStatus] = useState('loading')
+  const runIdRef = useRef(0)
+  const statusRef = useRef('loading')
+
+  const setCallbackStatus = (nextStatus, runId, reason) => {
+    console.log(`[AuthCallback][run:${runId}][setCallbackStatus]`, {
+      from: statusRef.current,
+      to: nextStatus,
+      reason,
+      isLatestRun: runId === runIdRef.current,
+    })
+
+    if (runId !== runIdRef.current) {
+      console.log(`[AuthCallback][run:${runId}][setCallbackStatus] skipped — stale run`)
+      return
+    }
+
+    statusRef.current = nextStatus
+    setStatus(nextStatus)
+  }
 
   useEffect(() => {
+    const runId = runIdRef.current + 1
+    runIdRef.current = runId
     let cancelled = false
-    let successTimer = null
+
+    console.log(`[AuthCallback][run:${runId}] effect start`, {
+      callbackState: statusRef.current,
+    })
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, nextSession) => {
+      console.log(`[AuthCallback][run:${runId}][onAuthStateChange]`, {
+        authEvent: event,
+        email: nextSession?.user?.email ?? null,
+        emailConfirmedAt: nextSession?.user?.email_confirmed_at ?? null,
+        callbackState: statusRef.current,
+      })
+    })
 
     async function completeEmailVerification() {
       try {
-        const session = await resolveAuthCallbackSession()
-        const user = await resolveVerifiedUserFromSession(session)
+        await logAuthSnapshot(runId, 'start')
+
+        console.log(`[AuthCallback][run:${runId}] resolveAuthCallbackSession start`)
+        const session = await resolveAuthCallbackSession(runId)
+        console.log(`[AuthCallback][run:${runId}] resolveAuthCallbackSession done`, {
+          email: session?.user?.email ?? null,
+          emailConfirmedAt: session?.user?.email_confirmed_at ?? null,
+        })
+
+        await logAuthSnapshot(runId, 'after-resolveAuthCallbackSession')
+
+        const user = await resolveVerifiedUserFromSession(runId, session)
+        console.log(`[AuthCallback][run:${runId}] resolveVerifiedUserFromSession done`, {
+          email: user?.email ?? null,
+          emailConfirmedAt: user?.email_confirmed_at ?? null,
+          isEmailConfirmed: user ? isEmailConfirmed(user) : false,
+        })
 
         if (!user?.email) {
           throw new Error('이메일 인증 정보를 확인하지 못했습니다.')
@@ -130,24 +244,32 @@ function AuthCallback() {
         setEmailVerifiedBeacon(sessionEmail)
         broadcastEmailVerified(sessionEmail)
 
-        if (cancelled) {
-          return
-        }
-
-        await new Promise((resolve) => {
-          successTimer = window.setTimeout(resolve, SUCCESS_DISPLAY_DELAY_MS)
+        console.log(`[AuthCallback][run:${runId}] verification confirmed`, {
+          sessionEmail,
+          cancelled,
+          callbackState: statusRef.current,
         })
 
         if (cancelled) {
+          console.log(`[AuthCallback][run:${runId}] cancelled before success delay`)
           return
         }
 
-        setStatus('success')
+        console.log(`[AuthCallback][run:${runId}] waiting ${SUCCESS_DISPLAY_DELAY_MS}ms before success UI`)
+        await sleep(SUCCESS_DISPLAY_DELAY_MS)
+
+        if (cancelled) {
+          console.log(`[AuthCallback][run:${runId}] cancelled after success delay — skip setState`)
+          return
+        }
+
+        setCallbackStatus('success', runId, 'verification-complete')
       } catch (error) {
-        console.error('[AuthCallback] 이메일 인증 콜백 처리 실패', error)
+        console.error(`[AuthCallback][run:${runId}] completeEmailVerification failed`, error)
+        await logAuthSnapshot(runId, 'error')
 
         if (!cancelled) {
-          setStatus('error')
+          setCallbackStatus('error', runId, 'verification-failed')
         }
       }
     }
@@ -155,13 +277,17 @@ function AuthCallback() {
     completeEmailVerification()
 
     return () => {
+      console.log(`[AuthCallback][run:${runId}] effect cleanup`, {
+        callbackState: statusRef.current,
+      })
       cancelled = true
-
-      if (successTimer) {
-        window.clearTimeout(successTimer)
-      }
+      subscription.unsubscribe()
     }
   }, [])
+
+  useEffect(() => {
+    console.log('[AuthCallback] render', { callbackState: status })
+  }, [status])
 
   const handleClose = () => {
     window.close()
