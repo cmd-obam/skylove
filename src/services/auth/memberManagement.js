@@ -62,10 +62,8 @@ export async function updateMemberRoleBySuperAdmin(userId, newRole) {
   }
 
   const rpcParams = {
-    p_payload: {
-      target_user_id: userId,
-      new_role: normalizedRole,
-    },
+    p_target_user_id: userId,
+    p_new_role: normalizedRole,
   }
 
   console.log('[MemberManagement] updateMemberRoleBySuperAdmin request', {
@@ -79,7 +77,7 @@ export async function updateMemberRoleBySuperAdmin(userId, newRole) {
     logRpcError('updateMemberRoleBySuperAdmin', error, {
       rpc: 'update_member_role_by_super_admin',
       params: rpcParams,
-      note: 'SQL 파라미터는 p_payload jsonb { target_user_id, new_role } 입니다',
+      note: 'SQL 시그니처: update_member_role_by_super_admin(p_target_user_id uuid, p_new_role text)',
     })
 
     return {
