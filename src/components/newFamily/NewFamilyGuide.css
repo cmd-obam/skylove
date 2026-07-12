@@ -301,12 +301,22 @@
 
 .nf-bottom__grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-  align-items: start;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  column-gap: 10px;
+  align-items: stretch;
+}
+
+.nf-faq {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 .nf-faq__list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -321,35 +331,6 @@
 .nf-contact > .nf-section-title,
 .nf-contact__list {
   padding-left: 10px;
-}
-
-@media (min-width: 769px) {
-  .nf-bottom__grid {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 0.82fr);
-    column-gap: 10px;
-    align-items: stretch;
-  }
-
-  .nf-faq {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .nf-faq__list {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-
-  .nf-faq__trigger {
-    padding: 1.05rem 0;
-  }
-
-  .nf-contact > .nf-section-title,
-  .nf-contact__list {
-    padding-left: 0;
-  }
 }
 
 .nf-section-title {
@@ -376,7 +357,7 @@
   justify-content: space-between;
   gap: 0.75rem;
   width: 100%;
-  padding: 0.875rem 0;
+  padding: 1.05rem 0;
   border: 0;
   background: none;
   font-family: inherit;
@@ -585,6 +566,22 @@
 
   .nf-visit__btn {
     width: 100%;
+  }
+
+  .nf-bottom__grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    align-items: start;
+  }
+
+  .nf-faq {
+    display: block;
+  }
+
+  .nf-faq__list {
+    flex: none;
+    display: block;
+    justify-content: initial;
   }
 
   .nf-faq__trigger {
