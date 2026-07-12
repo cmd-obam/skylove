@@ -46,7 +46,14 @@ Deno.serve(
 
     if (profile?.role === 'admin') {
       return jsonResponse(
-        { error: 'forbidden', message: '관리자 계정은 최고관리자만 탈퇴 처리할 수 있습니다.' },
+        { error: 'forbidden', message: '관리자 계정은 직접 탈퇴할 수 없습니다.' },
+        403,
+      )
+    }
+
+    if (profile?.role === 'super_admin') {
+      return jsonResponse(
+        { error: 'forbidden', message: '최고관리자 계정은 직접 탈퇴할 수 없습니다.' },
         403,
       )
     }

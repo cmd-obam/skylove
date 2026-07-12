@@ -2,7 +2,7 @@ import { supabase } from '@/lib/supabase'
 import { clearAuthSession } from '@/utils/auth'
 import { clearSignupDraft } from '@/utils/signupDraft'
 import { fetchCurrentUserProfile } from '@/services/auth/profile'
-import { canDeleteAccount } from '@/services/auth/roles'
+import { canDeleteAccount, getSelfDeleteBlockMessage } from '@/services/auth/roles'
 
 function logDeleteStep(label, success, details) {
   const icon = success ? '✅' : '❌'
@@ -57,7 +57,9 @@ export async function deleteAccount() {
       return {
         success: false,
         step: 'permission',
-        message: '관리자 계정은 최고관리자만 탈퇴 처리할 수 있습니다.',
+        message:
+          getSelfDeleteBlockMessage(profileResult.profile.role) ||
+          '탈퇴할 수 없는 계정입니다.',
       }
     }
 

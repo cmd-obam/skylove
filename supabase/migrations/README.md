@@ -16,6 +16,7 @@ Migration 파일을 **번호 순서대로** Supabase SQL Editor에서 실행하�
 | 8 | `008_security_questions.sql` | 비밀번호 찾기 보안 질문/답변 |
 | 9 | `009_password_recovery_with_username.sql` | 이름+아이디+이메일 본인 확인 RPC |
 | 10 | `010_password_recovery_name_email.sql` | 이름+이메일 본인 확인 RPC 복원 |
+| 11 | `013_super_admin_member_management.sql` | super_admin 회원관리 RPC (목록/권한 변경) |
 
 > `003`은 `profiles.role`을 RLS에서 참조하므로 **`004`를 먼저** 실행해야 합니다.
 
@@ -26,7 +27,8 @@ Migration 파일을 **번호 순서대로** Supabase SQL Editor에서 실행하�
 | `find_by_name_email` | `supabase/functions/find_by_name_email/` | 아이디 찾기 / 비밀번호 찾기 회원 조회 |
 | `verify_security_answer` | `supabase/functions/verify_security_answer/` | 보안질문 답변 검증 |
 | `reset-password` | `supabase/functions/reset-password/` | (레거시) 비밀번호 재설정 |
-| `delete-account` | `supabase/functions/delete-account/` | 회원탈퇴 |
+| `delete-account` | `supabase/functions/delete-account/` | 본인 회원탈퇴 (member) |
+| `admin-delete-member` | `supabase/functions/admin-delete-member/` | super_admin 회원 탈퇴 처리 |
 
 CORS는 `supabase/functions/_shared/cors.ts`에서 공통 관리합니다.
 

@@ -36,14 +36,51 @@ export function canManageBoardPosts(profile) {
   return isAdminRole(profile?.role)
 }
 
-export function canDeleteAccount(profile) {
-  const role = normalizeRole(profile?.role)
+export function canManageMembers(profile) {
+  return isSuperAdminRole(profile?.role)
+}
 
-  if (!role) {
-    return false
+export function canChangeMemberRole(targetRole) {
+  const role = normalizeRole(targetRole)
+
+  return role === USER_ROLES.MEMBER || role === USER_ROLES.ADMIN
+}
+
+export function canDeleteMemberBySuperAdmin(targetRole) {
+  const role = normalizeRole(targetRole)
+
+  return role === USER_ROLES.MEMBER || role === USER_ROLES.ADMIN
+}
+
+export function getRoleLabel(role) {
+  switch (normalizeRole(role)) {
+    case USER_ROLES.SUPER_ADMIN:
+      return '최고관리자'
+    case USER_ROLES.ADMIN:
+      return '관리자'
+    case USER_ROLES.MEMBER:
+      return '일반회원'
+    default:
+      return role ?? '-'
+  }
+}
+
+export function getSelfDeleteBlockMessage(role) {
+  const normalizedRole = normalizeRole(role)
+
+  if (normalizedRole === USER_ROLES.ADMIN) {
+    return '관리자 계정은 직접 탈퇴할 수 없습니다.'
   }
 
-  return role === USER_ROLES.MEMBER || role === USER_ROLES.SUPER_ADMIN
+  if (normalizedRole === USER_ROLES.SUPER_ADMIN) {
+    return '최고관리자 계정은 직접 탈퇴할 수 없습니다.'
+  }
+
+  return null
+}
+
+export function canDeleteAccount(profile) {
+  return isMemberRole(profile?.role)
 }
 
 export function isKnownRole(role) {

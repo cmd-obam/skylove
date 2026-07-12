@@ -14,6 +14,7 @@ import Signup from '@/pages/Signup'
 import AuthCallback from '@/pages/AuthCallback'
 import EmailConfirmSuccess from '@/pages/EmailConfirmSuccess'
 import MemberEdit from '@/pages/MemberEdit'
+import MemberManagement from '@/pages/MemberManagement'
 import ResetPassword from '@/pages/ResetPassword'
 import ResetPasswordSecurityQuestion from '@/pages/ResetPasswordSecurityQuestion'
 import ResetPasswordEmailVerify from '@/pages/ResetPasswordEmailVerify'
@@ -30,6 +31,7 @@ import BoardPostViewerPage from '@/pages/BoardPostViewerPage'
 import AlbumWrite from '@/pages/AlbumWrite'
 import AlbumEdit from '@/pages/AlbumEdit'
 import MemberRoute from '@/components/auth/MemberRoute'
+import SuperAdminRoute from '@/components/auth/SuperAdminRoute'
 import NewFamilyGuide from '@/pages/NewFamilyGuide'
 import WorshipGuidePage from '@/pages/WorshipGuidePage'
 import Facilities from '@/pages/Facilities'
@@ -95,6 +97,14 @@ function App() {
             <Route path="/signup" element={<Signup />} />
             <Route path="/member/edit" element={<MemberEdit />} />
             <Route path="/mypage/change-password" element={<ChangePassword />} />
+            <Route
+              path="/member/management"
+              element={
+                <SuperAdminRoute>
+                  <MemberManagement />
+                </SuperAdminRoute>
+              }
+            />
             <Route
               path="/admin"
               element={

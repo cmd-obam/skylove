@@ -6,7 +6,7 @@ import DeleteAccountModal from '@/components/auth/DeleteAccountModal'
 import '@/components/auth/DeleteAccountModal.css'
 import { deleteAccount } from '@/services/auth/deleteAccount'
 import { fetchCurrentUserProfile } from '@/services/auth/profile'
-import { canDeleteAccount } from '@/services/auth/roles'
+import { canDeleteAccount, getSelfDeleteBlockMessage } from '@/services/auth/roles'
 import {
   PASSWORD_PLACEHOLDER,
   PASSWORD_REQUIREMENT_HINT,
@@ -112,6 +112,7 @@ function MemberEdit() {
   }, [deleteComplete, navigate])
 
   const canShowDeleteAccount = canDeleteAccount(currentProfile)
+  const selfDeleteBlockMessage = getSelfDeleteBlockMessage(currentProfile?.role)
 
   const handleDeleteAccount = async () => {
     setIsDeletingAccount(true)
@@ -359,6 +360,12 @@ function MemberEdit() {
                   </button>
                 )}
               </div>
+
+              {selfDeleteBlockMessage && (
+                <p className="signup-form__login" role="status">
+                  {selfDeleteBlockMessage}
+                </p>
+              )}
 
               <p className="signup-form__login">
                 <Link to="/" className="signup-form__login-link">
