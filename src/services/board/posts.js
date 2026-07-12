@@ -77,8 +77,8 @@ async function fetchPostsMetaMap(postType, postIds) {
 
 export async function fetchBoardPosts(postType) {
   const { data, error } = await supabase
-    .from('board_posts')
-    .select('*')
+    .from('board_post_list')
+    .select('id, post_type, title, writer, thumbnail, created_at')
     .eq('post_type', postType)
     .order('created_at', { ascending: false })
 
