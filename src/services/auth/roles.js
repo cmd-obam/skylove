@@ -12,6 +12,10 @@ export function isAdminRole(role) {
   return role === USER_ROLES.ADMIN || role === USER_ROLES.SUPER_ADMIN
 }
 
+export function canManageBoardPosts(profile) {
+  return isAdminRole(profile?.role)
+}
+
 export function isMemberRole(role) {
   return role === USER_ROLES.MEMBER
 }

@@ -1,16 +1,16 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Modal from '@/components/common/Modal'
-import { useIsAdmin } from '@/hooks/useIsAdmin'
+import { useBoardAdmin } from '@/hooks/useBoardAdmin'
 import { deleteBoardPost } from '@/services/board/posts'
 
 function BoardPostAdminBar({ postType, postId, listPath }) {
-  const { isAdmin, loading } = useIsAdmin()
+  const { canManageBoard, loading } = useBoardAdmin()
   const navigate = useNavigate()
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
-  if (loading || !isAdmin) {
+  if (loading || !canManageBoard) {
     return null
   }
 

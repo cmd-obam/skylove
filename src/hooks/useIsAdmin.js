@@ -1,11 +1,7 @@
-import { useMemo } from 'react'
-import { useAuth } from '@/contexts/AuthContext'
-import { isAdminRole } from '@/services/auth/roles'
+import { useBoardAdmin } from '@/hooks/useBoardAdmin'
 
 export function useIsAdmin() {
-  const { profile, loading } = useAuth()
+  const { canManageBoard, loading } = useBoardAdmin()
 
-  const isAdmin = useMemo(() => isAdminRole(profile?.role), [profile?.role])
-
-  return { isAdmin, loading }
+  return { isAdmin: canManageBoard, loading }
 }

@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom'
-import { useIsAdmin } from '@/hooks/useIsAdmin'
+import { useBoardAdmin } from '@/hooks/useBoardAdmin'
 
 function BoardWriteButton({ to, buttonClassName = 'church-news-board__search-button' }) {
-  const { isAdmin, loading } = useIsAdmin()
+  const { canManageBoard, loading } = useBoardAdmin()
 
-  if (loading || !isAdmin) {
+  if (loading || !canManageBoard) {
     return null
   }
 
