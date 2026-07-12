@@ -52,10 +52,10 @@ function EventPhotos() {
 
   return (
     <div className="church-news-page">
-      <header className="church-news-page__header">
-        <div className="church-news-page__heading">
-          <h1 className="church-news-page__title">교회앨범</h1>
-          <p className="church-news-page__description">교회 행사와 다양한 활동 사진을 소개합니다.</p>
+      <header className="sub-layout__header">
+        <div className="sub-layout__heading">
+          <h1 className="sub-layout__title">교회앨범</h1>
+          <p className="sub-layout__subtitle">교회 행사와 다양한 활동 사진을 소개합니다.</p>
         </div>
         <Breadcrumb />
       </header>

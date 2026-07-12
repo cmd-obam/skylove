@@ -50,10 +50,10 @@ function ChurchNews() {
 
   return (
     <div className="church-news-page">
-      <header className="church-news-page__header">
-        <div className="church-news-page__heading">
-          <h1 className="church-news-page__title">교회소식</h1>
-          <p className="church-news-page__description">하늘사랑교회의 새로운 소식을 전합니다.</p>
+      <header className="sub-layout__header">
+        <div className="sub-layout__heading">
+          <h1 className="sub-layout__title">교회소식</h1>
+          <p className="sub-layout__subtitle">하늘사랑교회의 새로운 소식을 전합니다.</p>
         </div>
         <Breadcrumb />
       </header>
