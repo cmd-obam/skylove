@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import ViewerUtilityBar from '@/components/board/ViewerUtilityBar'
-import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/contexts/AuthContext'
 import { fetchBoardPostById } from '@/services/board/posts'
 import { fetchPostMeta } from '@/services/board/postStats'
 import { formatPostRegistrationDate } from '@/utils/formatBoardDate'
@@ -10,6 +10,7 @@ import './BoardPostViewerPage.css'
 
 function BoardPostViewerPage() {
   const { postId } = useParams()
+  const { isLoggedIn, loading: authLoading } = useAuth()
   const [post, setPost] = useState(null)
   const [viewsCount, setViewsCount] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -25,15 +26,11 @@ function BoardPostViewerPage() {
     let isMounted = true
 
     async function loadPost() {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession()
-
-      if (!isMounted) {
+      if (authLoading) {
         return
       }
 
-      if (!session?.user) {
+      if (!isLoggedIn) {
         setPost(null)
         setLoading(false)
         return
@@ -73,7 +70,7 @@ function BoardPostViewerPage() {
     return () => {
       isMounted = false
     }
-  }, [postId])
+  }, [authLoading, isLoggedIn, postId])
 
   useEffect(() => {
     if (!post?.title) {
@@ -88,7 +85,7 @@ function BoardPostViewerPage() {
     }
   }, [post?.title])
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div className="board-post-viewer-page">
         <p className="board-post-viewer-page__status" role="status">
