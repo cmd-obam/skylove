@@ -70,13 +70,17 @@ SET search_path = public
 AS $$
 DECLARE
   current_role text;
+  normalized_new_role text;
+  normalized_current_role text;
 BEGIN
   IF NOT public.is_super_admin() THEN
     RAISE EXCEPTION '접근 권한이 없습니다.';
   END IF;
 
-  IF p_new_role NOT IN ('member', 'admin') THEN
-    RAISE EXCEPTION '변경할 수 없는 권한입니다.';
+  normalized_new_role := lower(trim(coalesce(p_new_role, '')));
+
+  IF normalized_new_role NOT IN ('member', 'admin') THEN
+    RAISE EXCEPTION '변경할 수 없는 권한입니다. (요청 role: %)', coalesce(p_new_role, 'NULL');
   END IF;
 
   SELECT p.role
@@ -88,20 +92,31 @@ BEGIN
     RAISE EXCEPTION '회원을 찾을 수 없습니다.';
   END IF;
 
-  IF current_role = 'super_admin' THEN
+  normalized_current_role := lower(trim(current_role));
+
+  IF normalized_current_role = 'super_admin' THEN
     RAISE EXCEPTION '최고관리자 권한은 변경할 수 없습니다.';
   END IF;
 
-  IF current_role NOT IN ('member', 'admin') THEN
-    RAISE EXCEPTION '변경할 수 없는 권한입니다.';
+  IF normalized_current_role NOT IN ('member', 'admin') THEN
+    RAISE EXCEPTION '변경할 수 없는 권한입니다. (현재 role: %)', current_role;
+  END IF;
+
+  IF normalized_current_role = normalized_new_role THEN
+    RAISE EXCEPTION '이미 % 권한입니다.', normalized_new_role;
   END IF;
 
   UPDATE public.profiles
-  SET role = p_new_role
+  SET role = normalized_new_role
   WHERE user_id = p_target_user_id;
 END;
 $$;
 
 GRANT EXECUTE ON FUNCTION public.update_member_role_by_super_admin(uuid, text) TO authenticated;
+
+UPDATE public.profiles
+SET role = lower(trim(role))
+WHERE role IS NOT NULL
+  AND role <> lower(trim(role));
 
 NOTIFY pgrst, 'reload schema';

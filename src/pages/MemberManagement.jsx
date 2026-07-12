@@ -10,6 +10,7 @@ import {
   canChangeMemberRole,
   canDeleteMemberBySuperAdmin,
   getRoleLabel,
+  normalizeRole,
   USER_ROLES,
 } from '@/services/auth/roles'
 import { formatBoardDate } from '@/utils/formatBoardDate'
@@ -207,10 +208,11 @@ function MemberManagement() {
                 </tr>
               ) : (
                 members.map((member) => {
-                  const canChangeRole = canChangeMemberRole(member.role)
-                  const canDelete = canDeleteMemberBySuperAdmin(member.role)
+                  const memberRole = normalizeRole(member.role)
+                  const canChangeRole = canChangeMemberRole(memberRole)
+                  const canDelete = canDeleteMemberBySuperAdmin(memberRole)
                   const nextRole =
-                    member.role === USER_ROLES.MEMBER ? USER_ROLES.ADMIN : USER_ROLES.MEMBER
+                    memberRole === USER_ROLES.MEMBER ? USER_ROLES.ADMIN : USER_ROLES.MEMBER
 
                   return (
                     <tr key={member.user_id}>
@@ -232,12 +234,12 @@ function MemberManagement() {
                                 setRoleModal({
                                   userId: member.user_id,
                                   name: member.name,
-                                  currentRole: member.role,
+                                  currentRole: memberRole,
                                   nextRole,
                                 })
                               }
                             >
-                              {member.role === USER_ROLES.MEMBER ? '관리자로 변경' : '일반회원으로 변경'}
+                              {memberRole === USER_ROLES.MEMBER ? '관리자로 변경' : '일반회원으로 변경'}
                             </button>
                           )}
                           {canDelete && (

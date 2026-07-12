@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { normalizeRole, USER_ROLES } from '@/services/auth/roles'
 
 function mapRpcError(error, fallbackMessage) {
   const code = error?.code ?? ''
@@ -37,9 +38,18 @@ export async function fetchMembersForSuperAdmin(search = '') {
 }
 
 export async function updateMemberRoleBySuperAdmin(userId, newRole) {
+  const normalizedRole = normalizeRole(newRole)
+
+  if (normalizedRole !== USER_ROLES.MEMBER && normalizedRole !== USER_ROLES.ADMIN) {
+    return {
+      success: false,
+      message: '변경할 수 없는 권한입니다.',
+    }
+  }
+
   const { error } = await supabase.rpc('update_member_role_by_super_admin', {
     p_target_user_id: userId,
-    p_new_role: newRole,
+    p_new_role: normalizedRole,
   })
 
   if (error) {
