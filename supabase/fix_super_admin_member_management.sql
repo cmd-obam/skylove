@@ -47,7 +47,7 @@ BEGIN
     p.username,
     p.name,
     p.email,
-    p.role,
+    lower(trim(p.role)) AS role,
     p.created_at
   FROM public.profiles p
   WHERE (
@@ -62,37 +62,51 @@ $$;
 
 GRANT EXECUTE ON FUNCTION public.list_profiles_for_super_admin(text) TO authenticated;
 
-CREATE OR REPLACE FUNCTION public.update_member_role_by_super_admin(
-  p_target_user_id uuid,
-  p_new_role text
-)
+-- 기존 시그니처 제거 (PostgREST 파라미터 바인딩 혼선 방지)
+DROP FUNCTION IF EXISTS public.update_member_role_by_super_admin(uuid, text);
+DROP FUNCTION IF EXISTS public.update_member_role_by_super_admin(text, uuid);
+
+CREATE OR REPLACE FUNCTION public.update_member_role_by_super_admin(p_payload jsonb)
 RETURNS void
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public
 AS $$
 DECLARE
+  target_user_id uuid;
   current_role text;
   normalized_new_role text;
   normalized_current_role text;
+  raw_new_role text;
 BEGIN
   IF NOT public.is_super_admin() THEN
     RAISE EXCEPTION '접근 권한이 없습니다.';
   END IF;
 
-  normalized_new_role := lower(trim(coalesce(p_new_role, '')));
+  IF p_payload IS NULL THEN
+    RAISE EXCEPTION '요청 데이터가 없습니다.';
+  END IF;
+
+  target_user_id := nullif(trim(p_payload->>'target_user_id'), '')::uuid;
+  raw_new_role := p_payload->>'new_role';
+
+  IF target_user_id IS NULL THEN
+    RAISE EXCEPTION '대상 회원 ID가 없습니다. (payload: %)', p_payload::text;
+  END IF;
+
+  normalized_new_role := lower(trim(coalesce(raw_new_role, '')));
 
   IF normalized_new_role NOT IN ('member', 'admin') THEN
-    RAISE EXCEPTION '변경할 수 없는 권한입니다. (요청 role: %)', coalesce(p_new_role, 'NULL');
+    RAISE EXCEPTION '변경할 수 없는 권한입니다. (요청 role: %)', coalesce(raw_new_role, 'NULL');
   END IF;
 
   SELECT p.role
   INTO current_role
   FROM public.profiles p
-  WHERE p.user_id = p_target_user_id;
+  WHERE p.user_id = target_user_id;
 
   IF current_role IS NULL THEN
-    RAISE EXCEPTION '회원을 찾을 수 없습니다.';
+    RAISE EXCEPTION '회원을 찾을 수 없습니다. (user_id: %)', target_user_id;
   END IF;
 
   normalized_current_role := lower(trim(current_role));
@@ -111,11 +125,11 @@ BEGIN
 
   UPDATE public.profiles
   SET role = normalized_new_role
-  WHERE user_id = p_target_user_id;
+  WHERE user_id = target_user_id;
 END;
 $$;
 
-GRANT EXECUTE ON FUNCTION public.update_member_role_by_super_admin(uuid, text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.update_member_role_by_super_admin(jsonb) TO authenticated;
 
 -- 기존 role 값 공백/대소문자 정리 (선택)
 UPDATE public.profiles
