@@ -3,6 +3,7 @@ import { isAdminRole } from '@/services/auth/roles'
 import { fetchPostMeta } from '@/services/board/postStats'
 import { deleteBoardFiles } from '@/services/board/storage'
 import { getTempBoardPost, getTempBoardPosts } from '@/data/tempBoardPosts'
+import { fetchCommentCountsMap } from '@/services/board/comments'
 
 const PERMISSION_DENIED = '권한이 없습니다.'
 
@@ -92,13 +93,16 @@ export async function fetchBoardPosts(postType) {
     return { success: false, message: error.message, posts: [] }
   }
 
-  const metaMap = await fetchPostsMetaMap(
-    postType,
-    (data ?? []).map((row) => row.id),
-  )
+  const postIds = (data ?? []).map((row) => row.id)
+
+  const [metaMap, commentCounts] = await Promise.all([
+    fetchPostsMetaMap(postType, postIds),
+    fetchCommentCountsMap(postType, postIds),
+  ])
 
   const posts = (data ?? []).map((row, index) => ({
     ...mapBoardPostRow(row, metaMap[String(row.id)]),
+    commentsCount: commentCounts[String(row.id)] ?? 0,
     no: (data ?? []).length - index,
   }))
 

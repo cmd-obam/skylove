@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FiFileText } from 'react-icons/fi'
 import Breadcrumb from '@/components/Breadcrumb'
 import BoardWriteButton from '@/components/board/BoardWriteButton'
-import { fetchBoardPosts } from '@/services/board/posts'
+import { useBoardPostList } from '@/hooks/useBoardPostList'
 import { formatBoardDate } from '@/utils/formatBoardDate'
+import { formatBoardPostTitle } from '@/utils/formatBoardPostTitle'
 import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 import './ChurchNews.css'
 
@@ -13,27 +14,7 @@ const LIST_PATH = '/church-news'
 function ChurchNews() {
   const [searchKeyword, setSearchKeyword] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
-  const [posts, setPosts] = useState([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    let isMounted = true
-
-    async function loadPosts() {
-      const result = await fetchBoardPosts('church_news')
-
-      if (isMounted) {
-        setPosts(result.posts ?? [])
-        setLoading(false)
-      }
-    }
-
-    loadPosts()
-
-    return () => {
-      isMounted = false
-    }
-  }, [])
+  const { posts, loading } = useBoardPostList('church_news')
 
   const handleSearchSubmit = (event) => {
     event.preventDefault()
@@ -123,7 +104,7 @@ function ChurchNews() {
                   <td>{post.no}</td>
                   <td className="church-news-board__post-title">
                     <Link to={`${LIST_PATH}/${post.id}`} className="church-news-board__post-link">
-                      {post.title}
+                      {formatBoardPostTitle(post.title, post.commentsCount)}
                     </Link>
                   </td>
                   <td className="church-news-board__col-date-cell">{formatBoardDate(post.date)}</td>

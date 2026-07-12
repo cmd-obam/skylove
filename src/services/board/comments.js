@@ -53,6 +53,50 @@ async function attachCommentLikes(comments, userId) {
   )
 }
 
+export async function fetchCommentCountsMap(postType, postIds) {
+  if (postIds.length === 0) {
+    return {}
+  }
+
+  const { data, error } = await supabase
+    .from('board_comments')
+    .select('post_id')
+    .eq('post_type', postType)
+    .eq('is_hidden', false)
+    .in('post_id', postIds.map(String))
+
+  if (error) {
+    console.error('[Board] fetchCommentCountsMap failed', error)
+    return {}
+  }
+
+  return (data ?? []).reduce((counts, row) => {
+    const postId = String(row.post_id)
+    counts[postId] = (counts[postId] ?? 0) + 1
+    return counts
+  }, {})
+}
+
+export function subscribeCommentCounts(postType, onChange) {
+  const channel = supabase
+    .channel(`board-comment-counts:${postType}`)
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'board_comments',
+        filter: `post_type=eq.${postType}`,
+      },
+      () => onChange(),
+    )
+    .subscribe()
+
+  return () => {
+    supabase.removeChannel(channel)
+  }
+}
+
 export async function fetchComments(postType, postId, userId) {
   const { data, error } = await supabase
     .from('board_comments')

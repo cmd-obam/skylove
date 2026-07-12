@@ -1,12 +1,13 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FiFileText } from 'react-icons/fi'
 import Breadcrumb from '@/components/Breadcrumb'
 import BoardWriteButton from '@/components/board/BoardWriteButton'
 import churchPlaceholder from '@/assets/images/home/welcome-church-exterior.png'
-import { fetchBoardPosts } from '@/services/board/posts'
+import { useBoardPostList } from '@/hooks/useBoardPostList'
 import { getAlbumThumbnailSrc } from '@/utils/albumThumbnail'
 import { formatBoardDate } from '@/utils/formatBoardDate'
+import { formatBoardPostTitle } from '@/utils/formatBoardPostTitle'
 import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 import './ChurchNews.css'
 
@@ -15,27 +16,7 @@ const LIST_PATH = '/church-news/album'
 function EventPhotos() {
   const [searchKeyword, setSearchKeyword] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
-  const [posts, setPosts] = useState([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    let isMounted = true
-
-    async function loadPosts() {
-      const result = await fetchBoardPosts('album')
-
-      if (isMounted) {
-        setPosts(result.posts ?? [])
-        setLoading(false)
-      }
-    }
-
-    loadPosts()
-
-    return () => {
-      isMounted = false
-    }
-  }, [])
+  const { posts, loading } = useBoardPostList('album')
 
   const handleSearchSubmit = (event) => {
     event.preventDefault()
@@ -107,7 +88,9 @@ function EventPhotos() {
                     />
                   </div>
                   <div className="event-photos-card__body">
-                    <h2 className="event-photos-card__title">{post.title}</h2>
+                    <h2 className="event-photos-card__title">
+                      {formatBoardPostTitle(post.title, post.commentsCount)}
+                    </h2>
                     <p className="event-photos-card__meta">
                       <span>{formatBoardDate(post.date)}</span>
                       <span className="event-photos-card__meta-divider" aria-hidden="true">
