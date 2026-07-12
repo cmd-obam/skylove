@@ -56,7 +56,7 @@ if (!supabaseUrl || !supabaseKey) {
   process.exit(1)
 }
 
-const PROFILE_SELECT = 'name, email, birth_date, phone, username, role'
+const PROFILE_SELECT = 'name,email,birth_date,phone,username,role'
 const COLUMN_CHECKS = ['username', 'name', 'email', 'birth_date', 'phone', 'role', 'user_id']
 
 async function restGet(path, headers = {}) {

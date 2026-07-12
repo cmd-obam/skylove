@@ -19,7 +19,8 @@ export const PROFILE_DB_COLUMNS = [
   'role',
 ]
 
-export const PROFILE_SELECT = 'name, email, birth_date, phone, username, role'
+/** PostgREST select — role 필수 (권한 판별) */
+export const PROFILE_SELECT = 'name,email,birth_date,phone,username,role'
 
 export const DEFAULT_MEMBER_ROLE = 'member'
 
