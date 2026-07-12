@@ -3,9 +3,9 @@ import { Link } from 'react-router-dom'
 import { FiFileText } from 'react-icons/fi'
 import Breadcrumb from '@/components/Breadcrumb'
 import BoardWriteButton from '@/components/board/BoardWriteButton'
+import BoardPostTitle from '@/components/board/BoardPostTitle'
 import { useBoardPostList } from '@/hooks/useBoardPostList'
 import { formatBoardDate } from '@/utils/formatBoardDate'
-import { formatBoardPostTitle } from '@/utils/formatBoardPostTitle'
 import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 import './ChurchNews.css'
 
@@ -104,7 +104,7 @@ function ChurchNews() {
                   <td>{post.no}</td>
                   <td className="church-news-board__post-title">
                     <Link to={`${LIST_PATH}/${post.id}`} className="church-news-board__post-link">
-                      {formatBoardPostTitle(post.title, post.commentsCount)}
+                      <BoardPostTitle title={post.title} commentsCount={post.commentsCount} />
                     </Link>
                   </td>
                   <td className="church-news-board__col-date-cell">{formatBoardDate(post.date)}</td>

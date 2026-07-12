@@ -3,11 +3,11 @@ import { Link } from 'react-router-dom'
 import { FiFileText } from 'react-icons/fi'
 import Breadcrumb from '@/components/Breadcrumb'
 import BoardWriteButton from '@/components/board/BoardWriteButton'
+import BoardPostTitle from '@/components/board/BoardPostTitle'
 import churchPlaceholder from '@/assets/images/home/welcome-church-exterior.png'
 import { useBoardPostList } from '@/hooks/useBoardPostList'
 import { getAlbumThumbnailSrc } from '@/utils/albumThumbnail'
 import { formatBoardDate } from '@/utils/formatBoardDate'
-import { formatBoardPostTitle } from '@/utils/formatBoardPostTitle'
 import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 import './ChurchNews.css'
 
@@ -89,7 +89,7 @@ function EventPhotos() {
                   </div>
                   <div className="event-photos-card__body">
                     <h2 className="event-photos-card__title">
-                      {formatBoardPostTitle(post.title, post.commentsCount)}
+                      <BoardPostTitle title={post.title} commentsCount={post.commentsCount} />
                     </h2>
                     <p className="event-photos-card__meta">
                       <span>{formatBoardDate(post.date)}</span>

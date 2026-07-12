@@ -500,6 +500,17 @@
   color: #4da6ff;
 }
 
+.board-post-title__comment-count {
+  color: #f97316;
+}
+
+.church-news-board__post-link:hover .board-post-title__comment-count,
+.church-news-board__post-link:focus-visible .board-post-title__comment-count,
+.event-photos-card:hover .board-post-title__comment-count,
+.event-photos-card:focus-visible .board-post-title__comment-count {
+  color: #f97316;
+}
+
 .church-news-board__empty {
   height: 200px;
   padding: 0;
