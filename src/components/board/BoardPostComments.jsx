@@ -8,6 +8,7 @@ import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 
 function CommentAdminActions({
   comment,
+  isEditing,
   onDelete,
   onHide,
   onPin,
@@ -22,9 +23,11 @@ function CommentAdminActions({
       <button type="button" className="board-comments__admin-button" onClick={() => onDelete(comment.id)}>
         삭제
       </button>
-      <button type="button" className="board-comments__admin-button" onClick={() => onEdit(comment)}>
-        수정
-      </button>
+      {!isEditing && (
+        <button type="button" className="board-comments__admin-button" onClick={() => onEdit(comment)}>
+          수정
+        </button>
+      )}
       <button type="button" className="board-comments__admin-button" onClick={() => onPin(comment)}>
         {comment.isPinned ? '고정 해제' : '고정'}
       </button>
@@ -45,6 +48,11 @@ function CommentItem({
   comment,
   isLoggedIn,
   isBoardAdmin,
+  isEditing,
+  editBody,
+  onEditBodyChange,
+  onEditSave,
+  onEditCancel,
   onLike,
   onDelete,
   onHide,
@@ -60,7 +68,7 @@ function CommentItem({
     <article
       className={`board-comments__item${comment.isHidden ? ' board-comments__item--hidden' : ''}${
         comment.isPinned ? ' board-comments__item--pinned' : ''
-      }`}
+      }${isEditing ? ' board-comments__item--editing' : ''}`}
     >
       <div className="board-comments__item-header">
         <div className="board-comments__item-meta">
@@ -77,6 +85,7 @@ function CommentItem({
         {isBoardAdmin && (
           <CommentAdminActions
             comment={comment}
+            isEditing={isEditing}
             onDelete={onDelete}
             onHide={onHide}
             onPin={onPin}
@@ -86,17 +95,44 @@ function CommentItem({
         )}
       </div>
 
-      <p className="board-comments__body">{comment.body}</p>
+      {isEditing ? (
+        <div className="board-comments__edit-panel">
+          <textarea
+            className="board-post-extras__comment-input"
+            rows={3}
+            value={editBody}
+            onChange={(event) => onEditBodyChange(event.target.value)}
+            autoComplete={AUTOCOMPLETE_OFF}
+            aria-label="댓글 수정"
+          />
+          <div className="board-comments__edit-actions">
+            <button type="button" className="board-comments__edit-button" onClick={onEditSave}>
+              저장
+            </button>
+            <button
+              type="button"
+              className="board-comments__edit-button board-comments__edit-button--secondary"
+              onClick={onEditCancel}
+            >
+              취소
+            </button>
+          </div>
+        </div>
+      ) : (
+        <>
+          <p className="board-comments__body">{comment.body}</p>
 
-      <button
-        type="button"
-        className={`board-comments__like-button${comment.likedByMe ? ' board-comments__like-button--active' : ''}`}
-        onClick={() => onLike(comment)}
-        disabled={!isLoggedIn}
-      >
-        <FiHeart aria-hidden="true" />
-        <span>추천 {comment.likeCount}</span>
-      </button>
+          <button
+            type="button"
+            className={`board-comments__like-button${comment.likedByMe ? ' board-comments__like-button--active' : ''}`}
+            onClick={() => onLike(comment)}
+            disabled={!isLoggedIn}
+          >
+            <FiHeart aria-hidden="true" />
+            <span>추천 {comment.likeCount}</span>
+          </button>
+        </>
+      )}
     </article>
   )
 }
@@ -104,7 +140,7 @@ function CommentItem({
 function BoardPostComments({ postType, postId, onCommentsCountChange }) {
   const { isLoggedIn, user, profile } = useAuth()
   const [comment, setComment] = useState('')
-  const [editingComment, setEditingComment] = useState(null)
+  const [editingCommentId, setEditingCommentId] = useState(null)
   const [editBody, setEditBody] = useState('')
 
   const isBoardAdmin = isAdminRole(profile?.role)
@@ -186,26 +222,34 @@ function BoardPostComments({ postType, postId, onCommentsCountChange }) {
   }
 
   const handleEditStart = (targetComment) => {
-    setEditingComment(targetComment)
+    setEditingCommentId(targetComment.id)
     setEditBody(targetComment.body)
   }
 
+  const handleEditCancel = () => {
+    setEditingCommentId(null)
+    setEditBody('')
+  }
+
   const handleEditSave = async () => {
-    if (!editingComment) {
+    if (!editingCommentId) {
       return
     }
 
-    const result = await editComment(editingComment.id, editBody)
+    const result = await editComment(editingCommentId, editBody)
 
     if (result.success) {
-      setEditingComment(null)
-      setEditBody('')
+      handleEditCancel()
     }
   }
 
   const handleDelete = async (commentId) => {
     if (!window.confirm('댓글을 삭제하시겠습니까?')) {
       return
+    }
+
+    if (editingCommentId === commentId) {
+      handleEditCancel()
     }
 
     await removeComment(commentId)
@@ -234,6 +278,11 @@ function BoardPostComments({ postType, postId, onCommentsCountChange }) {
                 comment={item}
                 isLoggedIn={isLoggedIn}
                 isBoardAdmin={isBoardAdmin}
+                isEditing={editingCommentId === item.id}
+                editBody={editBody}
+                onEditBodyChange={setEditBody}
+                onEditSave={handleEditSave}
+                onEditCancel={handleEditCancel}
                 onLike={handleLike}
                 onDelete={handleDelete}
                 onHide={handleHide}
@@ -246,33 +295,6 @@ function BoardPostComments({ postType, postId, onCommentsCountChange }) {
             <p className="board-post-extras__empty">등록된 댓글이 없습니다.</p>
           )}
         </div>
-
-        {editingComment && (
-          <div className="board-comments__edit-panel">
-            <textarea
-              className="board-post-extras__comment-input"
-              rows={3}
-              value={editBody}
-              onChange={(event) => setEditBody(event.target.value)}
-              autoComplete={AUTOCOMPLETE_OFF}
-            />
-            <div className="board-comments__edit-actions">
-              <button type="button" className="board-comments__edit-button" onClick={handleEditSave}>
-                저장
-              </button>
-              <button
-                type="button"
-                className="board-comments__edit-button board-comments__edit-button--secondary"
-                onClick={() => {
-                  setEditingComment(null)
-                  setEditBody('')
-                }}
-              >
-                취소
-              </button>
-            </div>
-          </div>
-        )}
 
         <form className="board-post-extras__comment-form" onSubmit={handleFormSubmit} autoComplete="off">
           <textarea

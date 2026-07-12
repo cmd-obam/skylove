@@ -1,10 +1,10 @@
 function BoardPostTitle({ title, commentsCount }) {
+  const count = Number.isFinite(Number(commentsCount)) ? Number(commentsCount) : 0
+
   return (
     <>
       {title}
-      {commentsCount > 0 && (
-        <span className="board-post-title__comment-count">{` ( ${commentsCount} )`}</span>
-      )}
+      <span className="board-post-title__comment-count">{` (${count})`}</span>
     </>
   )
 }
