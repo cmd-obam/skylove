@@ -12,11 +12,26 @@ function logRpcError(scope, error, context = {}) {
   console.groupEnd()
 }
 
-function mapRpcError(error, fallbackMessage) {
+function logRpcResponse(scope, response, context = {}) {
+  console.group(`[MemberManagement] ${scope} RPC response`)
+  console.log('context =', context)
+  console.log('data =', response?.data ?? null)
+  console.log('error =', response?.error ?? null)
+  console.log('JSON.stringify(error) =', JSON.stringify(response?.error ?? null, null, 2))
+  console.groupEnd()
+}
+
+function isMissingRpcFunctionError(error) {
   const code = error?.code ?? ''
+  const message = error?.message ?? ''
+
+  return code === 'PGRST202' || /Could not find the function/i.test(message)
+}
+
+function mapListFetchError(error, fallbackMessage) {
   const message = error?.message ?? fallbackMessage
 
-  if (code === 'PGRST202' || /Could not find the function/i.test(message)) {
+  if (isMissingRpcFunctionError(error)) {
     return '회원관리 DB 함수가 없습니다. Supabase SQL Editor에서 supabase/fix_super_admin_member_management.sql 을 실행해주세요.'
   }
 
@@ -27,20 +42,38 @@ function mapRpcError(error, fallbackMessage) {
   return message
 }
 
+function mapUpdateRoleError(error, fallbackMessage) {
+  const message = error?.message ?? fallbackMessage
+
+  if (isMissingRpcFunctionError(error)) {
+    return '권한 변경 RPC 함수를 찾을 수 없습니다. update_member_role_by_super_admin(p_payload jsonb) 시그니처를 확인해주세요.'
+  }
+
+  if (message.includes('접근 권한이 없습니다')) {
+    return '접근 권한이 없습니다.'
+  }
+
+  return message
+}
+
 export async function fetchMembersForSuperAdmin(search = '') {
-  const { data, error } = await supabase.rpc('list_profiles_for_super_admin', {
-    p_search: search.trim() || null,
-  })
+  const rpcParams = { p_search: search.trim() || null }
+
+  const response = await supabase.rpc('list_profiles_for_super_admin', rpcParams)
+  const { data, error } = response
+
+  console.log('[MemberManagement] fetchMembersForSuperAdmin response', { data, error })
+  console.log('[MemberManagement] fetchMembersForSuperAdmin error JSON', JSON.stringify(error, null, 2))
 
   if (error) {
     logRpcError('fetchMembersForSuperAdmin', error, {
       rpc: 'list_profiles_for_super_admin',
-      params: { p_search: search.trim() || null },
+      params: rpcParams,
     })
 
     return {
       success: false,
-      message: mapRpcError(error, '회원 목록을 불러오지 못했습니다.'),
+      message: mapListFetchError(error, '회원 목록을 불러오지 못했습니다.'),
       members: [],
     }
   }
@@ -62,8 +95,10 @@ export async function updateMemberRoleBySuperAdmin(userId, newRole) {
   }
 
   const rpcParams = {
-    p_target_user_id: userId,
-    p_new_role: normalizedRole,
+    p_payload: {
+      target_user_id: userId,
+      new_role: normalizedRole,
+    },
   }
 
   console.log('[MemberManagement] updateMemberRoleBySuperAdmin request', {
@@ -71,18 +106,26 @@ export async function updateMemberRoleBySuperAdmin(userId, newRole) {
     params: rpcParams,
   })
 
-  const { error } = await supabase.rpc('update_member_role_by_super_admin', rpcParams)
+  const response = await supabase.rpc('update_member_role_by_super_admin', rpcParams)
+  const { data, error } = response
+
+  console.log('[MemberManagement] updateMemberRoleBySuperAdmin response', { data, error })
+  console.log('[MemberManagement] updateMemberRoleBySuperAdmin error JSON', JSON.stringify(error, null, 2))
+  logRpcResponse('updateMemberRoleBySuperAdmin', response, {
+    rpc: 'update_member_role_by_super_admin',
+    params: rpcParams,
+    note: 'SQL 시그니처: update_member_role_by_super_admin(p_payload jsonb) — payload: { target_user_id, new_role }',
+  })
 
   if (error) {
     logRpcError('updateMemberRoleBySuperAdmin', error, {
       rpc: 'update_member_role_by_super_admin',
       params: rpcParams,
-      note: 'SQL 시그니처: update_member_role_by_super_admin(p_target_user_id uuid, p_new_role text)',
     })
 
     return {
       success: false,
-      message: mapRpcError(error, '권한 변경에 실패했습니다.'),
+      message: mapUpdateRoleError(error, '권한 변경에 실패했습니다.'),
     }
   }
 

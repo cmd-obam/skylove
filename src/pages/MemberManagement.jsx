@@ -77,11 +77,12 @@ function MemberManagement() {
       setFeedback({ type: 'error', message: result.message })
       setMembers([])
       setLoading(false)
-      return
+      return false
     }
 
     setMembers(result.members)
     setLoading(false)
+    return true
   }, [])
 
   useEffect(() => {
@@ -110,8 +111,8 @@ function MemberManagement() {
 
     setRoleModal(null)
     setIsSubmitting(false)
-    setFeedback({ type: 'success', message: result.message })
     await loadMembers(searchQuery)
+    setFeedback({ type: 'success', message: result.message })
   }
 
   const handleDeleteConfirm = async () => {
@@ -131,8 +132,8 @@ function MemberManagement() {
 
     setDeleteModal(null)
     setIsSubmitting(false)
-    setFeedback({ type: 'success', message: result.message })
     await loadMembers(searchQuery)
+    setFeedback({ type: 'success', message: result.message })
   }
 
   return (
@@ -163,7 +164,12 @@ function MemberManagement() {
           </button>
         </form>
 
-        {feedback && (
+        {feedback &&
+          !(
+            feedback.type === 'error' &&
+            members.length > 0 &&
+            feedback.message.includes('회원관리 DB 함수가 없습니다')
+          ) && (
           <p
             className={`member-management-page__feedback member-management-page__feedback--${feedback.type}`}
             role={feedback.type === 'error' ? 'alert' : 'status'}
