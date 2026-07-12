@@ -1,7 +1,12 @@
 import { supabase } from '@/lib/supabase'
 
 function mapRpcError(error, fallbackMessage) {
+  const code = error?.code ?? ''
   const message = error?.message ?? fallbackMessage
+
+  if (code === 'PGRST202' || /Could not find the function/i.test(message)) {
+    return '회원관리 DB 함수가 없습니다. Supabase SQL Editor에서 supabase/fix_super_admin_member_management.sql 을 실행해주세요.'
+  }
 
   if (message.includes('접근 권한이 없습니다')) {
     return '접근 권한이 없습니다.'

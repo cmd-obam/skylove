@@ -74,6 +74,20 @@ npm run test:edge-function-cors
 
 로그인 시 `column profiles.role does not exist` (42703) 가 나오면:
 
+```
+supabase/fix_login_role.sql
+```
+
+실행 후 `profiles` 테이블에 `role` 컬럼이 있는지 Table Editor에서 확인하세요.
+
+회원관리 페이지에서 `list_profiles_for_super_admin` RPC 404 (PGRST202) 가 나오면:
+
+```
+supabase/fix_super_admin_member_management.sql
+```
+
+또는 migration `013_super_admin_member_management.sql` 을 SQL Editor에서 실행하세요.
+
 **가장 빠른 방법** — Supabase SQL Editor에서 아래 파일 **전체** 실행:
 
 ```
