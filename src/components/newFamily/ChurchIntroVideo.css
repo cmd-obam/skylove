@@ -41,6 +41,7 @@
   line-height: 1.2;
   color: #123f8a;
   letter-spacing: -0.05em;
+  white-space: nowrap;
 }
 
 .nf-video__panel-heart {

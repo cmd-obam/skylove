@@ -41,7 +41,7 @@
 }
 
 .nf-guide__intro-block .nf-video__inner {
-  grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 2.35fr);
   gap: clamp(0.45rem, 1vw, 0.85rem);
   align-items: stretch;
 }
