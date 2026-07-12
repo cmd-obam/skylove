@@ -136,14 +136,10 @@ function App() {
                 <Route path="/fellowship" element={<Fellowship />} />
                 <Route path="/church-news" element={<ChurchNews />} />
                 <Route path="/church-news/album" element={<EventPhotos />} />
-                <Route
-                  path="/church-news/album/:postId"
-                  element={
-                    <MemberRoute>
-                      <EventPhotoDetail />
-                    </MemberRoute>
-                  }
-                />
+                <Route element={<MemberRoute />}>
+                  <Route path="/church-news/album/:postId" element={<EventPhotoDetail />} />
+                  <Route path="/church-news/:postId" element={<ChurchNewsDetail />} />
+                </Route>
                 <Route
                   path="/news/write"
                   element={
@@ -179,14 +175,6 @@ function App() {
                 <Route path="/church-news/write" element={<Navigate to="/news/write" replace />} />
                 <Route path="/church-news/album/write" element={<Navigate to="/album/write" replace />} />
                 <Route path="/new-family" element={<NewFamilyGuide />} />
-                <Route
-                  path="/church-news/:postId"
-                  element={
-                    <MemberRoute>
-                      <ChurchNewsDetail />
-                    </MemberRoute>
-                  }
-                />
               </Route>
             </Route>
           </Route>

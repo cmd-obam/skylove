@@ -1,3 +1,4 @@
+import { Outlet } from 'react-router-dom'
 import LoginRequiredModal from '@/components/auth/LoginRequiredModal'
 import { useMemberRouteGuard } from '@/hooks/useMemberRouteGuard'
 
@@ -12,7 +13,7 @@ function MemberRoute({ children }) {
     return <LoginRequiredModal isOpen onLogin={goToLogin} />
   }
 
-  return children
+  return children ?? <Outlet />
 }
 
 export default MemberRoute

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import ViewerUtilityBar from '@/components/board/ViewerUtilityBar'
+import { supabase } from '@/lib/supabase'
 import { fetchBoardPostById } from '@/services/board/posts'
 import { fetchPostMeta } from '@/services/board/postStats'
 import { formatPostRegistrationDate } from '@/utils/formatBoardDate'
@@ -24,6 +25,20 @@ function BoardPostViewerPage() {
     let isMounted = true
 
     async function loadPost() {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+
+      if (!isMounted) {
+        return
+      }
+
+      if (!session?.user) {
+        setPost(null)
+        setLoading(false)
+        return
+      }
+
       setLoading(true)
       setNotFound(false)
 
