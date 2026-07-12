@@ -6,6 +6,7 @@ import DeleteAccountModal from '@/components/auth/DeleteAccountModal'
 import '@/components/auth/DeleteAccountModal.css'
 import { deleteAccount } from '@/services/auth/deleteAccount'
 import { fetchCurrentUserProfile } from '@/services/auth/profile'
+import { canDeleteAccount } from '@/services/auth/roles'
 import {
   PASSWORD_PLACEHOLDER,
   PASSWORD_REQUIREMENT_HINT,
@@ -109,6 +110,8 @@ function MemberEdit() {
 
     return () => window.clearTimeout(timer)
   }, [deleteComplete, navigate])
+
+  const canShowDeleteAccount = canDeleteAccount(currentProfile)
 
   const handleDeleteAccount = async () => {
     setIsDeletingAccount(true)
@@ -342,17 +345,19 @@ function MemberEdit() {
                   {isSubmitting ? '저장 중...' : '회원정보 수정'}
                 </button>
 
-                <button
-                  type="button"
-                  className="signup-btn signup-btn--danger"
-                  onClick={() => {
-                    setDeleteError(null)
-                    setIsDeleteModalOpen(true)
-                  }}
-                  disabled={isSubmitting || isDeletingAccount}
-                >
-                  회원탈퇴
-                </button>
+                {canShowDeleteAccount && (
+                  <button
+                    type="button"
+                    className="signup-btn signup-btn--danger"
+                    onClick={() => {
+                      setDeleteError(null)
+                      setIsDeleteModalOpen(true)
+                    }}
+                    disabled={isSubmitting || isDeletingAccount}
+                  >
+                    회원탈퇴
+                  </button>
+                )}
               </div>
 
               <p className="signup-form__login">

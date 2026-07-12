@@ -6,6 +6,7 @@ import {
 } from '@/lib/supabaseErrorLog'
 import { mapProfileFetchError } from '@/services/auth/profileErrors'
 import { DEFAULT_MEMBER_ROLE, PROFILE_SELECT } from '@/services/auth/profileSchema'
+import { normalizeRole } from '@/services/auth/roles'
 
 export { PROFILE_SELECT } from '@/services/auth/profileSchema'
 
@@ -46,7 +47,7 @@ export async function fetchProfileByUserId(userId) {
     profile: {
       name: data.name,
       email: data.email,
-      role: data.role ?? DEFAULT_MEMBER_ROLE,
+      role: normalizeRole(data.role) ?? DEFAULT_MEMBER_ROLE,
       birthday: data.birth_date,
       phone: data.phone,
       username: data.username,

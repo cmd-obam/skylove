@@ -34,6 +34,23 @@ Deno.serve(
       return jsonResponse({ error: 'unauthorized', message: '로그인 정보를 확인할 수 없습니다.' }, 401)
     }
 
+    const { data: profile, error: profileError } = await userClient
+      .from('profiles')
+      .select('role')
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    if (profileError) {
+      return jsonResponse({ error: 'profile_check_failed', message: '회원 정보를 확인할 수 없습니다.' }, 500)
+    }
+
+    if (profile?.role === 'admin') {
+      return jsonResponse(
+        { error: 'forbidden', message: '관리자 계정은 최고관리자만 탈퇴 처리할 수 있습니다.' },
+        403,
+      )
+    }
+
     const adminClient = createClient(supabaseUrl, serviceRoleKey, {
       auth: { autoRefreshToken: false, persistSession: false },
     })

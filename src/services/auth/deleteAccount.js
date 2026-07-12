@@ -1,6 +1,8 @@
 import { supabase } from '@/lib/supabase'
 import { clearAuthSession } from '@/utils/auth'
 import { clearSignupDraft } from '@/utils/signupDraft'
+import { fetchCurrentUserProfile } from '@/services/auth/profile'
+import { canDeleteAccount } from '@/services/auth/roles'
 
 function logDeleteStep(label, success, details) {
   const icon = success ? '✅' : '❌'
@@ -36,6 +38,30 @@ export async function deleteAccount() {
     }
 
     logDeleteStep('현재 사용자 확인', true, { userId: user.id, email: user.email })
+
+    const profileResult = await fetchCurrentUserProfile()
+
+    if (!profileResult.success) {
+      logDeleteStep('프로필 확인', false, profileResult)
+      console.groupEnd()
+      return {
+        success: false,
+        step: 'profile_check',
+        message: profileResult.message || '회원 정보를 확인할 수 없습니다.',
+      }
+    }
+
+    if (!canDeleteAccount(profileResult.profile)) {
+      logDeleteStep('탈퇴 권한 확인', false, { role: profileResult.profile.role })
+      console.groupEnd()
+      return {
+        success: false,
+        step: 'permission',
+        message: '관리자 계정은 최고관리자만 탈퇴 처리할 수 있습니다.',
+      }
+    }
+
+    logDeleteStep('탈퇴 권한 확인', true, { role: profileResult.profile.role })
 
     const { error: profileError } = await supabase.from('profiles').delete().eq('user_id', user.id)
 

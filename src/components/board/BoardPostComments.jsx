@@ -2,14 +2,12 @@ import { useCallback, useEffect, useState } from 'react'
 import { FiHeart } from 'react-icons/fi'
 import { useAuth } from '@/contexts/AuthContext'
 import { useBoardComments } from '@/hooks/useBoardComments'
-import { isAdminRole, isSuperAdminRole } from '@/services/auth/roles'
+import { isAdminRole } from '@/services/auth/roles'
 import { formatCommentDateTime } from '@/utils/formatBoardDate'
 import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 
 function CommentAdminActions({
   comment,
-  isAdmin,
-  isSuperAdmin,
   onDelete,
   onHide,
   onPin,
@@ -18,34 +16,26 @@ function CommentAdminActions({
 }) {
   return (
     <div className="board-comments__admin-actions">
-      {isAdmin && (
-        <>
-          <button type="button" className="board-comments__admin-button" onClick={() => onHide(comment)}>
-            {comment.isHidden ? '숨김 해제' : '숨김'}
-          </button>
-          <button type="button" className="board-comments__admin-button" onClick={() => onDelete(comment.id)}>
-            삭제
-          </button>
-        </>
-      )}
-      {isSuperAdmin && (
-        <>
-          <button type="button" className="board-comments__admin-button" onClick={() => onEdit(comment)}>
-            수정
-          </button>
-          <button type="button" className="board-comments__admin-button" onClick={() => onPin(comment)}>
-            {comment.isPinned ? '고정 해제' : '고정'}
-          </button>
-          {comment.isReported && (
-            <button
-              type="button"
-              className="board-comments__admin-button"
-              onClick={() => onResolveReport(comment.id)}
-            >
-              신고 처리
-            </button>
-          )}
-        </>
+      <button type="button" className="board-comments__admin-button" onClick={() => onHide(comment)}>
+        {comment.isHidden ? '숨김 해제' : '숨김'}
+      </button>
+      <button type="button" className="board-comments__admin-button" onClick={() => onDelete(comment.id)}>
+        삭제
+      </button>
+      <button type="button" className="board-comments__admin-button" onClick={() => onEdit(comment)}>
+        수정
+      </button>
+      <button type="button" className="board-comments__admin-button" onClick={() => onPin(comment)}>
+        {comment.isPinned ? '고정 해제' : '고정'}
+      </button>
+      {comment.isReported && (
+        <button
+          type="button"
+          className="board-comments__admin-button"
+          onClick={() => onResolveReport(comment.id)}
+        >
+          신고 처리
+        </button>
       )}
     </div>
   )
@@ -54,8 +44,7 @@ function CommentAdminActions({
 function CommentItem({
   comment,
   isLoggedIn,
-  isAdmin,
-  isSuperAdmin,
+  isBoardAdmin,
   onLike,
   onDelete,
   onHide,
@@ -63,7 +52,7 @@ function CommentItem({
   onResolveReport,
   onEdit,
 }) {
-  if (comment.isHidden && !isAdmin) {
+  if (comment.isHidden && !isBoardAdmin) {
     return null
   }
 
@@ -80,16 +69,14 @@ function CommentItem({
             {formatCommentDateTime(comment.createdAt)}
           </time>
           {comment.isPinned && <span className="board-comments__badge">고정</span>}
-          {comment.isHidden && isAdmin && <span className="board-comments__badge">숨김</span>}
-          {comment.isReported && isSuperAdmin && (
+          {comment.isHidden && isBoardAdmin && <span className="board-comments__badge">숨김</span>}
+          {comment.isReported && isBoardAdmin && (
             <span className="board-comments__badge board-comments__badge--report">신고</span>
           )}
         </div>
-        {(isAdmin || isSuperAdmin) && (
+        {isBoardAdmin && (
           <CommentAdminActions
             comment={comment}
-            isAdmin={isAdmin}
-            isSuperAdmin={isSuperAdmin}
             onDelete={onDelete}
             onHide={onHide}
             onPin={onPin}
@@ -120,9 +107,7 @@ function BoardPostComments({ postType, postId, onCommentsCountChange }) {
   const [editingComment, setEditingComment] = useState(null)
   const [editBody, setEditBody] = useState('')
 
-  const userRole = profile?.role
-  const isAdmin = isAdminRole(userRole)
-  const isSuperAdmin = isSuperAdminRole(userRole)
+  const isBoardAdmin = isAdminRole(profile?.role)
 
   const handleCommentsChange = useCallback(
     (count) => {
@@ -248,8 +233,7 @@ function BoardPostComments({ postType, postId, onCommentsCountChange }) {
                 key={item.id}
                 comment={item}
                 isLoggedIn={isLoggedIn}
-                isAdmin={isAdmin}
-                isSuperAdmin={isSuperAdmin}
+                isBoardAdmin={isBoardAdmin}
                 onLike={handleLike}
                 onDelete={handleDelete}
                 onHide={handleHide}
