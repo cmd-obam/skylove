@@ -53,16 +53,19 @@ async function attachCommentLikes(comments, userId) {
   )
 }
 
+/**
+ * 게시글 목록용 댓글 수 (숨김 제외).
+ * board_post_meta 사용 — 비회원(anon)도 조회 가능, board_comments 직접 조회는 RLS로 차단됨.
+ */
 export async function fetchCommentCountsMap(postType, postIds) {
   if (postIds.length === 0) {
     return {}
   }
 
   const { data, error } = await supabase
-    .from('board_comments')
-    .select('post_id')
+    .from('board_post_meta')
+    .select('post_id, comments_count')
     .eq('post_type', postType)
-    .eq('is_hidden', false)
     .in('post_id', postIds.map(String))
 
   if (error) {
@@ -72,7 +75,7 @@ export async function fetchCommentCountsMap(postType, postIds) {
 
   return (data ?? []).reduce((counts, row) => {
     const postId = String(row.post_id)
-    counts[postId] = (counts[postId] ?? 0) + 1
+    counts[postId] = row.comments_count ?? 0
     return counts
   }, {})
 }
