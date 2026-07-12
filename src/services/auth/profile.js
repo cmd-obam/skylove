@@ -7,6 +7,7 @@ import {
 import { mapProfileFetchError } from '@/services/auth/profileErrors'
 import { DEFAULT_MEMBER_ROLE, PROFILE_SELECT } from '@/services/auth/profileSchema'
 import { normalizeRole } from '@/services/auth/roles'
+import { logFetchProfileRoleDebug } from '@/utils/authRoleDebug'
 
 export { PROFILE_SELECT } from '@/services/auth/profileSchema'
 
@@ -42,16 +43,20 @@ export async function fetchProfileByUserId(userId) {
 
   console.log('[Profile] fetchProfileByUserId success', { userId, data })
 
+  const profile = {
+    name: data.name,
+    email: data.email,
+    role: normalizeRole(data.role) ?? DEFAULT_MEMBER_ROLE,
+    birthday: data.birth_date,
+    phone: data.phone,
+    username: data.username,
+  }
+
+  logFetchProfileRoleDebug({ userId, data, mappedProfile: profile })
+
   return {
     success: true,
-    profile: {
-      name: data.name,
-      email: data.email,
-      role: normalizeRole(data.role) ?? DEFAULT_MEMBER_ROLE,
-      birthday: data.birth_date,
-      phone: data.phone,
-      username: data.username,
-    },
+    profile,
   }
 }
 

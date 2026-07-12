@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase'
 import { fetchProfileByUserId } from '@/services/auth/profile'
 import { recoverSessionFromAuthUrl } from '@/services/auth/authCallbackSession'
 import { clearAuthSession, setAuthSession } from '@/utils/auth'
+import { logAuthContextProfileDebug } from '@/utils/authRoleDebug'
 
 const AuthContext = createContext(null)
 
@@ -65,6 +66,7 @@ export function AuthProvider({ children }) {
     }
 
     setProfile(nextProfile)
+    logAuthContextProfileDebug(nextProfile)
   }, [])
 
   useEffect(() => {
