@@ -1,6 +1,17 @@
 import { supabase } from '@/lib/supabase'
 import { normalizeRole, USER_ROLES } from '@/services/auth/roles'
 
+function logRpcError(scope, error, context = {}) {
+  console.group(`[MemberManagement] ${scope} RPC error`)
+  console.log('context =', context)
+  console.log('error.message =', error?.message ?? null)
+  console.log('error.details =', error?.details ?? null)
+  console.log('error.hint =', error?.hint ?? null)
+  console.log('error.code =', error?.code ?? null)
+  console.log('JSON.stringify(error) =', JSON.stringify(error, null, 2))
+  console.groupEnd()
+}
+
 function mapRpcError(error, fallbackMessage) {
   const code = error?.code ?? ''
   const message = error?.message ?? fallbackMessage
@@ -22,7 +33,10 @@ export async function fetchMembersForSuperAdmin(search = '') {
   })
 
   if (error) {
-    console.error('[MemberManagement] fetchMembersForSuperAdmin failed', error)
+    logRpcError('fetchMembersForSuperAdmin', error, {
+      rpc: 'list_profiles_for_super_admin',
+      params: { p_search: search.trim() || null },
+    })
 
     return {
       success: false,
@@ -47,13 +61,24 @@ export async function updateMemberRoleBySuperAdmin(userId, newRole) {
     }
   }
 
-  const { error } = await supabase.rpc('update_member_role_by_super_admin', {
+  const rpcParams = {
     p_target_user_id: userId,
     p_new_role: normalizedRole,
+  }
+
+  console.log('[MemberManagement] updateMemberRoleBySuperAdmin request', {
+    rpc: 'update_member_role_by_super_admin',
+    params: rpcParams,
   })
 
+  const { error } = await supabase.rpc('update_member_role_by_super_admin', rpcParams)
+
   if (error) {
-    console.error('[MemberManagement] updateMemberRoleBySuperAdmin failed', error)
+    logRpcError('updateMemberRoleBySuperAdmin', error, {
+      rpc: 'update_member_role_by_super_admin',
+      params: rpcParams,
+      note: 'SQL 파라미터명은 p_target_user_id, p_new_role 입니다 (target_user_id/new_role 아님)',
+    })
 
     return {
       success: false,

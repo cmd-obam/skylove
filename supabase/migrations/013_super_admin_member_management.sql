@@ -14,7 +14,7 @@ AS $$
     SELECT 1
     FROM public.profiles
     WHERE user_id = auth.uid()
-      AND role = 'super_admin'
+      AND lower(trim(role)) = 'super_admin'
   );
 $$;
 
