@@ -1,71 +1,19 @@
-import { useEffect, useState } from 'react'
-import { Navigate } from 'react-router-dom'
-import { supabase } from '@/lib/supabase'
-import { fetchCurrentUserProfile } from '@/services/auth/profile'
-import { isAdminRole } from '@/services/auth/roles'
-import { setAuthSession } from '@/utils/auth'
+import { Outlet } from 'react-router-dom'
+import AdminRequiredModal from '@/components/auth/AdminRequiredModal'
+import { useAdminRouteGuard } from '@/hooks/useAdminRouteGuard'
 
 function AdminRoute({ children }) {
-  const [accessState, setAccessState] = useState('loading')
+  const { loading, isAllowed, goHome } = useAdminRouteGuard()
 
-  useEffect(() => {
-    let isMounted = true
-
-    async function verifyAdminAccess() {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession()
-
-      if (!isMounted) {
-        return
-      }
-
-      if (!session) {
-        setAccessState('unauthenticated')
-        return
-      }
-
-      const profileResult = await fetchCurrentUserProfile()
-
-      if (!isMounted) {
-        return
-      }
-
-      if (!profileResult.success) {
-        setAccessState('denied')
-        return
-      }
-
-      setAuthSession(profileResult.profile)
-
-      if (isAdminRole(profileResult.profile.role)) {
-        setAccessState('allowed')
-        return
-      }
-
-      setAccessState('denied')
-    }
-
-    verifyAdminAccess()
-
-    return () => {
-      isMounted = false
-    }
-  }, [])
-
-  if (accessState === 'loading') {
+  if (loading) {
     return null
   }
 
-  if (accessState === 'unauthenticated') {
-    return <Navigate to="/login" replace />
+  if (!isAllowed) {
+    return <AdminRequiredModal isOpen onConfirm={goHome} />
   }
 
-  if (accessState === 'denied') {
-    return <Navigate to="/" replace />
-  }
-
-  return children
+  return children ?? <Outlet />
 }
 
 export default AdminRoute
