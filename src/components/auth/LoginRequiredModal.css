@@ -1,0 +1,52 @@
+.login-required-modal__message {
+  margin: 0 0 1.5rem;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--color-text);
+  text-align: center;
+}
+
+.login-required-modal__actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.625rem;
+}
+
+.login-required-modal__button {
+  min-width: 6.5rem;
+  min-height: 2.75rem;
+  padding: 0 1.125rem;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.login-required-modal__button--ghost {
+  border: 1px solid #dce5ef;
+  background: #ffffff;
+  color: #374151;
+}
+
+.login-required-modal__button--ghost:hover,
+.login-required-modal__button--ghost:focus-visible {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.login-required-modal__button--primary {
+  border: 1px solid var(--color-primary);
+  background: var(--color-primary);
+  color: #ffffff;
+}
+
+.login-required-modal__button--primary:hover,
+.login-required-modal__button--primary:focus-visible {
+  background: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+}

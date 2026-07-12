@@ -30,6 +30,7 @@ import BoardPostViewerPage from '@/pages/BoardPostViewerPage'
 import AlbumWrite from '@/pages/AlbumWrite'
 import AlbumEdit from '@/pages/AlbumEdit'
 import BoardAdminRoute from '@/components/auth/BoardAdminRoute'
+import MemberRoute from '@/components/auth/MemberRoute'
 import NewFamilyGuide from '@/pages/NewFamilyGuide'
 import WorshipGuidePage from '@/pages/WorshipGuidePage'
 import Facilities from '@/pages/Facilities'
@@ -74,7 +75,14 @@ function App() {
       <AuthProvider>
         <ImageProtection />
         <Routes>
-          <Route path="/viewer/:postId" element={<BoardPostViewerPage />} />
+          <Route
+            path="/viewer/:postId"
+            element={
+              <MemberRoute>
+                <BoardPostViewerPage />
+              </MemberRoute>
+            }
+          />
           <Route path="/church-news/album/:postId/viewer" element={<LegacyBoardPostViewerRedirect />} />
           <Route path="/church-news/:postId/viewer" element={<LegacyBoardPostViewerRedirect />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
@@ -128,7 +136,14 @@ function App() {
                 <Route path="/fellowship" element={<Fellowship />} />
                 <Route path="/church-news" element={<ChurchNews />} />
                 <Route path="/church-news/album" element={<EventPhotos />} />
-                <Route path="/church-news/album/:postId" element={<EventPhotoDetail />} />
+                <Route
+                  path="/church-news/album/:postId"
+                  element={
+                    <MemberRoute>
+                      <EventPhotoDetail />
+                    </MemberRoute>
+                  }
+                />
                 <Route
                   path="/news/write"
                   element={
@@ -164,7 +179,14 @@ function App() {
                 <Route path="/church-news/write" element={<Navigate to="/news/write" replace />} />
                 <Route path="/church-news/album/write" element={<Navigate to="/album/write" replace />} />
                 <Route path="/new-family" element={<NewFamilyGuide />} />
-                <Route path="/church-news/:postId" element={<ChurchNewsDetail />} />
+                <Route
+                  path="/church-news/:postId"
+                  element={
+                    <MemberRoute>
+                      <ChurchNewsDetail />
+                    </MemberRoute>
+                  }
+                />
               </Route>
             </Route>
           </Route>

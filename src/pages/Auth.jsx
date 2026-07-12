@@ -10,6 +10,7 @@ import { AUTH_MESSAGES } from '@/constants/authMessages'
 import { setPasswordResetSession } from '@/utils/passwordResetSession'
 import { handleLogin } from '@/services/auth/login'
 import { clearSavedLoginId, getSavedLoginId, setSavedLoginId } from '@/utils/savedLoginId'
+import { getSafeRedirectPath } from '@/utils/loginRedirect'
 import { AUTOCOMPLETE_OFF, PASSWORD_AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 import '@/components/layout/CategoryLayout.css'
 import '@/components/layout/SubLayout.css'
@@ -98,7 +99,7 @@ function Auth() {
           clearSavedLoginId()
         }
 
-        navigate('/')
+        navigate(getSafeRedirectPath(searchParams.get('redirect')), { replace: true })
         return
       }
 
