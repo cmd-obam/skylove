@@ -107,14 +107,93 @@
   border-radius: 0;
 }
 
+.mobile-image-lightbox__overlay .worship-template__intro--banner-lightbox {
+  container-type: size;
+  --worship-banner-text-top: 6px;
+  --worship-banner-text-left: 6px;
+  --worship-banner-text-bottom: 6px;
+  --worship-banner-text-width: calc(50% - 6px);
+}
+
 .mobile-image-lightbox__overlay .worship-template__intro--banner-lightbox .worship-template__intro-text {
   position: absolute;
   display: flex !important;
-  overflow: visible;
-  inset: var(--worship-banner-text-top, 12px) auto var(--worship-banner-text-bottom, 12px)
-    var(--worship-banner-text-left, 12px);
-  width: var(--worship-banner-text-width, calc(48% - 12px));
+  top: 6px;
+  right: auto;
+  bottom: 6px;
+  left: 6px;
+  width: calc(50% - 6px);
+  height: calc(100% - 12px);
+  max-height: calc(100% - 12px);
+  overflow: hidden;
+  gap: clamp(0.05rem, 0.75cqh, 0.2rem);
+  justify-content: center;
+  align-items: center;
+}
+
+.mobile-image-lightbox__overlay .worship-template__intro--banner-lightbox .worship-template__headline {
+  flex-shrink: 1;
+  min-height: 0;
+  width: 100%;
+  margin: 0;
+}
+
+.mobile-image-lightbox__overlay .worship-template__intro--banner-lightbox .worship-template__headline,
+.mobile-image-lightbox__overlay .worship-template__intro--banner-lightbox .worship-template__headline-line {
+  font-size: clamp(0.5rem, 6.5cqh, 0.8125rem) !important;
+  line-height: 1.16 !important;
+  flex-shrink: 1;
+  min-height: 0;
+}
+
+.mobile-image-lightbox__overlay .worship-template__intro--banner-lightbox .worship-template__intro-title {
+  font-size: clamp(0.4375rem, 5.2cqh, 0.6875rem) !important;
+  line-height: 1.16 !important;
+  flex-shrink: 0;
+}
+
+.mobile-image-lightbox__overlay .worship-template__intro--banner-lightbox .worship-template__description,
+.mobile-image-lightbox__overlay .worship-template__intro--banner-lightbox .worship-template__description--rich {
+  font-size: clamp(0.4375rem, 4.6cqh, 0.625rem) !important;
+  line-height: 1.26 !important;
+  flex-shrink: 1;
+  min-height: 0;
+}
+
+.mobile-image-lightbox__overlay .worship-template__intro--banner-lightbox .worship-template__intro-divider {
+  width: 1.25rem;
+  height: 1px;
+  flex-shrink: 0;
+}
+
+.mobile-image-lightbox__overlay .worship-template__intro--banner-lightbox .worship-template__intro-cross {
+  flex-shrink: 0;
+}
+
+.mobile-image-lightbox__overlay .worship-template__intro--banner-lightbox .worship-template__intro-cross svg {
+  width: clamp(0.5rem, 3.8cqh, 0.6875rem);
   height: auto;
+}
+
+.mobile-image-lightbox__overlay
+  .worship-template__intro--banner-lightbox
+  .worship-template__description-blocks
+  .worship-template__description {
+  font-size: clamp(0.375rem, 4cqh, 0.5625rem) !important;
+  line-height: 1.22 !important;
+}
+
+.mobile-image-lightbox__overlay
+  .worship-template__intro--banner-lightbox
+  .worship-template__description-block
+  + .worship-template__description-block {
+  margin-top: 0.08em;
+}
+
+.mobile-image-lightbox__overlay
+  .worship-template__intro--banner-lightbox
+  .worship-template__description-divider {
+  margin: 0.12em auto;
 }
 
 .mobile-image-lightbox__overlay .worship-template__headline-line,

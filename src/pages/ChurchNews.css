@@ -334,6 +334,7 @@
   height: auto;
   border-radius: 8px;
   object-fit: contain;
+  cursor: pointer;
 }
 
 .album-lightbox__close {

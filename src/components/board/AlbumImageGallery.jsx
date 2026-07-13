@@ -35,7 +35,12 @@ function AlbumImageLightbox({ src, alt, onClose }) {
         <button type="button" className="album-lightbox__close" onClick={onClose}>
           닫기
         </button>
-        <img src={src} alt={alt} className="album-lightbox__image" />
+        <img
+          src={src}
+          alt={alt}
+          className="album-lightbox__image"
+          onClick={onClose}
+        />
       </div>
     </div>
   )
