@@ -43,6 +43,7 @@ export const WORSHIP_GUIDE_CONTENT = {
     subtitle: 'Sunday Blessing Service',
     time: '오전 11시',
     location: '대예배실',
+    infoCardMobileLayout: 'inline',
     headlineLines: ['하나님의 은혜와', '축복이 머무는 예배'],
     introTitle: '주일 축복예배',
     descriptionRichLines: [
@@ -66,6 +67,7 @@ export const WORSHIP_GUIDE_CONTENT = {
     time: '오전 11시',
     locationLabel: '주기',
     location: '매월 첫째 주',
+    infoCardMobileLayout: 'inline',
     headlineLines: ['그리스도의 사랑을', '기억하는 예배'],
     introTitle: '매월 첫 주 성찬 예식',
     descriptionRichLines: [
@@ -89,6 +91,7 @@ export const WORSHIP_GUIDE_CONTENT = {
     subtitle: 'Sunday Praise Service',
     time: '오후 1시 20분',
     location: '대예배실',
+    infoCardMobileLayout: 'inline',
     headlineLines: ['찬양에 마음을 담아', '주님께 드리는 예배'],
     introTitle: '주일 찬양예배',
     descriptionLines: [
@@ -110,6 +113,7 @@ export const WORSHIP_GUIDE_CONTENT = {
     subtitle: 'Wednesday Night Service',
     time: '오후 7시 30분',
     location: '소예배실',
+    infoCardMobileLayout: 'inline',
     headlineLines: ['한 주의 중심에서', '말씀 앞에 머무는 예배'],
     introTitle: '수요 예배',
     descriptionRichLines: [
@@ -132,6 +136,7 @@ export const WORSHIP_GUIDE_CONTENT = {
     subtitle: 'Early Morning Prayer',
     time: '오전 5시 30분(화~토)',
     location: '소예배실',
+    infoCardMobileLayout: 'inline',
     headlineRichLines: [
       [{ text: '주님과 함께하는' }],
       [{ text: '하루의 ' }, { text: '첫걸음', accent: true }],
@@ -190,6 +195,7 @@ export const WORSHIP_GUIDE_CONTENT = {
     subtitle: 'Cell Group Meeting',
     time: '오후 1시 (마지막주 일요일)',
     location: '셀별 모임장소',
+    infoCardMobileLayout: 'inline',
     headlineLines: ['삶을 나누고', '믿음을 세우는 공동체'],
     introTitle: '셀모임',
     descriptionLines: [

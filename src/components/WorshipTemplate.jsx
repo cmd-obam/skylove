@@ -42,6 +42,7 @@ function WorshipTemplate({
   timeLabel = '예배시간',
   locationLabel = '장소',
   infoCardLayout = 'split',
+  infoCardMobileLayout = 'stacked',
   headline,
   headlineLines = null,
   headlineRichLines = null,
@@ -237,6 +238,8 @@ function WorshipTemplate({
       <section
         className={`worship-template__info-card worship-template__fade${
           infoCardLayout === 'single' ? ' worship-template__info-card--single' : ''
+        }${
+          infoCardMobileLayout === 'inline' ? ' worship-template__info-card--mobile-inline' : ''
         }`}
         aria-label="예배 정보"
       >

@@ -639,6 +639,36 @@
     height: 1px;
   }
 
+  .worship-template__info-card--mobile-inline {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  }
+
+  .worship-template__info-card--mobile-inline .worship-template__info-item {
+    min-width: 0;
+    gap: 0.375rem;
+    padding: 1rem 0.5rem;
+  }
+
+  .worship-template__info-card--mobile-inline .worship-template__info-label {
+    gap: 0.375rem;
+    font-size: clamp(0.8125rem, 3.4vw, 0.9375rem);
+  }
+
+  .worship-template__info-card--mobile-inline .worship-template__info-label::after {
+    width: 16px;
+  }
+
+  .worship-template__info-card--mobile-inline .worship-template__info-value {
+    font-size: clamp(0.875rem, 3.8vw, 1.0625rem);
+    line-height: 1.35;
+    word-break: keep-all;
+  }
+
+  .worship-template__info-card--mobile-inline .worship-template__info-divider {
+    width: 1px;
+    height: auto;
+  }
+
   .worship-template__gallery-list {
     grid-template-columns: 1fr;
   }
@@ -655,6 +685,14 @@
 @media (max-width: 480px) {
   .worship-template__intro--banner {
     --worship-banner-text-width: calc(50% - 20px);
+  }
+
+  .worship-template__info-card--mobile-inline .worship-template__info-item {
+    padding: 0.875rem 0.375rem;
+  }
+
+  .worship-template__info-card--mobile-inline .worship-template__info-value {
+    font-size: clamp(0.8125rem, 3.6vw, 0.9375rem);
   }
 }
 
