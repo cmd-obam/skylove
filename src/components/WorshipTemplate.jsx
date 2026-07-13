@@ -261,6 +261,7 @@ function WorshipTemplate({
           imageAlt={`${title} 소개`}
           className={introClassName}
           style={introStyle}
+          lightboxLayout="overlay"
         >
           {introText}
         </MobileBannerExpand>

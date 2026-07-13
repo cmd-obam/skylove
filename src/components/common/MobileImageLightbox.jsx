@@ -2,7 +2,7 @@ import { createPortal } from 'react-dom'
 import { useEffect } from 'react'
 import './MobileImageLightbox.css'
 
-function MobileImageLightbox({ imageSrc, imageAlt = '', onClose, children }) {
+function MobileImageLightbox({ imageSrc, imageAlt = '', onClose, layout = 'stacked', children }) {
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') {
@@ -29,7 +29,9 @@ function MobileImageLightbox({ imageSrc, imageAlt = '', onClose, children }) {
         aria-label="닫기"
       />
       <div
-        className="mobile-image-lightbox__dialog"
+        className={`mobile-image-lightbox__dialog${
+          layout === 'overlay' ? ' mobile-image-lightbox__dialog--overlay' : ''
+        }`.trim()}
         role="dialog"
         aria-modal="true"
         aria-label={imageAlt || '이미지 크게 보기'}
@@ -39,8 +41,14 @@ function MobileImageLightbox({ imageSrc, imageAlt = '', onClose, children }) {
           <span className="mobile-image-lightbox__close-text">닫기</span>
         </button>
         <div className="mobile-image-lightbox__scroll">
-          <img src={imageSrc} alt={imageAlt} className="mobile-image-lightbox__image" />
-          {children ? <div className="mobile-image-lightbox__content">{children}</div> : null}
+          {layout === 'overlay' ? (
+            <div className="mobile-image-lightbox__overlay">{children}</div>
+          ) : (
+            <>
+              <img src={imageSrc} alt={imageAlt} className="mobile-image-lightbox__image" />
+              {children ? <div className="mobile-image-lightbox__content">{children}</div> : null}
+            </>
+          )}
         </div>
       </div>
     </div>,

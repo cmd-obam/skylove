@@ -88,6 +88,47 @@
   text-align: center;
 }
 
+.mobile-image-lightbox__dialog--overlay {
+  width: min(100%, 26rem);
+  max-height: none;
+  background: #ffffff;
+}
+
+.mobile-image-lightbox__dialog--overlay .mobile-image-lightbox__scroll {
+  overflow: visible;
+}
+
+.mobile-image-lightbox__overlay {
+  width: 100%;
+}
+
+.mobile-image-lightbox__overlay .worship-template__intro--banner {
+  width: 100%;
+  border-radius: 0;
+}
+
+.mobile-image-lightbox__overlay .worship-template__intro-text {
+  position: absolute;
+  display: flex !important;
+}
+
+.mobile-image-lightbox__overlay .worship-template__intro-cross,
+.mobile-image-lightbox__overlay .worship-template__intro-divider,
+.mobile-image-lightbox__overlay .worship-template__intro-title,
+.mobile-image-lightbox__overlay .worship-template__description,
+.mobile-image-lightbox__overlay .worship-template__description-blocks,
+.mobile-image-lightbox__overlay .worship-template__description-block {
+  display: block !important;
+}
+
+.mobile-image-lightbox__overlay .worship-template__intro-cross {
+  display: flex !important;
+}
+
+.mobile-image-lightbox__overlay .worship-template__description-blocks {
+  display: block !important;
+}
+
 @media (min-width: 768px) {
   .mobile-image-lightbox {
     display: none;
