@@ -41,7 +41,7 @@
 }
 
 .nf-guide__intro-block .nf-video__inner {
-  grid-template-columns: minmax(0, 1.25fr) minmax(0, 2.35fr);
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.8fr);
   gap: clamp(0.45rem, 1vw, 0.85rem);
   align-items: stretch;
 }
@@ -59,8 +59,7 @@
   aspect-ratio: auto;
   min-height: clamp(12rem, 24vw, 16rem);
   height: 100%;
-  width: calc(100% - 25px);
-  justify-self: end;
+  width: 100%;
   box-shadow: none;
 }
 
@@ -552,8 +551,6 @@
   .nf-guide__intro-block .nf-video__media {
     min-height: auto;
     aspect-ratio: 16 / 9;
-    width: 100%;
-    justify-self: stretch;
   }
 }
 
