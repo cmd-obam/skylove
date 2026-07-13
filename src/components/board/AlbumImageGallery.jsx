@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 function AlbumImageLightbox({ src, alt, onClose }) {
   useEffect(() => {
@@ -18,7 +19,7 @@ function AlbumImageLightbox({ src, alt, onClose }) {
     }
   }, [onClose])
 
-  return (
+  return createPortal(
     <div className="album-lightbox" role="presentation">
       <button
         type="button"
@@ -35,14 +36,17 @@ function AlbumImageLightbox({ src, alt, onClose }) {
         <button type="button" className="album-lightbox__close" onClick={onClose}>
           닫기
         </button>
-        <img
-          src={src}
-          alt={alt}
-          className="album-lightbox__image"
+        <button
+          type="button"
+          className="album-lightbox__image-button"
           onClick={onClose}
-        />
+          aria-label="이미지 닫기"
+        >
+          <img src={src} alt={alt} className="album-lightbox__image" draggable={false} />
+        </button>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
 

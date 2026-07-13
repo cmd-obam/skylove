@@ -324,6 +324,20 @@
   justify-content: center;
   max-width: min(96vw, 100%);
   max-height: 92vh;
+  pointer-events: none;
+}
+
+.album-lightbox__image-button {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.album-lightbox__close {
+  pointer-events: auto;
 }
 
 .album-lightbox__image {
@@ -334,7 +348,7 @@
   height: auto;
   border-radius: 8px;
   object-fit: contain;
-  cursor: pointer;
+  pointer-events: none;
 }
 
 .album-lightbox__close {
