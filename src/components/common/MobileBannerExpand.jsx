@@ -78,7 +78,7 @@ function MobileBannerExpand({
           onClose={handleClose}
         >
           {lightboxLayout === 'overlay' && lightboxContent ? (
-            <div className={className} style={style}>
+            <div className={`${className} worship-template__intro--banner-lightbox`.trim()} style={style}>
               {lightboxContent}
             </div>
           ) : showHeadlineOverlay && previewMode === 'banner' && lightboxContent ? (

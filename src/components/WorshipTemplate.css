@@ -316,6 +316,8 @@
 
 .worship-template__intro--banner.worship-template__intro--typography-classic .worship-template__headline,
 .worship-template__intro--banner.worship-template__intro--typography-classic .worship-template__headline-line {
+  font-size: clamp(1.0625rem, 7.8cqi, 2.125rem);
+  line-height: 1.34;
   color: #2f6fad;
 }
 
@@ -391,6 +393,47 @@
 
 .worship-template__intro--banner-choir .worship-template__description-accent {
   font-weight: 800;
+}
+
+/* Expanded mobile lightbox – full copy readable like dawn prayer */
+.worship-template__intro--banner-lightbox .worship-template__intro-text {
+  overflow: visible;
+  gap: 0.32em;
+}
+
+.worship-template__intro--banner-lightbox .worship-template__headline,
+.worship-template__intro--banner-lightbox .worship-template__headline-line {
+  font-size: clamp(1.0625rem, 7.8cqi, 2.125rem);
+  line-height: 1.3;
+}
+
+.worship-template__intro--banner-lightbox.worship-template__intro--typography-classic
+  .worship-template__headline-line:nth-child(2) {
+  color: #2f6fad;
+}
+
+.worship-template__intro--banner-lightbox .worship-template__intro-title {
+  font-size: clamp(0.9375rem, 5.2cqi, 1.25rem);
+  line-height: 1.3;
+}
+
+.worship-template__intro--banner-lightbox .worship-template__description,
+.worship-template__intro--banner-lightbox .worship-template__description--rich {
+  font-size: clamp(0.8125rem, 4.4cqi, 1rem);
+  line-height: 1.48;
+}
+
+.worship-template__intro--banner-lightbox .worship-template__description-blocks {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.worship-template__intro--banner-lightbox
+  .worship-template__description-blocks
+  .worship-template__description {
+  font-size: clamp(0.75rem, 4cqi, 0.9375rem);
+  line-height: 1.45;
 }
 
 .worship-template__headline {
