@@ -334,7 +334,7 @@
     margin: 0;
     justify-content: center;
     align-items: flex-start;
-    transform: translateY(-15px);
+    transform: translateY(-30px);
     pointer-events: none;
   }
 
