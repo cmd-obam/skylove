@@ -10,7 +10,7 @@
 
 .worship-hero {
   --worship-hero-bg: none;
-  --worship-hero-ratio: 1024 / 481;
+  --worship-hero-ratio: 1024 / 322;
 
   position: relative;
   display: flex;
@@ -22,7 +22,7 @@
   width: calc(100% + 5rem);
   max-width: 100vw;
   background-image: var(--worship-hero-bg);
-  background-size: cover;
+  background-size: 100% 100%;
   background-position: center;
   background-repeat: no-repeat;
   overflow: hidden;

@@ -31,7 +31,7 @@
     background-image: var(--about-intro-bg);
     background-repeat: no-repeat;
     background-position: top center;
-    background-size: min(680px, 100%) auto;
+    background-size: contain;
     opacity: 0.35;
     pointer-events: none;
   }
