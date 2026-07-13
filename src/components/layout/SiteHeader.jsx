@@ -249,23 +249,22 @@ function SiteHeader() {
                 {item.children ? (
                   <>
                     <div className="site-header__drawer-item-header">
-                      <Link
-                        to={getFirstSubMenuPath(item)}
-                        className="site-header__drawer-link site-header__drawer-link--category"
-                        onClick={closeMobileMenu}
-                      >
-                        {item.title}
-                      </Link>
                       <button
                         type="button"
-                        className={`site-header__drawer-expand${
-                          expandedItem === item.title ? ' site-header__drawer-expand--open' : ''
-                        }`}
+                        className="site-header__drawer-link site-header__drawer-link--category"
                         aria-expanded={expandedItem === item.title}
                         aria-label={`${item.title} 하위 메뉴 펼치기`}
                         onClick={() => toggleAccordion(item.title)}
                       >
-                        <span aria-hidden="true">+</span>
+                        <span>{item.title}</span>
+                        <span
+                          className={`site-header__drawer-expand${
+                            expandedItem === item.title ? ' site-header__drawer-expand--open' : ''
+                          }`}
+                          aria-hidden="true"
+                        >
+                          <span>+</span>
+                        </span>
                       </button>
                     </div>
                     <ul
@@ -280,25 +279,24 @@ function SiteHeader() {
                             className="site-header__drawer-submenu-item site-header__drawer-submenu-item--expandable"
                           >
                             <div className="site-header__drawer-submenu-header">
-                              <Link
-                                to={child.path}
-                                className="site-header__drawer-submenu-link"
-                                onClick={closeMobileMenu}
-                              >
-                                {child.title}
-                              </Link>
                               <button
                                 type="button"
-                                className={`site-header__drawer-expand site-header__drawer-expand--sub${
-                                  expandedSubItem === child.path
-                                    ? ' site-header__drawer-expand--open'
-                                    : ''
-                                }`}
+                                className="site-header__drawer-submenu-link site-header__drawer-submenu-link--toggle"
                                 aria-expanded={expandedSubItem === child.path}
                                 aria-label={`${child.title} 하위 메뉴 펼치기`}
                                 onClick={() => toggleSubAccordion(child.path)}
                               >
-                                <span aria-hidden="true">+</span>
+                                <span>{child.title}</span>
+                                <span
+                                  className={`site-header__drawer-expand site-header__drawer-expand--sub${
+                                    expandedSubItem === child.path
+                                      ? ' site-header__drawer-expand--open'
+                                      : ''
+                                  }`}
+                                  aria-hidden="true"
+                                >
+                                  <span>+</span>
+                                </span>
                               </button>
                             </div>
                             <ul

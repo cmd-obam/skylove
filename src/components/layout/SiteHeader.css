@@ -261,6 +261,10 @@
 }
 
 .site-header__drawer-link--category {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
   flex: 1;
   min-width: 0;
 }
@@ -270,10 +274,10 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 3rem;
+  width: auto;
+  min-width: 1.5rem;
   padding: 0;
   border: 0;
-  border-left: 1px solid var(--color-border);
   background: transparent;
   font-family: inherit;
   font-size: 1.125rem;
@@ -287,7 +291,8 @@
 }
 
 .site-header__drawer-expand--sub {
-  width: 2.75rem;
+  width: auto;
+  min-width: 1.25rem;
   font-size: 1rem;
 }
 
@@ -328,13 +333,26 @@
   display: block;
   flex: 1;
   min-width: 0;
+  width: 100%;
   padding: 0.625rem 1.25rem 0.625rem 2rem;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
   font-size: 0.9375rem;
   font-weight: 500;
   line-height: 1.35;
   color: var(--color-text-muted);
+  text-align: left;
   text-decoration: none;
+  cursor: pointer;
   transition: color var(--transition);
+}
+
+.site-header__drawer-submenu-link--toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
 }
 
 .site-header__drawer-submenu-link:hover,
