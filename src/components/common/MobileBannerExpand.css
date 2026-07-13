@@ -390,8 +390,8 @@
   }
 
   .mobile-banner-expand--title-only.worship-hero {
-    aspect-ratio: 1024 / 322;
-    background-size: 100% 100% !important;
+    aspect-ratio: 1024 / 481;
+    background-size: cover !important;
     background-position: center !important;
   }
 
