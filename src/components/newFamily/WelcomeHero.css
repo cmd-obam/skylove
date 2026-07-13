@@ -127,3 +127,76 @@
     --nf-hero-text-bottom: 12px;
   }
 }
+
+/* Expanded mobile lightbox – text over background */
+.nf-hero--banner-lightbox {
+  width: 100%;
+  aspect-ratio: 1024 / 447;
+  overflow: hidden;
+  background: var(--nf-hero-bg) center / 100% 100% no-repeat;
+  background-color: #ffffff;
+}
+
+.mobile-image-lightbox__overlay .nf-hero--banner-lightbox {
+  container-type: size;
+  border-radius: 0;
+}
+
+.mobile-image-lightbox__overlay .nf-hero--banner-lightbox .nf-hero__content {
+  position: absolute;
+  display: flex !important;
+  top: 6px;
+  right: auto;
+  bottom: 6px;
+  left: calc(3.2% + 8px);
+  width: calc(58% - (3.2% + 8px));
+  height: calc(100% - 12px);
+  max-height: calc(100% - 12px);
+  overflow: hidden;
+  gap: clamp(0.05rem, 0.7cqh, 0.18rem);
+  justify-content: center;
+  align-items: flex-start;
+  transform: none;
+  margin: 0;
+}
+
+.mobile-image-lightbox__overlay .nf-hero--banner-lightbox .nf-hero__welcome,
+.mobile-image-lightbox__overlay .nf-hero--banner-lightbox .nf-hero__subcopy {
+  display: flex !important;
+}
+
+.mobile-image-lightbox__overlay .nf-hero--banner-lightbox .nf-hero__welcome {
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.mobile-image-lightbox__overlay .nf-hero--banner-lightbox .nf-hero__welcome-text {
+  font-size: clamp(0.5rem, 5.2cqh, 0.75rem) !important;
+  line-height: 1.12 !important;
+  background-size: 4rem 0.2rem;
+}
+
+.mobile-image-lightbox__overlay .nf-hero--banner-lightbox .nf-hero__main-title {
+  margin: 0;
+  flex-shrink: 1;
+  min-height: 0;
+  gap: 0.04em;
+}
+
+.mobile-image-lightbox__overlay .nf-hero--banner-lightbox .nf-hero__main-line,
+.mobile-image-lightbox__overlay .nf-hero--banner-lightbox .nf-hero__highlight {
+  font-size: clamp(0.5rem, 6cqh, 0.8125rem) !important;
+  line-height: 1.16 !important;
+}
+
+.mobile-image-lightbox__overlay .nf-hero--banner-lightbox .nf-hero__subcopy {
+  margin: 0;
+  flex-shrink: 1;
+  min-height: 0;
+  gap: 0.04em;
+}
+
+.mobile-image-lightbox__overlay .nf-hero--banner-lightbox .nf-hero__subcopy-line {
+  font-size: clamp(0.4375rem, 4.4cqh, 0.625rem) !important;
+  line-height: 1.26 !important;
+}

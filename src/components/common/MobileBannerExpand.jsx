@@ -14,6 +14,7 @@ function MobileBannerExpand({
   lightboxChildren,
   previewMode = 'banner',
   lightboxLayout = 'stacked',
+  lightboxBannerClassName = 'worship-template__intro--banner-lightbox',
   showHeadlineOverlay = true,
   children,
 }) {
@@ -78,7 +79,7 @@ function MobileBannerExpand({
           onClose={handleClose}
         >
           {lightboxLayout === 'overlay' && lightboxContent ? (
-            <div className={`${className} worship-template__intro--banner-lightbox`.trim()} style={style}>
+            <div className={`${className} ${lightboxBannerClassName}`.trim()} style={style}>
               {lightboxContent}
             </div>
           ) : showHeadlineOverlay && previewMode === 'banner' && lightboxContent ? (
