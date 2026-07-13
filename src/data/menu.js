@@ -36,7 +36,11 @@ export const MENU_ITEMS = [
         path: '/worship-guide/sunday-blessing',
         children: [
           { title: '주일 예배', path: '/worship-guide/sunday-blessing' },
-          { title: '성찬식', path: '/worship-guide/sunday-blessing/communion' },
+          {
+            title: '성찬식 예배',
+            subtitle: '(매월 첫째 주)',
+            path: '/worship-guide/sunday-blessing/communion',
+          },
         ],
       },
       { title: '주일 찬양 예배', path: '/worship-guide/sunday-praise' },

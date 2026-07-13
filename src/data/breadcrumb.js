@@ -1,4 +1,5 @@
 import { findMenuSection, findMenuItemInSection } from '@/data/menu'
+import { getMenuItemLabel } from '@/components/layout/MenuItemLabel'
 
 export function getBreadcrumbItems(pathname) {
   const items = [{ label: '홈', path: '/', isHome: true, isCurrent: false }]
@@ -32,7 +33,7 @@ export function getBreadcrumbItems(pathname) {
       isCurrent: false,
     })
     items.push({
-      label: match.item.title,
+      label: getMenuItemLabel(match.item),
       path: match.item.path,
       isCurrent: true,
     })
@@ -41,7 +42,7 @@ export function getBreadcrumbItems(pathname) {
 
   if (match?.item && match.item.path !== section.path) {
     items.push({
-      label: match.item.title,
+      label: getMenuItemLabel(match.item),
       path: match.item.path,
       isCurrent: true,
     })

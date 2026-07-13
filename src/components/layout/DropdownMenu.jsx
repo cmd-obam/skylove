@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import MenuItemLabel from '@/components/layout/MenuItemLabel'
 import './DropdownMenu.css'
 
 function DropdownMenuItem({ item, onLinkClick }) {
@@ -17,7 +18,7 @@ function DropdownMenuItem({ item, onLinkClick }) {
                 role="menuitem"
                 onClick={onLinkClick}
               >
-                {child.title}
+                <MenuItemLabel item={child} />
               </Link>
             </li>
           ))}

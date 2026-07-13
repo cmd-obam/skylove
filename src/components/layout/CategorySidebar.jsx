@@ -1,6 +1,7 @@
 import { useEffect, useId, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { findMenuSection, menuItemContainsPath } from '@/data/menu'
+import MenuItemLabel from '@/components/layout/MenuItemLabel'
 import './CategorySidebar.css'
 
 function CategorySidebarItem({ item, sectionPath, pathname }) {
@@ -46,7 +47,7 @@ function CategorySidebarItem({ item, sectionPath, pathname }) {
                   `category-sidebar__sublink${isActive ? ' category-sidebar__sublink--active' : ''}`
                 }
               >
-                {child.title}
+                <MenuItemLabel item={child} />
               </NavLink>
             </li>
           ))}

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import churchLogo from '@/assets/images/church-logo.png'
 import { AUTH_LINKS, MENU_ITEMS, getFirstSubMenuPath, menuItemContainsPath } from '@/data/menu'
 import DropdownMenu from '@/components/layout/DropdownMenu'
+import MenuItemLabel from '@/components/layout/MenuItemLabel'
 import { useAuth } from '@/contexts/AuthContext'
 import './SiteHeader.css'
 
@@ -317,7 +318,7 @@ function SiteHeader() {
                                     className="site-header__drawer-submenu-link site-header__drawer-submenu-link--nested"
                                     onClick={closeMobileMenu}
                                   >
-                                    {subItem.title}
+                                    <MenuItemLabel item={subItem} />
                                   </Link>
                                 </li>
                               ))}
