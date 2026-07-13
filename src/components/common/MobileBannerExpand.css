@@ -354,7 +354,7 @@
     line-height: 1.28;
   }
 
-  /* 예배시간 안내 / 찾아오시는 길: 타이틀만 왼쪽 표시, 확대 버튼 없음 */
+  /* 예배시간 안내: 타이틀만 왼쪽 표시, 확대 버튼 없음 */
   .mobile-banner-expand--title-only.worship-hero,
   .mobile-banner-expand--title-only.location-hero {
     display: flex;
@@ -416,13 +416,11 @@
   }
 
   .mobile-banner-expand--title-only.worship-hero .worship-hero__subtitle,
-  .mobile-banner-expand--title-only.location-hero .location-hero__welcome,
-  .mobile-banner-expand--title-only.location-hero .location-hero__tagline {
+  .mobile-banner-expand--title-only.location-hero .location-hero__welcome {
     display: none !important;
   }
 
-  .mobile-banner-expand--title-only.worship-hero .worship-hero__title,
-  .mobile-banner-expand--title-only.location-hero .location-hero__title {
+  .mobile-banner-expand--title-only.worship-hero .worship-hero__title {
     margin: 0;
     font-family: inherit;
     font-size: clamp(1rem, 8.2cqi, 1.375rem);
@@ -434,8 +432,7 @@
     word-break: keep-all;
   }
 
-  .mobile-banner-expand--title-only.worship-hero .worship-hero__title::after,
-  .mobile-banner-expand--title-only.location-hero .location-hero__title::after {
+  .mobile-banner-expand--title-only.worship-hero .worship-hero__title::after {
     content: '';
     display: block;
     width: clamp(1.75rem, 12cqi, 2.5rem);
@@ -445,5 +442,15 @@
     margin-right: auto !important;
     background-color: var(--color-point);
     border-radius: 2px;
+  }
+
+  .mobile-banner-expand--title-only.location-hero .location-hero__tagline {
+    margin: 0;
+    font-size: clamp(0.6875rem, 6.2cqi, 0.875rem);
+    line-height: 1.35;
+  }
+
+  .mobile-banner-expand--title-only.location-hero .location-hero__tagline + .location-hero__tagline {
+    margin-top: 0.125rem;
   }
 }
