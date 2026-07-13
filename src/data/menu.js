@@ -35,7 +35,7 @@ export const MENU_ITEMS = [
         title: '주일 축복 예배',
         path: '/worship-guide/sunday-blessing',
         children: [
-          { title: '주일 예배', path: '/worship-guide/sunday-blessing' },
+          { title: '주일 축복 예배', path: '/worship-guide/sunday-blessing' },
           {
             title: '성찬식 예배',
             subtitle: '(매월 첫째 주)',

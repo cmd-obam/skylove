@@ -6,7 +6,6 @@ import '@/components/common/MobileImageLightbox.css'
 import {
   CHURCH_HISTORY_INTRO,
   CHURCH_HISTORY_PERIODS,
-  CHURCH_HISTORY_QUOTE,
 } from '@/data/churchHistory'
 import './ChurchHistory.css'
 
@@ -156,17 +155,6 @@ function ChurchHistoryPeriod({ period }) {
   )
 }
 
-function ChurchHistoryQuote() {
-  return (
-    <section className="church-history-quote" aria-label="성경 구절">
-      <blockquote className="church-history-quote__content">
-        <p className="church-history-quote__text">{CHURCH_HISTORY_QUOTE.text}</p>
-        <cite className="church-history-quote__reference">{CHURCH_HISTORY_QUOTE.reference}</cite>
-      </blockquote>
-    </section>
-  )
-}
-
 function ChurchHistory() {
   const [activePeriodId, setActivePeriodId] = useState(null)
 
@@ -190,8 +178,6 @@ function ChurchHistory() {
           <ChurchHistoryPeriod key={period.id} period={period} />
         ))}
       </div>
-
-      <ChurchHistoryQuote />
     </div>
   )
 }

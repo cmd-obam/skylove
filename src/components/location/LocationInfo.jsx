@@ -1,7 +1,4 @@
 import { Link } from 'react-router-dom'
-import directionsBg from '@/assets/images/location/location-info-col-directions.png'
-import phoneBg from '@/assets/images/location/location-info-col-phone.png'
-import worshipBg from '@/assets/images/location/location-info-col-worship.png'
 import { LOCATION_DATA, LOCATION_INFO_BANNER } from '@/data/location'
 import './LocationInfo.css'
 
@@ -42,14 +39,9 @@ function IconClock() {
 
 const WORSHIP_PATH = '/worship'
 
-function LocationInfoColumn({ variant, bgImage, children }) {
+function LocationInfoColumn({ variant, children }) {
   return (
     <div className={`location-info__column location-info__column--${variant}`}>
-      <div
-        className="location-info__column-bg"
-        style={{ '--location-col-bg': `url(${bgImage})` }}
-        aria-hidden="true"
-      />
       <div className="location-info__column-inner">{children}</div>
     </div>
   )
@@ -62,7 +54,7 @@ function LocationInfo() {
     <section className="location-info" aria-label="교회 연락처 및 예배 안내">
       <div className="location-info__card">
         <div className="location-info__content">
-          <LocationInfoColumn variant="directions" bgImage={directionsBg}>
+          <LocationInfoColumn variant="directions">
             <div className="location-info__header">
               <span className="location-info__icon" aria-hidden="true">
                 <IconPin />
@@ -75,7 +67,7 @@ function LocationInfo() {
             </div>
           </LocationInfoColumn>
 
-          <LocationInfoColumn variant="phone" bgImage={phoneBg}>
+          <LocationInfoColumn variant="phone">
             <div className="location-info__phone-top">
               <div className="location-info__header">
                 <span className="location-info__icon" aria-hidden="true">
@@ -102,7 +94,7 @@ function LocationInfo() {
             </div>
           </LocationInfoColumn>
 
-          <LocationInfoColumn variant="worship" bgImage={worshipBg}>
+          <LocationInfoColumn variant="worship">
             <Link to={WORSHIP_PATH} className="location-info__worship-compact">
               <div className="location-info__header">
                 <span className="location-info__icon" aria-hidden="true">

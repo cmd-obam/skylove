@@ -48,6 +48,7 @@ function WorshipTemplate({
   introTitle = null,
   description,
   descriptionLines = null,
+  descriptionRichLines = null,
   descriptionParagraphs = null,
   heroImage = null,
   heroImageFit = 'contain',
@@ -109,9 +110,6 @@ function WorshipTemplate({
     src: galleryImages[index] ?? null,
   }))
 
-  const usesDiamondDivider =
-    introBannerVariant === 'choir' || introBannerVariant === 'dawn-prayer'
-
   const introClassName = `worship-template__intro${
     isBannerIntro ? '' : ' worship-template__fade'
   }${isBannerIntro ? ' worship-template__intro--banner' : ''}${
@@ -141,11 +139,9 @@ function WorshipTemplate({
             </svg>
           </span>
           <div
-            className="worship-template__intro-divider worship-template__intro-divider--diamond worship-template__intro-divider--top"
+            className="worship-template__intro-divider worship-template__intro-divider--top"
             aria-hidden="true"
-          >
-            <span className="worship-template__intro-divider-diamond" />
-          </div>
+          />
         </>
       )}
       <p className="worship-template__headline">
@@ -170,14 +166,7 @@ function WorshipTemplate({
       </p>
       {introTitle && (
         <>
-          <div
-            className={`worship-template__intro-divider${
-              usesDiamondDivider ? ' worship-template__intro-divider--diamond' : ''
-            }`}
-            aria-hidden="true"
-          >
-            {usesDiamondDivider && <span className="worship-template__intro-divider-diamond" />}
-          </div>
+          <div className="worship-template__intro-divider" aria-hidden="true" />
           <p className="worship-template__intro-title">{introTitle}</p>
         </>
       )}
@@ -201,6 +190,21 @@ function WorshipTemplate({
             </div>
           ))}
         </div>
+      ) : descriptionRichLines ? (
+        <p className="worship-template__description worship-template__description--rich">
+          {descriptionRichLines.map((line, lineIndex) => (
+            <span key={lineIndex} className="worship-template__description-line">
+              {line.map((part, partIndex) => (
+                <span
+                  key={partIndex}
+                  className={part.accent ? 'worship-template__description-accent' : undefined}
+                >
+                  {part.text}
+                </span>
+              ))}
+            </span>
+          ))}
+        </p>
       ) : (
         <p className="worship-template__description">
           {(descriptionLines ?? [description]).map((line) => (

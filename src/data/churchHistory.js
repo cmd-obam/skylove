@@ -13,11 +13,6 @@ export const CHURCH_HISTORY_INTRO = {
   ],
 }
 
-export const CHURCH_HISTORY_QUOTE = {
-  text: '여호와께서 여기까지 우리를 도우셨다',
-  reference: '(사무엘상 7:12)',
-}
-
 export const CHURCH_HISTORY_PERIODS = [
   {
     id: '2009-2012',

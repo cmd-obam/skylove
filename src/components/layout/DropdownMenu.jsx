@@ -6,9 +6,14 @@ function DropdownMenuItem({ item, onLinkClick }) {
   if (item.children?.length) {
     return (
       <li className="dropdown-menu__item dropdown-menu__item--has-flyout" role="none">
-        <span className="dropdown-menu__link dropdown-menu__link--parent" role="menuitem" tabIndex={0}>
+        <Link
+          to={item.path}
+          className="dropdown-menu__link dropdown-menu__link--parent"
+          role="menuitem"
+          onClick={onLinkClick}
+        >
           {item.title}
-        </span>
+        </Link>
         <ul className="dropdown-menu__flyout" role="menu">
           {item.children.map((child) => (
             <li key={child.path} className="dropdown-menu__flyout-item" role="none">

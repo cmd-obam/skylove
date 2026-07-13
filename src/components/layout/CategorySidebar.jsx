@@ -18,20 +18,31 @@ function CategorySidebarItem({ item, sectionPath, pathname }) {
   if (item.children?.length) {
     return (
       <li className="category-sidebar__item category-sidebar__item--expandable">
-        <button
-          type="button"
-          className={`category-sidebar__link category-sidebar__trigger${
-            isExpanded ? ' category-sidebar__link--expanded' : ''
+        <div
+          className={`category-sidebar__link category-sidebar__group-row${
+            isGroupActive ? ' category-sidebar__link--active' : ''
           }`}
-          aria-expanded={isExpanded}
-          aria-controls={sublistId}
-          onClick={() => setIsExpanded((prev) => !prev)}
         >
-          <span className="category-sidebar__link-text">{item.title}</span>
-          <span className="category-sidebar__link-icon" aria-hidden="true">
-            +
-          </span>
-        </button>
+          <NavLink
+            to={item.path}
+            end
+            className="category-sidebar__group-link"
+          >
+            <span className="category-sidebar__link-text">{item.title}</span>
+          </NavLink>
+          <button
+            type="button"
+            className="category-sidebar__expand-toggle"
+            aria-expanded={isExpanded}
+            aria-controls={sublistId}
+            aria-label={`${item.title} 하위 메뉴 ${isExpanded ? '접기' : '펼치기'}`}
+            onClick={() => setIsExpanded((prev) => !prev)}
+          >
+            <span className="category-sidebar__link-icon" aria-hidden="true">
+              {isExpanded ? '−' : '+'}
+            </span>
+          </button>
+        </div>
         <ul
           id={sublistId}
           className={`category-sidebar__sublist${

@@ -67,6 +67,13 @@ function LocationVisitorGuide() {
               <p className="location-visitor__description">{car.description}</p>
             </div>
 
+            <div className="location-visitor__card-footer">
+              <span className="location-visitor__footer-icon" aria-hidden="true">
+                <IconParking />
+              </span>
+              <p className="location-visitor__footer-text">{car.parkingNote}</p>
+            </div>
+
             <figure className="location-visitor__image-wrap">
               <img
                 src={parkingImage}
@@ -74,13 +81,6 @@ function LocationVisitorGuide() {
                 className="location-visitor__image"
               />
             </figure>
-          </div>
-
-          <div className="location-visitor__card-footer">
-            <span className="location-visitor__footer-icon" aria-hidden="true">
-              <IconParking />
-            </span>
-            <p className="location-visitor__footer-text">{car.parkingNote}</p>
           </div>
         </article>
 

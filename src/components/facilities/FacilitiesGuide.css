@@ -34,7 +34,7 @@
   font-size: clamp(1.875rem, 3.2vw, 2.125rem);
   font-weight: 700;
   line-height: 1.35;
-  color: var(--facilities-accent);
+  color: #000000;
 }
 
 .facilities__subsections {
