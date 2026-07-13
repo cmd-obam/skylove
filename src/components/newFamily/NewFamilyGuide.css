@@ -51,6 +51,10 @@
   min-height: clamp(12rem, 24vw, 16rem);
 }
 
+.nf-guide__intro-block .nf-video__panel-text {
+  transform: translate(clamp(0.875rem, 2.8vw, 1.875rem), clamp(0.625rem, 2vw, 1.25rem));
+}
+
 .nf-guide__intro-block .nf-video__media {
   aspect-ratio: auto;
   min-height: clamp(12rem, 24vw, 16rem);

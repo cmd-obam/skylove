@@ -13,18 +13,20 @@ function ChurchIntroPanel({
   return (
     <div className="nf-video__panel">
       <div className="nf-video__panel-copy">
-        <p className="nf-video__panel-eyebrow">{eyebrow}</p>
-        <h3 className="nf-video__panel-title">
-          {title}
-          <span className="nf-video__panel-heart" aria-hidden="true">
-            ♥
-          </span>
-        </h3>
-        <p className="nf-video__panel-description">
-          {descriptionLines.map((line) => (
-            <span key={line}>{line}</span>
-          ))}
-        </p>
+        <div className="nf-video__panel-text">
+          <p className="nf-video__panel-eyebrow">{eyebrow}</p>
+          <h3 className="nf-video__panel-title">
+            {title}
+            <span className="nf-video__panel-heart" aria-hidden="true">
+              ♥
+            </span>
+          </h3>
+          <p className="nf-video__panel-description">
+            {descriptionLines.map((line) => (
+              <span key={line}>{line}</span>
+            ))}
+          </p>
+        </div>
         <div className="nf-video__panel-illustration" aria-hidden="true">
           <img src={churchIntroIllustration} alt="" className="nf-video__panel-church-image" />
         </div>
