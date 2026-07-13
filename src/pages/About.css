@@ -29,6 +29,8 @@
   background-repeat: no-repeat;
   background-position: top center;
   background-size: 100% auto;
+  box-shadow: none;
+  filter: none;
   pointer-events: none;
 }
 
