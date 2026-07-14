@@ -7,8 +7,12 @@ import sundayBlessingHero from '@/assets/images/worship/sunday-blessing-hero.png
 import sundayBlessingGallery1 from '@/assets/images/worship/sunday-blessing-gallery-1.png'
 import sundayBlessingGallery2 from '@/assets/images/worship/sunday-blessing-gallery-2.png'
 import sundayBlessingGallery3 from '@/assets/images/worship/sunday-blessing-gallery-3.png'
-import sundayBlessingGallery4 from '@/assets/images/worship/sunday-blessing-gallery-4.png'
 import sundayPraiseIntro from '@/assets/images/worship/sunday-praise-intro.png'
+import sundayPraiseHero from '@/assets/images/worship/sunday-praise-hero.png'
+import sundayPraiseGallery1 from '@/assets/images/worship/sunday-praise-gallery-1.png'
+import sundayPraiseGallery2 from '@/assets/images/worship/sunday-praise-gallery-2.png'
+import sundayPraiseGallery3 from '@/assets/images/worship/sunday-praise-gallery-3.png'
+import sundayPraiseGallery4 from '@/assets/images/worship/sunday-praise-gallery-4.png'
 import wednesdayIntro from '@/assets/images/worship/wednesday-intro.png'
 import wednesdayHero from '@/assets/images/worship/wednesday-hero.png'
 import wednesdayGallery1 from '@/assets/images/worship/wednesday-gallery-1.png'
@@ -56,12 +60,7 @@ export const WORSHIP_GUIDE_CONTENT = {
     heroImage: sundayBlessingHero,
     introImage: sundayBlessingIntro,
     introTypographyVariant: 'classic',
-    galleryImages: [
-      sundayBlessingGallery1,
-      sundayBlessingGallery2,
-      sundayBlessingGallery3,
-      sundayBlessingGallery4,
-    ],
+    galleryImages: [sundayBlessingGallery1, sundayBlessingGallery3, sundayBlessingGallery2],
     footerMessage:
       '하나님의 은혜가 가득한 주일, 온 가족이 함께 예배에 참석하시길 축복합니다.',
     crossIcon: null,
@@ -106,10 +105,15 @@ export const WORSHIP_GUIDE_CONTENT = {
       '기쁨 가운데 주님을 높이는',
       '은혜의 시간입니다.',
     ],
-    heroImage: null,
+    heroImage: sundayPraiseHero,
     introImage: sundayPraiseIntro,
     introTypographyVariant: 'classic',
-    galleryImages: [null, null, null],
+    galleryImages: [
+      sundayPraiseGallery1,
+      sundayPraiseGallery2,
+      sundayPraiseGallery3,
+      sundayPraiseGallery4,
+    ],
     footerMessage:
       '찬양으로 하나님께 영광 돌리는 주일, 함께 예배하며 은혜를 누리시길 바랍니다.',
     crossIcon: null,
