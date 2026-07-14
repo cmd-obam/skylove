@@ -5,9 +5,10 @@ import useIsMobile from '@/hooks/useIsMobile'
 import MobileImageLightbox from '@/components/common/MobileImageLightbox'
 import '@/components/common/MobileImageLightbox.css'
 import hero01 from '@/assets/images/hero/hero01.png'
+import hero02 from '@/assets/images/hero/hero02.png'
 import './Hero.css'
 
-const heroImages = [hero01]
+const heroImages = [hero01, hero02]
 const SLIDE_INTERVAL = 5000
 
 function Hero() {
