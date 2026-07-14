@@ -177,10 +177,12 @@
   }
 
   .pastor-intro--about-page .pastor-intro__photo-wrap {
-    width: 100%;
-    max-width: min(320px, 100%);
+    width: min(240px, 68vw);
+    max-width: min(240px, 68vw);
+    height: auto;
     min-height: 0;
     margin-inline: auto;
+    overflow: visible;
   }
 
   .pastor-intro--about-page .pastor-intro__photo {
@@ -189,7 +191,9 @@
     height: auto;
     min-height: 0;
     margin-inline: auto;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: auto;
+    object-fit: contain;
+    object-position: center top;
   }
 
   .pastor-intro--about-page .pastor-intro__content {
