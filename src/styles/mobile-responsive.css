@@ -183,8 +183,14 @@
 }
 
 @media (max-width: 767px) {
+  /* Keep the shared ::before background visible on mobile.
+     Previously display:none hid the only reliable page background while
+     AboutBackgroundExpand collapsed due to .about-page > * position override. */
   .about-page::before {
-    display: none;
+    display: block;
+    background-size: 100% auto;
+    background-position: top center;
+    background-repeat: no-repeat;
   }
 
   .about-page__quote-text {

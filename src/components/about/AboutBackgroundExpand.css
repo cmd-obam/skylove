@@ -5,14 +5,22 @@
 }
 
 @media (max-width: 767px) {
-  .about-bg-expand {
+  /* Higher specificity than .about-page > * so this stays absolute and
+     does not collapse to the expand-button height in document flow. */
+  .about-page > .about-bg-expand {
     position: absolute;
     inset: 0;
     z-index: 0;
+    width: 100%;
+    height: auto;
+    min-height: 100%;
+    margin: 0;
+    padding: 0;
     pointer-events: none;
   }
 
   .about-bg-expand.mobile-banner-expand {
+    display: block;
     gap: 0;
   }
 
@@ -25,14 +33,13 @@
     pointer-events: none;
   }
 
+  /* Page background is painted by .about-page::before; keep the layer only
+     as a lightbox hook surface (no second decorative background). */
   .about-bg-expand__layer {
     position: absolute;
     inset: 0;
-    background-image: var(--about-intro-bg);
-    background-repeat: no-repeat;
-    background-position: top center;
-    background-size: contain;
-    opacity: 0.35;
+    background-image: none;
+    opacity: 0;
     pointer-events: none;
   }
 
