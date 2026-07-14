@@ -7,6 +7,7 @@ import sundayBlessingHero from '@/assets/images/worship/sunday-blessing-hero.png
 import sundayBlessingGallery1 from '@/assets/images/worship/sunday-blessing-gallery-1.png'
 import sundayBlessingGallery2 from '@/assets/images/worship/sunday-blessing-gallery-2.png'
 import sundayBlessingGallery3 from '@/assets/images/worship/sunday-blessing-gallery-3.png'
+import sundayBlessingGallery4 from '@/assets/images/worship/sunday-blessing-gallery-4.png'
 import sundayPraiseIntro from '@/assets/images/worship/sunday-praise-intro.png'
 import wednesdayIntro from '@/assets/images/worship/wednesday-intro.png'
 import wednesdayHero from '@/assets/images/worship/wednesday-hero.png'
@@ -55,7 +56,12 @@ export const WORSHIP_GUIDE_CONTENT = {
     heroImage: sundayBlessingHero,
     introImage: sundayBlessingIntro,
     introTypographyVariant: 'classic',
-    galleryImages: [sundayBlessingGallery1, sundayBlessingGallery3, sundayBlessingGallery2],
+    galleryImages: [
+      sundayBlessingGallery1,
+      sundayBlessingGallery2,
+      sundayBlessingGallery3,
+      sundayBlessingGallery4,
+    ],
     footerMessage:
       '하나님의 은혜가 가득한 주일, 온 가족이 함께 예배에 참석하시길 축복합니다.',
     crossIcon: null,

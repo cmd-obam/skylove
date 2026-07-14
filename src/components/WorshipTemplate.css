@@ -486,18 +486,30 @@
   list-style: none;
   margin: 0;
   padding: 0;
+  align-items: stretch;
 }
 
 .worship-template__gallery-item {
   margin: 0;
+  min-width: 0;
 }
 
 .worship-template__gallery-card {
-  min-height: 180px;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  min-height: 0;
+  height: auto;
 }
 
 .worship-template__gallery-list--quad {
   grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.worship-template__gallery-card .worship-template__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
 }
 
 /* ── Image slots ── */
@@ -692,8 +704,13 @@
     grid-template-columns: 1fr;
   }
 
+  .worship-template__gallery-list--quad {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .worship-template__gallery-card {
-    min-height: 160px;
+    aspect-ratio: 4 / 3;
+    min-height: 0;
   }
 
   .worship-template__image-slot--hero {
