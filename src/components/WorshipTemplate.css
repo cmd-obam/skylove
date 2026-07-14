@@ -656,8 +656,13 @@
     gap: 0.75rem;
   }
 
+  .worship-template__heading .sub-layout__title {
+    white-space: nowrap;
+    font-size: clamp(1.125rem, 4.6vw, 1.5rem);
+  }
+
   .worship-template__header > .breadcrumb {
-    max-width: 48%;
+    max-width: min(42%, 10.5rem);
     padding-top: 0.35rem;
   }
 

@@ -38,7 +38,7 @@
   color: var(--color-text);
   letter-spacing: -0.02em;
   word-break: keep-all;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
 }
 
 .sub-layout__title--worship {
@@ -74,8 +74,14 @@
     margin-bottom: 1.75rem;
   }
 
+  .sub-layout__title {
+    white-space: nowrap;
+    font-size: clamp(1.125rem, 4.6vw, 1.5rem);
+    letter-spacing: -0.03em;
+  }
+
   .sub-layout__header > .breadcrumb {
-    max-width: 48%;
+    max-width: min(42%, 10.5rem);
     padding-top: 0.35rem;
   }
 }

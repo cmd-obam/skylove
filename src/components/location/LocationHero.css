@@ -109,8 +109,13 @@
     margin-bottom: 1.75rem;
   }
 
+  .location-hero__page-heading .sub-layout__title {
+    white-space: nowrap;
+    font-size: clamp(1.125rem, 4.6vw, 1.5rem);
+  }
+
   .location-hero__page-header > .breadcrumb {
-    max-width: 48%;
+    max-width: min(42%, 10.5rem);
     padding-top: 0.35rem;
   }
 
