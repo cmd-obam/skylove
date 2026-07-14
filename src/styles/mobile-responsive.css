@@ -97,69 +97,91 @@
 }
 
 @media (max-width: 767px) {
+  /* Keep church history as a real table on mobile (same as desktop),
+     not stacked cards with per-cell labels. */
   .church-history-table-wrap {
-    overflow: visible;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .church-history-table {
-    display: block;
-    border: 0;
-    border-radius: 0;
+    display: table;
+    width: 100%;
+    min-width: 34rem;
+    border: 1px solid #dfe8f2;
+    border-radius: 10px;
   }
 
   .church-history-table thead {
-    display: none;
+    display: table-header-group;
   }
 
   .church-history-table tbody {
-    display: flex;
-    flex-direction: column;
-    gap: 0.875rem;
+    display: table-row-group;
   }
 
   .church-history-table tbody tr {
-    display: block;
-    border: 1px solid #dfe8f2;
-    border-radius: 12px;
-    overflow: hidden;
-    background: #fff;
+    display: table-row;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    overflow: visible;
+  }
+
+  .church-history-table th,
+  .church-history-table td {
+    display: table-cell;
+    width: auto !important;
+    padding: 0.75rem 0.625rem;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    border-right: 1px solid #eef1f5;
+    border-bottom: 1px solid #eef1f5;
+    vertical-align: middle;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+
+  .church-history-table th {
+    background-color: #f3f6fa;
+    font-weight: 700;
+    color: var(--color-text);
+    text-align: center;
+    border-right: 1px solid #dfe8f2;
+    border-bottom: 1px solid #dfe8f2;
+  }
+
+  .church-history-table th:last-child,
+  .church-history-table td:last-child {
+    border-right: none;
   }
 
   .church-history-table td {
-    display: block;
-    width: 100% !important;
-    padding: 0.75rem 0.875rem;
-    border: 0;
-    border-bottom: 1px solid #eef1f5;
-    text-align: left;
-    font-size: 0.875rem;
-    line-height: 1.6;
-    word-break: keep-all;
-    overflow-wrap: break-word;
+    text-align: center;
   }
 
   .church-history-table td:last-child {
-    border-bottom: 0;
+    text-align: left;
   }
 
   .church-history-table td::before {
-    display: block;
-    margin-bottom: 0.25rem;
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #1f2d3d;
+    content: none;
+    display: none;
   }
 
-  .church-history-table td:nth-child(1)::before {
-    content: '날짜';
+  .church-history-table th:nth-child(1),
+  .church-history-table td:nth-child(1) {
+    width: 22% !important;
   }
 
-  .church-history-table td:nth-child(2)::before {
-    content: '행사명';
+  .church-history-table th:nth-child(2),
+  .church-history-table td:nth-child(2) {
+    width: 24% !important;
   }
 
-  .church-history-table td:nth-child(3)::before {
-    content: '내용';
+  .church-history-table th:nth-child(3),
+  .church-history-table td:nth-child(3) {
+    width: 54% !important;
   }
 
   .church-history-filters__button {
