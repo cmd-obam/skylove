@@ -5,11 +5,9 @@ import useIsMobile from '@/hooks/useIsMobile'
 import MobileImageLightbox from '@/components/common/MobileImageLightbox'
 import '@/components/common/MobileImageLightbox.css'
 import hero01 from '@/assets/images/hero/hero01.png'
-import hero02 from '@/assets/images/hero/hero02.jpg'
-import hero03 from '@/assets/images/hero/hero03.png'
 import './Hero.css'
 
-const heroImages = [hero01, hero02, hero03]
+const heroImages = [hero01]
 const SLIDE_INTERVAL = 5000
 
 function Hero() {
@@ -39,6 +37,10 @@ function Hero() {
   }, [])
 
   useEffect(() => {
+    if (heroImages.length <= 1) {
+      return undefined
+    }
+
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % heroImages.length)
     }, SLIDE_INTERVAL)
@@ -111,21 +113,23 @@ function Hero() {
         </div>
       </div>
 
-      <div className="hero__indicators" role="tablist" aria-label="슬라이드 선택">
-        {heroImages.map((_, index) => (
-          <button
-            key={index}
-            type="button"
-            role="tab"
-            aria-selected={index === currentSlide}
-            aria-label={`${index + 1}번째 슬라이드`}
-            className={`hero__indicator${
-              index === currentSlide ? ' hero__indicator--active' : ''
-            }`}
-            onClick={() => goToSlide(index)}
-          />
-        ))}
-      </div>
+      {heroImages.length > 1 ? (
+        <div className="hero__indicators" role="tablist" aria-label="슬라이드 선택">
+          {heroImages.map((_, index) => (
+            <button
+              key={index}
+              type="button"
+              role="tab"
+              aria-selected={index === currentSlide}
+              aria-label={`${index + 1}번째 슬라이드`}
+              className={`hero__indicator${
+                index === currentSlide ? ' hero__indicator--active' : ''
+              }`}
+              onClick={() => goToSlide(index)}
+            />
+          ))}
+        </div>
+      ) : null}
 
       {lightboxOpen && isMobile ? (
         <MobileImageLightbox
