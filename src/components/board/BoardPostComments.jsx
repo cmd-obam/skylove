@@ -6,32 +6,58 @@ import { isAdminRole } from '@/services/auth/roles'
 import { formatCommentDateTime } from '@/utils/formatBoardDate'
 import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 
-function CommentAdminActions({
+/** 댓글 작성자 user_id === 현재 로그인 auth.uid() */
+function isOwnComment(comment, currentUserId) {
+  return Boolean(currentUserId && comment?.userId && comment.userId === currentUserId)
+}
+
+function canEditComment(comment, currentUserId, isBoardAdmin) {
+  return isBoardAdmin || isOwnComment(comment, currentUserId)
+}
+
+function canDeleteComment(comment, currentUserId, isBoardAdmin) {
+  return isBoardAdmin || isOwnComment(comment, currentUserId)
+}
+
+function CommentActions({
   comment,
   isEditing,
+  canEdit,
+  canDelete,
+  canModerate,
   onDelete,
   onHide,
   onPin,
   onResolveReport,
   onEdit,
 }) {
+  if (!canEdit && !canDelete && !canModerate) {
+    return null
+  }
+
   return (
     <div className="board-comments__admin-actions">
-      <button type="button" className="board-comments__admin-button" onClick={() => onHide(comment)}>
-        {comment.isHidden ? '숨김 해제' : '숨김'}
-      </button>
-      <button type="button" className="board-comments__admin-button" onClick={() => onDelete(comment.id)}>
-        삭제
-      </button>
-      {!isEditing && (
+      {canModerate && (
+        <button type="button" className="board-comments__admin-button" onClick={() => onHide(comment)}>
+          {comment.isHidden ? '숨김 해제' : '숨김'}
+        </button>
+      )}
+      {canDelete && (
+        <button type="button" className="board-comments__admin-button" onClick={() => onDelete(comment.id)}>
+          삭제
+        </button>
+      )}
+      {canEdit && !isEditing && (
         <button type="button" className="board-comments__admin-button" onClick={() => onEdit(comment)}>
           수정
         </button>
       )}
-      <button type="button" className="board-comments__admin-button" onClick={() => onPin(comment)}>
-        {comment.isPinned ? '고정 해제' : '고정'}
-      </button>
-      {comment.isReported && (
+      {canModerate && (
+        <button type="button" className="board-comments__admin-button" onClick={() => onPin(comment)}>
+          {comment.isPinned ? '고정 해제' : '고정'}
+        </button>
+      )}
+      {canModerate && comment.isReported && (
         <button
           type="button"
           className="board-comments__admin-button"
@@ -48,6 +74,7 @@ function CommentItem({
   comment,
   isLoggedIn,
   isBoardAdmin,
+  currentUserId,
   isEditing,
   editBody,
   onEditBodyChange,
@@ -63,6 +90,10 @@ function CommentItem({
   if (comment.isHidden && !isBoardAdmin) {
     return null
   }
+
+  const canEdit = canEditComment(comment, currentUserId, isBoardAdmin)
+  const canDelete = canDeleteComment(comment, currentUserId, isBoardAdmin)
+  const canModerate = isBoardAdmin
 
   return (
     <article
@@ -82,17 +113,18 @@ function CommentItem({
             <span className="board-comments__badge board-comments__badge--report">신고</span>
           )}
         </div>
-        {isBoardAdmin && (
-          <CommentAdminActions
-            comment={comment}
-            isEditing={isEditing}
-            onDelete={onDelete}
-            onHide={onHide}
-            onPin={onPin}
-            onResolveReport={onResolveReport}
-            onEdit={onEdit}
-          />
-        )}
+        <CommentActions
+          comment={comment}
+          isEditing={isEditing}
+          canEdit={canEdit}
+          canDelete={canDelete}
+          canModerate={canModerate}
+          onDelete={onDelete}
+          onHide={onHide}
+          onPin={onPin}
+          onResolveReport={onResolveReport}
+          onEdit={onEdit}
+        />
       </div>
 
       {isEditing ? (
@@ -143,6 +175,7 @@ function BoardPostComments({ postType, postId, onCommentsCountChange }) {
   const [editingCommentId, setEditingCommentId] = useState(null)
   const [editBody, setEditBody] = useState('')
 
+  const currentUserId = user?.id ?? null
   const isBoardAdmin = isAdminRole(profile?.role)
 
   const handleCommentsChange = useCallback(
@@ -165,7 +198,7 @@ function BoardPostComments({ postType, postId, onCommentsCountChange }) {
     handleReport,
     removeComment,
     likeComment,
-  } = useBoardComments(postType, postId, user?.id, handleCommentsChange)
+  } = useBoardComments(postType, postId, currentUserId, handleCommentsChange)
 
   useEffect(() => {
     if (!feedback) {
@@ -214,14 +247,38 @@ function BoardPostComments({ postType, postId, onCommentsCountChange }) {
   }
 
   const handleHide = async (targetComment) => {
+    if (!isBoardAdmin) {
+      setFeedback({ type: 'error', message: '관리자만 댓글을 숨길 수 있습니다.' })
+      return
+    }
+
     await hideComment(targetComment.id, !targetComment.isHidden)
   }
 
   const handlePin = async (targetComment) => {
+    if (!isBoardAdmin) {
+      setFeedback({ type: 'error', message: '관리자만 댓글을 고정할 수 있습니다.' })
+      return
+    }
+
     await pinComment(targetComment.id, !targetComment.isPinned)
   }
 
+  const handleResolveReport = async (commentId) => {
+    if (!isBoardAdmin) {
+      setFeedback({ type: 'error', message: '관리자만 신고를 처리할 수 있습니다.' })
+      return
+    }
+
+    await handleReport(commentId)
+  }
+
   const handleEditStart = (targetComment) => {
+    if (!canEditComment(targetComment, currentUserId, isBoardAdmin)) {
+      setFeedback({ type: 'error', message: '본인이 작성한 댓글만 수정할 수 있습니다.' })
+      return
+    }
+
     setEditingCommentId(targetComment.id)
     setEditBody(targetComment.body)
   }
@@ -236,6 +293,14 @@ function BoardPostComments({ postType, postId, onCommentsCountChange }) {
       return
     }
 
+    const targetComment = comments.find((item) => item.id === editingCommentId)
+
+    if (!targetComment || !canEditComment(targetComment, currentUserId, isBoardAdmin)) {
+      setFeedback({ type: 'error', message: '본인이 작성한 댓글만 수정할 수 있습니다.' })
+      handleEditCancel()
+      return
+    }
+
     const result = await editComment(editingCommentId, editBody)
 
     if (result.success) {
@@ -244,6 +309,13 @@ function BoardPostComments({ postType, postId, onCommentsCountChange }) {
   }
 
   const handleDelete = async (commentId) => {
+    const targetComment = comments.find((item) => item.id === commentId)
+
+    if (!targetComment || !canDeleteComment(targetComment, currentUserId, isBoardAdmin)) {
+      setFeedback({ type: 'error', message: '본인이 작성한 댓글만 삭제할 수 있습니다.' })
+      return
+    }
+
     if (!window.confirm('댓글을 삭제하시겠습니까?')) {
       return
     }
@@ -278,6 +350,7 @@ function BoardPostComments({ postType, postId, onCommentsCountChange }) {
                 comment={item}
                 isLoggedIn={isLoggedIn}
                 isBoardAdmin={isBoardAdmin}
+                currentUserId={currentUserId}
                 isEditing={editingCommentId === item.id}
                 editBody={editBody}
                 onEditBodyChange={setEditBody}
@@ -287,7 +360,7 @@ function BoardPostComments({ postType, postId, onCommentsCountChange }) {
                 onDelete={handleDelete}
                 onHide={handleHide}
                 onPin={handlePin}
-                onResolveReport={handleReport}
+                onResolveReport={handleResolveReport}
                 onEdit={handleEditStart}
               />
             ))
