@@ -25,8 +25,22 @@
 /* ── Header ── */
 
 .worship-template__header {
-  padding: 1rem 0 2rem;
-  text-align: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+  padding: 0.35rem 0 1.5rem;
+  text-align: left;
+}
+
+.worship-template__heading {
+  flex: 1;
+  min-width: 0;
+}
+
+.worship-template__header > .breadcrumb {
+  flex-shrink: 0;
+  padding-top: 0.45rem;
 }
 
 .worship-template__title {
@@ -39,7 +53,7 @@
 }
 
 .worship-template__subtitle {
-  margin: 0.75rem auto 0;
+  margin: 0.75rem 0 0;
   max-width: 22rem;
   font-family: 'Montserrat', sans-serif;
   font-size: clamp(0.6875rem, 1.6vw, 0.8125rem);
@@ -51,11 +65,7 @@
 }
 
 .worship-template__title-line {
-  width: 48px;
-  height: 3px;
-  margin: 1.25rem auto 0;
-  background-color: var(--worship-accent);
-  border-radius: 2px;
+  display: none;
 }
 
 /* ── Hero ── */
@@ -628,6 +638,15 @@
 @media (max-width: 768px) {
   .worship-template {
     padding: 0 1rem 3rem;
+  }
+
+  .worship-template__header {
+    gap: 0.75rem;
+  }
+
+  .worship-template__header > .breadcrumb {
+    max-width: 48%;
+    padding-top: 0.35rem;
   }
 
   .worship-template__info-card {

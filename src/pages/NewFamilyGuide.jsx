@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useId, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FiChevronDown } from 'react-icons/fi'
+import Breadcrumb from '@/components/Breadcrumb'
 import KakaoRoughMap from '@/components/location/KakaoRoughMap'
 import ChurchIntroVideo from '@/components/newFamily/ChurchIntroVideo'
 import { FeatureIcon } from '@/components/newFamily/shared'
@@ -120,9 +121,11 @@ function NewFamilyGuide() {
   return (
     <article className="worship-template nf-guide" ref={pageRef}>
       <header className="worship-template__header worship-template__fade">
-        <h2 className="worship-template__title">{NEW_FAMILY_HERO.title}</h2>
-        <p className="worship-template__subtitle">{NEW_FAMILY_HERO.subtitle}</p>
-        <div className="worship-template__title-line" aria-hidden="true" />
+        <div className="worship-template__heading">
+          <h1 className="sub-layout__title">{NEW_FAMILY_HERO.title}</h1>
+          <p className="worship-template__subtitle">{NEW_FAMILY_HERO.subtitle}</p>
+        </div>
+        <Breadcrumb />
       </header>
 
       <div className="worship-template__hero worship-template__fade">

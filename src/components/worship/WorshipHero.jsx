@@ -11,9 +11,12 @@ function WorshipHero() {
 
   return (
     <div className="worship-hero-wrap">
-      <div className="worship-hero__breadcrumb">
+      <header className="worship-hero__page-header">
+        <div className="worship-hero__page-heading">
+          <h1 className="sub-layout__title">{title}</h1>
+        </div>
         <Breadcrumb />
-      </div>
+      </header>
       <MobileBannerExpand
         imageSrc={worshipHeroImage}
         imageAlt="예배 안내"
@@ -22,7 +25,6 @@ function WorshipHero() {
         style={{ '--worship-hero-bg': `url(${worshipHeroImage})` }}
       >
         <div className="worship-hero__content">
-          <h1 className="worship-hero__title">{title}</h1>
           {subtitle && <p className="worship-hero__subtitle">{subtitle}</p>}
         </div>
       </MobileBannerExpand>

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import footerCrossImage from '@/assets/images/worship/footer-cross-cloud.png'
+import Breadcrumb from '@/components/Breadcrumb'
 import MobileBannerExpand from '@/components/common/MobileBannerExpand'
 import './WorshipTemplate.css'
 
@@ -221,9 +222,11 @@ function WorshipTemplate({
   return (
     <article className="worship-template" ref={rootRef}>
       <header className="worship-template__header worship-template__fade">
-        <h2 className="worship-template__title">{title}</h2>
-        <p className="worship-template__subtitle">{subtitle}</p>
-        <div className="worship-template__title-line" aria-hidden="true" />
+        <div className="worship-template__heading">
+          <h1 className="sub-layout__title">{title}</h1>
+          {subtitle ? <p className="worship-template__subtitle">{subtitle}</p> : null}
+        </div>
+        <Breadcrumb />
       </header>
 
       <div className="worship-template__hero worship-template__fade">

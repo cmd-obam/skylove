@@ -26,6 +26,11 @@
   min-width: 0;
 }
 
+.sub-layout__header > .breadcrumb {
+  flex-shrink: 0;
+  padding-top: 0.45rem;
+}
+
 .sub-layout__title {
   margin: 0 0 0.75rem;
   font-size: clamp(1.75rem, 4.5vw, 2.5rem);
@@ -65,9 +70,13 @@
 
 @media (max-width: 768px) {
   .sub-layout__header {
-    flex-direction: column;
     gap: 0.75rem;
     margin-bottom: 1.75rem;
+  }
+
+  .sub-layout__header > .breadcrumb {
+    max-width: 48%;
+    padding-top: 0.35rem;
   }
 }
 

@@ -2,10 +2,22 @@
   width: 100%;
 }
 
-.worship-hero__breadcrumb {
+.worship-hero__page-header {
   display: flex;
-  justify-content: flex-end;
-  margin-bottom: 1rem;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.worship-hero__page-heading {
+  flex: 1;
+  min-width: 0;
+}
+
+.worship-hero__page-header > .breadcrumb {
+  flex-shrink: 0;
+  padding-top: 0.45rem;
 }
 
 .worship-hero {
@@ -48,27 +60,8 @@
   padding-left: 3.5rem;
 }
 
-.worship-hero__title {
-  margin: 0 0 0.75rem;
-  font-size: clamp(1.75rem, 4vw, 2.5rem);
-  font-weight: 700;
-  color: var(--color-text);
-  letter-spacing: -0.02em;
-  line-height: 1.15;
-}
-
-.worship-hero__title::after {
-  content: '';
-  display: block;
-  width: 40px;
-  height: 3px;
-  margin: 1rem 0 0;
-  background-color: var(--color-point);
-  border-radius: 2px;
-}
-
 .worship-hero__subtitle {
-  margin: 1.25rem 0 0;
+  margin: 0;
   font-size: 1.0625rem;
   line-height: 1.6;
   color: var(--color-text-muted);
@@ -88,6 +81,16 @@
 }
 
 @media (max-width: 768px) {
+  .worship-hero__page-header {
+    gap: 0.75rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .worship-hero__page-header > .breadcrumb {
+    max-width: 48%;
+    padding-top: 0.35rem;
+  }
+
   .worship-hero {
     align-items: flex-end;
     padding-bottom: 1.75rem;
@@ -96,23 +99,10 @@
     width: calc(100% + 2rem);
   }
 
-  .worship-hero__breadcrumb {
-    margin-bottom: 0.75rem;
-  }
-
   .worship-hero__content {
     width: 100%;
     padding: 0 1.5rem;
-    text-align: center;
-  }
-
-  .worship-hero__title {
-    font-size: 2rem;
-  }
-
-  .worship-hero__title::after {
-    margin-left: auto;
-    margin-right: auto;
+    text-align: left;
   }
 
   .worship-hero__subtitle {

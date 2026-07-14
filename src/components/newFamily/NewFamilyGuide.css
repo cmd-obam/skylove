@@ -19,7 +19,7 @@
 }
 
 .nf-guide .worship-template__title-line {
-  margin-top: 0.4rem;
+  display: none;
 }
 
 .nf-guide .worship-template__hero {
