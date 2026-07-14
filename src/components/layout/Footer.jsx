@@ -45,6 +45,20 @@ function Footer() {
           </div>
         </div>
 
+        <div className="footer__donation">
+          <p className="footer__donation-title">하늘사랑교회 온라인 헌금</p>
+          <p className="footer__donation-account">
+            <span className="footer__donation-bank">새마을금고</span>
+            <span className="footer__donation-number">9002-1741-6264-5</span>
+          </p>
+        </div>
+      </div>
+
+      <div className="footer__bottom">
+        <p className="footer__copyright">
+          &copy; {new Date().getFullYear()} 하늘사랑교회. All rights reserved.
+        </p>
+
         <nav className="footer__legal" aria-label="푸터 정책 메뉴">
           <ul className="footer__legal-list">
             {FOOTER_LEGAL_LINKS.map((item) => (
@@ -60,12 +74,6 @@ function Footer() {
             ))}
           </ul>
         </nav>
-      </div>
-
-      <div className="footer__copyright">
-        <p>
-          &copy; {new Date().getFullYear()} 하늘사랑교회. All rights reserved.
-        </p>
       </div>
 
       <SitemapModal isOpen={activeModal === 'sitemap'} onClose={closeModal} />

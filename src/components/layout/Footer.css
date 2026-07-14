@@ -59,8 +59,53 @@
   color: rgba(255, 255, 255, 0.95);
 }
 
-.footer__legal {
+.footer__donation {
   flex-shrink: 0;
+  text-align: right;
+}
+
+.footer__donation-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.footer__donation-account {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 0.625rem 0 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.footer__donation-bank {
+  font-weight: 500;
+}
+
+.footer__donation-number {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+.footer__bottom {
+  max-width: 1200px;
+  margin: 30px auto 0;
+  padding: 20px 0 0 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  text-align: left;
+}
+
+.footer__copyright {
+  margin: 0;
+  font-size: 13px;
+  opacity: 0.6;
+}
+
+.footer__legal {
+  margin-top: 0.5rem;
 }
 
 .footer__legal-list {
@@ -68,8 +113,9 @@
   margin: 0;
   padding: 0;
   display: flex;
-  flex-direction: column;
-  gap: 0.625rem;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 1rem;
 }
 
 .footer__legal-item {
@@ -81,9 +127,9 @@
   border: none;
   background: transparent;
   font-family: inherit;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.7);
   text-align: left;
   cursor: pointer;
   transition: color var(--transition);
@@ -92,20 +138,6 @@
 .footer__legal-link:hover,
 .footer__legal-link:focus-visible {
   color: #fff;
-}
-
-.footer__copyright {
-  max-width: 1200px;
-  margin: 30px auto 0;
-  padding-top: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.15);
-  text-align: center;
-}
-
-.footer__copyright p {
-  margin: 0;
-  font-size: 13px;
-  opacity: 0.6;
 }
 
 @media (max-width: 992px) {
@@ -127,11 +159,11 @@
     width: 100%;
   }
 
-  .footer__legal-list {
-    gap: 0.75rem;
+  .footer__donation {
+    text-align: left;
   }
 
-  .footer__copyright {
-    text-align: left;
+  .footer__donation-account {
+    justify-content: flex-start;
   }
 }

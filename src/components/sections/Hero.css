@@ -159,14 +159,14 @@
 }
 
 .hero__btn--primary {
-  background-color: #87CEEB;
+  background-color: #766f69;
   color: var(--color-white);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
 }
 
 .hero__btn--primary:hover,
 .hero__btn--primary:focus-visible {
-  background-color: #6BB8D9;
+  background-color: #5f5a55;
   transform: translateY(-3px);
   box-shadow: 0 14px 30px rgba(0, 0, 0, 0.25);
 }

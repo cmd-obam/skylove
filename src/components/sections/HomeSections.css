@@ -257,7 +257,11 @@
 /* Worship */
 .home-worship {
   background-color: var(--color-white);
-  padding-top: 2.75rem;
+  padding-top: calc(2.75rem - 50px);
+}
+
+.home-story {
+  padding-top: calc(5rem - 50px);
 }
 
 .home-worship .home-section__header {
@@ -557,6 +561,7 @@
 /* Location */
 .home-location {
   background-color: var(--color-white);
+  padding-top: calc(5rem - 50px);
 }
 
 .home-location__layout {
@@ -662,7 +667,12 @@
   }
 
   .home-worship {
-    padding-top: 1.75rem;
+    padding-top: calc(1.75rem - 50px);
+  }
+
+  .home-story,
+  .home-location {
+    padding-top: calc(3.5rem - 50px);
   }
 
   .home-welcome__inner {
