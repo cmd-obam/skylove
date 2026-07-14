@@ -17,6 +17,7 @@ Migration 파일을 **번호 순서대로** Supabase SQL Editor에서 실행하�
 | 9 | `009_password_recovery_with_username.sql` | 이름+아이디+이메일 본인 확인 RPC |
 | 10 | `010_password_recovery_name_email.sql` | 이름+이메일 본인 확인 RPC 복원 |
 | 11 | `013_super_admin_member_management.sql` | super_admin 회원관리 RPC (목록/권한 변경) |
+| 12 | `014_worship_word_posts.sql` | 예배말씀 post_type + youtube_url 컬럼 |
 
 > `003`은 `profiles.role`을 RLS에서 참조하므로 **`004`를 먼저** 실행해야 합니다.
 

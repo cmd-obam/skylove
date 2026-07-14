@@ -19,6 +19,8 @@ export function mapBoardPostRow(row, meta) {
     createdAt: row.created_at,
     date: row.created_at,
     views: meta?.views_count ?? 0,
+    likesCount: meta?.likes_count ?? 0,
+    commentsCount: meta?.comments_count ?? 0,
     attachments: row.attachment_url
       ? [{ name: row.attachment_name || '첨부파일', url: row.attachment_url }]
       : [],
@@ -29,6 +31,7 @@ export function mapBoardPostRow(row, meta) {
       name: image.name || `image-${index + 1}`,
     })),
     thumbnail: row.thumbnail,
+    youtubeUrl: row.youtube_url ?? null,
     attachmentUrl: row.attachment_url,
     attachmentName: row.attachment_name,
   }
@@ -98,7 +101,6 @@ export async function fetchBoardPosts(postType) {
 
   const posts = (data ?? []).map((row, index) => ({
     ...mapBoardPostRow(row, metaMap[String(row.id)]),
-    commentsCount: metaMap[String(row.id)]?.comments_count ?? 0,
     no: (data ?? []).length - index,
   }))
 
@@ -156,7 +158,7 @@ export async function fetchBoardPostById(postId) {
   }
 
   if (!data) {
-    for (const postType of ['album', 'church_news']) {
+    for (const postType of ['album', 'church_news', 'sunday_sermon', 'el_shaddai_choir']) {
       const tempPost = getTempBoardPost(postType, postId)
 
       if (tempPost) {
@@ -186,6 +188,28 @@ export async function fetchRelatedBoardPosts(postType, postId, limit = 5) {
   return result.posts.filter((post) => String(post.id) !== String(postId)).slice(0, limit)
 }
 
+/**
+ * created_at 내림차순 목록 기준으로 이전(더 최신) / 다음(더 오래된) 게시글.
+ */
+export async function fetchAdjacentBoardPosts(postType, postId) {
+  const result = await fetchBoardPosts(postType)
+
+  if (!result.success) {
+    return { prev: null, next: null }
+  }
+
+  const index = result.posts.findIndex((post) => String(post.id) === String(postId))
+
+  if (index < 0) {
+    return { prev: null, next: null }
+  }
+
+  return {
+    prev: index > 0 ? result.posts[index - 1] : null,
+    next: index < result.posts.length - 1 ? result.posts[index + 1] : null,
+  }
+}
+
 async function ensurePostMeta(postType, postId) {
   await supabase.rpc('ensure_board_post_meta', {
     p_post_type: postType,
@@ -203,6 +227,7 @@ export async function createBoardPost({
   attachmentName = null,
   images = [],
   thumbnail = null,
+  youtubeUrl = null,
 }) {
   const auth = await assertBoardAdmin()
 
@@ -224,6 +249,7 @@ export async function createBoardPost({
       attachment_name: attachmentName,
       images,
       thumbnail,
+      youtube_url: youtubeUrl,
     })
     .select()
     .single()
@@ -261,6 +287,7 @@ export async function updateBoardPost(postType, postId, payload) {
       attachment_name: payload.attachmentName ?? null,
       images: payload.images ?? [],
       thumbnail: payload.thumbnail ?? null,
+      youtube_url: payload.youtubeUrl ?? null,
     })
     .eq('post_type', postType)
     .eq('id', postId)

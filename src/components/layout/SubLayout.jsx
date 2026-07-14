@@ -71,6 +71,7 @@ function SubLayout() {
     CUSTOM_HEADER_PATHS.has(pathname) ||
     pathname.startsWith('/news/') ||
     pathname.startsWith('/album/') ||
+    pathname.startsWith('/worship-word/') ||
     pathname.startsWith(`${CHURCH_ALBUM_PATH}/`) ||
     isChurchNewsPostDetail(pathname) ||
     isWorshipGuidePath(pathname)

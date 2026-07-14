@@ -90,3 +90,42 @@ export function formatCommentDateTime(value) {
 
   return `${parsedDate.getFullYear()}.${padTwo(parsedDate.getMonth() + 1)}.${padTwo(parsedDate.getDate())} ${padTwo(parsedDate.getHours())}:${padTwo(parsedDate.getMinutes())}`
 }
+
+/**
+ * 상대 시간 표시. 하루 이내: n분전 / n시간전, 이후: YYYY-MM-DD
+ */
+export function formatRelativeTime(value) {
+  if (!value) {
+    return ''
+  }
+
+  const parsedDate = new Date(value)
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return value
+  }
+
+  const diffMs = Date.now() - parsedDate.getTime()
+
+  if (diffMs < 0) {
+    return `${parsedDate.getFullYear()}-${padTwo(parsedDate.getMonth() + 1)}-${padTwo(parsedDate.getDate())}`
+  }
+
+  const diffMinutes = Math.floor(diffMs / (1000 * 60))
+
+  if (diffMinutes < 1) {
+    return '방금 전'
+  }
+
+  if (diffMinutes < 60) {
+    return `${diffMinutes}분전`
+  }
+
+  const diffHours = Math.floor(diffMinutes / 60)
+
+  if (diffHours < 24) {
+    return `${diffHours}시간전`
+  }
+
+  return `${parsedDate.getFullYear()}-${padTwo(parsedDate.getMonth() + 1)}-${padTwo(parsedDate.getDate())}`
+}

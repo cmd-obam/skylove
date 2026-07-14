@@ -51,6 +51,22 @@ export const PAGE_META = {
     title: '셀모임',
     subtitle: '셀모임을 안내합니다',
   },
+  '/worship-word/sunday': {
+    title: '주일예배',
+    subtitle: '주일예배 말씀을 영상으로 나눕니다.',
+  },
+  '/worship-word/el-shaddai': {
+    title: '엘샤다이 찬양단',
+    subtitle: '엘샤다이 찬양단 영상을 나눕니다.',
+  },
+  '/worship-word/sunday/write': {
+    title: '주일예배 등록',
+    subtitle: '',
+  },
+  '/worship-word/el-shaddai/write': {
+    title: '엘샤다이 찬양단 등록',
+    subtitle: '',
+  },
   '/education': {
     title: '교육&양육',
     subtitle: '교육과 양육 프로그램을 안내합니다',

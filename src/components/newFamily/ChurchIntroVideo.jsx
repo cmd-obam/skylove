@@ -81,7 +81,7 @@ function ChurchIntroVideo({
   descriptionLines = NEW_FAMILY_INTRO.descriptionLines,
 }) {
   const [isPlaying, setIsPlaying] = useState(false)
-  const thumbnailUrl = thumbnail ?? getYouTubeThumbnail(videoId)
+  const thumbnailUrl = thumbnail ?? getYouTubeThumbnail(videoId, 'maxresdefault')
 
   const startPlayback = useCallback(() => {
     setIsPlaying(true)

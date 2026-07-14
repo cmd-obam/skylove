@@ -44,9 +44,7 @@ export const NEW_FAMILY_VIDEO = {
   thumbnail: null,
 }
 
-export function getYouTubeThumbnail(videoId, quality = 'maxresdefault') {
-  return `https://img.youtube.com/vi/${videoId}/${quality}.jpg`
-}
+export { getYouTubeThumbnail } from '@/utils/youtube'
 
 export const CHURCH_FEATURE_CARDS = [
   {

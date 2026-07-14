@@ -51,6 +51,14 @@ export const MENU_ITEMS = [
     ],
   },
   {
+    title: '예배말씀',
+    path: '/worship-word',
+    children: [
+      { title: '주일예배', path: '/worship-word/sunday' },
+      { title: '엘샤다이 찬양단', path: '/worship-word/el-shaddai' },
+    ],
+  },
+  {
     title: '교회소식',
     path: '/church-news',
     children: [

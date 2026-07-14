@@ -15,6 +15,7 @@ import {
   uploadBoardFile,
 } from '@/services/board/storage'
 import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
+import { resolveYouTubeMedia } from '@/utils/youtube'
 import '@/pages/ChurchNews.css'
 
 async function uploadAlbumImages(postType, postId, images) {
@@ -63,9 +64,11 @@ function mapBoardWriteErrorMessage(message) {
     message.includes('schema cache') ||
     message.includes('board_posts') ||
     message.includes('board_post_meta') ||
-    message.includes('ensure_board_post_meta')
+    message.includes('ensure_board_post_meta') ||
+    message.includes('youtube_url') ||
+    message.includes('post_type')
   ) {
-    return '게시판 DB가 아직 준비되지 않았습니다. Supabase에 게시판 마이그레이션을 먼저 적용해 주세요.'
+    return '게시판 DB가 아직 준비되지 않았습니다. Supabase에 예배말씀 마이그레이션(014)을 먼저 적용해 주세요.'
   }
 
   return message
@@ -79,13 +82,16 @@ function BoardPostWritePage({
   detailPathPrefix,
   mode = 'create',
   postId = null,
+  writeVariant = 'default',
 }) {
   const navigate = useNavigate()
   const { profile } = useAuth()
   const isEdit = mode === 'edit'
+  const isVideoWrite = writeVariant === 'video'
 
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
+  const [youtubeUrl, setYoutubeUrl] = useState('')
   const [attachmentFile, setAttachmentFile] = useState(null)
   const [existingAttachment, setExistingAttachment] = useState(null)
   const [albumImages, setAlbumImages] = useState([])
@@ -118,6 +124,7 @@ function BoardPostWritePage({
 
       setTitle(result.post.title)
       setContent(result.post.content)
+      setYoutubeUrl(result.post.youtubeUrl || '')
 
       if (result.post.attachments?.[0]) {
         setExistingAttachment(result.post.attachments[0])
@@ -169,15 +176,27 @@ function BoardPostWritePage({
 
     const trimmedTitle = title.trim()
     const trimmedContent = content.trim()
+    const trimmedYoutubeUrl = youtubeUrl.trim()
 
     if (!trimmedTitle) {
       setError('제목을 입력해 주세요.')
       return
     }
 
-    if (!trimmedContent) {
+    if (!isVideoWrite && !trimmedContent) {
       setError('내용을 입력해 주세요.')
       return
+    }
+
+    let youtubeMedia = null
+
+    if (isVideoWrite) {
+      youtubeMedia = resolveYouTubeMedia(trimmedYoutubeUrl)
+
+      if (!youtubeMedia) {
+        setError('올바른 유튜브 링크를 입력해 주세요.')
+        return
+      }
     }
 
     if (postType === 'album' && albumImages.length === 0) {
@@ -194,7 +213,7 @@ function BoardPostWritePage({
     let attachmentUrl = existingAttachment?.url ?? null
     let attachmentName = existingAttachment?.name ?? null
 
-    if (attachmentFile) {
+    if (!isVideoWrite && attachmentFile) {
       const path = buildBoardStoragePath(postType, targetPostId, attachmentFile.name)
       const uploadResult = await uploadBoardFile(path, attachmentFile)
 
@@ -207,7 +226,7 @@ function BoardPostWritePage({
       attachmentUrl = uploadResult.url
       attachmentName = attachmentFile.name
       uploadedPaths.push(uploadResult.path)
-    } else if (!existingAttachment) {
+    } else if (!isVideoWrite && !existingAttachment) {
       attachmentUrl = null
       attachmentName = null
     }
@@ -229,6 +248,13 @@ function BoardPostWritePage({
       uploadedPaths.push(...uploadResult.images.map((image) => image.path).filter(Boolean))
     }
 
+    if (isVideoWrite) {
+      thumbnail = youtubeMedia.thumbnail
+      attachmentUrl = null
+      attachmentName = null
+      imagesPayload = []
+    }
+
     const payload = {
       title: trimmedTitle,
       content: trimmedContent,
@@ -237,6 +263,7 @@ function BoardPostWritePage({
       attachmentName,
       images: imagesPayload,
       thumbnail,
+      youtubeUrl: isVideoWrite ? youtubeMedia.youtubeUrl : null,
     }
 
     const result = isEdit
@@ -284,6 +311,8 @@ function BoardPostWritePage({
     return null
   }
 
+  const youtubePreview = isVideoWrite ? resolveYouTubeMedia(youtubeUrl) : null
+
   return (
     <div className="church-news-page">
       <BoardPageHeader title={pageTitle} showDivider />
@@ -307,9 +336,33 @@ function BoardPostWritePage({
           />
         </div>
 
+        {isVideoWrite && (
+          <div className="board-write-form__field">
+            <label htmlFor="board-write-youtube" className="board-write-form__label">
+              유튜브 링크
+            </label>
+            <input
+              id="board-write-youtube"
+              type="url"
+              className="board-write-form__input"
+              value={youtubeUrl}
+              onChange={(event) => setYoutubeUrl(event.target.value)}
+              disabled={submitting}
+              placeholder="https://www.youtube.com/watch?v=..."
+              required
+              autoComplete={AUTOCOMPLETE_OFF}
+            />
+            {youtubePreview?.thumbnail && (
+              <div className="board-write-form__youtube-preview">
+                <img src={youtubePreview.thumbnail} alt="유튜브 썸네일 미리보기" />
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="board-write-form__field">
           <label htmlFor="board-write-content" className="board-write-form__label">
-            내용
+            내용{isVideoWrite ? ' (선택)' : ''}
           </label>
           <textarea
             id="board-write-content"
@@ -317,8 +370,8 @@ function BoardPostWritePage({
             value={content}
             onChange={(event) => setContent(event.target.value)}
             disabled={submitting}
-            rows={postType === 'album' ? 6 : 12}
-            required
+            rows={isVideoWrite || postType === 'album' ? 6 : 12}
+            required={!isVideoWrite}
             autoComplete={AUTOCOMPLETE_OFF}
           />
         </div>

@@ -3,6 +3,25 @@ import { Link, useNavigate } from 'react-router-dom'
 import Modal from '@/components/common/Modal'
 import { useBoardAdmin } from '@/hooks/useBoardAdmin'
 import { deleteBoardPost } from '@/services/board/posts'
+import { getWorshipWordBoardByPostType } from '@/data/worshipWord'
+
+function getEditPath(postType, postId) {
+  if (postType === 'church_news') {
+    return `/news/edit/${postId}`
+  }
+
+  if (postType === 'album') {
+    return `/album/edit/${postId}`
+  }
+
+  const worshipWordBoard = getWorshipWordBoardByPostType(postType)
+
+  if (worshipWordBoard) {
+    return worshipWordBoard.editPath(postId)
+  }
+
+  return `/album/edit/${postId}`
+}
 
 function BoardPostAdminBar({ postType, postId, listPath }) {
   const { canManageBoard, loading } = useBoardAdmin()
@@ -14,8 +33,7 @@ function BoardPostAdminBar({ postType, postId, listPath }) {
     return null
   }
 
-  const editPath =
-    postType === 'church_news' ? `/news/edit/${postId}` : `/album/edit/${postId}`
+  const editPath = getEditPath(postType, postId)
 
   const handleDelete = async () => {
     setDeleting(true)
