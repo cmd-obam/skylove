@@ -90,8 +90,8 @@
   }
 
   .signup-info-form .signup-birth-date__select {
-    min-height: 44px;
-    height: auto;
+    min-height: 36px;
+    height: 36px;
   }
 
   .signup-birth-date__menu {
@@ -329,13 +329,13 @@
 
   .signup-info-form__input,
   .signup-info-form__select {
-    font-size: 0.875rem;
-    min-height: 40px;
+    font-size: 0.8125rem;
+    min-height: 36px;
   }
 
   .signup-info-form__inline .signup-btn--gray {
-    min-height: 40px;
-    height: 40px;
+    min-height: 36px;
+    height: 36px;
   }
 
   .auth-page__body {
