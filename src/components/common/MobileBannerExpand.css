@@ -361,9 +361,9 @@
     align-items: center !important;
     justify-content: flex-start;
     min-height: 0;
-    margin-left: -1rem;
-    margin-right: -1rem;
-    width: calc(100% + 2rem);
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
     padding: 0 !important;
     overflow: hidden;
     border-radius: 0;
