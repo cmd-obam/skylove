@@ -41,7 +41,10 @@ ALTER TABLE public.board_comments
   ADD CONSTRAINT board_comments_post_type_check
   CHECK (post_type IN ('church_news', 'album', 'sunday_sermon', 'el_shaddai_choir'));
 
--- board_post_list 뷰가 있을 경우 새 컬럼이 포함되도록 재생성
+-- board_post_list 뷰
+-- CREATE OR REPLACE는 기존 컬럼 이름/순서를 바꿀 수 없으므로
+-- youtube_url은 맨 뒤에 추가합니다. (GRANT·의존 객체 유지)
+-- 프론트는 컬럼명으로 select하므로 순서 변경 영향 없음.
 DO $$
 BEGIN
   IF EXISTS (
@@ -58,8 +61,8 @@ BEGIN
         title,
         writer,
         thumbnail,
-        youtube_url,
-        created_at
+        created_at,
+        youtube_url
       FROM public.board_posts
     $view$;
   END IF;
