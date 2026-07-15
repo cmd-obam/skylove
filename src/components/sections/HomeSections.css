@@ -704,6 +704,7 @@
   }
 
   .home-welcome .home-section__title {
+    margin-left: 0;
     font-size: 1.8125rem;
   }
 
