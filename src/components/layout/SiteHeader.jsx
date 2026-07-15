@@ -7,6 +7,14 @@ import MenuItemLabel from '@/components/layout/MenuItemLabel'
 import { useAuth } from '@/contexts/AuthContext'
 import './SiteHeader.css'
 
+const MEMBER_MENU_TITLE = '회원메뉴'
+
+const MEMBER_MENU_GUEST_LINKS = [
+  { label: '로그인', path: '/login' },
+  { label: '아이디/비밀번호찾기', path: '/login', tab: 'find-id' },
+  { label: '회원가입', path: '/signup' },
+]
+
 function getAuthLinkPath(item) {
   if (item.tab) {
     return { pathname: item.path, search: `?tab=${item.tab}` }
@@ -28,6 +36,15 @@ function renderAuthLink(item, onNavigate) {
     <Link to={getAuthLinkPath(item)} className="site-header__auth-link" onClick={onNavigate}>
       {item.label}
     </Link>
+  )
+}
+
+function isMemberMenuPath(pathname) {
+  return (
+    pathname === '/login' ||
+    pathname === '/signup' ||
+    pathname.startsWith('/member/') ||
+    pathname.startsWith('/reset-password')
   )
 }
 
@@ -97,6 +114,17 @@ function SiteHeader() {
     [isLoggedIn, handleLogout],
   )
 
+  const memberMenuLinks = useMemo(
+    () =>
+      isLoggedIn
+        ? [
+            { label: '회원정보', path: '/member/edit' },
+            { label: '로그아웃', onClick: handleLogout },
+          ]
+        : MEMBER_MENU_GUEST_LINKS,
+    [isLoggedIn, handleLogout],
+  )
+
   useEffect(() => {
     if (!isMobileMenuOpen) {
       document.body.style.overflow = ''
@@ -104,6 +132,14 @@ function SiteHeader() {
     }
 
     document.body.style.overflow = 'hidden'
+
+    if (isMemberMenuPath(pathname)) {
+      setExpandedItem(MEMBER_MENU_TITLE)
+      setExpandedSubItem(null)
+      return () => {
+        document.body.style.overflow = ''
+      }
+    }
 
     const aboutSection = MENU_ITEMS.find((item) => item.title === '교회소개')
     const tourItem = aboutSection?.children?.find((child) => child.children?.length)
@@ -347,21 +383,56 @@ function SiteHeader() {
                 )}
               </li>
             ))}
+            <li className="site-header__drawer-item">
+              <div className="site-header__drawer-item-header">
+                <button
+                  type="button"
+                  className="site-header__drawer-link site-header__drawer-link--category"
+                  aria-expanded={expandedItem === MEMBER_MENU_TITLE}
+                  aria-label={`${MEMBER_MENU_TITLE} 하위 메뉴 펼치기`}
+                  onClick={() => toggleAccordion(MEMBER_MENU_TITLE)}
+                >
+                  <span>{MEMBER_MENU_TITLE}</span>
+                  <span
+                    className={`site-header__drawer-expand${
+                      expandedItem === MEMBER_MENU_TITLE ? ' site-header__drawer-expand--open' : ''
+                    }`}
+                    aria-hidden="true"
+                  >
+                    <span>+</span>
+                  </span>
+                </button>
+              </div>
+              <ul
+                className={`site-header__drawer-submenu${
+                  expandedItem === MEMBER_MENU_TITLE ? ' site-header__drawer-submenu--open' : ''
+                }`}
+              >
+                {memberMenuLinks.map((item) => (
+                  <li key={item.label} className="site-header__drawer-submenu-item">
+                    {item.onClick ? (
+                      <button
+                        type="button"
+                        className="site-header__drawer-submenu-link"
+                        onClick={item.onClick}
+                      >
+                        {item.label}
+                      </button>
+                    ) : (
+                      <Link
+                        to={getAuthLinkPath(item)}
+                        className="site-header__drawer-submenu-link"
+                        onClick={closeMobileMenu}
+                      >
+                        {item.label}
+                      </Link>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </li>
           </ul>
         </nav>
-
-        <div className="site-header__drawer-auth" aria-label="계정 메뉴">
-          {authLinks.map((item, index) => (
-            <span key={item.label} className="site-header__auth-item">
-              {index > 0 && (
-                <span className="site-header__auth-separator" aria-hidden="true">
-                  |
-                </span>
-              )}
-              {renderAuthLink(item, closeMobileMenu)}
-            </span>
-          ))}
-        </div>
       </aside>
     </div>
   )
