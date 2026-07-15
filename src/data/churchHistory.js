@@ -150,22 +150,22 @@ export const CHURCH_HISTORY_PERIODS = [
       {
         id: '2025-street-cleaning',
         src: history2025StreetCleaning,
-        caption: '전도 거리 청소',
+        caption: '2025. 06 전도 거리 청소',
       },
       {
         id: '2025-philippines-mission',
         src: history2025PhilippinesMission,
-        caption: '담임목사님 필리핀 선교',
+        caption: '2025. 07 담임목사님 필리핀 선교',
       },
       {
         id: '2025-christmas-baptism',
         src: history2025ChristmasBaptism,
-        caption: '성탄절 세례예식',
+        caption: '2025. 12 성탄절 세례예식',
       },
       {
         id: '2026-japan-mission',
         src: history2026JapanMission,
-        caption: '일본 단기선교',
+        caption: '2026. 03 일본 단기선교',
       },
     ],
   },
