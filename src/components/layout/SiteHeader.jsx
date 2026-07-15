@@ -8,12 +8,8 @@ import { useAuth } from '@/contexts/AuthContext'
 import './SiteHeader.css'
 
 const MEMBER_MENU_TITLE = '회원메뉴'
-
-const MEMBER_MENU_GUEST_LINKS = [
-  { label: '로그인', path: '/login' },
-  { label: '아이디/비밀번호찾기', path: '/login', tab: 'find-id' },
-  { label: '회원가입', path: '/signup' },
-]
+const MEMBER_MENU_PATH = '/login'
+const MEMBER_MENU_LOGGED_IN_PATH = '/member/edit'
 
 function getAuthLinkPath(item) {
   if (item.tab) {
@@ -114,16 +110,7 @@ function SiteHeader() {
     [isLoggedIn, handleLogout],
   )
 
-  const memberMenuLinks = useMemo(
-    () =>
-      isLoggedIn
-        ? [
-            { label: '회원정보', path: '/member/edit' },
-            { label: '로그아웃', onClick: handleLogout },
-          ]
-        : MEMBER_MENU_GUEST_LINKS,
-    [isLoggedIn, handleLogout],
-  )
+  const memberMenuPath = isLoggedIn ? MEMBER_MENU_LOGGED_IN_PATH : MEMBER_MENU_PATH
 
   useEffect(() => {
     if (!isMobileMenuOpen) {
@@ -134,8 +121,6 @@ function SiteHeader() {
     document.body.style.overflow = 'hidden'
 
     if (isMemberMenuPath(pathname)) {
-      setExpandedItem(MEMBER_MENU_TITLE)
-      setExpandedSubItem(null)
       return () => {
         document.body.style.overflow = ''
       }
@@ -384,52 +369,13 @@ function SiteHeader() {
               </li>
             ))}
             <li className="site-header__drawer-item">
-              <div className="site-header__drawer-item-header">
-                <button
-                  type="button"
-                  className="site-header__drawer-link site-header__drawer-link--category"
-                  aria-expanded={expandedItem === MEMBER_MENU_TITLE}
-                  aria-label={`${MEMBER_MENU_TITLE} 하위 메뉴 펼치기`}
-                  onClick={() => toggleAccordion(MEMBER_MENU_TITLE)}
-                >
-                  <span>{MEMBER_MENU_TITLE}</span>
-                  <span
-                    className={`site-header__drawer-expand${
-                      expandedItem === MEMBER_MENU_TITLE ? ' site-header__drawer-expand--open' : ''
-                    }`}
-                    aria-hidden="true"
-                  >
-                    <span>+</span>
-                  </span>
-                </button>
-              </div>
-              <ul
-                className={`site-header__drawer-submenu${
-                  expandedItem === MEMBER_MENU_TITLE ? ' site-header__drawer-submenu--open' : ''
-                }`}
+              <Link
+                to={memberMenuPath}
+                className="site-header__drawer-link"
+                onClick={closeMobileMenu}
               >
-                {memberMenuLinks.map((item) => (
-                  <li key={item.label} className="site-header__drawer-submenu-item">
-                    {item.onClick ? (
-                      <button
-                        type="button"
-                        className="site-header__drawer-submenu-link"
-                        onClick={item.onClick}
-                      >
-                        {item.label}
-                      </button>
-                    ) : (
-                      <Link
-                        to={getAuthLinkPath(item)}
-                        className="site-header__drawer-submenu-link"
-                        onClick={closeMobileMenu}
-                      >
-                        {item.label}
-                      </Link>
-                    )}
-                  </li>
-                ))}
-              </ul>
+                {MEMBER_MENU_TITLE}
+              </Link>
             </li>
           </ul>
         </nav>
