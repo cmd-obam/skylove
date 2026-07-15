@@ -173,6 +173,7 @@ export const WORSHIP_GUIDE_CONTENT = {
     time: '주일축복예배 시',
     locationLabel: '사역',
     location: '찬양사역',
+    infoCardMobileLayout: 'inline',
     headlineLines: ['찬양으로', '하나님께 영광을'],
     introTitle: '엘샤다이 찬양단',
     descriptionParagraphs: [
