@@ -81,41 +81,35 @@ export const HOME_STORY_CARDS = [
   },
 ]
 
-export const HOME_NEWS_ITEMS = [
+/** 홈 최근 소식: 카테고리별 최신 게시글 1건씩 */
+export const HOME_RECENT_NEWS_SOURCES = [
   {
-    id: 'news-1',
-    title: '교회 소식이 곧 업데이트됩니다',
-    date: '준비 중',
-    href: '/church-news',
-    comingSoon: true,
+    id: 'church_news',
+    postType: 'church_news',
+    categoryLabel: '교회소식',
+    listPath: '/church-news',
+    detailPath: (postId) => `/church-news/${postId}`,
   },
   {
-    id: 'news-2',
-    title: '행사 및 모임 안내',
-    date: '준비 중',
-    href: '/church-news',
-    comingSoon: true,
+    id: 'album',
+    postType: 'album',
+    categoryLabel: '교회앨범',
+    listPath: '/church-news/album',
+    detailPath: (postId) => `/church-news/album/${postId}`,
   },
   {
-    id: 'news-3',
-    title: '새가족 환영 소식',
-    date: '준비 중',
-    href: '/new-family',
-    comingSoon: true,
+    id: 'sunday_sermon',
+    postType: 'sunday_sermon',
+    categoryLabel: '주일예배',
+    listPath: '/worship-word/sunday',
+    detailPath: (postId) => `/worship-word/sunday/${postId}`,
   },
   {
-    id: 'news-4',
-    title: '예배 안내',
-    date: '준비 중',
-    href: '/worship',
-    comingSoon: true,
-  },
-  {
-    id: 'news-5',
-    title: '교회앨범',
-    date: '준비 중',
-    href: '/church-news/album',
-    comingSoon: true,
+    id: 'el_shaddai_choir',
+    postType: 'el_shaddai_choir',
+    categoryLabel: '엘샤다이 찬양단',
+    listPath: '/worship-word/el-shaddai',
+    detailPath: (postId) => `/worship-word/el-shaddai/${postId}`,
   },
 ]
 

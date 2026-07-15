@@ -188,6 +188,20 @@ export async function fetchRelatedBoardPosts(postType, postId, limit = 5) {
   return result.posts.filter((post) => String(post.id) !== String(postId)).slice(0, limit)
 }
 
+/** postType별 최신 게시글 1건 (created_at 내림차순 목록의 첫 글) */
+export async function fetchLatestBoardPost(postType) {
+  const result = await fetchBoardPosts(postType)
+
+  if (!result.success || !result.posts?.length) {
+    return { success: result.success, post: null, message: result.message }
+  }
+
+  return {
+    success: true,
+    post: result.posts[0],
+  }
+}
+
 /**
  * created_at 내림차순 목록 기준으로 이전(더 최신) / 다음(더 오래된) 게시글.
  */
