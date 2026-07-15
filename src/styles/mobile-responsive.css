@@ -316,7 +316,13 @@
 
 @media (max-width: 767px) {
   .hero {
+    aspect-ratio: auto;
     min-height: clamp(320px, 58vh, 440px);
+  }
+
+  .hero__slide,
+  .hero__bg {
+    object-fit: contain;
   }
 
   .hero__title {
