@@ -40,7 +40,9 @@ export function getBreadcrumbItems(pathname) {
     return items
   }
 
-  if (match?.item && match.item.path !== section.path) {
+  // Include the child label even when it shares the section path
+  // (e.g. 홈 > 교회소개 > 담임목사 인사 for `/about`).
+  if (match?.item) {
     items.push({
       label: getMenuItemLabel(match.item),
       path: match.item.path,
