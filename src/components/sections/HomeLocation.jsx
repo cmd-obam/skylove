@@ -36,7 +36,7 @@ function HomeLocation() {
           </div>
 
           <div className="home-location__map">
-            <KakaoRoughMap />
+            <KakaoRoughMap hideInfoHeader />
           </div>
         </div>
       </div>
