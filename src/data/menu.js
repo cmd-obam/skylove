@@ -107,19 +107,45 @@ export function findMenuSection(pathname) {
   return null
 }
 
+function pathMatchesMenu(menuPath, pathname) {
+  return pathname === menuPath || pathname.startsWith(`${menuPath}/`)
+}
+
+/**
+ * Prefer the deepest matching menu item so parent groups that share a path
+ * with a nested leaf (e.g. 교회 둘러보기 / 교회시설 안내) resolve to the leaf.
+ */
 export function findMenuItemInSection(section, pathname) {
+  let best = null
+
   for (const child of section?.children ?? []) {
-    if (child.path === pathname) {
-      return { item: child, parent: null }
+    const nestedMatches =
+      child.children?.filter((subItem) => pathMatchesMenu(subItem.path, pathname)) ?? []
+
+    if (nestedMatches.length > 0) {
+      const nestedChild = nestedMatches.reduce((deepest, item) =>
+        item.path.length >= deepest.path.length ? item : deepest,
+      )
+      const candidate = { item: nestedChild, parent: child }
+      if (
+        !best ||
+        candidate.item.path.length > best.item.path.length ||
+        (candidate.item.path.length === best.item.path.length && candidate.parent)
+      ) {
+        best = candidate
+      }
+      continue
     }
 
-    const nestedChild = child.children?.find((subItem) => subItem.path === pathname)
-    if (nestedChild) {
-      return { item: nestedChild, parent: child }
+    if (pathMatchesMenu(child.path, pathname)) {
+      const candidate = { item: child, parent: null }
+      if (!best || candidate.item.path.length > best.item.path.length) {
+        best = candidate
+      }
     }
   }
 
-  return null
+  return best
 }
 
 export const QUICK_MENUS = [

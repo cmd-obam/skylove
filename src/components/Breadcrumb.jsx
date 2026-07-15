@@ -11,7 +11,7 @@ function Breadcrumb() {
     <nav className="breadcrumb" aria-label="현재 페이지 위치">
       <ol className="breadcrumb__list">
         {items.map((item, index) => (
-          <li key={`${item.path}-${item.label}`} className="breadcrumb__item">
+          <li key={`${index}-${item.path}-${item.label}`} className="breadcrumb__item">
             {index > 0 && (
               <span className="breadcrumb__separator" aria-hidden="true">
                 &gt;
