@@ -139,7 +139,7 @@
 }
 
 .home-welcome .home-section__heading {
-  max-width: 30rem;
+  max-width: 34rem;
 }
 
 .home-welcome .home-section__eyebrow {
@@ -156,10 +156,14 @@
 .home-welcome .home-section__title {
   margin-left: 15px;
   font-family: 'Nanum Myeongjo', 'Noto Serif KR', serif;
-  font-size: clamp(2.3rem, 4vw, 3.35rem);
+  font-size: clamp(2.05rem, 3.5vw, 3rem);
   font-weight: 700;
   line-height: 1.42;
   letter-spacing: -0.03em;
+}
+
+.home-welcome .home-section__title-line {
+  white-space: nowrap;
 }
 
 .home-welcome .home-section__title::after {
