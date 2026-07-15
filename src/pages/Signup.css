@@ -1717,13 +1717,13 @@
   }
 
   .signup-info-form__row {
-    grid-template-columns: 5.75rem minmax(0, 1fr);
+    grid-template-columns: 6.5rem minmax(0, 1fr);
   }
 
   .signup-info-form__label-cell {
     align-items: center;
     justify-content: center;
-    padding: 0.5rem 0.3rem;
+    padding: 0.5rem 0.35rem;
   }
 
   .signup-info-form__label {
@@ -1732,11 +1732,6 @@
     text-align: center;
     word-break: keep-all;
     overflow-wrap: break-word;
-    hyphens: none;
-  }
-
-  .signup-info-form__required {
-    margin-right: 0;
   }
 
   .signup-info-form__control-cell {
