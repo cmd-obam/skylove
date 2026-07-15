@@ -56,6 +56,13 @@ function hideExtraMapInfo(container) {
     '.info_bus',
     '.info_station',
     '.map_address',
+    '.wrap_btn_address',
+    '.wrap_address',
+    '.tit_address',
+    '.txt_address',
+    '.wrap_tel',
+    '.tit_tel',
+    '.txt_tel',
   ]
 
   selectors.forEach((selector) => {
@@ -64,14 +71,19 @@ function hideExtraMapInfo(container) {
     })
   })
 
-  container.querySelectorAll('tr, dl, li, p, dt, dd, th, td').forEach((node) => {
-    if (node.closest('.wrap_map') || node.querySelector('iframe')) {
+  container.querySelectorAll('tr, dl, li, p, dt, dd, th, td, div, span').forEach((node) => {
+    if (node.closest('.wrap_map') || node.querySelector('iframe, .wrap_map')) {
       return
     }
 
     const text = node.textContent?.replace(/\s+/g, ' ').trim() ?? ''
-    if ((text.startsWith('주소') || text.startsWith('전화')) && text.length < 120) {
-      node.style.setProperty('display', 'none', 'important')
+    if (
+      (text.startsWith('주소') || text.startsWith('전화') || text.includes('주소') && text.length < 80) &&
+      text.length < 120
+    ) {
+      // Hide the row/container that shows Kakao's address/phone block
+      const row = node.closest('tr, dl, li, .wrap_controllers, .border1') ?? node
+      row.style.setProperty('display', 'none', 'important')
     }
   })
 }

@@ -8,7 +8,7 @@ function MapSection() {
     <section className="map-section" aria-label="교회 위치 지도">
       <div className="map-section__grid">
         <div className="map-section__map">
-          <KakaoRoughMap />
+          <KakaoRoughMap hideInfoHeader />
         </div>
         <figure className="map-section__sketch">
           <img

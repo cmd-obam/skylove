@@ -16,7 +16,14 @@
 .kakao-roughmap--compact .section_phone,
 .kakao-roughmap--compact .cont_address,
 .kakao-roughmap--compact .cont_tel,
-.kakao-roughmap--compact .cont_phone {
+.kakao-roughmap--compact .cont_phone,
+.kakao-roughmap--compact .wrap_btn_address,
+.kakao-roughmap--compact .wrap_address,
+.kakao-roughmap--compact .wrap_tel,
+.kakao-roughmap--compact .tit_address,
+.kakao-roughmap--compact .txt_address,
+.kakao-roughmap--compact .tit_tel,
+.kakao-roughmap--compact .txt_tel {
   display: none !important;
 }
 
