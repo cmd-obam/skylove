@@ -322,11 +322,20 @@
     min-width: 0;
   }
 
-  .signup-info-form__input,
-  .signup-info-form__select,
   .auth-form__input {
     font-size: 1rem;
     min-height: 44px;
+  }
+
+  .signup-info-form__input,
+  .signup-info-form__select {
+    font-size: 0.875rem;
+    min-height: 40px;
+  }
+
+  .signup-info-form__inline .signup-btn--gray {
+    min-height: 40px;
+    height: 40px;
   }
 
   .auth-page__body {
