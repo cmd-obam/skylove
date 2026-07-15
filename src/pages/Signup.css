@@ -1576,6 +1576,66 @@
   accent-color: #4da6ff;
 }
 
+.signup-info-form__radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.signup-info-form__radio-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+}
+
+.signup-info-form__radio-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+}
+
+.signup-info-form__radio {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  accent-color: #4da6ff;
+  cursor: pointer;
+}
+
+.signup-info-form__attending-church {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+
+.signup-info-form__attending-church-label {
+  flex-shrink: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #4b5563;
+  white-space: nowrap;
+}
+
+.signup-info-form__attending-church .signup-info-form__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: none;
+}
+
+.signup-info-form__attending-church .signup-info-form__input:disabled {
+  background-color: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
 .signup-info-form__actions {
   display: flex;
   justify-content: center;
@@ -1839,6 +1899,29 @@
   .signup-info-form__checkbox-row {
     font-size: 0.75rem;
     word-break: keep-all;
+  }
+
+  .signup-info-form__radio-group {
+    gap: 0.5rem;
+  }
+
+  .signup-info-form__radio-row--other {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.375rem;
+  }
+
+  .signup-info-form__radio-option {
+    font-size: 0.8125rem;
+  }
+
+  .signup-info-form__attending-church {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+
+  .signup-info-form__attending-church-label {
+    font-size: 0.75rem;
   }
 
   .signup-info-form__guide {

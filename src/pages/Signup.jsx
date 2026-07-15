@@ -38,6 +38,7 @@ import SignupEmailPending from '@/components/signup/SignupEmailPending'
 import SignupStepTerms from '@/components/signup/SignupStepTerms'
 import SignupStepForm from '@/components/signup/SignupStepForm'
 import SignupStepComplete from '@/components/signup/SignupStepComplete'
+import { CONGREGANT_TYPE_OTHER } from '@/data/congregantTypes'
 import '@/components/layout/CategoryLayout.css'
 import '@/components/layout/SubLayout.css'
 import './Signup.css'
@@ -520,8 +521,18 @@ function Signup() {
   }
 
   const updateField = (name, value) => {
-    setForm((prev) => ({ ...prev, [name]: value }))
-    setErrors((prev) => ({ ...prev, [name]: undefined }))
+    setForm((prev) => {
+      if (name === 'congregantType' && value !== 'other_church') {
+        return { ...prev, congregantType: value, attendingChurch: '' }
+      }
+
+      return { ...prev, [name]: value }
+    })
+    setErrors((prev) => ({
+      ...prev,
+      [name]: undefined,
+      ...(name === 'congregantType' ? { attendingChurch: undefined } : {}),
+    }))
     clearFeedback()
 
     if (name === 'loginId') {

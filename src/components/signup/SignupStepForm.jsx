@@ -5,6 +5,11 @@ import {
   SECURITY_QUESTIONS,
   SECURITY_QUESTION_PLACEHOLDER,
 } from '@/data/securityQuestions'
+import {
+  ATTENDING_CHURCH_PLACEHOLDER,
+  CONGREGANT_TYPES,
+  isOtherCongregantType,
+} from '@/data/congregantTypes'
 import BirthDateSelect from '@/components/signup/BirthDateSelect'
 import PasswordInput from '@/components/signup/PasswordInput'
 import SignupEmailInput from '@/components/signup/SignupEmailInput'
@@ -310,6 +315,63 @@ function SignupStepForm({
             onChange={(event) => updateField('securityAnswer', event.target.value)}
             autoComplete="off"
           />
+        </SignupFormRow>
+
+        <SignupFormRow
+          label="교인 구분"
+          required
+          htmlFor="signup-congregant-own"
+          error={errors.congregantType}
+        >
+          <div className="signup-info-form__radio-group" role="radiogroup" aria-label="교인 구분">
+            {CONGREGANT_TYPES.map((option) => {
+              const optionId = `signup-congregant-${option.id}`
+              const isOther = isOtherCongregantType(option.id)
+              const isChecked = form.congregantType === option.id
+
+              return (
+                <div
+                  key={option.id}
+                  className={`signup-info-form__radio-row${
+                    isOther ? ' signup-info-form__radio-row--other' : ''
+                  }`}
+                >
+                  <label className="signup-info-form__radio-option" htmlFor={optionId}>
+                    <input
+                      id={optionId}
+                      type="radio"
+                      name="congregantType"
+                      className="signup-info-form__radio"
+                      value={option.id}
+                      checked={isChecked}
+                      onChange={() => updateField('congregantType', option.id)}
+                    />
+                    <span>{option.label}</span>
+                  </label>
+
+                  {isOther && (
+                    <div className="signup-info-form__attending-church">
+                      <span className="signup-info-form__attending-church-label" id="signup-attending-church-label">
+                        출석 교회
+                      </span>
+                      <input
+                        id="signup-attending-church"
+                        name="attendingChurch"
+                        type="text"
+                        className="signup-info-form__input"
+                        placeholder={ATTENDING_CHURCH_PLACEHOLDER}
+                        value={form.attendingChurch}
+                        onChange={(event) => updateField('attendingChurch', event.target.value)}
+                        disabled={!isChecked}
+                        autoComplete="off"
+                        aria-labelledby="signup-attending-church-label"
+                      />
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
         </SignupFormRow>
 
         <div className="signup-info-form__guide" role="note">

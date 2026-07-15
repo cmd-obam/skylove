@@ -17,6 +17,8 @@ export const PROFILE_DB_COLUMNS = [
   'birth_date',
   'phone',
   'role',
+  'congregant_type',
+  'attending_church',
 ]
 
 /** PostgREST select — role 필수 (권한 판별) */

@@ -135,6 +135,8 @@ export function isSignupFormDirty({
     Boolean(form.securityQuestion) ||
     Boolean(form.securityCustomQuestion?.trim()) ||
     Boolean(form.securityAnswer?.trim()) ||
+    Boolean(form.congregantType) ||
+    Boolean(form.attendingChurch?.trim()) ||
     Boolean(form.agreePrivacy) ||
     Boolean(form.agreeTerms) ||
     Boolean(form.agreeEmail)

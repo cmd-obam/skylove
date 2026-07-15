@@ -19,6 +19,10 @@ import {
   resolveSecurityQuestionForStorage,
   SECURITY_CUSTOM_QUESTION_ID,
 } from '@/data/securityQuestions'
+import {
+  CONGREGANT_TYPE_IDS,
+  isOtherCongregantType,
+} from '@/data/congregantTypes'
 
 const LOGIN_ID_PATTERN = /^[a-zA-Z0-9_]{4,20}$/
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -93,6 +97,8 @@ export const INITIAL_SIGNUP_FORM = {
   securityQuestion: '',
   securityCustomQuestion: '',
   securityAnswer: '',
+  congregantType: '',
+  attendingChurch: '',
   name: '',
   birthDate: '',
   email: '',
@@ -139,6 +145,14 @@ export function validateForm(form, { isIdChecked = false, isEmailVerified = fals
     errors.securityAnswer = form.securityAnswer
       ? '비밀번호 분실 시 답변에 공백만 입력할 수 없습니다.'
       : '비밀번호 분실 시 답변을 입력해주세요.'
+  }
+
+  if (!form.congregantType || !CONGREGANT_TYPE_IDS.has(form.congregantType)) {
+    errors.congregantType = '교인 구분을 선택해주세요.'
+  } else if (isOtherCongregantType(form.congregantType) && !form.attendingChurch.trim()) {
+    errors.congregantType = form.attendingChurch
+      ? '출석 교회에 공백만 입력할 수 없습니다.'
+      : '타 교회 교인인 경우 출석 교회를 입력해주세요.'
   }
 
   const trimmedName = form.name.trim()
@@ -1026,6 +1040,13 @@ async function insertProfile(userId, formData) {
     }
   }
 
+  const congregantType = CONGREGANT_TYPE_IDS.has(formData.congregantType)
+    ? formData.congregantType
+    : null
+  const attendingChurch = isOtherCongregantType(congregantType)
+    ? formData.attendingChurch.trim() || null
+    : null
+
   const profilePayload = {
     user_id: userId,
     username,
@@ -1034,6 +1055,8 @@ async function insertProfile(userId, formData) {
     email,
     phone: phone || null,
     role: DEFAULT_MEMBER_ROLE,
+    congregant_type: congregantType,
+    attending_church: attendingChurch,
   }
 
   const { error: insertError } = await supabase.from('profiles').insert(profilePayload)
@@ -1064,6 +1087,8 @@ async function insertProfile(userId, formData) {
     p_phone: phone || null,
     p_security_question: resolveSecurityQuestionForStorage(formData),
     p_security_answer: formData.securityAnswer.trim(),
+    p_congregant_type: congregantType,
+    p_attending_church: attendingChurch,
   }
 
   const { data: rpcData, error: rpcError } = await supabase.rpc('create_profile_after_signup', rpcParams)
