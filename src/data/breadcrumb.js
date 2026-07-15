@@ -1,5 +1,9 @@
 import { MENU_ITEMS, findMenuSection } from '@/data/menu'
-import { getMenuItemLabel } from '@/components/layout/MenuItemLabel'
+
+function getBreadcrumbLabel(item) {
+  // Keep breadcrumbs short on mobile by using the title only (no subtitle).
+  return item?.title ?? ''
+}
 
 /** Map write/edit routes that live outside their list path back onto the menu tree. */
 const PATH_ALIASES = [
@@ -68,7 +72,7 @@ function dedupeTrail(trail) {
     if (
       previous &&
       previous.path === item.path &&
-      getMenuItemLabel(previous) === getMenuItemLabel(item)
+      getBreadcrumbLabel(previous) === getBreadcrumbLabel(item)
     ) {
       continue
     }
@@ -111,7 +115,7 @@ export function getBreadcrumbItems(pathname) {
 
   trail.forEach((menuItem, index) => {
     items.push({
-      label: getMenuItemLabel(menuItem),
+      label: getBreadcrumbLabel(menuItem),
       path: menuItem.path,
       isCurrent: index === trail.length - 1,
     })

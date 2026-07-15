@@ -244,31 +244,9 @@
 
   .about-page__top > .breadcrumb {
     max-width: none;
-    flex: 1 1 auto;
+    flex: 0 1 auto;
     min-width: 0;
     padding-top: 0.4rem;
-  }
-
-  .about-page__top > .breadcrumb .breadcrumb__list {
-    flex-wrap: nowrap;
-    gap: 0.2rem;
-  }
-
-  .about-page__top > .breadcrumb .breadcrumb__item {
-    gap: 0.2rem;
-  }
-
-  .about-page__top > .breadcrumb .breadcrumb__link,
-  .about-page__top > .breadcrumb .breadcrumb__current,
-  .about-page__top > .breadcrumb .breadcrumb__separator {
-    font-size: 0.6875rem;
-    line-height: 1.2;
-    white-space: nowrap;
-  }
-
-  .about-page__top > .breadcrumb .breadcrumb__home-icon {
-    width: 11px;
-    height: 11px;
   }
 
   .about-page__hero {
@@ -333,17 +311,6 @@
 
   .about-page__top {
     padding-top: 1.5rem;
-  }
-
-  .about-page__top > .breadcrumb .breadcrumb__link,
-  .about-page__top > .breadcrumb .breadcrumb__current,
-  .about-page__top > .breadcrumb .breadcrumb__separator {
-    font-size: 0.625rem;
-  }
-
-  .about-page__top > .breadcrumb .breadcrumb__home-icon {
-    width: 10px;
-    height: 10px;
   }
 
   .about-page__quote-inner {

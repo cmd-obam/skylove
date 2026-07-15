@@ -157,7 +157,9 @@
   }
 
   .facilities__page-header > .breadcrumb {
-    max-width: 48%;
+    max-width: none;
+    flex: 0 1 auto;
+    min-width: 0;
     padding-top: 0.35rem;
   }
 
