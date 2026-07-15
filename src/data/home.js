@@ -29,7 +29,12 @@ export const HOME_WELCOME = {
   imageAlt: '하늘사랑교회 외관',
   links: [
     { label: '교회소개', href: '/about', icon: 'book' },
-    { label: '담임목사 인사말', href: '/new-family', icon: 'user' },
+    {
+      label: '담임목사 인사말',
+      href: 'https://youtu.be/Uhl1Wb4WkEI?si=75zlkXpHm_Iu0_pU',
+      icon: 'user',
+      external: true,
+    },
   ],
 }
 

@@ -29,20 +29,36 @@ function HomeWelcome() {
           <ul className="home-welcome__links">
             {HOME_WELCOME.links.map((link) => {
               const Icon = LINK_ICONS[link.icon] ?? FiBookOpen
+              const content = (
+                <>
+                  <span className="home-welcome__link-main">
+                    <span className="home-welcome__link-icon" aria-hidden="true">
+                      <Icon />
+                    </span>
+                    <span className="home-welcome__link-label">{link.label}</span>
+                  </span>
+                  <span className="home-welcome__link-arrow" aria-hidden="true">
+                    <FiChevronRight />
+                  </span>
+                </>
+              )
 
               return (
                 <li key={link.label} className="home-welcome__link-item">
-                  <Link to={link.href} className="home-welcome__link">
-                    <span className="home-welcome__link-main">
-                      <span className="home-welcome__link-icon" aria-hidden="true">
-                        <Icon />
-                      </span>
-                      <span className="home-welcome__link-label">{link.label}</span>
-                    </span>
-                    <span className="home-welcome__link-arrow" aria-hidden="true">
-                      <FiChevronRight />
-                    </span>
-                  </Link>
+                  {link.external ? (
+                    <a
+                      href={link.href}
+                      className="home-welcome__link"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {content}
+                    </a>
+                  ) : (
+                    <Link to={link.href} className="home-welcome__link">
+                      {content}
+                    </Link>
+                  )}
                 </li>
               )
             })}
