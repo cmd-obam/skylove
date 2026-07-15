@@ -522,7 +522,7 @@ function Signup() {
 
   const updateField = (name, value) => {
     setForm((prev) => {
-      if (name === 'congregantType' && value !== 'other_church') {
+      if (name === 'congregantType' && value !== CONGREGANT_TYPE_OTHER) {
         return { ...prev, congregantType: value, attendingChurch: '' }
       }
 
