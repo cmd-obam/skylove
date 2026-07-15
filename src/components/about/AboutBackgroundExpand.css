@@ -5,51 +5,8 @@
 }
 
 @media (max-width: 767px) {
-  /* Higher specificity than .about-page > * so this stays absolute and
-     does not collapse to the expand-button height in document flow. */
+  .about-bg-expand,
   .about-page > .about-bg-expand {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    width: 100%;
-    height: auto;
-    min-height: 100%;
-    margin: 0;
-    padding: 0;
-    pointer-events: none;
-  }
-
-  .about-bg-expand.mobile-banner-expand {
-    display: block;
-    gap: 0;
-  }
-
-  .about-bg-expand .mobile-banner-expand__preview {
-    position: absolute;
-    inset: 0;
-    border-radius: 0;
-    background: transparent;
-    overflow: visible;
-    pointer-events: none;
-  }
-
-  /* Page background is painted by .about-page::before; keep the layer only
-     as a lightbox hook surface (no second decorative background). */
-  .about-bg-expand__layer {
-    position: absolute;
-    inset: 0;
-    background-image: none;
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  .about-bg-expand .mobile-banner-expand__trigger {
-    position: absolute;
-    bottom: 0.75rem;
-    left: 50%;
-    z-index: 2;
-    width: min(calc(100% - 2rem), 16rem);
-    transform: translateX(-50%);
-    pointer-events: auto;
+    display: none !important;
   }
 }

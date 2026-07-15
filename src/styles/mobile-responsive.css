@@ -222,14 +222,14 @@
 }
 
 @media (max-width: 767px) {
-  /* Keep the shared ::before background visible on mobile.
-     Previously display:none hid the only reliable page background while
-     AboutBackgroundExpand collapsed due to .about-page > * position override. */
+  /* Hide the about-page watercolor background on mobile only.
+     Desktop keeps .about-page::before; the signature graphic stays in the page. */
   .about-page::before {
-    display: block;
-    background-size: 100% auto;
-    background-position: top center;
-    background-repeat: no-repeat;
+    display: none;
+  }
+
+  .about-page > .about-bg-expand {
+    display: none;
   }
 
   .about-page__quote-text {
