@@ -360,7 +360,6 @@
     display: flex;
     align-items: center !important;
     justify-content: flex-start;
-    aspect-ratio: var(--category-hero-ratio);
     min-height: 0;
     margin-left: -1rem;
     margin-right: -1rem;
@@ -368,9 +367,20 @@
     padding: 0 !important;
     overflow: hidden;
     border-radius: 0;
+    background-repeat: no-repeat !important;
+    background-color: #ffffff;
+  }
+
+  .mobile-banner-expand--title-only.worship-hero {
+    aspect-ratio: 1024 / 481;
+    background-size: cover !important;
+    background-position: center right !important;
+  }
+
+  .mobile-banner-expand--title-only.location-hero {
+    aspect-ratio: var(--category-hero-ratio);
     background-size: contain !important;
     background-position: center !important;
-    background-repeat: no-repeat !important;
     background-color: var(--category-hero-letterbox);
   }
 
