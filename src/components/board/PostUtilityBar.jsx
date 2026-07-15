@@ -25,7 +25,7 @@ const POSITION_PADDING = 12
 const MOBILE_EDGE_GAP = 16
 
 const HELP_MESSAGE =
-  '도움말: 글자크기 버튼으로 본문 글자 크기를 조절할 수 있습니다. 확대·축소 버튼으로 이미지 크기를 조절하고, 위로·아래로 버튼으로 페이지 이동, 댓글 버튼으로 댓글 영역으로 이동할 수 있습니다.'
+  '도움말: 글자크기 버튼으로 본문 글자 크기를 조절할 수 있습니다. 확대·축소 버튼으로 게시글 전체 내용을 키우거나 줄일 수 있습니다. 위로·아래로 버튼으로 페이지 이동, 댓글 버튼으로 댓글 영역으로 이동할 수 있습니다.'
 
 function PostUtilityBar() {
   const barRef = useRef(null)
@@ -33,7 +33,7 @@ function PostUtilityBar() {
   const [isMobile, setIsMobile] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [fontScaleIndex, setFontScaleIndex] = useState(0)
-  const [imageZoom, setImageZoom] = useState(1)
+  const [contentZoom, setContentZoom] = useState(1)
   const [linkCopied, setLinkCopied] = useState(false)
 
   const getContentElement = useCallback(
@@ -183,12 +183,12 @@ function PostUtilityBar() {
       return undefined
     }
 
-    content.style.setProperty('--post-image-zoom', String(imageZoom))
+    content.style.setProperty('--post-content-zoom', String(contentZoom))
 
     return () => {
-      content.style.removeProperty('--post-image-zoom')
+      content.style.removeProperty('--post-content-zoom')
     }
-  }, [imageZoom, getContentElement])
+  }, [contentZoom, getContentElement])
 
   useEffect(() => {
     if (!linkCopied) {
@@ -221,11 +221,11 @@ function PostUtilityBar() {
   }
 
   const handleZoomIn = () => {
-    setImageZoom((prev) => Math.min(MAX_ZOOM, Number((prev + ZOOM_STEP).toFixed(1))))
+    setContentZoom((prev) => Math.min(MAX_ZOOM, Number((prev + ZOOM_STEP).toFixed(1))))
   }
 
   const handleZoomOut = () => {
-    setImageZoom((prev) => Math.max(MIN_ZOOM, Number((prev - ZOOM_STEP).toFixed(1))))
+    setContentZoom((prev) => Math.max(MIN_ZOOM, Number((prev - ZOOM_STEP).toFixed(1))))
   }
 
   const handleScrollTop = () => {

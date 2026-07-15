@@ -195,6 +195,15 @@
   }
 }
 
+.church-news-page:has(.church-news-detail--utility-controlled) {
+  overflow-x: auto;
+}
+
+.church-news-detail--utility-controlled {
+  /* 게시글 전체(텍스트·이미지·갤러리)를 한 번에 확대/축소 */
+  zoom: var(--post-content-zoom, 1);
+}
+
 .church-news-detail--utility-controlled .church-news-detail__body {
   font-size: calc(0.9375rem * var(--post-font-scale, 1));
 }
@@ -203,13 +212,28 @@
   font-size: calc(1.5rem * var(--post-font-scale, 1));
 }
 
-.church-news-detail--utility-controlled .church-news-detail__images,
-.church-news-detail--utility-controlled .album-gallery__grid {
-  transform: scale(var(--post-image-zoom, 1));
-  transform-origin: top center;
-  transition: transform 0.2s ease;
-}
+/* Firefox 등 zoom 미지원 환경 폴백: 본문/이미지 크기를 함께 키움 */
+@supports not (zoom: 1) {
+  .church-news-detail--utility-controlled .church-news-detail__body {
+    font-size: calc(0.9375rem * var(--post-font-scale, 1) * var(--post-content-zoom, 1));
+  }
 
-.church-news-detail--utility-controlled .album-gallery {
-  overflow: visible;
+  .church-news-detail--utility-controlled .church-news-detail__title {
+    font-size: calc(1.5rem * var(--post-font-scale, 1) * var(--post-content-zoom, 1));
+  }
+
+  .church-news-detail--utility-controlled .church-news-detail__image,
+  .church-news-detail--utility-controlled .album-gallery__image {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    transform: scale(var(--post-content-zoom, 1));
+    transform-origin: top center;
+    transition: transform 0.2s ease;
+  }
+
+  .church-news-detail--utility-controlled .album-gallery__item,
+  .church-news-detail--utility-controlled .church-news-detail__figure {
+    overflow: hidden;
+  }
 }
