@@ -378,10 +378,9 @@
   }
 
   .mobile-banner-expand--title-only.location-hero {
-    aspect-ratio: var(--category-hero-ratio);
-    background-size: contain !important;
-    background-position: center !important;
-    background-color: var(--category-hero-letterbox);
+    aspect-ratio: 1024 / 576;
+    background-size: cover !important;
+    background-position: center right !important;
   }
 
   .mobile-banner-expand--title-only.worship-hero::before,
