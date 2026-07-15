@@ -367,17 +367,17 @@
   }
 
   .worship-first-visit {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.875rem;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.625rem;
   }
 
   .worship-first-visit__title {
-    font-size: 1rem;
+    font-size: 0.8125rem;
   }
 
   .worship-first-visit__desc {
-    font-size: 0.875rem;
+    font-size: 0.6875rem;
   }
 
   .gallery__grid {
