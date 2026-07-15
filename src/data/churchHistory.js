@@ -68,9 +68,9 @@ export const CHURCH_HISTORY_PERIODS = [
       },
     ],
     photos: [
-      { id: 'sanctuary-1', src: historySanctuary1, caption: '제 1성전' },
-      { id: 'sanctuary-2', src: historySanctuary2, caption: '제 2성전' },
-      { id: 'sanctuary-3', src: historySanctuary3, caption: '제 3성전' },
+      { id: 'sanctuary-1', src: historySanctuary1, caption: '2009. 2월 제 1성전' },
+      { id: 'sanctuary-2', src: historySanctuary2, caption: '2009. 12월 제 2성전' },
+      { id: 'sanctuary-3', src: historySanctuary3, caption: '2012. 1월 제 3성전' },
     ],
   },
   {
