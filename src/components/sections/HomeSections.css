@@ -659,7 +659,8 @@
   }
 
   .home-story__cards {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.875rem;
   }
 }
 
@@ -706,6 +707,19 @@
   .home-welcome .home-section__title {
     margin-left: 0;
     font-size: 1.8125rem;
+  }
+
+  .home-story__card-body {
+    padding: 0.875rem 0.75rem 1rem;
+  }
+
+  .home-story__card-title {
+    font-size: 0.9375rem;
+  }
+
+  .home-story__card-description {
+    font-size: 0.75rem;
+    line-height: 1.5;
   }
 
   .home-welcome__description {
