@@ -223,6 +223,8 @@
 @media (max-width: 768px) {
   .about-page {
     border-radius: 0;
+    box-shadow: none;
+    filter: none;
   }
 
   .about-page::before {
@@ -288,11 +290,31 @@
     justify-content: center;
     padding-inline: var(--about-card-inline-padding, 1.25rem);
     padding-left: var(--about-inline-start);
+    box-shadow: none;
+    filter: none;
   }
 
   .about-page__signature-visual {
     width: min(88%, 22rem);
     margin-right: 0;
+    overflow: hidden;
+    box-shadow: none !important;
+    filter: none !important;
+  }
+
+  .about-page__signature-oval,
+  .about-page__signature-text {
+    box-shadow: none !important;
+    filter: none !important;
+  }
+
+  /* Soft gray fringe is baked into the PNG bottom — clip it on mobile. */
+  .about-page__signature-oval {
+    display: block;
+    width: 100%;
+    height: auto;
+    clip-path: inset(0 0 4.5% 0);
+    transform: translateY(1px);
   }
 
   .about-page__scripture-ref {
