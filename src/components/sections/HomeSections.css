@@ -135,6 +135,7 @@
 
 .home-welcome__content {
   max-width: 34rem;
+  margin-left: 10px;
 }
 
 .home-welcome .home-section__heading {
@@ -153,6 +154,7 @@
 }
 
 .home-welcome .home-section__title {
+  margin-left: 15px;
   font-family: 'Nanum Myeongjo', 'Noto Serif KR', serif;
   font-size: clamp(2.3rem, 4vw, 3.35rem);
   font-weight: 700;
