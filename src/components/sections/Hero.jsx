@@ -96,7 +96,13 @@ function Hero() {
                 </span>
               ))}
             </h1>
-            <p className="hero__subtitle">{HOME_HERO.subtitle}</p>
+            <p className="hero__subtitle">
+              {(HOME_HERO.subtitleLines ?? [HOME_HERO.subtitle]).map((line) => (
+                <span key={line} className="hero__subtitle-line">
+                  {line}
+                </span>
+              ))}
+            </p>
             <div className="hero__actions">
               <Link to={HOME_HERO.primaryCta.href} className="hero__btn hero__btn--primary">
                 {HOME_HERO.primaryCta.label}

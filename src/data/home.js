@@ -6,7 +6,11 @@ export const HOME_HERO = {
   title: '하나님을 만나 사람이 행복한 교회',
   titleLines: ['하나님을 만나 사람이', '행복한 교회'],
   subtitle:
-    '말씀 안에서 성장하고, 사랑으로 섬기며 다음 세대를 세워가는 하늘사랑교회입니다.',
+    '말씀 안에서 성장하고 사랑으로 섬기며 다음 세대를 세워가는 하늘사랑교회입니다.',
+  subtitleLines: [
+    '말씀 안에서 성장하고',
+    '사랑으로 섬기며 다음 세대를 세워가는 하늘사랑교회입니다.',
+  ],
   primaryCta: { label: '처음오신분을 환영합니다', href: '/new-family' },
   secondaryCta: { label: '예배 안내 보기', href: '/worship' },
 }
