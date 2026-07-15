@@ -26,16 +26,18 @@
   position: relative;
   display: flex;
   align-items: center;
-  min-height: clamp(280px, 42vh, 480px);
+  aspect-ratio: var(--category-hero-ratio);
+  min-height: 0;
   margin-left: -2.5rem;
   margin-right: -2.5rem;
   width: calc(100% + 5rem);
   max-width: 100vw;
-  background-image: var(--location-hero-bg);
-  background-size: cover;
-  background-position: center right;
-  background-repeat: no-repeat;
   overflow: hidden;
+  background-color: var(--category-hero-letterbox);
+  background-image: var(--location-hero-bg);
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .location-hero::before {
@@ -88,9 +90,6 @@
 
 @media (max-width: 992px) {
   .location-hero {
-    height: auto;
-    min-height: 340px;
-    aspect-ratio: 16 / 7;
     margin-left: -1.5rem;
     margin-right: -1.5rem;
     width: calc(100% + 3rem);
@@ -100,7 +99,6 @@
     width: 52%;
     padding-left: 2.5rem;
   }
-
 }
 
 @media (max-width: 768px) {
@@ -120,7 +118,6 @@
   }
 
   .location-hero {
-    min-height: clamp(240px, 55vh, 360px);
     margin-left: -1rem;
     margin-right: -1rem;
     width: calc(100% + 2rem);

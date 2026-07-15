@@ -75,18 +75,19 @@
 }
 
 .worship-template__image-slot--hero {
-  aspect-ratio: auto;
-  min-height: auto;
+  aspect-ratio: var(--category-hero-ratio);
+  min-height: 0;
   height: auto;
-  background-color: #faf6ef;
+  overflow: hidden;
+  background-color: var(--category-hero-letterbox);
 }
 
 .worship-template__image-slot--hero.worship-template__image-slot--placeholder {
   display: flex;
   align-items: center;
   justify-content: center;
-  aspect-ratio: 1024 / 576;
-  min-height: clamp(12rem, 28vw, 18rem);
+  aspect-ratio: var(--category-hero-ratio);
+  min-height: 0;
 }
 
 /* ── Info card ── */
@@ -553,11 +554,12 @@
 .worship-template__image-slot.worship-template__image-slot--hero .worship-template__image {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
   border: none;
   outline: none;
   box-shadow: none;
   object-fit: contain;
+  object-position: center;
   vertical-align: top;
 }
 
@@ -719,7 +721,7 @@
   }
 
   .worship-template__image-slot--hero {
-    min-height: auto;
+    min-height: 0;
   }
 }
 

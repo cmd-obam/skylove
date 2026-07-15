@@ -12,8 +12,9 @@
   --nf-hero-text-width: calc(52% - (3.2% + 40px));
   position: relative;
   width: 100%;
-  aspect-ratio: 1024 / 447;
+  aspect-ratio: var(--category-hero-ratio);
   overflow: hidden;
+  background-color: var(--category-hero-letterbox);
 }
 
 .nf-hero__bg-image {
@@ -23,7 +24,7 @@
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: fill;
+  object-fit: contain;
   object-position: center;
   pointer-events: none;
   user-select: none;
@@ -131,10 +132,10 @@
 /* Expanded mobile lightbox – text over background */
 .nf-hero--banner-lightbox {
   width: 100%;
-  aspect-ratio: 1024 / 447;
+  aspect-ratio: var(--category-hero-ratio);
   overflow: hidden;
-  background: var(--nf-hero-bg) center / 100% 100% no-repeat;
-  background-color: #ffffff;
+  background: var(--nf-hero-bg) center / contain no-repeat;
+  background-color: var(--category-hero-letterbox);
 }
 
 .mobile-image-lightbox__overlay .nf-hero--banner-lightbox {

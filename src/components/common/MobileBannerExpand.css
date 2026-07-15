@@ -300,12 +300,12 @@
     position: relative;
     inset: auto;
     width: 100%;
-    aspect-ratio: 1024 / 447;
+    aspect-ratio: var(--category-hero-ratio);
     min-height: 0;
     border-radius: 12px;
     overflow: hidden;
-    background: var(--nf-hero-bg) center / 100% 100% no-repeat;
-    background-color: #ffffff;
+    background: var(--nf-hero-bg) center / contain no-repeat;
+    background-color: var(--category-hero-letterbox);
   }
 
   .mobile-banner-expand.nf-hero--banner .mobile-banner-expand__preview-hit {
@@ -360,6 +360,7 @@
     display: flex;
     align-items: center !important;
     justify-content: flex-start;
+    aspect-ratio: var(--category-hero-ratio);
     min-height: 0;
     margin-left: -1rem;
     margin-right: -1rem;
@@ -367,21 +368,10 @@
     padding: 0 !important;
     overflow: hidden;
     border-radius: 0;
+    background-size: contain !important;
+    background-position: center !important;
     background-repeat: no-repeat !important;
-    background-color: #ffffff;
-  }
-
-  .mobile-banner-expand--title-only.worship-hero {
-    aspect-ratio: 1024 / 481;
-    background-size: cover !important;
-    background-position: center right !important;
-  }
-
-  .mobile-banner-expand--title-only.location-hero {
-    aspect-ratio: 16 / 7;
-    min-height: clamp(160px, 38vw, 240px);
-    background-size: cover !important;
-    background-position: center right !important;
+    background-color: var(--category-hero-letterbox);
   }
 
   .mobile-banner-expand--title-only.worship-hero::before,

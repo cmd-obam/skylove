@@ -24,4 +24,8 @@
   --transition: 0.3s ease;
   --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.08);
   --shadow-header: 0 4px 24px rgba(31, 58, 95, 0.08);
+
+  /* Match 주일 축복 예배 main hero (sunday-blessing-hero.png = 1024×446). */
+  --category-hero-ratio: 1024 / 446;
+  --category-hero-letterbox: #faf6ef;
 }
