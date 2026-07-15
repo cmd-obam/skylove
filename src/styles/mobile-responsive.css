@@ -334,7 +334,8 @@
 
   .hero__slide,
   .hero__bg {
-    object-fit: contain;
+    object-fit: cover;
+    object-position: center center;
   }
 
   .hero__title {

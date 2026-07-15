@@ -39,10 +39,7 @@
   border: 0;
   background: transparent;
   cursor: default;
-}
-
-.hero__image-hit--mobile {
-  cursor: pointer;
+  pointer-events: none;
 }
 
 .hero__image-hit .hero__slider {
@@ -222,10 +219,6 @@
   background: rgba(255, 255, 255, 0.85);
 }
 
-.hero__expand-btn {
-  display: none;
-}
-
 @media (max-width: 992px) {
   .hero__title {
     font-size: clamp(2rem, 6.5vw, 2.75rem);
@@ -234,7 +227,7 @@
 }
 
 @media (max-width: 768px) {
-  /* 좁은 화면에서는 텍스트 영역을 위해 높이를 확보하고, contain으로 전체 이미지 표시 */
+  /* Keep a readable mobile height; fill the frame with cover (no letterbox/distort). */
   .hero {
     aspect-ratio: auto;
     min-height: clamp(360px, 62vh, 480px);
@@ -242,26 +235,8 @@
 
   .hero__slide,
   .hero__bg {
-    object-fit: contain;
-  }
-
-  .hero__expand-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    max-width: 16rem;
-    min-height: 2.5rem;
-    margin-top: 0.75rem;
-    padding: 0.5rem 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.65);
-    border-radius: 999px;
-    background: rgba(15, 23, 42, 0.35);
-    color: #ffffff;
-    font-family: inherit;
-    font-size: 0.8125rem;
-    font-weight: 600;
-    cursor: pointer;
+    object-fit: cover;
+    object-position: center center;
   }
 
   .hero__title {
