@@ -233,59 +233,71 @@
 }
 
 @media (max-width: 767px) {
+  /* Keep the desktop 3-column schedule table on mobile (shrink sizing instead of stacking cards). */
   .worship-table__wrap {
-    overflow: visible;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .worship-table__table {
-    display: block;
+    display: table;
+    width: 100%;
+    min-width: 0;
+    table-layout: fixed;
+    border: 1px solid rgba(77, 166, 255, 0.35);
+    border-radius: 12px;
+    font-size: clamp(0.6875rem, 2.8vw, 0.8125rem);
+  }
+
+  .worship-table__table tbody {
+    display: table-row-group;
+  }
+
+  .worship-table__table tbody tr {
+    display: table-row;
     border: 0;
     border-radius: 0;
   }
 
-  .worship-table__table tbody {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .worship-table__table tbody tr {
-    display: block;
-    border: 1px solid rgba(77, 166, 255, 0.35);
-    border-radius: 12px;
-    overflow: hidden;
-  }
-
   .worship-table__table th[scope='row'],
   .worship-table__table td {
-    display: block;
-    width: 100% !important;
-    border: 0;
+    display: table-cell;
+    width: auto !important;
+    padding: 0.65rem 0.35rem;
+    border-right: 1px solid rgba(77, 166, 255, 0.2);
     border-bottom: 1px solid rgba(77, 166, 255, 0.2);
-    text-align: left;
-    padding: 0.75rem 0.875rem;
-    font-size: 0.875rem;
+    text-align: center;
+    vertical-align: middle;
+    word-break: keep-all;
+    line-height: 1.35;
+  }
+
+  .worship-table__table th[scope='row'] {
+    width: 32% !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.42);
+  }
+
+  .worship-table__table td:nth-child(2) {
+    width: 40% !important;
+  }
+
+  .worship-table__table td:nth-child(3) {
+    width: 28% !important;
+  }
+
+  .worship-table__table th:last-child,
+  .worship-table__table td:last-child {
+    border-right: none;
   }
 
   .worship-table__table tbody tr:last-child th[scope='row'],
   .worship-table__table tbody tr:last-child td {
-    border-bottom: 0;
+    border-bottom: none;
   }
 
   .worship-table__table td::before {
-    display: block;
-    margin-bottom: 0.2rem;
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #1f2d3d;
-  }
-
-  .worship-table__table td:nth-child(2)::before {
-    content: '예배 시간';
-  }
-
-  .worship-table__table td:nth-child(3)::before {
-    content: '장소';
+    content: none;
+    display: none;
   }
 }
 

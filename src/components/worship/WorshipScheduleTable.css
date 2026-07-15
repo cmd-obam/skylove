@@ -73,11 +73,28 @@
   }
 
   .worship-table__table {
-    font-size: 0.875rem;
+    font-size: clamp(0.6875rem, 2.8vw, 0.8125rem);
   }
 
   .worship-table__table th,
   .worship-table__table td {
-    padding: 0.875rem 0.5rem;
+    padding: 0.65rem 0.35rem;
+    word-break: keep-all;
+    line-height: 1.35;
+  }
+
+  .worship-table__table th[scope='row'] {
+    width: 32%;
+  }
+}
+
+@media (max-width: 380px) {
+  .worship-table__table {
+    font-size: 0.625rem;
+  }
+
+  .worship-table__table th,
+  .worship-table__table td {
+    padding: 0.55rem 0.25rem;
   }
 }
