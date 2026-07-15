@@ -203,8 +203,13 @@
   font-size: calc(1.5rem * var(--post-font-scale, 1));
 }
 
-.church-news-detail--utility-controlled .church-news-detail__images {
+.church-news-detail--utility-controlled .church-news-detail__images,
+.church-news-detail--utility-controlled .album-gallery__grid {
   transform: scale(var(--post-image-zoom, 1));
   transform-origin: top center;
   transition: transform 0.2s ease;
+}
+
+.church-news-detail--utility-controlled .album-gallery {
+  overflow: visible;
 }
