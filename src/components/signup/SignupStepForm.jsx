@@ -29,7 +29,7 @@ function SignupFormRow({
               *
             </span>
           )}
-          {label}
+          {required ? ` ${label}` : label}
         </label>
       </div>
       <div className="signup-info-form__control-cell">
@@ -126,7 +126,7 @@ function SignupStepForm({
         </SignupFormRow>
 
         <SignupFormRow
-          label="회원아이디"
+          label="회원 아이디"
           required
           htmlFor="signup-login-id"
           hint="4자리 이상, 영문·숫자·밑줄(_)만 사용할 수 있습니다."
