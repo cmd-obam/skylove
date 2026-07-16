@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import churchLogo from '@/assets/images/church-logo.png'
 import {
   AUTH_LINKS,
@@ -12,6 +12,7 @@ import {
 import DropdownMenu from '@/components/layout/DropdownMenu'
 import MenuItemLabel from '@/components/layout/MenuItemLabel'
 import { useAuth } from '@/contexts/AuthContext'
+import useBodyScrollLock from '@/hooks/useBodyScrollLock'
 import './SiteHeader.css'
 
 const MEMBER_MENU_TITLE = '회원메뉴'
@@ -58,6 +59,8 @@ function SiteHeader() {
   const [activeMenu, setActiveMenu] = useState(null)
   const [expandedItem, setExpandedItem] = useState(null)
   const [expandedSubItem, setExpandedSubItem] = useState(null)
+  const [lockedScrollY, setLockedScrollY] = useState(0)
+  const lockedScrollYRef = useRef(0)
 
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false)
@@ -65,12 +68,20 @@ function SiteHeader() {
     setExpandedSubItem(null)
   }
 
+  const openMobileMenu = () => {
+    const scrollY = window.scrollY || window.pageYOffset || 0
+    lockedScrollYRef.current = scrollY
+    setLockedScrollY(scrollY)
+    setIsMobileMenuOpen(true)
+  }
+
   const toggleMobileMenu = () => {
-    setIsMobileMenuOpen((prev) => !prev)
     if (isMobileMenuOpen) {
-      setExpandedItem(null)
-      setExpandedSubItem(null)
+      closeMobileMenu()
+      return
     }
+
+    openMobileMenu()
   }
 
   const toggleAccordion = (title) => {
@@ -121,20 +132,17 @@ function SiteHeader() {
     : MEMBER_MENU_GUEST_CHILDREN
   const isMemberMenuExpanded = expandedItem === MEMBER_MENU_TITLE
 
+  useBodyScrollLock(isMobileMenuOpen, lockedScrollY)
+
   useEffect(() => {
     if (!isMobileMenuOpen) {
-      document.body.style.overflow = ''
-      return undefined
+      return
     }
-
-    document.body.style.overflow = 'hidden'
 
     if (isMemberMenuPath(pathname)) {
       setExpandedItem(MEMBER_MENU_TITLE)
       setExpandedSubItem(null)
-      return () => {
-        document.body.style.overflow = ''
-      }
+      return
     }
 
     const aboutSection = MENU_ITEMS.find((item) => item.title === '교회소개')
@@ -143,10 +151,6 @@ function SiteHeader() {
     if (tourItem && menuItemContainsPath(tourItem, pathname)) {
       setExpandedItem('교회소개')
       setExpandedSubItem(tourItem.path)
-    }
-
-    return () => {
-      document.body.style.overflow = ''
     }
   }, [isMobileMenuOpen, pathname])
 
@@ -257,6 +261,7 @@ function SiteHeader() {
         className={`site-header__drawer${isMobileMenuOpen ? ' site-header__drawer--open' : ''}`}
         aria-hidden={!isMobileMenuOpen}
         aria-label="모바일 메뉴"
+        data-scroll-lock-allow
       >
         <div className="site-header__drawer-header">
           <button
