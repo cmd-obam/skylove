@@ -12,6 +12,8 @@ import Location from '@/pages/Location'
 import Auth from '@/pages/Auth'
 import Signup from '@/pages/Signup'
 import AuthCallback from '@/pages/AuthCallback'
+import OAuthCallback from '@/pages/OAuthCallback'
+import OAuthProfileComplete from '@/pages/OAuthProfileComplete'
 import EmailConfirmSuccess from '@/pages/EmailConfirmSuccess'
 import MemberEdit from '@/pages/MemberEdit'
 import MemberManagement from '@/pages/MemberManagement'
@@ -95,11 +97,13 @@ function App() {
           <Route path="/church-news/album/:postId/viewer" element={<LegacyBoardPostViewerRedirect />} />
           <Route path="/church-news/:postId/viewer" element={<LegacyBoardPostViewerRedirect />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/auth/oauth-callback" element={<OAuthCallback />} />
           <Route path="/auth/confirm" element={<EmailConfirmSuccess />} />
           <Route path="/email-confirm" element={<EmailConfirmSuccess />} />
           <Route element={<SiteShell />}>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Auth />} />
+            <Route path="/oauth/complete" element={<OAuthProfileComplete />} />
             <Route path="/reset-password/security-question" element={<ResetPasswordSecurityQuestion />} />
             <Route path="/reset-password/email-verify" element={<ResetPasswordEmailVerify />} />
             <Route path="/reset-password" element={<ResetPassword />} />
