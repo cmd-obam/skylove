@@ -9,8 +9,12 @@ import {
   checkDuplicateId,
   checkEmailVerificationStatus,
   formatPhoneNumber,
+  getPasswordConfirmLiveError,
+  getPasswordConfirmLiveSuccess,
   getPasswordRuleLiveError,
+  getPasswordRuleLiveSuccess,
   handleSignup,
+  isPasswordReadyForSignup,
   sendEmailVerification,
   validateForm,
   validateSignupEmail,
@@ -187,16 +191,25 @@ function Signup() {
   }
 
   const passwordRuleLiveError = getPasswordRuleLiveError(form.password)
-  const passwordConfirmLiveError =
-    passwordConfirmTouched &&
-    form.passwordConfirm &&
-    !passwordRuleLiveError &&
-    form.password !== form.passwordConfirm
-      ? '비밀번호가 일치하지 않습니다.'
-      : undefined
+  const passwordRuleLiveSuccess = getPasswordRuleLiveSuccess(form.password)
+  const passwordConfirmLiveError = getPasswordConfirmLiveError(
+    form.password,
+    form.passwordConfirm,
+    passwordConfirmTouched,
+  )
+  const passwordConfirmLiveSuccess = getPasswordConfirmLiveSuccess(
+    form.password,
+    form.passwordConfirm,
+    passwordConfirmTouched,
+  )
 
   const displayedPasswordError = errors.password || passwordRuleLiveError
+  const displayedPasswordSuccess = displayedPasswordError ? undefined : passwordRuleLiveSuccess
   const displayedPasswordConfirmError = errors.passwordConfirm || passwordConfirmLiveError
+  const displayedPasswordConfirmSuccess = displayedPasswordConfirmError
+    ? undefined
+    : passwordConfirmLiveSuccess
+  const isPasswordReady = isPasswordReadyForSignup(form.password, form.passwordConfirm)
   const emailFieldSuccess = isEmailVerified
     ? SIGNUP_EMAIL_VERIFIED_MESSAGE
     : !errors.email && emailStatusMessage
@@ -806,7 +819,10 @@ function Signup() {
               form={form}
               errors={errors}
               displayedPasswordError={displayedPasswordError}
+              displayedPasswordSuccess={displayedPasswordSuccess}
               displayedPasswordConfirmError={displayedPasswordConfirmError}
+              displayedPasswordConfirmSuccess={displayedPasswordConfirmSuccess}
+              isPasswordReady={isPasswordReady}
               idCheckMessage={idCheckMessage}
               emailFieldSuccess={emailFieldSuccess}
               isIdChecked={isIdChecked}

@@ -18,7 +18,13 @@ import {
   SIGNUP_EMAIL_SENT_MESSAGE,
 } from '@/services/auth/signupErrors'
 import { DEFAULT_MEMBER_ROLE } from '@/services/auth/profileSchema'
-import { validateResetPassword } from '@/services/auth/passwordValidation'
+import {
+  isPasswordCompositionValid,
+  RESET_PASSWORD_HINT,
+  RESET_PASSWORD_LIVE_ERROR,
+  RESET_PASSWORD_PLACEHOLDER,
+  validateResetPassword,
+} from '@/services/auth/passwordValidation'
 import {
   resolveSecurityQuestionForStorage,
   SECURITY_CUSTOM_QUESTION_ID,
@@ -71,16 +77,15 @@ export function resolveBirthDateForDatabase(value) {
   return normalized
 }
 
-export const PASSWORD_REQUIREMENT_HINT = '8자 이상, 영문·숫자 포함'
-export const PASSWORD_PLACEHOLDER = '8자 이상, 영문·숫자 포함하여 입력하세요.'
-export const PASSWORD_RULE_LIVE_MESSAGE = '비밀번호 형식이 올바르지 않습니다. (8자 이상, 영문·숫자 포함)'
+export const PASSWORD_REQUIREMENT_HINT = RESET_PASSWORD_HINT
+export const PASSWORD_PLACEHOLDER = RESET_PASSWORD_PLACEHOLDER
+export const PASSWORD_RULE_LIVE_MESSAGE = RESET_PASSWORD_LIVE_ERROR
+export const PASSWORD_RULE_LIVE_SUCCESS = '사용 가능한 비밀번호입니다.'
+export const PASSWORD_CONFIRM_LIVE_ERROR = '비밀번호가 일치하지 않습니다.'
+export const PASSWORD_CONFIRM_LIVE_SUCCESS = '비밀번호가 일치합니다.'
 
 export function isPasswordRuleValid(password) {
-  if (!password) {
-    return false
-  }
-
-  return validatePassword(password) === null
+  return isPasswordCompositionValid(password)
 }
 
 export function getPasswordRuleLiveError(password) {
@@ -88,7 +93,39 @@ export function getPasswordRuleLiveError(password) {
     return undefined
   }
 
-  return validateResetPassword(password) ?? undefined
+  return isPasswordCompositionValid(password) ? undefined : PASSWORD_RULE_LIVE_MESSAGE
+}
+
+export function getPasswordRuleLiveSuccess(password) {
+  if (!password || !isPasswordCompositionValid(password)) {
+    return undefined
+  }
+
+  return PASSWORD_RULE_LIVE_SUCCESS
+}
+
+export function getPasswordConfirmLiveError(password, passwordConfirm, confirmStarted) {
+  if (!confirmStarted || !passwordConfirm) {
+    return undefined
+  }
+
+  return password === passwordConfirm ? undefined : PASSWORD_CONFIRM_LIVE_ERROR
+}
+
+export function getPasswordConfirmLiveSuccess(password, passwordConfirm, confirmStarted) {
+  if (!confirmStarted || !passwordConfirm) {
+    return undefined
+  }
+
+  return password === passwordConfirm ? PASSWORD_CONFIRM_LIVE_SUCCESS : undefined
+}
+
+export function isPasswordReadyForSignup(password, passwordConfirm) {
+  return (
+    isPasswordCompositionValid(password) &&
+    Boolean(passwordConfirm) &&
+    password === passwordConfirm
+  )
 }
 
 export function validatePassword(password) {

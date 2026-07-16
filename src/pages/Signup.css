@@ -1550,6 +1550,19 @@
   color: #6b7280;
 }
 
+.signup-info-form__feedback-slot {
+  min-height: 1.125rem;
+  margin-top: 0.375rem;
+}
+
+.signup-info-form__hint + .signup-info-form__feedback-slot {
+  margin-top: 0.25rem;
+}
+
+.signup-info-form__feedback-slot .signup-info-form__message {
+  margin: 0;
+}
+
 .signup-info-form__message {
   margin: 0.5rem 0 0;
   font-size: 0.75rem;
@@ -1563,6 +1576,11 @@
 .signup-info-form__message--success {
   color: #059669;
   white-space: pre-line;
+}
+
+.signup-info-form__row--password .signup-info-form__feedback-slot,
+.signup-info-form__row--password-confirm .signup-info-form__feedback-slot {
+  min-height: 1.125rem;
 }
 
 .signup-info-form__email-actions {
