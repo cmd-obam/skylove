@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { FiHome } from 'react-icons/fi'
+import useIsCompactNav from '@/hooks/useIsCompactNav'
 import '@/components/layout/CategorySidebar.css'
 import './MemberMenuSidebar.css'
 
@@ -10,7 +10,13 @@ const MENU_ITEMS = [
 ]
 
 function MemberMenuSidebar({ activeTab, onTabChange }) {
+  const isCompactNav = useIsCompactNav()
   const isFindAccountActive = activeTab === 'find-id' || activeTab === 'find-password'
+
+  // 모바일/태블릿은 햄버거 메뉴의 회원메뉴 하위를 사용하므로 페이지 상단 사이드바를 렌더하지 않습니다.
+  if (isCompactNav) {
+    return null
+  }
 
   return (
     <aside className="category-sidebar member-menu-sidebar" aria-label="회원 메뉴">
