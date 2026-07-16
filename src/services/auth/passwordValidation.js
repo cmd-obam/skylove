@@ -1,8 +1,25 @@
 const LETTER_PATTERN = /[a-zA-Z]/
 const DIGIT_PATTERN = /\d/
+/** 영문·숫자 외 문자(특수문자) 1개 이상 */
+const SPECIAL_CHAR_PATTERN = /[^A-Za-z0-9]/
 
-export const RESET_PASSWORD_HINT = '8자 이상, 영문·숫자 포함'
-export const RESET_PASSWORD_PLACEHOLDER = '8자 이상, 영문·숫자 포함하여 입력하세요.'
+export const RESET_PASSWORD_HINT = '8자 이상 · 영문 · 숫자 · 특수문자 1개 이상 포함'
+export const RESET_PASSWORD_PLACEHOLDER = '8자 이상 · 영문 · 숫자 · 특수문자 포함'
+export const RESET_PASSWORD_LIVE_ERROR =
+  '8자 이상 · 영문 · 숫자 · 특수문자를 모두 포함해야 합니다.'
+
+export function isPasswordCompositionValid(password) {
+  if (!password) {
+    return false
+  }
+
+  return (
+    password.length >= 8 &&
+    LETTER_PATTERN.test(password) &&
+    DIGIT_PATTERN.test(password) &&
+    SPECIAL_CHAR_PATTERN.test(password)
+  )
+}
 
 export function validateResetPassword(password) {
   if (!password) {
@@ -21,6 +38,10 @@ export function validateResetPassword(password) {
     return '비밀번호에 숫자를 포함해주세요.'
   }
 
+  if (!SPECIAL_CHAR_PATTERN.test(password)) {
+    return '비밀번호에 특수문자를 포함해주세요.'
+  }
+
   return null
 }
 
@@ -36,7 +57,7 @@ export function validateResetPasswordConfirm(password, passwordConfirm) {
   }
 
   if (password !== passwordConfirm) {
-    return { password: null, passwordConfirm: '❌ 비밀번호가 일치하지 않습니다.' }
+    return { password: null, passwordConfirm: '비밀번호가 일치하지 않습니다.' }
   }
 
   return { password: null, passwordConfirm: null }

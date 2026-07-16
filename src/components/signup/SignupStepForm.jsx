@@ -21,11 +21,15 @@ function SignupFormRow({
   required = false,
   htmlFor,
   hint,
+  alwaysShowHint = false,
+  reserveFeedback = false,
   error,
   success,
   rowClassName = '',
   children,
 }) {
+  const showHint = Boolean(hint) && (alwaysShowHint || (!error && !success))
+
   return (
     <div
       className={`signup-info-form__row${error ? ' signup-info-form__row--error' : ''}${
@@ -44,14 +48,32 @@ function SignupFormRow({
       </div>
       <div className="signup-info-form__control-cell">
         {children}
-        {hint && !error && !success && <p className="signup-info-form__hint">{hint}</p>}
-        {error && (
-          <p className="signup-info-form__message signup-info-form__message--error" role="alert">
-            {error}
-          </p>
-        )}
-        {!error && success && (
-          <p className="signup-info-form__message signup-info-form__message--success">{success}</p>
+        {showHint && <p className="signup-info-form__hint">{hint}</p>}
+        {reserveFeedback ? (
+          <div className="signup-info-form__feedback-slot" aria-live="polite">
+            {error ? (
+              <p className="signup-info-form__message signup-info-form__message--error" role="alert">
+                {error}
+              </p>
+            ) : success ? (
+              <p className="signup-info-form__message signup-info-form__message--success">
+                {success}
+              </p>
+            ) : null}
+          </div>
+        ) : (
+          <>
+            {error && (
+              <p className="signup-info-form__message signup-info-form__message--error" role="alert">
+                {error}
+              </p>
+            )}
+            {!error && success && (
+              <p className="signup-info-form__message signup-info-form__message--success">
+                {success}
+              </p>
+            )}
+          </>
         )}
       </div>
     </div>
@@ -62,7 +84,10 @@ function SignupStepForm({
   form,
   errors,
   displayedPasswordError,
+  displayedPasswordSuccess,
   displayedPasswordConfirmError,
+  displayedPasswordConfirmSuccess,
+  isPasswordReady,
   idCheckMessage,
   emailFieldSuccess,
   isIdChecked,
@@ -224,7 +249,11 @@ function SignupStepForm({
           required
           htmlFor="signup-password"
           hint={PASSWORD_REQUIREMENT_HINT}
+          alwaysShowHint
+          reserveFeedback
           error={displayedPasswordError}
+          success={displayedPasswordSuccess}
+          rowClassName="signup-info-form__row--password"
         >
           <PasswordInput
             id="signup-password"
@@ -241,7 +270,10 @@ function SignupStepForm({
           label="비밀번호 확인"
           required
           htmlFor="signup-password-confirm"
+          reserveFeedback
           error={displayedPasswordConfirmError}
+          success={displayedPasswordConfirmSuccess}
+          rowClassName="signup-info-form__row--password-confirm"
         >
           <PasswordInput
             id="signup-password-confirm"
@@ -442,7 +474,12 @@ function SignupStepForm({
         <button
           type="submit"
           className="signup-btn signup-btn--dark"
-          disabled={isSubmitting || isSyncingEmailVerification || !isEmailVerified}
+          disabled={
+            isSubmitting ||
+            isSyncingEmailVerification ||
+            !isEmailVerified ||
+            !isPasswordReady
+          }
         >
           {isSubmitting ? '가입 처리 중...' : '다음단계'}
         </button>
