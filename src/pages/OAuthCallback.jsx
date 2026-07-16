@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
-import { recoverSessionFromAuthUrl } from '@/services/auth/authCallbackSession'
 import { fetchProfileByUserId } from '@/services/auth/profile'
 import { OAUTH_PROFILE_COMPLETE_PATH } from '@/services/auth/oauthProfile'
 import { supabase } from '@/lib/supabase'
@@ -26,8 +25,26 @@ function OAuthCallback() {
       }
 
       try {
-        // AuthContext init 과 병행될 수 있어 세션 복구를 한 번 더 시도합니다.
-        await recoverSessionFromAuthUrl()
+        // OAuth 전용: URL의 code로 직접 교환만 수행하고, 이메일 인증 전용 로직은 호출하지 않습니다.
+        const url = new URL(window.location.href)
+        const code = url.searchParams.get('code')
+
+        if (code) {
+          const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+
+          if (error) {
+            throw error
+          }
+
+          // URL 정리 (code 제거)
+          try {
+            url.searchParams.delete('code')
+            url.searchParams.delete('state')
+            window.history.replaceState(window.history.state, '', url.pathname + url.search)
+          } catch {
+            // no-op
+          }
+        }
 
         const {
           data: { session: currentSession },
