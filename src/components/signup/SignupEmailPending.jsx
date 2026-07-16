@@ -27,10 +27,15 @@ function SignupEmailPending({
       <p className="signup-verify-panel__text">
         가입하신 이메일로 인증 메일을 발송했습니다.
         {'\n\n'}
-        1) 메일의 &apos;이메일 인증&apos; 버튼을 클릭하거나
+        1) 메일의 &apos;이메일 인증&apos; 버튼을
+        {' '}
+        <strong>회원가입을 진행 중인 같은 Chrome</strong>
+        에서 클릭하거나
         {'\n'}
         2) 메일에 있는 6자리 인증번호를 아래에 입력해주세요.
         {'\n\n'}
+        다른 브라우저·기기에서 링크를 열면 인증을 완료할 수 없습니다.
+        {'\n'}
         인증이 완료되면 자동으로 가입이 완료됩니다.
       </p>
       <p className="signup-verify-panel__note">{email}</p>

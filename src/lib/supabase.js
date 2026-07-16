@@ -17,17 +17,14 @@ if (!supabaseKey?.trim()) {
 }
 
 /**
- * Auth storage MUST be localStorage for PKCE email verification.
+ * PKCE 클라이언트 설정 (이 프로젝트 SPA):
+ * - flowType: 'pkce'            → Supabase 권장
+ * - storage: localStorage       → 메일 링크가 새 탭이어도 같은 Chrome 프로필이면 verifier 공유
+ * - detectSessionInUrl: false   → AuthCallback이 exchangeCodeForSession/verifyOtp를 단일 소유
  *
- * Why:
- * - signInWithOtp (PKCE) stores a code-verifier in auth storage
- * - The email confirmation link almost always opens in a NEW browser tab
- * - sessionStorage is per-tab, so the callback tab cannot read the verifier
- * - exchangeCodeForSession then fails with "Email link is invalid or has expired"
- * - Even after a successful callback, the signup tab also needs the shared session
- *
- * detectSessionInUrl is disabled because AuthCallback owns URL exchange.
- * Leaving it enabled races with AuthCallback and can consume the one-time code twice.
+ * detectSessionInUrl: true 는 문서상 권장이지만, 이 앱은 /auth/callback 전용 페이지가
+ * 이미 코드 교환을 수행합니다. true 로 두면 SDK initialize 교환과 AuthCallback 교환·
+ * React StrictMode 이중 effect 가 경합하여 세션/UI 상태가 불안정해질 수 있어 false 를 유지합니다.
  */
 function migrateLegacyAuthSessionStorageToLocalStorage() {
   if (typeof window === 'undefined') {

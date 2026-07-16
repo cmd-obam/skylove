@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { FiAlertCircle, FiCheckCircle } from 'react-icons/fi'
 import {
+  AUTH_CROSS_BROWSER_HINT,
+  AUTH_CROSS_BROWSER_MESSAGE,
+  toAuthCallbackUserMessage,
+} from '@/services/auth/authErrors'
+import {
   isEmailConfirmed,
   parseAuthCallbackParams,
   resolveAuthCallbackSession,
@@ -53,16 +58,20 @@ function AuthCallbackSuccess({ onClose }) {
 }
 
 function AuthCallbackError({ message }) {
+  const isCrossBrowser = String(message || '').includes(AUTH_CROSS_BROWSER_MESSAGE)
+  const body = isCrossBrowser
+    ? AUTH_CROSS_BROWSER_HINT
+    : message || '회원가입 페이지에서 인증 메일을 다시 요청한 뒤, 최신 링크를 클릭해주세요.'
+
   return (
     <div className="auth-callback-page__panel" role="alert">
       <div className="auth-callback-page__icon auth-callback-page__icon--error" aria-hidden="true">
         <FiAlertCircle />
       </div>
-      <h1 className="auth-callback-page__title">이메일 인증에 실패했습니다.</h1>
-      <p className="auth-callback-page__text">
-        {message ||
-          '회원가입 페이지에서 인증 메일을 다시 요청한 뒤, 최신 링크를 클릭해주세요.'}
-      </p>
+      <h1 className="auth-callback-page__title">
+        {isCrossBrowser ? AUTH_CROSS_BROWSER_MESSAGE : '이메일 인증에 실패했습니다.'}
+      </h1>
+      <p className="auth-callback-page__text">{body}</p>
     </div>
   )
 }
@@ -92,7 +101,6 @@ function AuthCallback() {
   useEffect(() => {
     const runId = runIdRef.current + 1
     runIdRef.current = runId
-    let cancelled = false
 
     console.log(`[AuthCallback][run:${runId}] effect start`, {
       url: window.location.href,
@@ -102,6 +110,7 @@ function AuthCallback() {
     async function completeEmailVerification() {
       try {
         // Completion only — never request a new OTP from this route.
+        // in-flight Promise 로 StrictMode 이중 호출을 합칩니다.
         const session = await resolveAuthCallbackSession(runId)
         const user = session?.user ?? null
 
@@ -109,6 +118,7 @@ function AuthCallback() {
           email: user?.email ?? null,
           emailConfirmedAt: user?.email_confirmed_at ?? null,
           isEmailConfirmed: user ? isEmailConfirmed(user) : false,
+          isLatestRun: runId === runIdRef.current,
         })
 
         if (!user?.email) {
@@ -123,35 +133,21 @@ function AuthCallback() {
         setEmailVerifiedBeacon(sessionEmail)
         broadcastEmailVerified(sessionEmail)
 
-        if (cancelled) {
-          return
-        }
-
         await sleep(SUCCESS_DISPLAY_DELAY_MS)
 
-        if (cancelled) {
-          return
-        }
-
+        // StrictMode 첫 effect 가 unmount 되어도, 최신 run 이면 성공 UI를 표시합니다.
         setCallbackStatus('success', runId, 'verification-complete')
       } catch (error) {
         console.error(`[AuthCallback][run:${runId}] completeEmailVerification failed`, error)
 
-        if (!cancelled) {
-          setErrorMessage(
-            error?.message ||
-              '회원가입 페이지에서 인증 메일을 다시 요청한 뒤, 최신 링크를 클릭해주세요.',
-          )
+        if (runId === runIdRef.current) {
+          setErrorMessage(toAuthCallbackUserMessage(error))
           setCallbackStatus('error', runId, 'verification-failed')
         }
       }
     }
 
     completeEmailVerification()
-
-    return () => {
-      cancelled = true
-    }
   }, [])
 
   const handleClose = () => {
