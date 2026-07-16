@@ -1,0 +1,41 @@
+<!--
+============================================================
+회원가입/매직링크 이메일 템플릿 (PKCE 교차브라우저 실패 해결)
+Supabase Dashboard → Authentication → Email Templates
+============================================================
+
+필수 URL 설정 (Authentication → URL Configuration):
+- Site URL:
+  https://cmd-obam.github.io/skylove
+- Redirect URLs 에 추가:
+  https://cmd-obam.github.io/skylove/auth/callback
+  https://cmd-obam.github.io/skylove/auth/confirm
+  https://cmd-obam.github.io/skylove/**
+
+중요:
+- {{ .ConfirmationURL }} 는 PKCE code 방식이라
+  회원가입을 시작한 브라우저/탭과 다른 환경(지메일 앱 등)에서
+  "Email link is invalid or has expired" 가 납니다.
+- 아래처럼 token_hash 링크 + 6자리 코드를 사용하세요.
+============================================================
+-->
+
+<!-- Confirm signup / Magic Link 본문에 아래 HTML 사용 -->
+
+<h2>하늘사랑교회 이메일 인증</h2>
+
+<p>아래 버튼을 눌러 이메일 인증을 완료해주세요.</p>
+
+<p>
+  <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email">
+    이메일 인증
+  </a>
+</p>
+
+<p>버튼이 되지 않으면 이 링크를 복사해 브라우저에 붙여넣으세요:</p>
+<p>{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email</p>
+
+<p>또는 회원가입 화면에 아래 6자리 인증번호를 입력하세요:</p>
+<p style="font-size: 24px; font-weight: bold; letter-spacing: 4px;">{{ .Token }}</p>
+
+<p>이 요청을 본인이 하지 않았다면 이 메일을 무시하셔도 됩니다.</p>

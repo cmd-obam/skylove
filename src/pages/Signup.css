@@ -698,7 +698,10 @@
   display: flex;
   flex-direction: column;
   gap: 0.625rem;
-  margin-top: 1rem;
+  width: 100%;
+  max-width: 28rem;
+  margin: 0.25rem auto 0;
+  text-align: left;
 }
 
 .signup-verify-panel__otp-label {
@@ -707,8 +710,23 @@
   color: #374151;
 }
 
+.signup-verify-panel__otp-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .signup-verify-panel__otp-input {
-  width: 100%;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: none;
+  width: auto;
+}
+
+.signup-verify-panel__otp-row .signup-btn--dark {
+  flex: 0 0 auto;
+  min-width: 7.5rem;
+  height: 38px;
 }
 
 .signup-verify-panel__actions {

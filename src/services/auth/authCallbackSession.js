@@ -189,7 +189,11 @@ export async function recoverSessionFromAuthUrl() {
 
   const pathname = window.location.pathname.replace(/\/$/, '')
 
-  if (pathname.endsWith('/auth/callback') || pathname.endsWith('/email-confirm')) {
+  if (
+    pathname.endsWith('/auth/callback') ||
+    pathname.endsWith('/auth/confirm') ||
+    pathname.endsWith('/email-confirm')
+  ) {
     return null
   }
 

@@ -95,6 +95,7 @@ function App() {
           <Route path="/church-news/album/:postId/viewer" element={<LegacyBoardPostViewerRedirect />} />
           <Route path="/church-news/:postId/viewer" element={<LegacyBoardPostViewerRedirect />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/auth/confirm" element={<EmailConfirmSuccess />} />
           <Route path="/email-confirm" element={<EmailConfirmSuccess />} />
           <Route element={<SiteShell />}>
             <Route path="/" element={<Home />} />

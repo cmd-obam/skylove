@@ -215,6 +215,9 @@ export function getEmailConfirmRedirectTo() {
     return undefined
   }
 
+  // Keep /auth/callback for PKCE ?code= redirects from {{ .ConfirmationURL }}.
+  // Dashboard email templates should prefer token_hash → /auth/confirm (see
+  // supabase/fix_auth_email_templates.html) so Gmail-app / other-browser clicks work.
   return new URL('auth/callback', `${window.location.origin}${import.meta.env.BASE_URL}`).href
 }
 
@@ -275,12 +278,18 @@ function logProfileSaveError(stage, error) {
 }
 
 function isMissingRpcFunction(error) {
+  const message = String(error?.message ?? '')
+
   return (
     error?.code === 'PGRST202' ||
-    error?.message?.includes('is_username_available') ||
-    error?.message?.includes('schema cache')
+    message.includes('is_username_available') ||
+    message.includes('username_available') ||
+    message.includes('schema cache') ||
+    message.includes('Could not find the function')
   )
 }
+
+const USERNAME_AVAILABLE_RPC_CANDIDATES = ['is_username_available', 'username_available']
 
 function isProfileAlreadyExistsError(error) {
   const message = (error?.message ?? '').toLowerCase()
@@ -358,26 +367,104 @@ export async function checkDuplicateEmail(email) {
 }
 
 export async function checkDuplicateId(loginId) {
-  const { data, error } = await supabase.rpc('is_username_available', {
-    check_username: loginId,
-  })
+  let lastError = null
 
-  if (!error) {
-    const available = data === true
+  for (const rpcName of USERNAME_AVAILABLE_RPC_CANDIDATES) {
+    const { data, error } = await supabase.rpc(rpcName, {
+      check_username: loginId,
+    })
 
-    return {
-      available,
-      message: available ? '사용 가능한 아이디입니다.' : '아이디가 이미 존재합니다.',
+    if (!error) {
+      const available = data === true
+
+      return {
+        available,
+        message: available ? '사용 가능한 아이디입니다.' : '아이디가 이미 존재합니다.',
+        source: rpcName,
+      }
+    }
+
+    lastError = error
+
+    if (!isMissingRpcFunction(error)) {
+      console.error('[Signup] 아이디 중복확인 RPC 실패', rpcName, formatAuthError(error), error)
+      throw error
     }
   }
 
-  console.error('[Signup] 아이디 중복확인 RPC 실패', formatAuthError(error), error)
+  console.warn(
+    '[Signup] username availability RPC missing — falling back to profiles table. Apply supabase/fix_username_available.sql in Supabase SQL Editor.',
+    formatAuthError(lastError),
+  )
 
-  if (isMissingRpcFunction(error)) {
-    return checkDuplicateIdViaTable(loginId)
+  return checkDuplicateIdViaTable(loginId)
+}
+
+/** 이메일 본문의 6자리 인증번호로 인증 (매직링크/PKCE 없이 동작) */
+export async function verifyEmailOtpCode(email, token) {
+  const trimmedEmail = email.trim().toLowerCase()
+  const trimmedToken = String(token ?? '').trim()
+
+  if (!trimmedEmail) {
+    return { success: false, message: '이메일을 입력해주세요.' }
   }
 
-  throw error
+  if (!/^\d{6,8}$/.test(trimmedToken)) {
+    return { success: false, message: '이메일로 받은 6자리 인증번호를 입력해주세요.' }
+  }
+
+  const otpTypes = ['email', 'signup', 'magiclink']
+  let data = null
+  let error = null
+
+  for (const type of otpTypes) {
+    const result = await supabase.auth.verifyOtp({
+      email: trimmedEmail,
+      token: trimmedToken,
+      type,
+    })
+
+    if (!result.error) {
+      data = result.data
+      error = null
+      break
+    }
+
+    error = result.error
+  }
+
+  if (error) {
+    console.error('[Signup] verifyEmailOtpCode 실패', formatAuthError(error), error)
+    return {
+      success: false,
+      message: mapEmailVerificationError(error),
+      error: formatAuthError(error),
+    }
+  }
+
+  const user = data?.session?.user ?? data?.user
+
+  if (!user?.email || !isEmailConfirmed(user)) {
+    return {
+      success: false,
+      message: '이메일 인증 상태를 확인하지 못했습니다. 잠시 후 다시 시도해주세요.',
+    }
+  }
+
+  if (user.email.toLowerCase() !== trimmedEmail) {
+    return {
+      success: false,
+      message: '인증된 이메일과 입력 이메일이 일치하지 않습니다.',
+    }
+  }
+
+  return {
+    success: true,
+    verified: true,
+    user,
+    session: data.session ?? null,
+    message: SIGNUP_EMAIL_ALREADY_VERIFIED_MESSAGE,
+  }
 }
 
 function isEmailConfirmed(user) {
@@ -579,6 +666,13 @@ export async function sendEmailVerification(email) {
       message: SIGNUP_EMAIL_ALREADY_VERIFIED_MESSAGE,
     }
   }
+
+  console.log('[Signup] signInWithOtp start', {
+    email: trimmedEmail,
+    emailRedirectTo,
+    origin: typeof window !== 'undefined' ? window.location.origin : null,
+    baseUrl: import.meta.env.BASE_URL,
+  })
 
   const { data, error } = await supabase.auth.signInWithOtp({
     email: trimmedEmail,
