@@ -9,7 +9,7 @@ export const FOOTER_MODALS = {
           하기 위하여 다음과 같이 개인정보처리방침을 수립·공개합니다.
         </p>
         <p className="policy-doc__note">
-          본 개인정보처리방침은 <strong>2026년 6월 24일</strong>부터 적용됩니다.
+          본 개인정보처리방침은 <strong>2026년 7월 1일</strong>부터 적용됩니다.
         </p>
 
         <h3>제1조 (개인정보의 처리 목적)</h3>
@@ -177,7 +177,7 @@ export const FOOTER_MODALS = {
 
         <h3>제12조 (개인정보처리방침 변경)</h3>
         <p>
-          본 개인정보처리방침은 <strong>2026년 6월 24일</strong>부터 적용됩니다. 내용
+          본 개인정보처리방침은 <strong>2026년 7월 1일</strong>부터 적용됩니다. 내용
           변경 시 홈페이지를 통해 안내합니다.
         </p>
 
