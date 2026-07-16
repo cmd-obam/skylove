@@ -116,12 +116,13 @@ function SiteHeader() {
     }
   }, [signOut, navigate])
 
+  // 비로그인: 로그인 | 회원가입 → 로그인 자리에 로그아웃을 둡니다.
   const authLinks = useMemo(
     () =>
       isLoggedIn
         ? [
-            { label: '회원정보', path: '/member/edit' },
             { label: '로그아웃', onClick: handleLogout },
+            { label: '회원정보', path: '/member/edit' },
           ]
         : AUTH_LINKS,
     [isLoggedIn, handleLogout],
@@ -420,6 +421,17 @@ function SiteHeader() {
                     </Link>
                   </li>
                 ))}
+                {isLoggedIn && (
+                  <li className="site-header__drawer-submenu-item">
+                    <button
+                      type="button"
+                      className="site-header__drawer-submenu-link site-header__drawer-submenu-link--action"
+                      onClick={handleLogout}
+                    >
+                      로그아웃
+                    </button>
+                  </li>
+                )}
               </ul>
             </li>
           </ul>
