@@ -12,6 +12,7 @@ import { handleLogin } from '@/services/auth/login'
 import { clearSavedLoginId, getSavedLoginId, setSavedLoginId } from '@/utils/savedLoginId'
 import { getSafeRedirectPath } from '@/utils/loginRedirect'
 import { AUTOCOMPLETE_OFF, PASSWORD_AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
+import AuthOAuthButtons from '@/components/auth/AuthOAuthButtons'
 import '@/components/layout/CategoryLayout.css'
 import '@/components/layout/SubLayout.css'
 import './Auth.css'
@@ -258,6 +259,8 @@ function Auth() {
                 )}
               </form>
             )}
+
+            {activeTab === 'login' && <AuthOAuthButtons />}
 
             {activeTab === 'find-id' && findIdResult?.username && (
               <div className="auth-find-id-result">

@@ -1,0 +1,18 @@
+.oauth-complete-page__loading {
+  margin: 3rem auto;
+  max-width: 420px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.9375rem;
+}
+
+.oauth-complete-form {
+  margin-top: 0.5rem;
+}
+
+.oauth-complete-form .signup-btn--cancel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
