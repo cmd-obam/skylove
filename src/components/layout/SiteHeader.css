@@ -369,6 +369,12 @@
   color: var(--color-primary);
 }
 
+.site-header__drawer-submenu-link--action {
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+
 .site-header__drawer-submenu-item--expandable {
   margin: 0;
 }
