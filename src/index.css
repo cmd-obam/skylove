@@ -64,3 +64,9 @@ select:-webkit-autofill:focus {
   transition: background-color 9999s ease-out 0s;
   box-shadow: 0 0 0 1000px var(--color-white) inset;
 }
+
+/* 모바일 햄버거 메뉴 등 body 스크롤 잠금 보조 */
+html:has(body[data-body-scroll-lock='true']),
+body[data-body-scroll-lock='true'] {
+  overscroll-behavior: none;
+}
