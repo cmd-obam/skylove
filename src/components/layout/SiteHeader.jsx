@@ -1,15 +1,20 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import churchLogo from '@/assets/images/church-logo.png'
-import { AUTH_LINKS, MENU_ITEMS, getFirstSubMenuPath, menuItemContainsPath } from '@/data/menu'
+import {
+  AUTH_LINKS,
+  MEMBER_MENU_GUEST_CHILDREN,
+  MEMBER_MENU_LOGGED_IN_CHILDREN,
+  MENU_ITEMS,
+  getFirstSubMenuPath,
+  menuItemContainsPath,
+} from '@/data/menu'
 import DropdownMenu from '@/components/layout/DropdownMenu'
 import MenuItemLabel from '@/components/layout/MenuItemLabel'
 import { useAuth } from '@/contexts/AuthContext'
 import './SiteHeader.css'
 
 const MEMBER_MENU_TITLE = '회원메뉴'
-const MEMBER_MENU_PATH = '/login'
-const MEMBER_MENU_LOGGED_IN_PATH = '/member/edit'
 
 function getAuthLinkPath(item) {
   if (item.tab) {
@@ -40,6 +45,7 @@ function isMemberMenuPath(pathname) {
     pathname === '/login' ||
     pathname === '/signup' ||
     pathname.startsWith('/member/') ||
+    pathname.startsWith('/mypage/') ||
     pathname.startsWith('/reset-password')
   )
 }
@@ -110,7 +116,10 @@ function SiteHeader() {
     [isLoggedIn, handleLogout],
   )
 
-  const memberMenuPath = isLoggedIn ? MEMBER_MENU_LOGGED_IN_PATH : MEMBER_MENU_PATH
+  const memberMenuChildren = isLoggedIn
+    ? MEMBER_MENU_LOGGED_IN_CHILDREN
+    : MEMBER_MENU_GUEST_CHILDREN
+  const isMemberMenuExpanded = expandedItem === MEMBER_MENU_TITLE
 
   useEffect(() => {
     if (!isMobileMenuOpen) {
@@ -121,6 +130,8 @@ function SiteHeader() {
     document.body.style.overflow = 'hidden'
 
     if (isMemberMenuPath(pathname)) {
+      setExpandedItem(MEMBER_MENU_TITLE)
+      setExpandedSubItem(null)
       return () => {
         document.body.style.overflow = ''
       }
@@ -369,13 +380,42 @@ function SiteHeader() {
               </li>
             ))}
             <li className="site-header__drawer-item">
-              <Link
-                to={memberMenuPath}
-                className="site-header__drawer-link"
-                onClick={closeMobileMenu}
+              <div className="site-header__drawer-item-header">
+                <button
+                  type="button"
+                  className="site-header__drawer-link site-header__drawer-link--category"
+                  aria-expanded={isMemberMenuExpanded}
+                  aria-label={`${MEMBER_MENU_TITLE} 하위 메뉴 펼치기`}
+                  onClick={() => toggleAccordion(MEMBER_MENU_TITLE)}
+                >
+                  <span>{MEMBER_MENU_TITLE}</span>
+                  <span
+                    className={`site-header__drawer-expand${
+                      isMemberMenuExpanded ? ' site-header__drawer-expand--open' : ''
+                    }`}
+                    aria-hidden="true"
+                  >
+                    <span>+</span>
+                  </span>
+                </button>
+              </div>
+              <ul
+                className={`site-header__drawer-submenu${
+                  isMemberMenuExpanded ? ' site-header__drawer-submenu--open' : ''
+                }`}
               >
-                {MEMBER_MENU_TITLE}
-              </Link>
+                {memberMenuChildren.map((child) => (
+                  <li key={child.path} className="site-header__drawer-submenu-item">
+                    <Link
+                      to={child.path}
+                      className="site-header__drawer-submenu-link"
+                      onClick={closeMobileMenu}
+                    >
+                      {child.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </li>
           </ul>
         </nav>

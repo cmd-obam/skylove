@@ -1,5 +1,9 @@
 import { supabase } from '@/lib/supabase'
-import { peekEmailVerifiedBeacon } from '@/utils/signupDraft'
+import {
+  peekEmailVerifiedBeacon,
+  setEmailVerifiedBeacon,
+} from '@/utils/signupDraft'
+import { isEmailConfirmed } from '@/services/auth/authCallbackSession'
 import { syncSupabaseAuthSession } from '@/services/auth/authCallbackSession'
 import { clearAuthSession } from '@/utils/auth'
 import {
@@ -23,6 +27,7 @@ import {
   CONGREGANT_TYPE_IDS,
   isOtherCongregantType,
 } from '@/data/congregantTypes'
+import { withAllowedOtpSend } from '@/services/auth/otpSendGuard'
 
 const LOGIN_ID_PATTERN = /^[a-zA-Z0-9_]{4,20}$/
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -282,6 +287,7 @@ function isMissingRpcFunction(error) {
 
   return (
     error?.code === 'PGRST202' ||
+    error?.status === 404 ||
     message.includes('is_username_available') ||
     message.includes('username_available') ||
     message.includes('schema cache') ||
@@ -290,6 +296,9 @@ function isMissingRpcFunction(error) {
 }
 
 const USERNAME_AVAILABLE_RPC_CANDIDATES = ['is_username_available', 'username_available']
+
+/** null=미확인, true=RPC 사용 가능, false=DB에 없음(테이블 폴백 고정) */
+let usernameAvailabilityRpcState = null
 
 function isProfileAlreadyExistsError(error) {
   const message = (error?.message ?? '').toLowerCase()
@@ -327,7 +336,48 @@ async function checkDuplicateIdViaTable(loginId) {
   return {
     available,
     message: available ? '사용 가능한 아이디입니다.' : '아이디가 이미 존재합니다.',
+    source: 'profiles_table',
   }
+}
+
+/**
+ * Live DB RPC 존재 여부 진단 (회원가입 UI에서 직접 호출하지 않음).
+ * - is_username_available / username_available / check_username : 현재 미배포(404)인 경우가 많음
+ * - find_username_by_name_email : 계정 찾기에 사용
+ */
+export async function diagnoseSignupRpcAvailability() {
+  const probes = [
+    {
+      name: 'is_username_available',
+      args: { check_username: '__probe__' },
+    },
+    {
+      name: 'username_available',
+      args: { check_username: '__probe__' },
+    },
+    {
+      name: 'check_username',
+      args: { check_username: '__probe__' },
+    },
+    {
+      name: 'find_username_by_name_email',
+      args: { p_name: '__probe__', p_email: 'probe@example.com' },
+    },
+  ]
+
+  const results = []
+
+  for (const probe of probes) {
+    const { error } = await supabase.rpc(probe.name, probe.args)
+    results.push({
+      name: probe.name,
+      ok: !error || !isMissingRpcFunction(error),
+      missing: Boolean(error && isMissingRpcFunction(error)),
+      error: error ? formatAuthError(error) : null,
+    })
+  }
+
+  return results
 }
 
 export async function checkDuplicateEmail(email) {
@@ -367,7 +417,16 @@ export async function checkDuplicateEmail(email) {
 }
 
 export async function checkDuplicateId(loginId) {
-  let lastError = null
+  // Live DB에 public.is_username_available 가 없어 RPC 호출 시 404가 납니다.
+  // 아이디 중복확인은 profiles 테이블 조회로 처리하고, OTP 발송과 분리합니다.
+  // (RPC를 쓰려면 Supabase SQL Editor에서 supabase/fix_username_available.sql 실행)
+  //
+  // 선택적으로 RPC를 쓰려면 VITE_USE_USERNAME_RPC=true 로 빌드하세요.
+  const useUsernameRpc = import.meta.env.VITE_USE_USERNAME_RPC === 'true'
+
+  if (!useUsernameRpc || usernameAvailabilityRpcState === false) {
+    return checkDuplicateIdViaTable(loginId)
+  }
 
   for (const rpcName of USERNAME_AVAILABLE_RPC_CANDIDATES) {
     const { data, error } = await supabase.rpc(rpcName, {
@@ -375,8 +434,8 @@ export async function checkDuplicateId(loginId) {
     })
 
     if (!error) {
+      usernameAvailabilityRpcState = true
       const available = data === true
-
       return {
         available,
         message: available ? '사용 가능한 아이디입니다.' : '아이디가 이미 존재합니다.',
@@ -384,18 +443,19 @@ export async function checkDuplicateId(loginId) {
       }
     }
 
-    lastError = error
-
-    if (!isMissingRpcFunction(error)) {
-      console.error('[Signup] 아이디 중복확인 RPC 실패', rpcName, formatAuthError(error), error)
-      throw error
+    if (isMissingRpcFunction(error)) {
+      usernameAvailabilityRpcState = false
+      console.info(
+        '[Signup] username RPC 없음 — profiles 테이블로 중복확인합니다.',
+        formatAuthError(error),
+      )
+      return checkDuplicateIdViaTable(loginId)
     }
-  }
 
-  console.warn(
-    '[Signup] username availability RPC missing — falling back to profiles table. Apply supabase/fix_username_available.sql in Supabase SQL Editor.',
-    formatAuthError(lastError),
-  )
+    console.error('[Signup] 아이디 중복확인 RPC 실패', rpcName, formatAuthError(error), error)
+    // RPC 오류로 회원가입/이메일 인증을 중단하지 않고 테이블 조회로 계속합니다.
+    return checkDuplicateIdViaTable(loginId)
+  }
 
   return checkDuplicateIdViaTable(loginId)
 }
@@ -458,6 +518,9 @@ export async function verifyEmailOtpCode(email, token) {
     }
   }
 
+  // 6자리 인증번호도 AuthCallback과 동일하게 beacon을 남겨 회원가입 화면이 완료로 전환됩니다.
+  setEmailVerifiedBeacon(trimmedEmail)
+
   return {
     success: true,
     verified: true,
@@ -465,10 +528,6 @@ export async function verifyEmailOtpCode(email, token) {
     session: data.session ?? null,
     message: SIGNUP_EMAIL_ALREADY_VERIFIED_MESSAGE,
   }
-}
-
-function isEmailConfirmed(user) {
-  return Boolean(user?.email_confirmed_at || user?.confirmed_at)
 }
 
 function evaluateEmailVerification(user, trimmedEmail) {
@@ -496,16 +555,26 @@ function evaluateEmailVerification(user, trimmedEmail) {
   }
 }
 
-async function refreshAuthSessionIfPresent() {
-  const session = await syncSupabaseAuthSession({ retries: 2, retryDelayMs: 150 })
-  return session
-}
-
+/**
+ * 회원가입 화면의 인증 완료 판정.
+ * - email_confirmed_at 필수
+ * - AuthCallback이 남긴 beacon 필수
+ *   → 세션만 있다고 인증 완료로 바꾸지 않습니다.
+ */
 export async function checkEmailVerificationStatus(expectedEmail) {
   const trimmedEmail = expectedEmail.trim().toLowerCase()
   const beacon = peekEmailVerifiedBeacon(trimmedEmail)
-  const syncRetries = beacon ? 12 : 4
-  const syncDelayMs = beacon ? 300 : 200
+
+  if (!beacon) {
+    return {
+      verified: false,
+      reason: 'awaiting_email_link',
+      hint: '인증 메일의 링크를 클릭한 뒤, 이 화면으로 돌아와 주세요.',
+    }
+  }
+
+  const syncRetries = 12
+  const syncDelayMs = 300
 
   const checkSession = async () => {
     // Callback tab persists the PKCE session in localStorage; re-read it here.
@@ -530,6 +599,16 @@ export async function checkEmailVerificationStatus(expectedEmail) {
           user: session.user,
           source: 'session',
           reason: 'verified',
+        }
+      }
+
+      if (sessionResult.reason === 'email_mismatch') {
+        return {
+          verified: false,
+          user: session.user,
+          reason: 'email_mismatch',
+          sessionEmail: sessionResult.sessionEmail,
+          hint: `다른 계정(${sessionResult.sessionEmail})으로 로그인되어 있습니다. 로그아웃 후 다시 시도해주세요.`,
         }
       }
     }
@@ -591,23 +670,15 @@ export async function checkEmailVerificationStatus(expectedEmail) {
     return result
   }
 
-  if (beacon && !result?.verified) {
-    for (let attempt = 0; attempt < 8; attempt += 1) {
-      await new Promise((resolve) => {
-        window.setTimeout(resolve, 500)
-      })
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    await new Promise((resolve) => {
+      window.setTimeout(resolve, 500)
+    })
 
-      result = await checkSession()
+    result = await checkSession()
 
-      if (result?.verified) {
-        return result
-      }
-    }
-
-    return {
-      verified: false,
-      reason: 'pending_sync',
-      hint: '인증 링크 처리는 완료되었습니다. 잠시 후 다시 확인해주세요.',
+    if (result?.verified) {
+      return result
     }
   }
 
@@ -623,8 +694,8 @@ export async function checkEmailVerificationStatus(expectedEmail) {
   if (!result) {
     return {
       verified: false,
-      reason: 'no_session',
-      hint: '인증 메일의 링크를 클릭한 뒤, 다시 확인해주세요.',
+      reason: 'pending_sync',
+      hint: '인증 링크 처리는 완료되었습니다. 잠시 후 다시 확인해주세요.',
     }
   }
 
@@ -636,10 +707,12 @@ export async function checkEmailVerificationStatus(expectedEmail) {
   }
 }
 
-export async function sendEmailVerification(email) {
+export async function sendEmailVerification(email, { source = 'signup-email-verify' } = {}) {
   const trimmedEmail = email.trim().toLowerCase()
   const emailRedirectTo = getEmailConfirmRedirectTo()
 
+  // 아이디 RPC와 무관. 세션/beacon으로 인증 완료를 건너뛰지 않고
+  // 항상 signInWithOtp 로 인증 메일을 발송합니다.
   try {
     const duplicateEmail = await checkDuplicateEmail(trimmedEmail)
 
@@ -657,30 +730,24 @@ export async function sendEmailVerification(email) {
     }
   }
 
-  const existing = await checkEmailVerificationStatus(trimmedEmail)
-
-  if (existing.verified) {
-    return {
-      success: true,
-      alreadyVerified: true,
-      message: SIGNUP_EMAIL_ALREADY_VERIFIED_MESSAGE,
-    }
-  }
-
   console.log('[Signup] signInWithOtp start', {
     email: trimmedEmail,
     emailRedirectTo,
+    source,
     origin: typeof window !== 'undefined' ? window.location.origin : null,
     baseUrl: import.meta.env.BASE_URL,
+    pathname: typeof window !== 'undefined' ? window.location.pathname : null,
   })
 
-  const { data, error } = await supabase.auth.signInWithOtp({
-    email: trimmedEmail,
-    options: {
-      emailRedirectTo,
-      shouldCreateUser: true,
-    },
-  })
+  const { data, error } = await withAllowedOtpSend(source, () =>
+    supabase.auth.signInWithOtp({
+      email: trimmedEmail,
+      options: {
+        emailRedirectTo,
+        shouldCreateUser: true,
+      },
+    }),
+  )
 
   console.log('[Signup] signInWithOtp data:', data)
   logSignUpError(error)
@@ -1127,12 +1194,33 @@ export async function handleSignup(formData) {
 /** @deprecated handleSignup 사용 */
 export const handleProfileRegistration = handleSignup
 
+function isMissingColumnError(error) {
+  const code = error?.code ?? ''
+  const message = String(error?.message ?? '').toLowerCase()
+
+  return (
+    code === '42703' ||
+    code === 'PGRST204' ||
+    message.includes('does not exist') ||
+    message.includes('could not find the') ||
+    message.includes('schema cache')
+  )
+}
+
+function buildBaseProfilePayload(userId, formData, birthDate) {
+  return {
+    user_id: userId,
+    username: formData.loginId.trim(),
+    name: formData.name.trim(),
+    birth_date: birthDate,
+    email: formData.email.trim().toLowerCase(),
+    phone: formData.phone.trim() || null,
+    role: DEFAULT_MEMBER_ROLE,
+  }
+}
+
 async function insertProfile(userId, formData) {
-  const phone = formData.phone.trim()
-  const username = formData.loginId.trim()
-  const name = formData.name.trim()
   const birthDate = resolveBirthDateForDatabase(formData.birthDate)
-  const email = formData.email.trim().toLowerCase()
 
   if (!birthDate) {
     return {
@@ -1148,19 +1236,42 @@ async function insertProfile(userId, formData) {
     ? formData.attendingChurch.trim() || null
     : null
 
-  const profilePayload = {
-    user_id: userId,
-    username,
-    name,
-    birth_date: birthDate,
-    email,
-    phone: phone || null,
-    role: DEFAULT_MEMBER_ROLE,
-    congregant_type: congregantType,
-    attending_church: attendingChurch,
-  }
+  const basePayload = buildBaseProfilePayload(userId, formData, birthDate)
 
-  const { error: insertError } = await supabase.from('profiles').insert(profilePayload)
+  // Live DB may not yet have congregant_type / attending_church (migration 015).
+  // Try full payload first, then retry without those columns when schema lacks them.
+  const payloads = [
+    {
+      ...basePayload,
+      congregant_type: congregantType,
+      attending_church: attendingChurch,
+    },
+    basePayload,
+  ]
+
+  let insertError = null
+
+  for (const payload of payloads) {
+    const { error } = await supabase.from('profiles').insert(payload)
+
+    if (!error) {
+      insertError = null
+      break
+    }
+
+    insertError = error
+    console.warn('[Signup] profiles INSERT failed', {
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+      payloadKeys: Object.keys(payload),
+    })
+
+    if (!isMissingColumnError(error)) {
+      break
+    }
+  }
 
   if (!insertError) {
     const { error: securityError } = await supabase.rpc('set_profile_security_recovery', {
@@ -1173,31 +1284,55 @@ async function insertProfile(userId, formData) {
       return null
     }
 
+    // security RPC 실패해도 profile row 가 있으면 회원가입은 진행 가능하도록 로그만 남깁니다.
+    console.warn('[Signup] set_profile_security_recovery failed after insert', {
+      code: securityError.code,
+      message: securityError.message,
+    })
     logProfileSaveError('security_recovery', securityError)
-    return securityError
+    return null
   }
 
   logProfileSaveError('direct_insert', insertError)
 
+  // Live RPC signature (실측):
+  // create_profile_after_signup(p_user_id, p_username, p_name, p_birth_date, p_email, p_phone,
+  //   p_security_question, p_security_answer)
+  // congregant params 는 아직 배포되지 않아 포함하면 PGRST202 가 납니다.
   const rpcParams = {
     p_user_id: userId,
-    p_username: username,
-    p_name: name,
+    p_username: basePayload.username,
+    p_name: basePayload.name,
     p_birth_date: birthDate,
-    p_email: email,
-    p_phone: phone || null,
+    p_email: basePayload.email,
+    p_phone: basePayload.phone,
     p_security_question: resolveSecurityQuestionForStorage(formData),
     p_security_answer: formData.securityAnswer.trim(),
-    p_congregant_type: congregantType,
-    p_attending_church: attendingChurch,
   }
 
-  const { data: rpcData, error: rpcError } = await supabase.rpc('create_profile_after_signup', rpcParams)
+  console.warn('[Signup] falling back to create_profile_after_signup RPC', {
+    insertError: {
+      code: insertError.code,
+      message: insertError.message,
+    },
+    rpcParams: {
+      ...rpcParams,
+      p_security_answer: '[redacted]',
+    },
+  })
+
+  const { error: rpcError } = await supabase.rpc('create_profile_after_signup', rpcParams)
 
   if (!rpcError) {
     return null
   }
 
+  console.error('[Signup] create_profile_after_signup RPC failed', {
+    code: rpcError.code,
+    message: rpcError.message,
+    details: rpcError.details,
+    hint: rpcError.hint,
+  })
   logProfileSaveError('rpc', rpcError)
 
   if (isProfileAlreadyExistsError(rpcError)) {

@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { supabase } from '@/lib/supabase'
 import { fetchProfileByUserId } from '@/services/auth/profile'
 import { recoverSessionFromAuthUrl } from '@/services/auth/authCallbackSession'
+import { isMissingProfileError } from '@/lib/supabaseErrorLog'
 import { clearAuthSession, setAuthSession } from '@/utils/auth'
 import { logAuthContextProfileDebug } from '@/utils/authRoleDebug'
 
@@ -20,17 +21,24 @@ async function loadProfile(user, { retryCount = 2, retryDelayMs = 400 } = {}) {
       return profileResult.profile
     }
 
-    console.error('[Auth] fetchProfileByUserId failed', {
+    const missingProfile = isMissingProfileError(profileResult.error)
+    const log = missingProfile ? console.info : console.error
+
+    log('[Auth] fetchProfileByUserId failed', {
       attempt: attempt + 1,
       userId: user.id,
+      missingProfile,
       profileResult,
       response: profileResult.response,
       request: profileResult.request,
     })
-    console.error(
-      '[Auth] Supabase response JSON',
-      JSON.stringify(profileResult.response ?? profileResult.error, null, 2),
-    )
+
+    if (!missingProfile) {
+      console.error(
+        '[Auth] Supabase response JSON',
+        JSON.stringify(profileResult.response ?? profileResult.error, null, 2),
+      )
+    }
 
     if (attempt < retryCount) {
       await new Promise((resolve) => {
@@ -39,7 +47,9 @@ async function loadProfile(user, { retryCount = 2, retryDelayMs = 400 } = {}) {
     }
   }
 
-  console.error('[Auth] profile load failed after retries', { userId: user.id })
+  console.info('[Auth] profile not loaded after retries (signup 중 PGRST116 가능)', {
+    userId: user.id,
+  })
   return null
 }
 

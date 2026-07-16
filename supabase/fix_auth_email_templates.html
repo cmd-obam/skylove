@@ -6,17 +6,19 @@ Supabase Dashboard → Authentication → Email Templates
 
 필수 URL 설정 (Authentication → URL Configuration):
 - Site URL:
-  https://cmd-obam.github.io/skylove
+  https://www.hlckm.co.kr
 - Redirect URLs 에 추가:
-  https://cmd-obam.github.io/skylove/auth/callback
-  https://cmd-obam.github.io/skylove/auth/confirm
+  https://www.hlckm.co.kr/auth/callback
+  https://www.hlckm.co.kr/auth/confirm
+  https://www.hlckm.co.kr/**
   https://cmd-obam.github.io/skylove/**
 
 중요:
 - {{ .ConfirmationURL }} 는 PKCE code 방식이라
-  회원가입을 시작한 브라우저/탭과 다른 환경(지메일 앱 등)에서
-  "Email link is invalid or has expired" 가 납니다.
-- 아래처럼 token_hash 링크 + 6자리 코드를 사용하세요.
+  회원가입을 시작한 브라우저와 다른 환경(지메일 앱 등)에서는
+  code_verifier를 찾지 못해 인증이 실패합니다.
+- 아래처럼 token_hash 링크 + 6자리 코드를 사용하면
+  다른 브라우저에서도 verifyOtp로 인증을 완료할 수 있습니다.
 ============================================================
 -->
 

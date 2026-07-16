@@ -14,7 +14,6 @@ import {
   sendEmailVerification,
   validateForm,
   validateSignupEmail,
-  verifyEmailOtpCode,
 } from '@/services/auth/signup'
 import {
   SIGNUP_EMAIL_NOT_VERIFIED_MESSAGE,
@@ -129,7 +128,6 @@ function Signup() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSyncingEmailVerification, setIsSyncingEmailVerification] = useState(false)
   const [isAutoCheckingEmail, setIsAutoCheckingEmail] = useState(false)
-  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false)
   const [passwordConfirmTouched, setPasswordConfirmTouched] = useState(false)
   const [toast, setToast] = useState(null)
 
@@ -454,6 +452,8 @@ function Signup() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
+      // AuthCallback이 beacon을 남긴 뒤에만 인증 완료로 동기화합니다.
+      // 세션 존재/SIGNED_IN 만으로는 인증 완료 처리하지 않습니다.
       if (
         (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') &&
         session?.user?.email?.toLowerCase() === trimmedEmail
@@ -544,6 +544,7 @@ function Signup() {
 
     if (name === 'email') {
       setIsEmailVerified(false)
+      clearEmailVerifiedBeacon()
       setEmailStatusMessage('')
       setEmailSent(false)
       setResendAvailableAt(null)
@@ -584,12 +585,11 @@ function Signup() {
         showFeedback('error', '아이디가 이미 존재합니다.')
       }
     } catch (error) {
+      console.error('[Signup] checkDuplicateId 예외', error)
       const message =
         error instanceof Error && error.message.includes('001_create_profiles.sql')
           ? error.message
-          : error instanceof Error && error.message.includes('sql_editor_functions_only.sql')
-            ? error.message
-            : '아이디 중복확인에 실패했습니다. 다시 시도해주세요.'
+          : '아이디 중복확인에 실패했습니다. 다시 시도해주세요.'
       setErrors((prev) => ({
         ...prev,
         loginId: message,
@@ -613,24 +613,22 @@ function Signup() {
     }
 
     setIsSendingEmail(true)
+    // 메일 발송 전에는 절대 인증 완료로 두지 않습니다.
+    setIsEmailVerified(false)
+    clearEmailVerifiedBeacon()
 
     try {
-      const alreadyVerified = await syncEmailVerifiedFromSupabase(email)
-
-      if (alreadyVerified.verified) {
-        setEmailStatusMessage('')
-        return
+      // 이전 테스트/로그인 잔여 세션이 있으면 인증 완료로 오인될 수 있어 로컬 세션만 정리합니다.
+      try {
+        await supabase.auth.signOut({ scope: 'local' })
+      } catch (signOutError) {
+        console.warn('[Signup] local signOut before OTP ignored', signOutError)
       }
 
-      const result = await sendEmailVerification(email)
-
-      if (result.success && result.alreadyVerified) {
-        await syncEmailVerifiedFromSupabase(email)
-        setEmailStatusMessage('')
-        return
-      }
+      const result = await sendEmailVerification(email, { source: 'signup-email-verify' })
 
       if (result.success) {
+        setIsEmailVerified(false)
         setEmailSent(true)
         setEmailStatusMessage(result.message || SIGNUP_EMAIL_SENT_MESSAGE)
         setErrors((prev) => ({ ...prev, email: undefined }))
@@ -693,35 +691,6 @@ function Signup() {
     }
   }
 
-  const handleVerifyEmailOtp = async (otpCode) => {
-    if (isVerifyingOtp) {
-      return
-    }
-
-    setIsVerifyingOtp(true)
-    clearFeedback()
-
-    try {
-      const result = await verifyEmailOtpCode(form.email, otpCode)
-
-      if (!result.success) {
-        showFeedback('error', result.message, { toast: false })
-        return
-      }
-
-      setIsEmailVerified(true)
-      setEmailSent(true)
-      setErrors((prev) => ({ ...prev, email: undefined }))
-      showFeedback('success', '이메일 인증이 완료되었습니다.', { toast: true })
-      await syncEmailVerifiedFromSupabase(form.email)
-    } catch (error) {
-      console.error('[Signup] handleVerifyEmailOtp 예외', error)
-      showFeedback('error', '인증번호 확인에 실패했습니다. 다시 시도해주세요.', { toast: false })
-    } finally {
-      setIsVerifyingOtp(false)
-    }
-  }
-
   const handleResendEmail = async () => {
     if (resendCooldown > 0 || isSendingEmail) {
       return
@@ -731,6 +700,7 @@ function Signup() {
     setErrors((prev) => ({ ...prev, email: undefined }))
 
     try {
+      // AuthCallback beacon + email_confirmed_at 이 있을 때만 재발송을 건너뜁니다.
       const alreadyVerified = await syncEmailVerifiedFromSupabase()
 
       if (alreadyVerified.verified) {
@@ -738,15 +708,10 @@ function Signup() {
         return
       }
 
-      const result = await sendEmailVerification(form.email)
-
-      if (result.success && result.alreadyVerified) {
-        await syncEmailVerifiedFromSupabase()
-        setEmailStatusMessage('')
-        return
-      }
+      const result = await sendEmailVerification(form.email, { source: 'signup-email-resend' })
 
       if (result.success) {
+        setIsEmailVerified(false)
         setEmailSent(true)
         setEmailStatusMessage(SIGNUP_RESEND_SUCCESS_MESSAGE)
         startResendCooldown()
@@ -874,11 +839,9 @@ function Signup() {
                 isSendingEmail={isSendingEmail}
                 isCheckingEmail={isCheckingEmail}
                 isAutoChecking={isAutoCheckingEmail}
-                isVerifyingOtp={isVerifyingOtp}
                 formFeedback={formFeedback}
                 onCheck={handleCheckEmailVerification}
                 onResend={handleResendEmail}
-                onVerifyOtp={handleVerifyEmailOtp}
                 onEdit={() => setCurrentStep(SIGNUP_STEP_FORM)}
               />
             </div>
