@@ -76,8 +76,9 @@ export function hasPkceCodeVerifier() {
   return false
 }
 
+/** 회원가입 이메일 인증은 email_confirmed_at 만 인정합니다 (confirmed_at 우회 금지). */
 export function isEmailConfirmed(user) {
-  return Boolean(user?.email_confirmed_at || user?.confirmed_at)
+  return Boolean(user?.email_confirmed_at)
 }
 
 function getCallbackDedupeKey(params) {

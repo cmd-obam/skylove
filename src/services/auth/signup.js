@@ -1,5 +1,9 @@
 import { supabase } from '@/lib/supabase'
-import { peekEmailVerifiedBeacon } from '@/utils/signupDraft'
+import {
+  peekEmailVerifiedBeacon,
+  setEmailVerifiedBeacon,
+} from '@/utils/signupDraft'
+import { isEmailConfirmed } from '@/services/auth/authCallbackSession'
 import { syncSupabaseAuthSession } from '@/services/auth/authCallbackSession'
 import { clearAuthSession } from '@/utils/auth'
 import {
@@ -514,6 +518,9 @@ export async function verifyEmailOtpCode(email, token) {
     }
   }
 
+  // 6자리 인증번호도 AuthCallback과 동일하게 beacon을 남겨 회원가입 화면이 완료로 전환됩니다.
+  setEmailVerifiedBeacon(trimmedEmail)
+
   return {
     success: true,
     verified: true,
@@ -521,10 +528,6 @@ export async function verifyEmailOtpCode(email, token) {
     session: data.session ?? null,
     message: SIGNUP_EMAIL_ALREADY_VERIFIED_MESSAGE,
   }
-}
-
-function isEmailConfirmed(user) {
-  return Boolean(user?.email_confirmed_at || user?.confirmed_at)
 }
 
 function evaluateEmailVerification(user, trimmedEmail) {
@@ -557,11 +560,26 @@ async function refreshAuthSessionIfPresent() {
   return session
 }
 
+/**
+ * 회원가입 화면의 인증 완료 판정.
+ * - email_confirmed_at 필수
+ * - AuthCallback(또는 6자리 OTP)이 남긴 beacon 필수
+ *   → 세션만 있다고 인증 완료로 바꾸지 않습니다.
+ */
 export async function checkEmailVerificationStatus(expectedEmail) {
   const trimmedEmail = expectedEmail.trim().toLowerCase()
   const beacon = peekEmailVerifiedBeacon(trimmedEmail)
-  const syncRetries = beacon ? 12 : 4
-  const syncDelayMs = beacon ? 300 : 200
+
+  if (!beacon) {
+    return {
+      verified: false,
+      reason: 'awaiting_email_link',
+      hint: '인증 메일의 링크를 클릭한 뒤, 이 화면으로 돌아와 주세요.',
+    }
+  }
+
+  const syncRetries = 12
+  const syncDelayMs = 300
 
   const checkSession = async () => {
     // Callback tab persists the PKCE session in localStorage; re-read it here.
@@ -586,6 +604,16 @@ export async function checkEmailVerificationStatus(expectedEmail) {
           user: session.user,
           source: 'session',
           reason: 'verified',
+        }
+      }
+
+      if (sessionResult.reason === 'email_mismatch') {
+        return {
+          verified: false,
+          user: session.user,
+          reason: 'email_mismatch',
+          sessionEmail: sessionResult.sessionEmail,
+          hint: `다른 계정(${sessionResult.sessionEmail})으로 로그인되어 있습니다. 로그아웃 후 다시 시도해주세요.`,
         }
       }
     }
@@ -647,23 +675,15 @@ export async function checkEmailVerificationStatus(expectedEmail) {
     return result
   }
 
-  if (beacon && !result?.verified) {
-    for (let attempt = 0; attempt < 8; attempt += 1) {
-      await new Promise((resolve) => {
-        window.setTimeout(resolve, 500)
-      })
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    await new Promise((resolve) => {
+      window.setTimeout(resolve, 500)
+    })
 
-      result = await checkSession()
+    result = await checkSession()
 
-      if (result?.verified) {
-        return result
-      }
-    }
-
-    return {
-      verified: false,
-      reason: 'pending_sync',
-      hint: '인증 링크 처리는 완료되었습니다. 잠시 후 다시 확인해주세요.',
+    if (result?.verified) {
+      return result
     }
   }
 
@@ -679,8 +699,8 @@ export async function checkEmailVerificationStatus(expectedEmail) {
   if (!result) {
     return {
       verified: false,
-      reason: 'no_session',
-      hint: '인증 메일의 링크를 클릭한 뒤, 다시 확인해주세요.',
+      reason: 'pending_sync',
+      hint: '인증 링크 처리는 완료되었습니다. 잠시 후 다시 확인해주세요.',
     }
   }
 
@@ -696,8 +716,8 @@ export async function sendEmailVerification(email, { source = 'signup-email-veri
   const trimmedEmail = email.trim().toLowerCase()
   const emailRedirectTo = getEmailConfirmRedirectTo()
 
-  // 아이디 RPC(is_username_available)와 무관합니다.
-  // 이메일 중복만 확인한 뒤 바로 OTP를 발송합니다.
+  // 아이디 RPC와 무관. 세션/beacon으로 인증 완료를 건너뛰지 않고
+  // 항상 signInWithOtp 로 인증 메일을 발송합니다.
   try {
     const duplicateEmail = await checkDuplicateEmail(trimmedEmail)
 
@@ -712,16 +732,6 @@ export async function sendEmailVerification(email, { source = 'signup-email-veri
     return {
       success: false,
       message: '이메일 중복확인에 실패했습니다. 다시 시도해주세요.',
-    }
-  }
-
-  const existing = await checkEmailVerificationStatus(trimmedEmail)
-
-  if (existing.verified) {
-    return {
-      success: true,
-      alreadyVerified: true,
-      message: SIGNUP_EMAIL_ALREADY_VERIFIED_MESSAGE,
     }
   }
 

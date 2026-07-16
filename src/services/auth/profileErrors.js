@@ -1,10 +1,18 @@
-import { serializeSupabaseError } from '@/lib/supabaseErrorLog'
+import { isMissingProfileError, serializeSupabaseError } from '@/lib/supabaseErrorLog'
 import { ROLE_MIGRATION_PATH } from '@/services/auth/profileSchema'
 
 export function mapProfileFetchError(error) {
   const response = serializeSupabaseError(error)
   const code = response?.code ?? ''
   const message = (response?.message ?? '').toLowerCase()
+
+  if (isMissingProfileError(error) || code === 'PGRST116' || message.includes('0 rows')) {
+    console.info(
+      '[Profile] profile row not found yet (PGRST116) — signup 중에는 정상일 수 있습니다.',
+      response,
+    )
+    return '회원 정보를 찾을 수 없습니다.'
+  }
 
   console.error('[Profile] Supabase response (mapProfileFetchError)', JSON.stringify(response, null, 2))
 
@@ -18,10 +26,6 @@ export function mapProfileFetchError(error) {
   if (code === 'PGRST204' && message.includes('role')) {
     console.error('[Profile] FIX: role 컬럼은 있으나 PostgREST 캐시 stale — NOTIFY pgrst, \'reload schema\'; 실행')
     return response.message ?? 'PostgREST schema cache: role column not found'
-  }
-
-  if (code === 'PGRST116' || message.includes('0 rows')) {
-    return '회원 정보를 찾을 수 없습니다.'
   }
 
   if (code === '42501' || message.includes('row-level security')) {

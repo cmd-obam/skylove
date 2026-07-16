@@ -16,12 +16,27 @@ export function serializeSupabaseError(error) {
   }
 }
 
+export function isMissingProfileError(error) {
+  const code = error?.code ?? ''
+  const message = String(error?.message ?? '').toLowerCase()
+  return code === 'PGRST116' || message.includes('0 rows') || message.includes('multiple (or no) rows')
+}
+
 export function logSupabaseError(scope, error, context = {}) {
   const payload = {
     scope,
     context,
     response: serializeSupabaseError(error),
     raw: error,
+  }
+
+  // 회원가입 직후 등 profile 행이 아직 없는 PGRST116 은 정상 흐름입니다.
+  if (isMissingProfileError(error)) {
+    console.info(`[${scope}] profile not found yet (PGRST116)`, {
+      context,
+      response: payload.response,
+    })
+    return payload
   }
 
   console.error(`[${scope}] Supabase error`, payload)

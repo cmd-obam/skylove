@@ -454,6 +454,8 @@ function Signup() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
+      // AuthCallback이 beacon을 남긴 뒤에만 인증 완료로 동기화합니다.
+      // 세션 존재/SIGNED_IN 만으로는 인증 완료 처리하지 않습니다.
       if (
         (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') &&
         session?.user?.email?.toLowerCase() === trimmedEmail
@@ -544,6 +546,7 @@ function Signup() {
 
     if (name === 'email') {
       setIsEmailVerified(false)
+      clearEmailVerifiedBeacon()
       setEmailStatusMessage('')
       setEmailSent(false)
       setResendAvailableAt(null)
@@ -612,24 +615,22 @@ function Signup() {
     }
 
     setIsSendingEmail(true)
+    // 메일 발송 전에는 절대 인증 완료로 두지 않습니다.
+    setIsEmailVerified(false)
+    clearEmailVerifiedBeacon()
 
     try {
-      const alreadyVerified = await syncEmailVerifiedFromSupabase(email)
-
-      if (alreadyVerified.verified) {
-        setEmailStatusMessage('')
-        return
+      // 이전 테스트/로그인 잔여 세션이 있으면 인증 완료로 오인될 수 있어 로컬 세션만 정리합니다.
+      try {
+        await supabase.auth.signOut({ scope: 'local' })
+      } catch (signOutError) {
+        console.warn('[Signup] local signOut before OTP ignored', signOutError)
       }
 
       const result = await sendEmailVerification(email, { source: 'signup-email-verify' })
 
-      if (result.success && result.alreadyVerified) {
-        await syncEmailVerifiedFromSupabase(email)
-        setEmailStatusMessage('')
-        return
-      }
-
       if (result.success) {
+        setIsEmailVerified(false)
         setEmailSent(true)
         setEmailStatusMessage(result.message || SIGNUP_EMAIL_SENT_MESSAGE)
         setErrors((prev) => ({ ...prev, email: undefined }))
@@ -730,6 +731,7 @@ function Signup() {
     setErrors((prev) => ({ ...prev, email: undefined }))
 
     try {
+      // AuthCallback beacon + email_confirmed_at 이 있을 때만 재발송을 건너뜁니다.
       const alreadyVerified = await syncEmailVerifiedFromSupabase()
 
       if (alreadyVerified.verified) {
@@ -739,13 +741,8 @@ function Signup() {
 
       const result = await sendEmailVerification(form.email, { source: 'signup-email-resend' })
 
-      if (result.success && result.alreadyVerified) {
-        await syncEmailVerifiedFromSupabase()
-        setEmailStatusMessage('')
-        return
-      }
-
       if (result.success) {
+        setIsEmailVerified(false)
         setEmailSent(true)
         setEmailStatusMessage(SIGNUP_RESEND_SUCCESS_MESSAGE)
         startResendCooldown()
