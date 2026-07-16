@@ -584,12 +584,11 @@ function Signup() {
         showFeedback('error', '아이디가 이미 존재합니다.')
       }
     } catch (error) {
+      console.error('[Signup] checkDuplicateId 예외', error)
       const message =
         error instanceof Error && error.message.includes('001_create_profiles.sql')
           ? error.message
-          : error instanceof Error && error.message.includes('sql_editor_functions_only.sql')
-            ? error.message
-            : '아이디 중복확인에 실패했습니다. 다시 시도해주세요.'
+          : '아이디 중복확인에 실패했습니다. 다시 시도해주세요.'
       setErrors((prev) => ({
         ...prev,
         loginId: message,

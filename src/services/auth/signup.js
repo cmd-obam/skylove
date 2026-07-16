@@ -283,6 +283,7 @@ function isMissingRpcFunction(error) {
 
   return (
     error?.code === 'PGRST202' ||
+    error?.status === 404 ||
     message.includes('is_username_available') ||
     message.includes('username_available') ||
     message.includes('schema cache') ||
@@ -291,6 +292,9 @@ function isMissingRpcFunction(error) {
 }
 
 const USERNAME_AVAILABLE_RPC_CANDIDATES = ['is_username_available', 'username_available']
+
+/** null=미확인, true=RPC 사용 가능, false=DB에 없음(테이블 폴백 고정) */
+let usernameAvailabilityRpcState = null
 
 function isProfileAlreadyExistsError(error) {
   const message = (error?.message ?? '').toLowerCase()
@@ -328,7 +332,48 @@ async function checkDuplicateIdViaTable(loginId) {
   return {
     available,
     message: available ? '사용 가능한 아이디입니다.' : '아이디가 이미 존재합니다.',
+    source: 'profiles_table',
   }
+}
+
+/**
+ * Live DB RPC 존재 여부 진단 (회원가입 UI에서 직접 호출하지 않음).
+ * - is_username_available / username_available / check_username : 현재 미배포(404)인 경우가 많음
+ * - find_username_by_name_email : 계정 찾기에 사용
+ */
+export async function diagnoseSignupRpcAvailability() {
+  const probes = [
+    {
+      name: 'is_username_available',
+      args: { check_username: '__probe__' },
+    },
+    {
+      name: 'username_available',
+      args: { check_username: '__probe__' },
+    },
+    {
+      name: 'check_username',
+      args: { check_username: '__probe__' },
+    },
+    {
+      name: 'find_username_by_name_email',
+      args: { p_name: '__probe__', p_email: 'probe@example.com' },
+    },
+  ]
+
+  const results = []
+
+  for (const probe of probes) {
+    const { error } = await supabase.rpc(probe.name, probe.args)
+    results.push({
+      name: probe.name,
+      ok: !error || !isMissingRpcFunction(error),
+      missing: Boolean(error && isMissingRpcFunction(error)),
+      error: error ? formatAuthError(error) : null,
+    })
+  }
+
+  return results
 }
 
 export async function checkDuplicateEmail(email) {
@@ -368,7 +413,16 @@ export async function checkDuplicateEmail(email) {
 }
 
 export async function checkDuplicateId(loginId) {
-  let lastError = null
+  // Live DB에 public.is_username_available 가 없어 RPC 호출 시 404가 납니다.
+  // 아이디 중복확인은 profiles 테이블 조회로 처리하고, OTP 발송과 분리합니다.
+  // (RPC를 쓰려면 Supabase SQL Editor에서 supabase/fix_username_available.sql 실행)
+  //
+  // 선택적으로 RPC를 쓰려면 VITE_USE_USERNAME_RPC=true 로 빌드하세요.
+  const useUsernameRpc = import.meta.env.VITE_USE_USERNAME_RPC === 'true'
+
+  if (!useUsernameRpc || usernameAvailabilityRpcState === false) {
+    return checkDuplicateIdViaTable(loginId)
+  }
 
   for (const rpcName of USERNAME_AVAILABLE_RPC_CANDIDATES) {
     const { data, error } = await supabase.rpc(rpcName, {
@@ -376,8 +430,8 @@ export async function checkDuplicateId(loginId) {
     })
 
     if (!error) {
+      usernameAvailabilityRpcState = true
       const available = data === true
-
       return {
         available,
         message: available ? '사용 가능한 아이디입니다.' : '아이디가 이미 존재합니다.',
@@ -385,18 +439,19 @@ export async function checkDuplicateId(loginId) {
       }
     }
 
-    lastError = error
-
-    if (!isMissingRpcFunction(error)) {
-      console.error('[Signup] 아이디 중복확인 RPC 실패', rpcName, formatAuthError(error), error)
-      throw error
+    if (isMissingRpcFunction(error)) {
+      usernameAvailabilityRpcState = false
+      console.info(
+        '[Signup] username RPC 없음 — profiles 테이블로 중복확인합니다.',
+        formatAuthError(error),
+      )
+      return checkDuplicateIdViaTable(loginId)
     }
-  }
 
-  console.warn(
-    '[Signup] username availability RPC missing — falling back to profiles table. Apply supabase/fix_username_available.sql in Supabase SQL Editor.',
-    formatAuthError(lastError),
-  )
+    console.error('[Signup] 아이디 중복확인 RPC 실패', rpcName, formatAuthError(error), error)
+    // RPC 오류로 회원가입/이메일 인증을 중단하지 않고 테이블 조회로 계속합니다.
+    return checkDuplicateIdViaTable(loginId)
+  }
 
   return checkDuplicateIdViaTable(loginId)
 }
@@ -641,6 +696,8 @@ export async function sendEmailVerification(email, { source = 'signup-email-veri
   const trimmedEmail = email.trim().toLowerCase()
   const emailRedirectTo = getEmailConfirmRedirectTo()
 
+  // 아이디 RPC(is_username_available)와 무관합니다.
+  // 이메일 중복만 확인한 뒤 바로 OTP를 발송합니다.
   try {
     const duplicateEmail = await checkDuplicateEmail(trimmedEmail)
 
