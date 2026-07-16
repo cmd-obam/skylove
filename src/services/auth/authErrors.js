@@ -3,7 +3,7 @@ export const AUTH_CROSS_BROWSER_MESSAGE =
   '다른 브라우저에서는 인증을 완료할 수 없습니다.'
 
 export const AUTH_CROSS_BROWSER_HINT =
-  '회원가입을 진행 중인 같은 Chrome(같은 프로필)에서 최신 인증 메일의 링크를 열어주세요.\n또는 회원가입 화면에 표시된 6자리 인증번호를 입력해주세요.'
+  '회원가입을 진행 중인 같은 브라우저(같은 프로필)에서 최신 인증 메일의 "이메일 인증" 버튼을 다시 열어주세요.'
 
 export function isMissingPkceVerifierError(error) {
   const message = String(error?.message ?? error ?? '').toLowerCase()

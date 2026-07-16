@@ -14,7 +14,6 @@ import {
   sendEmailVerification,
   validateForm,
   validateSignupEmail,
-  verifyEmailOtpCode,
 } from '@/services/auth/signup'
 import {
   SIGNUP_EMAIL_NOT_VERIFIED_MESSAGE,
@@ -129,7 +128,6 @@ function Signup() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSyncingEmailVerification, setIsSyncingEmailVerification] = useState(false)
   const [isAutoCheckingEmail, setIsAutoCheckingEmail] = useState(false)
-  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false)
   const [passwordConfirmTouched, setPasswordConfirmTouched] = useState(false)
   const [toast, setToast] = useState(null)
 
@@ -693,35 +691,6 @@ function Signup() {
     }
   }
 
-  const handleVerifyEmailOtp = async (otpCode) => {
-    if (isVerifyingOtp) {
-      return
-    }
-
-    setIsVerifyingOtp(true)
-    clearFeedback()
-
-    try {
-      const result = await verifyEmailOtpCode(form.email, otpCode)
-
-      if (!result.success) {
-        showFeedback('error', result.message, { toast: false })
-        return
-      }
-
-      setIsEmailVerified(true)
-      setEmailSent(true)
-      setErrors((prev) => ({ ...prev, email: undefined }))
-      showFeedback('success', '이메일 인증이 완료되었습니다.', { toast: true })
-      await syncEmailVerifiedFromSupabase(form.email)
-    } catch (error) {
-      console.error('[Signup] handleVerifyEmailOtp 예외', error)
-      showFeedback('error', '인증번호 확인에 실패했습니다. 다시 시도해주세요.', { toast: false })
-    } finally {
-      setIsVerifyingOtp(false)
-    }
-  }
-
   const handleResendEmail = async () => {
     if (resendCooldown > 0 || isSendingEmail) {
       return
@@ -870,11 +839,9 @@ function Signup() {
                 isSendingEmail={isSendingEmail}
                 isCheckingEmail={isCheckingEmail}
                 isAutoChecking={isAutoCheckingEmail}
-                isVerifyingOtp={isVerifyingOtp}
                 formFeedback={formFeedback}
                 onCheck={handleCheckEmailVerification}
                 onResend={handleResendEmail}
-                onVerifyOtp={handleVerifyEmailOtp}
                 onEdit={() => setCurrentStep(SIGNUP_STEP_FORM)}
               />
             </div>

@@ -555,15 +555,10 @@ function evaluateEmailVerification(user, trimmedEmail) {
   }
 }
 
-async function refreshAuthSessionIfPresent() {
-  const session = await syncSupabaseAuthSession({ retries: 2, retryDelayMs: 150 })
-  return session
-}
-
 /**
  * 회원가입 화면의 인증 완료 판정.
  * - email_confirmed_at 필수
- * - AuthCallback(또는 6자리 OTP)이 남긴 beacon 필수
+ * - AuthCallback이 남긴 beacon 필수
  *   → 세션만 있다고 인증 완료로 바꾸지 않습니다.
  */
 export async function checkEmailVerificationStatus(expectedEmail) {
@@ -1199,12 +1194,33 @@ export async function handleSignup(formData) {
 /** @deprecated handleSignup 사용 */
 export const handleProfileRegistration = handleSignup
 
+function isMissingColumnError(error) {
+  const code = error?.code ?? ''
+  const message = String(error?.message ?? '').toLowerCase()
+
+  return (
+    code === '42703' ||
+    code === 'PGRST204' ||
+    message.includes('does not exist') ||
+    message.includes('could not find the') ||
+    message.includes('schema cache')
+  )
+}
+
+function buildBaseProfilePayload(userId, formData, birthDate) {
+  return {
+    user_id: userId,
+    username: formData.loginId.trim(),
+    name: formData.name.trim(),
+    birth_date: birthDate,
+    email: formData.email.trim().toLowerCase(),
+    phone: formData.phone.trim() || null,
+    role: DEFAULT_MEMBER_ROLE,
+  }
+}
+
 async function insertProfile(userId, formData) {
-  const phone = formData.phone.trim()
-  const username = formData.loginId.trim()
-  const name = formData.name.trim()
   const birthDate = resolveBirthDateForDatabase(formData.birthDate)
-  const email = formData.email.trim().toLowerCase()
 
   if (!birthDate) {
     return {
@@ -1220,19 +1236,42 @@ async function insertProfile(userId, formData) {
     ? formData.attendingChurch.trim() || null
     : null
 
-  const profilePayload = {
-    user_id: userId,
-    username,
-    name,
-    birth_date: birthDate,
-    email,
-    phone: phone || null,
-    role: DEFAULT_MEMBER_ROLE,
-    congregant_type: congregantType,
-    attending_church: attendingChurch,
-  }
+  const basePayload = buildBaseProfilePayload(userId, formData, birthDate)
 
-  const { error: insertError } = await supabase.from('profiles').insert(profilePayload)
+  // Live DB may not yet have congregant_type / attending_church (migration 015).
+  // Try full payload first, then retry without those columns when schema lacks them.
+  const payloads = [
+    {
+      ...basePayload,
+      congregant_type: congregantType,
+      attending_church: attendingChurch,
+    },
+    basePayload,
+  ]
+
+  let insertError = null
+
+  for (const payload of payloads) {
+    const { error } = await supabase.from('profiles').insert(payload)
+
+    if (!error) {
+      insertError = null
+      break
+    }
+
+    insertError = error
+    console.warn('[Signup] profiles INSERT failed', {
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+      payloadKeys: Object.keys(payload),
+    })
+
+    if (!isMissingColumnError(error)) {
+      break
+    }
+  }
 
   if (!insertError) {
     const { error: securityError } = await supabase.rpc('set_profile_security_recovery', {
@@ -1245,31 +1284,55 @@ async function insertProfile(userId, formData) {
       return null
     }
 
+    // security RPC 실패해도 profile row 가 있으면 회원가입은 진행 가능하도록 로그만 남깁니다.
+    console.warn('[Signup] set_profile_security_recovery failed after insert', {
+      code: securityError.code,
+      message: securityError.message,
+    })
     logProfileSaveError('security_recovery', securityError)
-    return securityError
+    return null
   }
 
   logProfileSaveError('direct_insert', insertError)
 
+  // Live RPC signature (실측):
+  // create_profile_after_signup(p_user_id, p_username, p_name, p_birth_date, p_email, p_phone,
+  //   p_security_question, p_security_answer)
+  // congregant params 는 아직 배포되지 않아 포함하면 PGRST202 가 납니다.
   const rpcParams = {
     p_user_id: userId,
-    p_username: username,
-    p_name: name,
+    p_username: basePayload.username,
+    p_name: basePayload.name,
     p_birth_date: birthDate,
-    p_email: email,
-    p_phone: phone || null,
+    p_email: basePayload.email,
+    p_phone: basePayload.phone,
     p_security_question: resolveSecurityQuestionForStorage(formData),
     p_security_answer: formData.securityAnswer.trim(),
-    p_congregant_type: congregantType,
-    p_attending_church: attendingChurch,
   }
 
-  const { data: rpcData, error: rpcError } = await supabase.rpc('create_profile_after_signup', rpcParams)
+  console.warn('[Signup] falling back to create_profile_after_signup RPC', {
+    insertError: {
+      code: insertError.code,
+      message: insertError.message,
+    },
+    rpcParams: {
+      ...rpcParams,
+      p_security_answer: '[redacted]',
+    },
+  })
+
+  const { error: rpcError } = await supabase.rpc('create_profile_after_signup', rpcParams)
 
   if (!rpcError) {
     return null
   }
 
+  console.error('[Signup] create_profile_after_signup RPC failed', {
+    code: rpcError.code,
+    message: rpcError.message,
+    details: rpcError.details,
+    hint: rpcError.hint,
+  })
   logProfileSaveError('rpc', rpcError)
 
   if (isProfileAlreadyExistsError(rpcError)) {

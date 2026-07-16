@@ -23,10 +23,15 @@ function SignupFormRow({
   hint,
   error,
   success,
+  rowClassName = '',
   children,
 }) {
   return (
-    <div className={`signup-info-form__row${error ? ' signup-info-form__row--error' : ''}`}>
+    <div
+      className={`signup-info-form__row${error ? ' signup-info-form__row--error' : ''}${
+        rowClassName ? ` ${rowClassName}` : ''
+      }`}
+    >
       <div className="signup-info-form__label-cell">
         <label className="signup-info-form__label" htmlFor={htmlFor}>
           {required && (
@@ -382,7 +387,13 @@ function SignupStepForm({
           </ul>
         </div>
 
-        <SignupFormRow label="생년월일" required htmlFor="signup-birth-year" error={errors.birthDate}>
+        <SignupFormRow
+          label="생년월일"
+          required
+          htmlFor="signup-birth-year"
+          error={errors.birthDate}
+          rowClassName="signup-info-form__row--birth"
+        >
           <BirthDateSelect
             idPrefix="signup-birth"
             value={form.birthDate}

@@ -62,8 +62,8 @@
   .signup-page .signup-birth-date,
   .signup-info-form .signup-birth-date {
     display: grid !important;
-    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr) minmax(0, 1fr);
-    gap: 0.5rem;
+    grid-template-columns: minmax(4.75rem, 1.45fr) minmax(3.5rem, 1fr) minmax(3.5rem, 1fr);
+    gap: 0.3rem;
     align-items: stretch;
     width: 100%;
     max-width: none !important;
@@ -79,14 +79,14 @@
 
   .signup-birth-date__select {
     min-width: 0;
-    min-height: 44px;
-    height: auto;
-    padding-left: 0.625rem;
-    padding-right: 1.625rem;
-    font-size: 0.875rem;
+    min-height: 36px;
+    height: 36px;
+    padding-left: 0.35rem;
+    padding-right: 1.2rem;
+    font-size: 0.75rem;
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis;
+    text-overflow: clip;
   }
 
   .signup-info-form .signup-birth-date__select {
