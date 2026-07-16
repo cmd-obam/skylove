@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { assertOtpSendAllowed } from '@/services/auth/otpSendGuard'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
@@ -88,5 +89,17 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
     storage: typeof window !== 'undefined' ? window.localStorage : undefined,
   },
 })
+
+const originalSignInWithOtp = supabase.auth.signInWithOtp.bind(supabase.auth)
+
+supabase.auth.signInWithOtp = async (credentials) => {
+  const source = assertOtpSendAllowed()
+  console.log('[OTP] signInWithOtp allowed', {
+    source,
+    pathname: typeof window !== 'undefined' ? window.location.pathname : null,
+    hasEmail: Boolean(credentials && 'email' in credentials),
+  })
+  return originalSignInWithOtp(credentials)
+}
 
 console.log('[Supabase] Client ready')

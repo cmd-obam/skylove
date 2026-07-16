@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { withAllowedOtpSend } from '@/services/auth/otpSendGuard'
 import { mapEmailVerificationError } from '@/services/auth/signupErrors'
 
 export const PASSWORD_RESET_EMAIL_SENT_MESSAGE =
@@ -13,23 +14,32 @@ export async function sendPasswordResetEmailOtp(email) {
     return { success: false, message: '이메일을 입력해주세요.' }
   }
 
-  const { error } = await supabase.auth.signInWithOtp({
-    email: trimmedEmail,
-    options: {
-      shouldCreateUser: false,
-    },
-  })
+  try {
+    const { error } = await withAllowedOtpSend('password-reset-email', () =>
+      supabase.auth.signInWithOtp({
+        email: trimmedEmail,
+        options: {
+          shouldCreateUser: false,
+        },
+      }),
+    )
 
-  if (error) {
+    if (error) {
+      return {
+        success: false,
+        message: mapEmailVerificationError(error),
+      }
+    }
+
+    return {
+      success: true,
+      message: PASSWORD_RESET_EMAIL_SENT_MESSAGE,
+    }
+  } catch (error) {
     return {
       success: false,
       message: mapEmailVerificationError(error),
     }
-  }
-
-  return {
-    success: true,
-    message: PASSWORD_RESET_EMAIL_SENT_MESSAGE,
   }
 }
 

@@ -23,6 +23,7 @@ import {
   CONGREGANT_TYPE_IDS,
   isOtherCongregantType,
 } from '@/data/congregantTypes'
+import { withAllowedOtpSend } from '@/services/auth/otpSendGuard'
 
 const LOGIN_ID_PATTERN = /^[a-zA-Z0-9_]{4,20}$/
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -636,7 +637,7 @@ export async function checkEmailVerificationStatus(expectedEmail) {
   }
 }
 
-export async function sendEmailVerification(email) {
+export async function sendEmailVerification(email, { source = 'signup-email-verify' } = {}) {
   const trimmedEmail = email.trim().toLowerCase()
   const emailRedirectTo = getEmailConfirmRedirectTo()
 
@@ -670,17 +671,21 @@ export async function sendEmailVerification(email) {
   console.log('[Signup] signInWithOtp start', {
     email: trimmedEmail,
     emailRedirectTo,
+    source,
     origin: typeof window !== 'undefined' ? window.location.origin : null,
     baseUrl: import.meta.env.BASE_URL,
+    pathname: typeof window !== 'undefined' ? window.location.pathname : null,
   })
 
-  const { data, error } = await supabase.auth.signInWithOtp({
-    email: trimmedEmail,
-    options: {
-      emailRedirectTo,
-      shouldCreateUser: true,
-    },
-  })
+  const { data, error } = await withAllowedOtpSend(source, () =>
+    supabase.auth.signInWithOtp({
+      email: trimmedEmail,
+      options: {
+        emailRedirectTo,
+        shouldCreateUser: true,
+      },
+    }),
+  )
 
   console.log('[Signup] signInWithOtp data:', data)
   logSignUpError(error)

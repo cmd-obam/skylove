@@ -622,7 +622,7 @@ function Signup() {
         return
       }
 
-      const result = await sendEmailVerification(email)
+      const result = await sendEmailVerification(email, { source: 'signup-email-verify' })
 
       if (result.success && result.alreadyVerified) {
         await syncEmailVerifiedFromSupabase(email)
@@ -738,7 +738,7 @@ function Signup() {
         return
       }
 
-      const result = await sendEmailVerification(form.email)
+      const result = await sendEmailVerification(form.email, { source: 'signup-email-resend' })
 
       if (result.success && result.alreadyVerified) {
         await syncEmailVerifiedFromSupabase()
