@@ -16,14 +16,19 @@ if (!supabaseKey?.trim()) {
 }
 
 /**
- * 브라우저 종료 시 자동 로그아웃을 위해 sessionStorage에 세션을 저장합니다.
- * - F5 / SPA 이동: sessionStorage 유지 → 로그인 유지
- * - 브라우저(모든 창) 종료 후 재접속: sessionStorage 삭제 → 로그아웃
+ * Auth storage MUST be localStorage for PKCE email verification.
  *
- * 기존 localStorage에 남아 있던 Supabase auth 키는 sessionStorage로 한 번 이전한 뒤 제거합니다.
- * (현재 열려 있는 탭에서는 로그인 유지, 이후부터는 브라우저 세션 정책 적용)
+ * Why:
+ * - signInWithOtp (PKCE) stores a code-verifier in auth storage
+ * - The email confirmation link almost always opens in a NEW browser tab
+ * - sessionStorage is per-tab, so the callback tab cannot read the verifier
+ * - exchangeCodeForSession then fails with "Email link is invalid or has expired"
+ * - Even after a successful callback, the signup tab also needs the shared session
+ *
+ * detectSessionInUrl is disabled because AuthCallback owns URL exchange.
+ * Leaving it enabled races with AuthCallback and can consume the one-time code twice.
  */
-function migrateLegacyAuthLocalStorageToSessionStorage() {
+function migrateLegacyAuthSessionStorageToLocalStorage() {
   if (typeof window === 'undefined') {
     return
   }
@@ -31,8 +36,8 @@ function migrateLegacyAuthLocalStorageToSessionStorage() {
   try {
     const keysToMigrate = []
 
-    for (let index = 0; index < window.localStorage.length; index += 1) {
-      const key = window.localStorage.key(index)
+    for (let index = 0; index < window.sessionStorage.length; index += 1) {
+      const key = window.sessionStorage.key(index)
 
       if (!key) {
         continue
@@ -41,7 +46,7 @@ function migrateLegacyAuthLocalStorageToSessionStorage() {
       const isSupabaseAuthKey =
         key.startsWith('sb-') &&
         (key.includes('auth-token') || key.includes('code-verifier'))
-      const isAppAuthFlag = key === 'skylove_auth'
+      const isAppAuthFlag = key === 'skylove_auth' || key === 'skylove_profile'
 
       if (isSupabaseAuthKey || isAppAuthFlag) {
         keysToMigrate.push(key)
@@ -49,36 +54,38 @@ function migrateLegacyAuthLocalStorageToSessionStorage() {
     }
 
     keysToMigrate.forEach((key) => {
-      const value = window.localStorage.getItem(key)
+      const value = window.sessionStorage.getItem(key)
 
-      if (value != null && window.sessionStorage.getItem(key) == null) {
-        window.sessionStorage.setItem(key, value)
+      if (value != null && window.localStorage.getItem(key) == null) {
+        window.localStorage.setItem(key, value)
       }
 
-      window.localStorage.removeItem(key)
+      window.sessionStorage.removeItem(key)
     })
   } catch (error) {
     console.warn('[Supabase] legacy auth storage migration failed', error)
   }
 }
 
-migrateLegacyAuthLocalStorageToSessionStorage()
+migrateLegacyAuthSessionStorageToLocalStorage()
 
 console.log('[Supabase] Client initializing', {
   url: supabaseUrl,
   keyLength: supabaseKey.length,
   mode: import.meta.env.MODE,
   baseUrl: import.meta.env.BASE_URL,
-  authStorage: 'sessionStorage',
+  authStorage: 'localStorage',
+  flowType: 'pkce',
+  detectSessionInUrl: false,
 })
 
 export const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: {
-    detectSessionInUrl: true,
+    detectSessionInUrl: false,
     flowType: 'pkce',
     persistSession: true,
     autoRefreshToken: true,
-    storage: typeof window !== 'undefined' ? window.sessionStorage : undefined,
+    storage: typeof window !== 'undefined' ? window.localStorage : undefined,
   },
 })
 

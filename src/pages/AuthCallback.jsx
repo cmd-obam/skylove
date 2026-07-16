@@ -157,20 +157,23 @@ function AuthCallbackSuccess({ onClose }) {
   )
 }
 
-function AuthCallbackError() {
+function AuthCallbackError({ message }) {
   return (
     <div className="auth-callback-page__panel" role="alert">
       <div className="auth-callback-page__icon auth-callback-page__icon--error" aria-hidden="true">
         <FiAlertCircle />
       </div>
       <h1 className="auth-callback-page__title">이메일 인증에 실패했습니다.</h1>
-      <p className="auth-callback-page__text">인증 메일을 다시 요청해주세요.</p>
+      <p className="auth-callback-page__text">
+        {message || '인증 메일을 다시 요청해주세요.'}
+      </p>
     </div>
   )
 }
 
 function AuthCallback() {
   const [status, setStatus] = useState('loading')
+  const [errorMessage, setErrorMessage] = useState('')
   const runIdRef = useRef(0)
   const statusRef = useRef('loading')
 
@@ -269,6 +272,10 @@ function AuthCallback() {
         await logAuthSnapshot(runId, 'error')
 
         if (!cancelled) {
+          setErrorMessage(
+            error?.message ||
+              '인증 메일을 다시 요청한 뒤, 회원가입을 시작한 같은 브라우저에서 최신 링크를 클릭해주세요.',
+          )
           setCallbackStatus('error', runId, 'verification-failed')
         }
       }
@@ -298,7 +305,7 @@ function AuthCallback() {
       <section className="auth-callback-page__card" aria-label="이메일 인증 처리">
         {status === 'loading' && <AuthCallbackLoading />}
         {status === 'success' && <AuthCallbackSuccess onClose={handleClose} />}
-        {status === 'error' && <AuthCallbackError />}
+        {status === 'error' && <AuthCallbackError message={errorMessage} />}
       </section>
     </div>
   )

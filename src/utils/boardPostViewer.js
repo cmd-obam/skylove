@@ -7,10 +7,9 @@ export function openBoardPostViewer(postId) {
   const path = getBoardPostViewerPath(postId)
   const url = `${window.location.origin}${base}${path}`
 
-  // 로그인 세션은 sessionStorage에 저장됩니다.
-  // window.open(..., 'noopener')로 열면 새 탭에 세션이 복사되지 않아
-  // 이미 로그인된 사용자도 재로그인 모달이 뜹니다.
-  // opener만 즉시 끊어서 세션 복사는 유지하고 창 참조는 차단합니다.
+  // 로그인 세션은 localStorage에 저장됩니다(탭 간 공유).
+  // window.open(..., 'noopener')는 불필요하게 opener를 끊을 수 있어,
+  // opener만 즉시 끊어서 창 참조만 차단합니다.
   const viewerWindow = window.open(url, '_blank')
 
   if (!viewerWindow) {

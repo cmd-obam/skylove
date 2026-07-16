@@ -417,11 +417,18 @@ async function refreshAuthSessionIfPresent() {
 export async function checkEmailVerificationStatus(expectedEmail) {
   const trimmedEmail = expectedEmail.trim().toLowerCase()
   const beacon = peekEmailVerifiedBeacon(trimmedEmail)
-  const syncRetries = beacon ? 10 : 4
-  const syncDelayMs = beacon ? 350 : 200
+  const syncRetries = beacon ? 12 : 4
+  const syncDelayMs = beacon ? 300 : 200
 
   const checkSession = async () => {
+    // Callback tab persists the PKCE session in localStorage; re-read it here.
     await syncSupabaseAuthSession({ retries: syncRetries, retryDelayMs: syncDelayMs })
+
+    try {
+      await supabase.auth.refreshSession()
+    } catch (error) {
+      console.warn('[Signup] refreshSession during email check failed', error)
+    }
 
     const {
       data: { session },

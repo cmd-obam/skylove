@@ -7,15 +7,42 @@ export function parseAuthCallbackParams(url = window.location.href) {
   const hashParams = new URLSearchParams(parsedUrl.hash.replace(/^#/, ''))
 
   return {
-    code: parsedUrl.searchParams.get('code'),
+    // PKCE auth code usually arrives as ?code=; keep hash fallback for odd clients.
+    code: parsedUrl.searchParams.get('code') ?? hashParams.get('code'),
     type: parsedUrl.searchParams.get('type') ?? hashParams.get('type'),
     tokenHash: parsedUrl.searchParams.get('token_hash') ?? hashParams.get('token_hash'),
-    accessToken: hashParams.get('access_token'),
-    refreshToken: hashParams.get('refresh_token'),
+    // Implicit-style tokens only appear in the hash fragment.
+    accessToken:
+      hashParams.get('access_token') ?? parsedUrl.searchParams.get('access_token'),
+    refreshToken:
+      hashParams.get('refresh_token') ?? parsedUrl.searchParams.get('refresh_token'),
     error: parsedUrl.searchParams.get('error') ?? hashParams.get('error'),
     errorDescription:
       parsedUrl.searchParams.get('error_description') ?? hashParams.get('error_description'),
   }
+}
+
+function isMissingPkceVerifierError(error) {
+  const message = String(error?.message ?? error ?? '').toLowerCase()
+  const code = String(error?.code ?? '').toLowerCase()
+
+  return (
+    message.includes('code verifier') ||
+    message.includes('both auth code and code verifier') ||
+    message.includes('pkce') ||
+    code.includes('pkce')
+  )
+}
+
+function isInvalidOrExpiredLinkError(error) {
+  const message = String(error?.message ?? error ?? '').toLowerCase()
+
+  return (
+    message.includes('invalid or has expired') ||
+    message.includes('otp_expired') ||
+    message.includes('flow_state_not_found') ||
+    isMissingPkceVerifierError(error)
+  )
 }
 
 export function isEmailConfirmed(user) {
@@ -38,13 +65,21 @@ function getCallbackDedupeKey(params) {
   return null
 }
 
+function getCallbackStorage() {
+  if (typeof window === 'undefined') {
+    return null
+  }
+
+  return window.localStorage
+}
+
 function markCallbackProcessed(dedupeKey) {
   if (!dedupeKey) {
     return
   }
 
   try {
-    sessionStorage.setItem(`${PROCESSED_CALLBACK_PREFIX}:${dedupeKey}`, String(Date.now()))
+    getCallbackStorage()?.setItem(`${PROCESSED_CALLBACK_PREFIX}:${dedupeKey}`, String(Date.now()))
   } catch (error) {
     console.warn('[AuthCallback] processed key 저장 실패', error)
   }
@@ -56,7 +91,7 @@ function wasCallbackProcessed(dedupeKey) {
   }
 
   try {
-    return Boolean(sessionStorage.getItem(`${PROCESSED_CALLBACK_PREFIX}:${dedupeKey}`))
+    return Boolean(getCallbackStorage()?.getItem(`${PROCESSED_CALLBACK_PREFIX}:${dedupeKey}`))
   } catch {
     return false
   }
@@ -265,7 +300,28 @@ export async function resolveAuthCallbackSession(debugRunId = 'unknown') {
 
   let session = existingSession ?? null
 
-  if (params.accessToken && params.refreshToken) {
+  // Prefer token_hash when present: it does not depend on a PKCE code-verifier in this tab.
+  if (params.tokenHash) {
+    log('verifyOtpWithFallback start', { type: params.type })
+    try {
+      session = await verifyOtpWithFallback(params.tokenHash, params.type)
+      log('verifyOtpWithFallback result', {
+        email: session?.user?.email ?? null,
+      })
+    } catch (error) {
+      log('verifyOtpWithFallback failed', {
+        error: error?.message ?? String(error),
+      })
+
+      if (params.code) {
+        log('falling back to exchangeCodeForSession after token_hash failure')
+      } else {
+        throw error
+      }
+    }
+  }
+
+  if ((!session || !session.user?.email) && params.accessToken && params.refreshToken) {
     log('setSession start')
     const { data, error } = await supabase.auth.setSession({
       access_token: params.accessToken,
@@ -282,7 +338,7 @@ export async function resolveAuthCallbackSession(debugRunId = 'unknown') {
     }
 
     session = data.session
-  } else if (params.code) {
+  } else if ((!session || !session.user?.email) && params.code) {
     log('exchangeCodeForSession start', { codePrefix: params.code.slice(0, 8) })
     const { data, error } = await supabase.auth.exchangeCodeForSession(params.code)
 
@@ -298,23 +354,23 @@ export async function resolveAuthCallbackSession(debugRunId = 'unknown') {
 
       log('exchangeCodeForSession recover', {
         email: recovered?.user?.email ?? null,
+        missingVerifier: isMissingPkceVerifierError(error),
+        invalidOrExpired: isInvalidOrExpiredLinkError(error),
       })
 
       if (recovered?.user?.email) {
         session = recovered
+      } else if (isMissingPkceVerifierError(error) || isInvalidOrExpiredLinkError(error)) {
+        throw new Error(
+          '이메일 인증 링크를 처리하지 못했습니다. 회원가입을 시작한 같은 브라우저에서 인증 메일을 다시 요청한 뒤, 최신 메일의 링크를 클릭해주세요.',
+        )
       } else {
         throw error
       }
     } else {
       session = data.session
     }
-  } else if (params.tokenHash) {
-    log('verifyOtpWithFallback start')
-    session = await verifyOtpWithFallback(params.tokenHash, params.type)
-    log('verifyOtpWithFallback result', {
-      email: session?.user?.email ?? null,
-    })
-  } else if (autoSession) {
+  } else if ((!session || !session.user?.email) && autoSession) {
     log('use autoSession fallback')
     session = autoSession
   } else if (!session) {
@@ -335,7 +391,14 @@ export async function resolveAuthCallbackSession(debugRunId = 'unknown') {
     session = fallbackSession
   }
 
-  if (session && dedupeKey) {
+  if (!session?.user?.email) {
+    log('resolveAuthCallbackSession missing session')
+    throw new Error(
+      '이메일 인증 세션을 만들지 못했습니다. 인증 메일을 다시 요청한 뒤, 회원가입을 시작한 같은 브라우저에서 최신 링크를 클릭해주세요.',
+    )
+  }
+
+  if (dedupeKey) {
     markCallbackProcessed(dedupeKey)
   }
 
