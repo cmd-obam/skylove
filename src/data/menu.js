@@ -8,6 +8,19 @@ export const AUTH_LINKS = [
   { label: '회원가입', path: '/signup' },
 ]
 
+/** 햄버거 메뉴 · 회원메뉴(비로그인) 하위 */
+export const MEMBER_MENU_GUEST_CHILDREN = [
+  { title: '로그인', path: '/login' },
+  { title: '아이디/비밀번호찾기', path: '/login?tab=find-id' },
+  { title: '회원가입', path: '/signup' },
+]
+
+/** 햄버거 메뉴 · 회원메뉴(로그인) 하위 */
+export const MEMBER_MENU_LOGGED_IN_CHILDREN = [
+  { title: '내 정보', path: '/member/edit' },
+  { title: '비밀번호 변경', path: '/mypage/change-password' },
+]
+
 export const MENU_ITEMS = [
   {
     title: '교회소개',

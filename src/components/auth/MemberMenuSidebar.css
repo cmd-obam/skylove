@@ -6,23 +6,9 @@
   cursor: pointer;
 }
 
+/* 모바일에서는 상단 하위카테고리 대신 햄버거 메뉴의 회원메뉴 하위를 사용합니다. */
 @media (max-width: 1024px) {
   .member-menu-sidebar.category-sidebar {
-    display: block;
-    width: calc(100% - 40px);
-    max-width: var(--category-layout-max-width);
-    margin: 0 auto 1rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .member-menu-sidebar.category-sidebar {
-    width: calc(100% - 24px);
-  }
-}
-
-@media (max-width: 480px) {
-  .member-menu-sidebar.category-sidebar {
-    width: calc(100% - 16px);
+    display: none;
   }
 }
