@@ -871,8 +871,15 @@
   }
 
   .home-welcome__links {
-    gap: 0.55rem;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 0.5rem;
     padding-left: 1rem;
+  }
+
+  .home-welcome__link-item {
+    flex: 1 1 0;
+    min-width: 0;
   }
 
   .home-welcome__link {
@@ -880,15 +887,40 @@
     max-width: none;
     width: 100%;
     min-height: 48px;
-    justify-content: space-between;
-    padding: 0.55rem 0.875rem;
-    font-size: 0.9375rem;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.55rem 0.45rem;
+    font-size: 0.8125rem;
+  }
+
+  .home-welcome__link-main {
+    gap: 0.35rem;
+    justify-content: center;
+  }
+
+  .home-welcome__link-label {
+    min-width: 0;
+    text-align: center;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+    white-space: normal;
+    line-height: 1.3;
+  }
+
+  .home-welcome__link-arrow {
+    display: none;
   }
 
   .home-welcome__link-icon {
-    width: 1.75rem;
-    height: 1.75rem;
-    font-size: 1.125rem;
+    width: 1.35rem;
+    height: 1.35rem;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .home-welcome__link:hover,
+  .home-welcome__link:focus-visible {
+    transform: none;
   }
 
   .home-worship__list {
