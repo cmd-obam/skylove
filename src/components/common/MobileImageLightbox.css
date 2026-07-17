@@ -204,21 +204,21 @@
 
 .mobile-image-lightbox__overlay .worship-template__intro--banner-lightbox .worship-template__headline,
 .mobile-image-lightbox__overlay .worship-template__intro--banner-lightbox .worship-template__headline-line {
-  font-size: clamp(0.625rem, 7.8cqh, 0.9375rem) !important;
+  font-size: clamp(0.875rem, 10cqh, 1.1875rem) !important;
   line-height: 1.2 !important;
   flex-shrink: 1;
   min-height: 0;
 }
 
 .mobile-image-lightbox__overlay .worship-template__intro--banner-lightbox .worship-template__intro-title {
-  font-size: clamp(0.5rem, 5.5cqh, 0.75rem) !important;
+  font-size: clamp(0.75rem, 7.5cqh, 1rem) !important;
   line-height: 1.2 !important;
   flex-shrink: 0;
 }
 
 .mobile-image-lightbox__overlay .worship-template__intro--banner-lightbox .worship-template__description,
 .mobile-image-lightbox__overlay .worship-template__intro--banner-lightbox .worship-template__description--rich {
-  font-size: clamp(0.4375rem, 4.8cqh, 0.6875rem) !important;
+  font-size: clamp(0.6875rem, 6.8cqh, 0.9375rem) !important;
   line-height: 1.28 !important;
   flex-shrink: 1;
   min-height: 0;
@@ -235,7 +235,7 @@
 }
 
 .mobile-image-lightbox__overlay .worship-template__intro--banner-lightbox .worship-template__intro-cross svg {
-  width: clamp(0.5625rem, 4.5cqh, 0.8125rem);
+  width: clamp(0.8125rem, 6.5cqh, 1.0625rem);
   height: auto;
 }
 
@@ -251,7 +251,7 @@
   .worship-template__intro--banner-lightbox
   .worship-template__description-blocks
   .worship-template__description {
-  font-size: clamp(0.4375rem, 4.4cqh, 0.625rem) !important;
+  font-size: clamp(0.6875rem, 6.4cqh, 0.875rem) !important;
   line-height: 1.24 !important;
 }
 

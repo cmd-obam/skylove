@@ -177,7 +177,7 @@
 }
 
 .mobile-image-lightbox__overlay .nf-hero--banner-lightbox .nf-hero__welcome-text {
-  font-size: clamp(0.5rem, 5.5cqh, 0.75rem) !important;
+  font-size: clamp(0.75rem, 7.5cqh, 1rem) !important;
   line-height: 1.2 !important;
   background-size: 5rem 0.22rem;
 }
@@ -191,7 +191,7 @@
 
 .mobile-image-lightbox__overlay .nf-hero--banner-lightbox .nf-hero__main-line,
 .mobile-image-lightbox__overlay .nf-hero--banner-lightbox .nf-hero__highlight {
-  font-size: clamp(0.625rem, 7.8cqh, 0.9375rem) !important;
+  font-size: clamp(0.875rem, 10cqh, 1.1875rem) !important;
   line-height: 1.2 !important;
 }
 
@@ -203,6 +203,6 @@
 }
 
 .mobile-image-lightbox__overlay .nf-hero--banner-lightbox .nf-hero__subcopy-line {
-  font-size: clamp(0.4375rem, 4.8cqh, 0.6875rem) !important;
+  font-size: clamp(0.6875rem, 6.8cqh, 0.9375rem) !important;
   line-height: 1.28 !important;
 }
