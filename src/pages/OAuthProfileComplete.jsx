@@ -2,11 +2,14 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import AuthBreadcrumb from '@/components/auth/AuthBreadcrumb'
 import BirthDateSelect from '@/components/signup/BirthDateSelect'
+import SignupCongregantField from '@/components/signup/SignupCongregantField'
+import SignupFormRow from '@/components/signup/SignupFormRow'
 import {
   isCustomSecurityQuestionSelected,
   SECURITY_QUESTIONS,
   SECURITY_QUESTION_PLACEHOLDER,
 } from '@/data/securityQuestions'
+import { CONGREGANT_TYPE_OTHER } from '@/data/congregantTypes'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import {
@@ -33,6 +36,8 @@ const INITIAL_FORM = {
   securityQuestion: '',
   securityCustomQuestion: '',
   securityAnswer: '',
+  congregantType: '',
+  attendingChurch: '',
 }
 
 function OAuthProfileComplete() {
@@ -91,8 +96,18 @@ function OAuthProfileComplete() {
   }, [loading, navigate, session])
 
   const updateField = (name, value) => {
-    setForm((prev) => ({ ...prev, [name]: value }))
-    setErrors((prev) => ({ ...prev, [name]: undefined }))
+    setForm((prev) => {
+      if (name === 'congregantType' && value !== CONGREGANT_TYPE_OTHER) {
+        return { ...prev, congregantType: value, attendingChurch: '' }
+      }
+
+      return { ...prev, [name]: value }
+    })
+    setErrors((prev) => ({
+      ...prev,
+      [name]: undefined,
+      ...(name === 'congregantType' ? { attendingChurch: undefined } : {}),
+    }))
     setFeedback(null)
 
     if (name === 'loginId') {
@@ -105,7 +120,7 @@ function OAuthProfileComplete() {
     const loginId = form.loginId.trim()
 
     if (!loginId) {
-      setErrors((prev) => ({ ...prev, loginId: '회원아이디를 입력해주세요.' }))
+      setErrors((prev) => ({ ...prev, loginId: '아이디를 입력해주세요.' }))
       return
     }
 
@@ -215,148 +230,115 @@ function OAuthProfileComplete() {
             <AuthBreadcrumb label="추가 정보 입력" />
           </div>
 
-          <form className="signup-info-form oauth-complete-form" onSubmit={handleSubmit} noValidate>
-            <div className="signup-info-form__row">
-              <div className="signup-info-form__label-cell">
-                <label className="signup-info-form__label" htmlFor="oauth-name">
-                  <span className="signup-info-form__required" aria-hidden="true">
-                    *
-                  </span>{' '}
-                  이름
-                </label>
-              </div>
-              <div className="signup-info-form__control-cell">
+          <form
+            className="signup-info-form oauth-complete-form"
+            onSubmit={handleSubmit}
+            noValidate
+            autoComplete="off"
+            onKeyDown={(event) => {
+              if (event.key !== 'Enter' || event.target instanceof HTMLTextAreaElement) {
+                return
+              }
+
+              const target = event.target
+
+              if (!(target instanceof HTMLInputElement || target instanceof HTMLSelectElement)) {
+                return
+              }
+
+              event.preventDefault()
+            }}
+          >
+            <header className="signup-info-form__header">
+              <h2 className="signup-info-form__title">기본정보 입력</h2>
+              <p className="signup-info-form__notice">
+                <span className="signup-info-form__required" aria-hidden="true">
+                  *
+                </span>
+                표시는 필수입력사항입니다.
+              </p>
+            </header>
+
+            <div className="signup-info-form__panel">
+              <SignupFormRow
+                label="이름"
+                required
+                htmlFor="oauth-name"
+                hint="실명으로 입력해주세요."
+                error={errors.name}
+              >
                 <input
                   id="oauth-name"
+                  name="name"
+                  type="text"
                   className="signup-info-form__input"
+                  placeholder="이름을 입력하세요."
                   value={form.name}
                   onChange={(event) => updateField('name', event.target.value)}
                   autoComplete={AUTOCOMPLETE_OFF}
                 />
-                {errors.name && (
-                  <p className="signup-info-form__message signup-info-form__message--error">{errors.name}</p>
-                )}
-              </div>
-            </div>
+              </SignupFormRow>
 
-            <div className="signup-info-form__row">
-              <div className="signup-info-form__label-cell">
-                <label className="signup-info-form__label" htmlFor="oauth-login-id">
-                  <span className="signup-info-form__required" aria-hidden="true">
-                    *
-                  </span>{' '}
-                  회원아이디
-                </label>
-              </div>
-              <div className="signup-info-form__control-cell">
+              <SignupFormRow
+                label="회원 아이디"
+                required
+                htmlFor="oauth-login-id"
+                hint="4자리 이상, 영문·숫자·밑줄(_)만 사용할 수 있습니다."
+                error={errors.loginId}
+                success={!errors.loginId ? idCheckMessage : undefined}
+              >
                 <div className="signup-info-form__inline">
                   <input
                     id="oauth-login-id"
+                    name="loginId"
+                    type="text"
                     className="signup-info-form__input"
+                    placeholder="아이디를 입력하세요."
                     value={form.loginId}
                     onChange={(event) => updateField('loginId', event.target.value)}
                     autoComplete={AUTOCOMPLETE_OFF}
-                    placeholder="4~20자 영문, 숫자, _"
                   />
                   <button
                     type="button"
-                    className="signup-btn signup-btn--gray"
+                    className={`signup-btn signup-btn--gray${
+                      isIdChecked ? ' signup-btn--gray-verified' : ''
+                    }`}
                     onClick={handleDuplicateCheck}
                     disabled={isCheckingId}
                   >
                     {isCheckingId ? '확인 중...' : '중복확인'}
                   </button>
                 </div>
-                {idCheckMessage && !errors.loginId && (
-                  <p className="signup-info-form__message signup-info-form__message--success">
-                    {idCheckMessage}
-                  </p>
-                )}
-                {errors.loginId && (
-                  <p className="signup-info-form__message signup-info-form__message--error">
-                    {errors.loginId}
-                  </p>
-                )}
-              </div>
-            </div>
+              </SignupFormRow>
 
-            <div className="signup-info-form__row">
-              <div className="signup-info-form__label-cell">
-                <label className="signup-info-form__label" htmlFor="oauth-birth-year">
-                  <span className="signup-info-form__required" aria-hidden="true">
-                    *
-                  </span>{' '}
-                  생년월일
-                </label>
-              </div>
-              <div className="signup-info-form__control-cell">
-                <BirthDateSelect
-                  idPrefix="oauth-birth"
-                  value={form.birthDate}
-                  onChange={(value) => updateField('birthDate', value)}
-                />
-                {errors.birthDate && (
-                  <p className="signup-info-form__message signup-info-form__message--error">
-                    {errors.birthDate}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="signup-info-form__row">
-              <div className="signup-info-form__label-cell">
-                <label className="signup-info-form__label" htmlFor="oauth-phone">
-                  <span className="signup-info-form__required" aria-hidden="true">
-                    *
-                  </span>{' '}
-                  휴대폰
-                </label>
-              </div>
-              <div className="signup-info-form__control-cell">
+              <SignupFormRow
+                label="이메일"
+                required
+                htmlFor="oauth-email"
+                hint="간편 로그인 계정의 이메일이 사용됩니다."
+                alwaysShowHint
+                error={errors.email}
+              >
                 <input
-                  id="oauth-phone"
-                  className="signup-info-form__input"
-                  value={form.phone}
-                  onChange={(event) => updateField('phone', formatPhoneNumber(event.target.value))}
-                  inputMode="numeric"
-                  autoComplete={AUTOCOMPLETE_OFF}
-                  placeholder="010-0000-0000"
-                />
-                {errors.phone && (
-                  <p className="signup-info-form__message signup-info-form__message--error">
-                    {errors.phone}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="signup-info-form__row">
-              <div className="signup-info-form__label-cell">
-                <span className="signup-info-form__label">이메일</span>
-              </div>
-              <div className="signup-info-form__control-cell">
-                <input
+                  id="oauth-email"
+                  name="email"
+                  type="email"
                   className="signup-info-form__input"
                   value={form.email}
                   readOnly
                   disabled
                 />
-                <p className="signup-info-form__hint">간편 로그인 계정의 이메일이 사용됩니다.</p>
-              </div>
-            </div>
+              </SignupFormRow>
 
-            <div className="signup-info-form__row">
-              <div className="signup-info-form__label-cell">
-                <label className="signup-info-form__label" htmlFor="oauth-security-question">
-                  <span className="signup-info-form__required" aria-hidden="true">
-                    *
-                  </span>{' '}
-                  비밀번호 찾기 질문
-                </label>
-              </div>
-              <div className="signup-info-form__control-cell">
+              <SignupFormRow
+                label="비밀번호 분실 시 질문"
+                required
+                htmlFor="oauth-security-question"
+                error={errors.securityQuestion}
+              >
                 <select
                   id="oauth-security-question"
+                  name="securityQuestion"
                   className="signup-info-form__input signup-info-form__select"
                   value={form.securityQuestion}
                   onChange={(event) => {
@@ -373,56 +355,99 @@ function OAuthProfileComplete() {
                     </option>
                   ))}
                 </select>
-                {isCustomSecurityQuestionSelected(form.securityQuestion) && (
+              </SignupFormRow>
+
+              {isCustomSecurityQuestionSelected(form.securityQuestion) && (
+                <SignupFormRow
+                  label="질문 입력"
+                  required
+                  htmlFor="oauth-security-custom-question"
+                  error={errors.securityCustomQuestion}
+                >
                   <input
+                    id="oauth-security-custom-question"
+                    name="securityCustomQuestion"
+                    type="text"
                     className="signup-info-form__input"
-                    style={{ marginTop: '0.5rem' }}
+                    placeholder="비밀번호 찾기에 사용할 질문을 입력하세요."
                     value={form.securityCustomQuestion}
                     onChange={(event) => updateField('securityCustomQuestion', event.target.value)}
-                    placeholder="질문을 직접 입력하세요."
                     autoComplete={AUTOCOMPLETE_OFF}
                   />
-                )}
-                {(errors.securityQuestion || errors.securityCustomQuestion) && (
-                  <p className="signup-info-form__message signup-info-form__message--error">
-                    {errors.securityQuestion || errors.securityCustomQuestion}
-                  </p>
-                )}
-              </div>
-            </div>
+                </SignupFormRow>
+              )}
 
-            <div className="signup-info-form__row">
-              <div className="signup-info-form__label-cell">
-                <label className="signup-info-form__label" htmlFor="oauth-security-answer">
-                  <span className="signup-info-form__required" aria-hidden="true">
-                    *
-                  </span>{' '}
-                  비밀번호 찾기 답변
-                </label>
-              </div>
-              <div className="signup-info-form__control-cell">
+              <SignupFormRow
+                label="답변 입력"
+                required
+                htmlFor="oauth-security-answer"
+                error={errors.securityAnswer}
+              >
                 <input
                   id="oauth-security-answer"
+                  name="securityAnswer"
+                  type="text"
                   className="signup-info-form__input"
+                  placeholder="비밀번호 찾기에 사용할 답변을 입력하세요."
                   value={form.securityAnswer}
                   onChange={(event) => updateField('securityAnswer', event.target.value)}
                   autoComplete={AUTOCOMPLETE_OFF}
                 />
-                {errors.securityAnswer && (
-                  <p className="signup-info-form__message signup-info-form__message--error">
-                    {errors.securityAnswer}
-                  </p>
-                )}
-              </div>
-            </div>
+              </SignupFormRow>
 
-            <div className="signup-info-form__row">
-              <div className="signup-info-form__label-cell">
-                <span className="signup-info-form__label">이메일 수신동의</span>
+              <SignupCongregantField
+                form={form}
+                errors={errors}
+                updateField={updateField}
+                idPrefix="oauth"
+                radioName="oauthCongregantType"
+              />
+
+              <div className="signup-info-form__guide" role="note">
+                <p className="signup-info-form__guide-title">비밀번호 찾기 안내</p>
+                <ul className="signup-info-form__guide-list">
+                  <li>
+                    비밀번호를 분실한 경우, 이름·이메일과 함께 등록한 질문과 답변으로 본인 확인 후
+                    재설정할 수 있습니다.
+                  </li>
+                  <li>
+                    답변은 암호화되어 저장되며, 비밀번호 찾기 외 다른 용도로 사용되지 않습니다.
+                  </li>
+                </ul>
               </div>
-              <div className="signup-info-form__control-cell">
-                <label className="signup-info-form__checkbox-row">
+
+              <SignupFormRow
+                label="생년월일"
+                required
+                htmlFor="oauth-birth-year"
+                error={errors.birthDate}
+                rowClassName="signup-info-form__row--birth"
+              >
+                <BirthDateSelect
+                  idPrefix="oauth-birth"
+                  value={form.birthDate}
+                  onChange={(nextValue) => updateField('birthDate', nextValue)}
+                  className="signup-info-form__birth"
+                />
+              </SignupFormRow>
+
+              <SignupFormRow label="휴대폰 번호" htmlFor="oauth-phone" error={errors.phone}>
+                <input
+                  id="oauth-phone"
+                  name="phone"
+                  type="tel"
+                  className="signup-info-form__input"
+                  placeholder="010-0000-0000"
+                  value={form.phone}
+                  onChange={(event) => updateField('phone', formatPhoneNumber(event.target.value))}
+                  autoComplete={AUTOCOMPLETE_OFF}
+                />
+              </SignupFormRow>
+
+              <SignupFormRow label="이메일 수신" htmlFor="oauth-agree-email">
+                <label className="signup-info-form__checkbox-row" htmlFor="oauth-agree-email">
                   <input
+                    id="oauth-agree-email"
                     type="checkbox"
                     className="signup-info-form__checkbox"
                     checked={form.agreeEmail}
@@ -430,7 +455,7 @@ function OAuthProfileComplete() {
                   />
                   <span>이메일 수신에 동의합니다. (선택)</span>
                 </label>
-              </div>
+              </SignupFormRow>
             </div>
 
             {feedback && (

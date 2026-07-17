@@ -150,16 +150,74 @@ export const INITIAL_SIGNUP_FORM = {
   agreeEmail: false,
 }
 
-export function validateForm(form, { isIdChecked = false, isEmailVerified = false } = {}) {
+/**
+ * 이메일 회원가입·카카오 추가정보 입력에서 공통으로 쓰는 프로필 필드 검증.
+ * 비밀번호 / 이메일 인증 / 약관 동의는 포함하지 않습니다.
+ */
+export function validateSignupProfileFields(form, { isIdChecked = false } = {}) {
   const errors = {}
+  const loginId = String(form.loginId ?? '').trim()
+  const securityCustomQuestion = String(form.securityCustomQuestion ?? '')
+  const securityAnswer = String(form.securityAnswer ?? '')
+  const attendingChurch = String(form.attendingChurch ?? '')
+  const name = String(form.name ?? '')
+  const phone = String(form.phone ?? '')
 
-  if (!form.loginId.trim()) {
+  if (!loginId) {
     errors.loginId = '아이디를 입력해주세요.'
-  } else if (!LOGIN_ID_PATTERN.test(form.loginId.trim())) {
+  } else if (!LOGIN_ID_PATTERN.test(loginId)) {
     errors.loginId = '아이디는 4~20자의 영문, 숫자, 밑줄(_)만 사용할 수 있습니다.'
   } else if (!isIdChecked) {
     errors.loginId = '아이디 중복확인을 해주세요.'
   }
+
+  if (!form.securityQuestion) {
+    errors.securityQuestion = '비밀번호 분실 시 질문을 선택해주세요.'
+  } else if (
+    form.securityQuestion === SECURITY_CUSTOM_QUESTION_ID &&
+    !securityCustomQuestion.trim()
+  ) {
+    errors.securityCustomQuestion = '직접 입력 질문을 입력해주세요.'
+  }
+
+  if (!securityAnswer.trim()) {
+    errors.securityAnswer = securityAnswer
+      ? '비밀번호 분실 시 답변에 공백만 입력할 수 없습니다.'
+      : '비밀번호 분실 시 답변을 입력해주세요.'
+  }
+
+  if (!form.congregantType || !CONGREGANT_TYPE_IDS.has(form.congregantType)) {
+    errors.congregantType = '교인 구분을 선택해주세요.'
+  } else if (isOtherCongregantType(form.congregantType) && !attendingChurch.trim()) {
+    errors.congregantType = attendingChurch
+      ? '출석 교회에 공백만 입력할 수 없습니다.'
+      : '타 교회 교인인 경우 출석 교회를 입력해주세요.'
+  }
+
+  const trimmedName = name.trim()
+
+  if (!trimmedName) {
+    errors.name = name ? '이름에 공백만 입력할 수 없습니다.' : '이름을 입력해주세요.'
+  }
+
+  if (!form.birthDate) {
+    errors.birthDate = '생년월일을 선택해주세요.'
+  } else if (!BIRTH_DATE_PATTERN.test(form.birthDate)) {
+    errors.birthDate = '올바른 생년월일 형식을 입력해주세요.'
+  }
+
+  if (phone.trim() && !PHONE_PATTERN.test(phone.trim())) {
+    errors.phone = '휴대폰 번호 형식을 확인해주세요. (예: 010-0000-0000)'
+  }
+
+  return {
+    valid: Object.keys(errors).length === 0,
+    errors,
+  }
+}
+
+export function validateForm(form, { isIdChecked = false, isEmailVerified = false } = {}) {
+  const { errors } = validateSignupProfileFields(form, { isIdChecked })
 
   const passwordError = validatePassword(form.password)
   if (!form.password) {
@@ -174,51 +232,12 @@ export function validateForm(form, { isIdChecked = false, isEmailVerified = fals
     errors.passwordConfirm = '비밀번호가 일치하지 않습니다.'
   }
 
-  if (!form.securityQuestion) {
-    errors.securityQuestion = '비밀번호 분실 시 질문을 선택해주세요.'
-  } else if (
-    form.securityQuestion === SECURITY_CUSTOM_QUESTION_ID &&
-    !form.securityCustomQuestion.trim()
-  ) {
-    errors.securityCustomQuestion = '직접 입력 질문을 입력해주세요.'
-  }
-
-  if (!form.securityAnswer.trim()) {
-    errors.securityAnswer = form.securityAnswer
-      ? '비밀번호 분실 시 답변에 공백만 입력할 수 없습니다.'
-      : '비밀번호 분실 시 답변을 입력해주세요.'
-  }
-
-  if (!form.congregantType || !CONGREGANT_TYPE_IDS.has(form.congregantType)) {
-    errors.congregantType = '교인 구분을 선택해주세요.'
-  } else if (isOtherCongregantType(form.congregantType) && !form.attendingChurch.trim()) {
-    errors.congregantType = form.attendingChurch
-      ? '출석 교회에 공백만 입력할 수 없습니다.'
-      : '타 교회 교인인 경우 출석 교회를 입력해주세요.'
-  }
-
-  const trimmedName = form.name.trim()
-
-  if (!trimmedName) {
-    errors.name = form.name ? '이름에 공백만 입력할 수 없습니다.' : '이름을 입력해주세요.'
-  }
-
-  if (!form.birthDate) {
-    errors.birthDate = '생년월일을 선택해주세요.'
-  } else if (!BIRTH_DATE_PATTERN.test(form.birthDate)) {
-    errors.birthDate = '올바른 생년월일 형식을 입력해주세요.'
-  }
-
   if (!form.email.trim()) {
     errors.email = '이메일을 입력해주세요.'
   } else if (!EMAIL_PATTERN.test(form.email.trim())) {
     errors.email = '올바른 이메일 형식을 입력해주세요.'
   } else if (!isEmailVerified) {
     errors.email = '이메일 인증을 완료해주세요.'
-  }
-
-  if (form.phone.trim() && !PHONE_PATTERN.test(form.phone.trim())) {
-    errors.phone = '휴대폰 번호 형식을 확인해주세요. (예: 010-0000-0000)'
   }
 
   if (!form.agreePrivacy) {

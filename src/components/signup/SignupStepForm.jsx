@@ -5,80 +5,13 @@ import {
   SECURITY_QUESTIONS,
   SECURITY_QUESTION_PLACEHOLDER,
 } from '@/data/securityQuestions'
-import {
-  ATTENDING_CHURCH_PLACEHOLDER,
-  CONGREGANT_TYPES,
-  isOtherCongregantType,
-} from '@/data/congregantTypes'
 import BirthDateSelect from '@/components/signup/BirthDateSelect'
 import PasswordInput from '@/components/signup/PasswordInput'
+import SignupCongregantField from '@/components/signup/SignupCongregantField'
 import SignupEmailInput from '@/components/signup/SignupEmailInput'
+import SignupFormRow from '@/components/signup/SignupFormRow'
 
 const SIGNUP_PASSWORD_CONFIRM_PLACEHOLDER = '비밀번호를 다시 입력해주세요'
-
-function SignupFormRow({
-  label,
-  required = false,
-  htmlFor,
-  hint,
-  alwaysShowHint = false,
-  reserveFeedback = false,
-  error,
-  success,
-  rowClassName = '',
-  children,
-}) {
-  const showHint = Boolean(hint) && (alwaysShowHint || (!error && !success))
-
-  return (
-    <div
-      className={`signup-info-form__row${error ? ' signup-info-form__row--error' : ''}${
-        rowClassName ? ` ${rowClassName}` : ''
-      }`}
-    >
-      <div className="signup-info-form__label-cell">
-        <label className="signup-info-form__label" htmlFor={htmlFor}>
-          {required && (
-            <span className="signup-info-form__required" aria-hidden="true">
-              *
-            </span>
-          )}
-          {required ? ` ${label}` : label}
-        </label>
-      </div>
-      <div className="signup-info-form__control-cell">
-        {children}
-        {showHint && <p className="signup-info-form__hint">{hint}</p>}
-        {reserveFeedback ? (
-          <div className="signup-info-form__feedback-slot" aria-live="polite">
-            {error ? (
-              <p className="signup-info-form__message signup-info-form__message--error" role="alert">
-                {error}
-              </p>
-            ) : success ? (
-              <p className="signup-info-form__message signup-info-form__message--success">
-                {success}
-              </p>
-            ) : null}
-          </div>
-        ) : (
-          <>
-            {error && (
-              <p className="signup-info-form__message signup-info-form__message--error" role="alert">
-                {error}
-              </p>
-            )}
-            {!error && success && (
-              <p className="signup-info-form__message signup-info-form__message--success">
-                {success}
-              </p>
-            )}
-          </>
-        )}
-      </div>
-    </div>
-  )
-}
 
 function SignupStepForm({
   form,
@@ -354,62 +287,7 @@ function SignupStepForm({
           />
         </SignupFormRow>
 
-        <SignupFormRow
-          label="교인 구분"
-          required
-          htmlFor="signup-congregant-own"
-          error={errors.congregantType}
-        >
-          <div className="signup-info-form__radio-group" role="radiogroup" aria-label="교인 구분">
-            {CONGREGANT_TYPES.map((option) => {
-              const optionId = `signup-congregant-${option.id}`
-              const isOther = isOtherCongregantType(option.id)
-              const isChecked = form.congregantType === option.id
-
-              return (
-                <div
-                  key={option.id}
-                  className={`signup-info-form__radio-row${
-                    isOther ? ' signup-info-form__radio-row--other' : ''
-                  }`}
-                >
-                  <label className="signup-info-form__radio-option" htmlFor={optionId}>
-                    <input
-                      id={optionId}
-                      type="radio"
-                      name="congregantType"
-                      className="signup-info-form__radio"
-                      value={option.id}
-                      checked={isChecked}
-                      onChange={() => updateField('congregantType', option.id)}
-                    />
-                    <span>{option.label}</span>
-                  </label>
-
-                  {isOther && (
-                    <div className="signup-info-form__attending-church">
-                      <span className="signup-info-form__attending-church-label" id="signup-attending-church-label">
-                        출석 교회
-                      </span>
-                      <input
-                        id="signup-attending-church"
-                        name="attendingChurch"
-                        type="text"
-                        className="signup-info-form__input"
-                        placeholder={ATTENDING_CHURCH_PLACEHOLDER}
-                        value={form.attendingChurch}
-                        onChange={(event) => updateField('attendingChurch', event.target.value)}
-                        disabled={!isChecked}
-                        autoComplete="off"
-                        aria-labelledby="signup-attending-church-label"
-                      />
-                    </div>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        </SignupFormRow>
+        <SignupCongregantField form={form} errors={errors} updateField={updateField} />
 
         <div className="signup-info-form__guide" role="note">
           <p className="signup-info-form__guide-title">비밀번호 찾기 안내</p>

@@ -1,17 +1,18 @@
 import { supabase } from '@/lib/supabase'
 import {
-  isCustomSecurityQuestionSelected,
-  resolveSecurityQuestionForStorage,
-} from '@/data/securityQuestions'
+  CONGREGANT_TYPE_IDS,
+  isOtherCongregantType,
+} from '@/data/congregantTypes'
+import { resolveSecurityQuestionForStorage } from '@/data/securityQuestions'
 import { DEFAULT_MEMBER_ROLE } from '@/services/auth/profileSchema'
 import { fetchProfileByUserId } from '@/services/auth/profile'
 import {
   checkDuplicateId,
   formatPhoneNumber,
   resolveBirthDateForDatabase,
+  validateSignupEmail,
+  validateSignupProfileFields,
 } from '@/services/auth/signup'
-
-const LOGIN_ID_PATTERN = /^[a-zA-Z0-9_]{4,20}$/
 
 export const OAUTH_PROFILE_COMPLETE_PATH = '/oauth/complete'
 
@@ -20,40 +21,17 @@ export function getOAuthHomeUrl() {
   return `${base || ''}/` || '/'
 }
 
+/**
+ * 카카오 추가정보 입력 검증 — 일반 회원가입 공통 필드 검증을 재사용합니다.
+ * 비밀번호·이메일 OTP·약관 단계는 OAuth 경로에 없으므로 제외하고,
+ * 제공된 이메일 형식만 확인합니다.
+ */
 export function validateOAuthProfileForm(form, { isIdChecked = false } = {}) {
-  const errors = {}
+  const { errors } = validateSignupProfileFields(form, { isIdChecked })
 
-  if (!form.name?.trim()) {
-    errors.name = '이름을 입력해주세요.'
-  }
-
-  if (!form.loginId?.trim()) {
-    errors.loginId = '회원아이디를 입력해주세요.'
-  } else if (!LOGIN_ID_PATTERN.test(form.loginId.trim())) {
-    errors.loginId = '아이디는 4~20자의 영문, 숫자, 밑줄(_)만 사용할 수 있습니다.'
-  } else if (!isIdChecked) {
-    errors.loginId = '아이디 중복확인을 해주세요.'
-  }
-
-  if (!resolveBirthDateForDatabase(form.birthDate)) {
-    errors.birthDate = '생년월일을 선택해주세요.'
-  }
-
-  if (!form.phone?.trim()) {
-    errors.phone = '휴대폰 번호를 입력해주세요.'
-  }
-
-  if (!form.securityQuestion) {
-    errors.securityQuestion = '비밀번호 찾기 질문을 선택해주세요.'
-  } else if (
-    isCustomSecurityQuestionSelected(form.securityQuestion) &&
-    !form.securityCustomQuestion?.trim()
-  ) {
-    errors.securityCustomQuestion = '질문을 직접 입력해주세요.'
-  }
-
-  if (!form.securityAnswer?.trim()) {
-    errors.securityAnswer = '비밀번호 찾기 답변을 입력해주세요.'
+  const emailValidation = validateSignupEmail(form.email || '')
+  if (!emailValidation.valid) {
+    errors.email = emailValidation.errors.email
   }
 
   return {
@@ -87,9 +65,38 @@ function isProfileAlreadyExistsError(error) {
   )
 }
 
+function buildOAuthProfilePayload(userId, formData, birthDate) {
+  const congregantType = CONGREGANT_TYPE_IDS.has(formData.congregantType)
+    ? formData.congregantType
+    : null
+  const attendingChurch = isOtherCongregantType(congregantType)
+    ? String(formData.attendingChurch || '').trim() || null
+    : null
+
+  const basePayload = {
+    user_id: userId,
+    username: formData.loginId.trim(),
+    name: formData.name.trim(),
+    birth_date: birthDate,
+    email: String(formData.email || '').trim().toLowerCase() || null,
+    phone: String(formData.phone || '').trim() || null,
+    role: DEFAULT_MEMBER_ROLE,
+  }
+
+  return {
+    basePayload,
+    fullPayload: {
+      ...basePayload,
+      congregant_type: congregantType,
+      attending_church: attendingChurch,
+    },
+  }
+}
+
 /**
  * OAuth 최초 로그인 사용자의 profiles 행을 생성합니다.
- * 기존 이메일 회원가입 insertProfile 과 분리된 전용 경로입니다.
+ * 기존 이메일 회원가입 insertProfile 과 분리된 전용 경로이며,
+ * 동일 컬럼(congregant_type, attending_church 포함)에 저장합니다.
  */
 export async function createOAuthProfile(userId, formData) {
   const birthDate = resolveBirthDateForDatabase(formData.birthDate)
@@ -99,7 +106,11 @@ export async function createOAuthProfile(userId, formData) {
   }
 
   if (!birthDate) {
-    return { success: false, message: '생년월일을 올바르게 선택해주세요.', errors: { birthDate: '생년월일을 선택해주세요.' } }
+    return {
+      success: false,
+      message: '생년월일을 올바르게 선택해주세요.',
+      errors: { birthDate: '생년월일을 선택해주세요.' },
+    }
   }
 
   const existing = await fetchProfileByUserId(userId)
@@ -118,18 +129,10 @@ export async function createOAuthProfile(userId, formData) {
     }
   }
 
-  const email = String(formData.email || '').trim().toLowerCase()
-  const basePayload = {
-    user_id: userId,
-    username: formData.loginId.trim(),
-    name: formData.name.trim(),
-    birth_date: birthDate,
-    email: email || null,
-    phone: formData.phone.trim() || null,
-    role: DEFAULT_MEMBER_ROLE,
-  }
+  const { basePayload, fullPayload } = buildOAuthProfilePayload(userId, formData, birthDate)
 
-  const payloads = [basePayload]
+  // Live DB may not yet have congregant_type / attending_church — same fallback as email signup.
+  const payloads = [fullPayload, basePayload]
   let insertError = null
 
   for (const payload of payloads) {
@@ -145,6 +148,7 @@ export async function createOAuthProfile(userId, formData) {
       code: error.code,
       message: error.message,
       details: error.details,
+      payloadKeys: Object.keys(payload),
     })
 
     if (!isMissingColumnError(error)) {
@@ -177,6 +181,7 @@ export async function createOAuthProfile(userId, formData) {
     }
   }
 
+  // RPC fallback mirrors email signup (congregant params not in live RPC signature).
   const rpcParams = {
     p_user_id: userId,
     p_username: basePayload.username,
