@@ -54,22 +54,24 @@ function About() {
         </div>
       </section>
 
-      <div className="about-page__pastor-zone">
-        <PastorIntro className="pastor-intro--about-page" />
-      </div>
+      <div className="about-page__main">
+        <div className="about-page__pastor-zone">
+          <PastorIntro className="pastor-intro--about-page" />
+        </div>
 
-      <div className="about-page__signature-zone" aria-hidden="true">
-        <div className="about-page__signature-visual">
-          <img
-            src={pastorOvalTransparent}
-            alt=""
-            className="about-page__signature-oval"
-          />
-          <img
-            src={pastorSignatureText}
-            alt=""
-            className="about-page__signature-text"
-          />
+        <div className="about-page__signature-zone" aria-hidden="true">
+          <div className="about-page__signature-visual">
+            <img
+              src={pastorOvalTransparent}
+              alt=""
+              className="about-page__signature-oval"
+            />
+            <img
+              src={pastorSignatureText}
+              alt=""
+              className="about-page__signature-text"
+            />
+          </div>
         </div>
       </div>
     </div>
