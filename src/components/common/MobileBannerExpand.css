@@ -334,13 +334,13 @@
     top: 0;
     right: auto;
     bottom: 0;
-    left: calc(3.2% + 15px);
-    width: calc(58% - (3.2% + 15px));
+    left: calc(3.2% + 28px);
+    width: calc(55% - (3.2% + 28px));
     height: 100%;
     margin: 0;
     justify-content: center;
     align-items: flex-start;
-    transform: translateY(-30px);
+    transform: none;
     pointer-events: none;
   }
 
