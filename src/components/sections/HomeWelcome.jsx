@@ -67,11 +67,19 @@ function HomeWelcome() {
 
         <div className="home-welcome__media">
           {HOME_WELCOME.image ? (
-            <img
-              src={HOME_WELCOME.image}
-              alt={HOME_WELCOME.imageAlt}
-              className="home-welcome__image"
-            />
+            <picture>
+              {HOME_WELCOME.imageMobile ? (
+                <source
+                  media="(max-width: 768px)"
+                  srcSet={HOME_WELCOME.imageMobile}
+                />
+              ) : null}
+              <img
+                src={HOME_WELCOME.image}
+                alt={HOME_WELCOME.imageAlt}
+                className="home-welcome__image"
+              />
+            </picture>
           ) : (
             <div className="home-placeholder home-placeholder--image" aria-hidden="true">
               <span>이미지 준비 중</span>
