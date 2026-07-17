@@ -1,0 +1,61 @@
+.member-account-section {
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.member-account-section__title {
+  margin: 0 0 1rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1f2d3d;
+  letter-spacing: -0.02em;
+}
+
+.member-account-section__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 0.75rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: #374151;
+}
+
+.member-account-section__label {
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.member-account-section__value {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.member-account-section__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  padding-top: 0.25rem;
+}
+
+.member-account-section__actions .signup-btn--danger {
+  width: 100%;
+  max-width: 280px;
+}
+
+.member-account-section__hint {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: #9ca3af;
+}
+
+@media (min-width: 769px) {
+  .member-account-section__actions {
+    align-items: flex-start;
+  }
+}

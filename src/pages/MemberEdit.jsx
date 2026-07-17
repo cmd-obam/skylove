@@ -3,10 +3,15 @@ import { Link, useNavigate } from 'react-router-dom'
 import { FiUser, FiLock, FiCalendar, FiMail, FiSmartphone } from 'react-icons/fi'
 import { supabase } from '@/lib/supabase'
 import DeleteAccountModal from '@/components/auth/DeleteAccountModal'
+import UnlinkKakaoModal from '@/components/auth/UnlinkKakaoModal'
 import '@/components/auth/DeleteAccountModal.css'
 import { deleteAccount } from '@/services/auth/deleteAccount'
 import { fetchCurrentUserProfile } from '@/services/auth/profile'
 import { canDeleteAccount, getSelfDeleteBlockMessage } from '@/services/auth/roles'
+import {
+  getAccountLoginMethods,
+  unlinkKakaoIdentity,
+} from '@/services/auth/unlinkKakao'
 import {
   PASSWORD_PLACEHOLDER,
   PASSWORD_REQUIREMENT_HINT,
@@ -19,8 +24,10 @@ import {
 import { BIRTH_DATE_MIN, getBirthDateMax, normalizeBirthDate } from '@/services/auth/signup'
 import { AUTOCOMPLETE_OFF, PASSWORD_AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 import MemberMypageLayout from '@/components/auth/MemberMypageLayout'
+import { useAuth } from '@/contexts/AuthContext'
 import { setAuthSession } from '@/utils/auth'
 import './Signup.css'
+import './MemberEdit.css'
 
 function ProfileFieldCard({ icon: Icon, label, optional = false, error, hint, hintId, children }) {
   return (
@@ -47,6 +54,7 @@ function ProfileFieldCard({ icon: Icon, label, optional = false, error, hint, hi
 
 function MemberEdit() {
   const navigate = useNavigate()
+  const { signOut } = useAuth()
   const [form, setForm] = useState(createInitialProfileForm())
   const [currentProfile, setCurrentProfile] = useState(null)
   const [errors, setErrors] = useState({})
@@ -57,6 +65,12 @@ function MemberEdit() {
   const [isDeletingAccount, setIsDeletingAccount] = useState(false)
   const [deleteComplete, setDeleteComplete] = useState(false)
   const [deleteError, setDeleteError] = useState(null)
+  const [loginMethodLabel, setLoginMethodLabel] = useState('확인 중...')
+  const [hasKakaoIdentity, setHasKakaoIdentity] = useState(false)
+  const [isUnlinkModalOpen, setIsUnlinkModalOpen] = useState(false)
+  const [isUnlinkingKakao, setIsUnlinkingKakao] = useState(false)
+  const [unlinkError, setUnlinkError] = useState(null)
+  const [accountFeedback, setAccountFeedback] = useState(null)
 
   useEffect(() => {
     let isMounted = true
@@ -71,7 +85,10 @@ function MemberEdit() {
         return
       }
 
-      const result = await fetchCurrentUserProfile()
+      const [result, loginMethods] = await Promise.all([
+        fetchCurrentUserProfile(),
+        getAccountLoginMethods(),
+      ])
 
       if (!isMounted) {
         return
@@ -89,6 +106,8 @@ function MemberEdit() {
       setCurrentProfile(result.profile)
       setForm(createInitialProfileForm(result.profile))
       setAuthSession(result.profile)
+      setLoginMethodLabel(loginMethods.primaryLabel || '알 수 없음')
+      setHasKakaoIdentity(Boolean(loginMethods.hasKakao))
       setIsLoading(false)
     }
 
@@ -129,6 +148,36 @@ function MemberEdit() {
     setIsDeleteModalOpen(false)
     setDeleteComplete(true)
     setIsDeletingAccount(false)
+  }
+
+  const handleUnlinkKakao = async () => {
+    setIsUnlinkingKakao(true)
+    setUnlinkError(null)
+    setAccountFeedback(null)
+
+    const result = await unlinkKakaoIdentity()
+
+    if (!result.success) {
+      setUnlinkError(result.message)
+      setIsUnlinkingKakao(false)
+      return
+    }
+
+    setAccountFeedback({
+      type: 'success',
+      message: result.message || '카카오 계정 연동이 해제되었습니다.',
+    })
+    setIsUnlinkModalOpen(false)
+    setIsUnlinkingKakao(false)
+
+    window.setTimeout(async () => {
+      try {
+        await signOut()
+      } catch {
+        // ignore — still move to login
+      }
+      navigate('/login', { replace: true })
+    }, 1200)
   }
 
   const updateField = (name, value) => {
@@ -219,6 +268,19 @@ function MemberEdit() {
           }
         }}
         onConfirm={handleDeleteAccount}
+      />
+
+      <UnlinkKakaoModal
+        isOpen={isUnlinkModalOpen}
+        isUnlinking={isUnlinkingKakao}
+        error={unlinkError}
+        onCancel={() => {
+          if (!isUnlinkingKakao) {
+            setIsUnlinkModalOpen(false)
+            setUnlinkError(null)
+          }
+        }}
+        onConfirm={handleUnlinkKakao}
       />
 
       <div className="signup-page__container">
@@ -354,7 +416,7 @@ function MemberEdit() {
                       setDeleteError(null)
                       setIsDeleteModalOpen(true)
                     }}
-                    disabled={isSubmitting || isDeletingAccount}
+                    disabled={isSubmitting || isDeletingAccount || isUnlinkingKakao}
                   >
                     회원탈퇴
                   </button>
@@ -374,6 +436,44 @@ function MemberEdit() {
               </p>
             </div>
           </form>
+
+          <section className="member-account-section" aria-label="계정 관리">
+            <h2 className="member-account-section__title">계정 관리</h2>
+            <div className="member-account-section__row">
+              <span className="member-account-section__label">로그인 방식 :</span>
+              <span className="member-account-section__value">{loginMethodLabel}</span>
+            </div>
+
+            {accountFeedback && (
+              <p
+                className={`signup-form__feedback signup-form__feedback--${accountFeedback.type}`}
+                role={accountFeedback.type === 'error' ? 'alert' : 'status'}
+              >
+                {accountFeedback.message}
+              </p>
+            )}
+
+            {hasKakaoIdentity ? (
+              <div className="member-account-section__actions">
+                <button
+                  type="button"
+                  className="signup-btn signup-btn--danger"
+                  onClick={() => {
+                    setUnlinkError(null)
+                    setIsUnlinkModalOpen(true)
+                  }}
+                  disabled={isSubmitting || isDeletingAccount || isUnlinkingKakao}
+                >
+                  카카오 계정 연동 해제
+                </button>
+                <p className="member-account-section__hint">
+                  연동 해제 후에도 회원 정보는 유지되며, 다시 카카오 로그인하면 재연동할 수 있습니다.
+                </p>
+              </div>
+            ) : (
+              <p className="member-account-section__hint">연동된 카카오 계정이 없습니다.</p>
+            )}
+          </section>
         </section>
       </div>
     </div>
