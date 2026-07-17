@@ -48,11 +48,6 @@ function MobileImageLightbox({ imageSrc, imageAlt = '', onClose, layout = 'stack
         }
       }
 
-      if (!allowInnerScroll) {
-        event.preventDefault()
-        return
-      }
-
       event.preventDefault()
     }
 
@@ -86,30 +81,46 @@ function MobileImageLightbox({ imageSrc, imageAlt = '', onClose, layout = 'stack
         aria-label={imageAlt || '이미지 크게 보기'}
         onClick={handleDialogClick}
       >
-        <button type="button" className="mobile-image-lightbox__close" onClick={onClose}>
+        <button
+          type="button"
+          className={`mobile-image-lightbox__close${
+            layout === 'overlay' ? ' mobile-image-lightbox__close--icon-only' : ''
+          }`}
+          onClick={onClose}
+          aria-label="닫기"
+        >
           <span aria-hidden="true">×</span>
-          <span className="mobile-image-lightbox__close-text">닫기</span>
+          {layout === 'overlay' ? null : <span className="mobile-image-lightbox__close-text">닫기</span>}
         </button>
         <div
           className="mobile-image-lightbox__scroll"
           {...(allowInnerScroll ? { 'data-scroll-lock-allow': true } : {})}
         >
           {layout === 'overlay' ? (
-            <div
-              className="mobile-image-lightbox__overlay mobile-image-lightbox__overlay--close"
-              onClick={onClose}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                  event.preventDefault()
-                  onClose()
-                }
-              }}
-              role="button"
-              tabIndex={0}
-              aria-label="이미지 닫기"
-            >
-              {children}
-            </div>
+            <>
+              <div
+                className="mobile-image-lightbox__overlay mobile-image-lightbox__overlay--close"
+                onClick={onClose}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault()
+                    onClose()
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                aria-label="이미지 닫기"
+              >
+                {children}
+              </div>
+              <button
+                type="button"
+                className="mobile-image-lightbox__close-hint"
+                onClick={onClose}
+              >
+                아무곳이나 클릭하면 닫아집니다
+              </button>
+            </>
           ) : (
             <>
               <button

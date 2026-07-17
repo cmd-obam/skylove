@@ -21,6 +21,29 @@ export const NEW_FAMILY_HERO = {
     '하나님의 은혜가 가득한 이곳에서',
     '행복한 믿음의 여정을 함께 시작해요.',
   ],
+  lightboxSlides: [
+    {
+      id: 'headline',
+      variant: 'nf-hero',
+      welcome: '당신의 방문을 기다리며 기도했습니다. ♡',
+      lines: [
+        '당신을 축복하고',
+        [
+          { text: '사랑', accent: true },
+          { text: '으로 환영합니다.' },
+        ],
+      ],
+      showUnderline: true,
+    },
+    {
+      id: 'body',
+      variant: 'body',
+      lines: [
+        '하나님의 은혜가 가득한 이곳에서',
+        '행복한 믿음의 여정을 함께 시작해요.',
+      ],
+    },
+  ],
 }
 
 export const NEW_FAMILY_INTRO = {

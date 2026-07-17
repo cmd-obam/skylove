@@ -48,7 +48,7 @@
   position: absolute;
   top: 0.625rem;
   right: 0.625rem;
-  z-index: 2;
+  z-index: 4;
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
@@ -69,6 +69,34 @@
   line-height: 1;
 }
 
+.mobile-image-lightbox__close--icon-only {
+  width: 2.25rem;
+  min-height: 2.25rem;
+  padding: 0;
+  justify-content: center;
+}
+
+.mobile-image-lightbox__close--icon-only span:first-child {
+  font-size: 1.35rem;
+}
+
+.mobile-image-lightbox__close-hint {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0.7rem 0.85rem;
+  border: 0;
+  border-radius: 0 0 16px 16px;
+  background: #6b7280;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: center;
+  cursor: pointer;
+}
+
 .mobile-image-lightbox__scroll {
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -82,6 +110,7 @@
   max-height: none;
   background: #ffffff;
   touch-action: none;
+  overflow: hidden;
 }
 
 .mobile-image-lightbox__dialog--overlay .mobile-image-lightbox__scroll {
@@ -89,6 +118,44 @@
   flex: 0 0 auto;
   overscroll-behavior: none;
   touch-action: none;
+}
+
+.mobile-image-lightbox__dialog--overlay .mobile-image-lightbox__overlay {
+  position: relative;
+}
+
+.mobile-image-lightbox__overlay .banner-lightbox-slides__copy {
+  color: #1f2d3d;
+}
+
+.mobile-image-lightbox__overlay .worship-template__intro--banner-choir .banner-lightbox-slides__copy,
+.mobile-image-lightbox__overlay
+  .worship-template__intro--banner-dawn-prayer
+  .banner-lightbox-slides__copy,
+.mobile-image-lightbox__overlay .nf-hero--banner-lightbox .banner-lightbox-slides__copy {
+  color: #ffffff;
+}
+
+.mobile-image-lightbox__overlay
+  .worship-template__intro--banner-choir
+  .banner-lightbox-slides__body-lines
+  .banner-lightbox-slides__line,
+.mobile-image-lightbox__overlay
+  .worship-template__intro--banner-choir
+  .banner-lightbox-slides__paragraph,
+.mobile-image-lightbox__overlay
+  .worship-template__intro--banner-dawn-prayer
+  .banner-lightbox-slides__body-lines
+  .banner-lightbox-slides__line,
+.mobile-image-lightbox__overlay
+  .worship-template__intro--banner-dawn-prayer
+  .banner-lightbox-slides__paragraph,
+.mobile-image-lightbox__overlay .nf-hero--banner-lightbox .banner-lightbox-slides__welcome,
+.mobile-image-lightbox__overlay
+  .nf-hero--banner-lightbox
+  .banner-lightbox-slides__body-lines
+  .banner-lightbox-slides__line {
+  color: rgba(255, 255, 255, 0.95);
 }
 
 .mobile-image-lightbox__image-button {
@@ -136,7 +203,9 @@
 }
 
 .mobile-image-lightbox__overlay .worship-template__intro--banner,
-.mobile-image-lightbox__overlay .worship-template__intro--banner-lightbox {
+.mobile-image-lightbox__overlay .worship-template__intro--banner-lightbox,
+.mobile-image-lightbox__overlay .nf-hero--banner-lightbox {
+  position: relative;
   display: block;
   width: 100%;
   margin: 0;
@@ -144,6 +213,11 @@
   aspect-ratio: 1024 / 438;
   height: auto;
   min-height: 0;
+  overflow: hidden;
+}
+
+.mobile-image-lightbox__overlay .nf-hero--banner-lightbox {
+  aspect-ratio: var(--category-hero-ratio, 1024 / 446);
 }
 
 .mobile-image-lightbox__overlay .worship-template__intro--banner-lightbox {

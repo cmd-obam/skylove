@@ -1,4 +1,5 @@
 import { NEW_FAMILY_HERO } from '@/data/newFamilyGuide'
+import BannerLightboxSlides from '@/components/common/BannerLightboxSlides'
 import MobileBannerExpand from '@/components/common/MobileBannerExpand'
 import './WelcomeHero.css'
 
@@ -11,17 +12,10 @@ function WelcomeHero({
   headlineLine2Prefix = NEW_FAMILY_HERO.headlineLine2Prefix,
   headlineLine2Suffix = NEW_FAMILY_HERO.headlineLine2Suffix,
   descriptionLines = NEW_FAMILY_HERO.descriptionLines,
+  lightboxSlides = NEW_FAMILY_HERO.lightboxSlides,
 }) {
   const heroText = (
-    <div
-      className="nf-hero__content"
-      data-scroll-lock-allow
-      onClick={(event) => {
-        if (event.currentTarget.closest('.mobile-image-lightbox__overlay')) {
-          event.stopPropagation()
-        }
-      }}
-    >
+    <div className="nf-hero__content">
       <p className="nf-hero__welcome">
         <span className="nf-hero__welcome-text">{welcomeLine}</span>
       </p>
@@ -53,7 +47,9 @@ function WelcomeHero({
       style={{ '--nf-hero-bg': `url(${heroBackground})` }}
       lightboxLayout="overlay"
       lightboxBannerClassName="nf-hero--banner-lightbox"
-      lightboxChildren={heroText}
+      lightboxChildren={
+        lightboxSlides?.length ? <BannerLightboxSlides slides={lightboxSlides} /> : heroText
+      }
     >
       <img
         src={heroBackground}
