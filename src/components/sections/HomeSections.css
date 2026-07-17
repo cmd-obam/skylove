@@ -834,11 +834,15 @@
     margin-bottom: 0.5rem;
   }
 
-  /* One step larger than previous mobile title */
-  .home-welcome .home-section__title {
+  /* Match welcome title to 예배 안내: Nanum Myeongjo + same size, left-aligned */
+  .home-welcome .home-section__title,
+  .home-worship .home-section__title {
     margin-left: 0;
-    font-size: clamp(1.35rem, 5.4vw, 1.55rem);
+    font-family: 'Nanum Myeongjo', 'Noto Serif KR', serif;
+    font-size: clamp(1.125rem, 4.8vw, 1.375rem);
+    font-weight: 700;
     line-height: 1.32;
+    letter-spacing: -0.02em;
   }
 
   .home-welcome .home-section__title-line {
@@ -847,6 +851,19 @@
 
   .home-welcome .home-section__title::after {
     margin-top: 0.7rem;
+  }
+
+  .home-worship .home-section__header {
+    text-align: left;
+  }
+
+  .home-worship .home-section__heading {
+    align-items: flex-start;
+  }
+
+  .home-worship .home-section__title::after {
+    margin-left: 0;
+    margin-right: 0;
   }
 
   .home-story__card-body {
