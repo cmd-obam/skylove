@@ -223,7 +223,7 @@
 
 @media (max-width: 767px) {
   .about-page__quote-text {
-    font-size: clamp(1rem, 4.2vw, 1.25rem);
+    font-size: clamp(0.75rem, 3.2vw, 0.9375rem);
   }
 
   .about-page__scripture-text {
