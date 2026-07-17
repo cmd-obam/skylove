@@ -68,5 +68,7 @@ select:-webkit-autofill:focus {
 /* 모바일 햄버거 메뉴 등 body 스크롤 잠금 보조 */
 html:has(body[data-body-scroll-lock='true']),
 body[data-body-scroll-lock='true'] {
+  overflow: hidden;
   overscroll-behavior: none;
+  touch-action: none;
 }

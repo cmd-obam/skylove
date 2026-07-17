@@ -1,9 +1,12 @@
 import { createPortal } from 'react-dom'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import useBodyScrollLock from '@/hooks/useBodyScrollLock'
 import './MobileImageLightbox.css'
 
 function MobileImageLightbox({ imageSrc, imageAlt = '', onClose, layout = 'stacked', children }) {
+  const rootRef = useRef(null)
+  const allowInnerScroll = layout !== 'overlay'
+
   useBodyScrollLock(true)
 
   useEffect(() => {
@@ -20,12 +23,55 @@ function MobileImageLightbox({ imageSrc, imageAlt = '', onClose, layout = 'stack
     }
   }, [onClose])
 
+  useEffect(() => {
+    const root = rootRef.current
+    if (!root) {
+      return undefined
+    }
+
+    const stopScrollGesture = (event) => {
+      if (!allowInnerScroll) {
+        event.preventDefault()
+        return
+      }
+
+      const target = event.target
+      if (!(target instanceof Element)) {
+        event.preventDefault()
+        return
+      }
+
+      const scrollable = target.closest('[data-scroll-lock-allow]')
+      if (!(scrollable instanceof Element)) {
+        event.preventDefault()
+        return
+      }
+
+      const style = window.getComputedStyle(scrollable)
+      const canScroll =
+        (style.overflowY === 'auto' || style.overflowY === 'scroll') &&
+        scrollable.scrollHeight > scrollable.clientHeight + 1
+
+      if (!canScroll) {
+        event.preventDefault()
+      }
+    }
+
+    root.addEventListener('touchmove', stopScrollGesture, { passive: false })
+    root.addEventListener('wheel', stopScrollGesture, { passive: false })
+
+    return () => {
+      root.removeEventListener('touchmove', stopScrollGesture)
+      root.removeEventListener('wheel', stopScrollGesture)
+    }
+  }, [allowInnerScroll])
+
   const handleDialogClick = (event) => {
     event.stopPropagation()
   }
 
   return createPortal(
-    <div className="mobile-image-lightbox" role="presentation">
+    <div ref={rootRef} className="mobile-image-lightbox" role="presentation">
       <button
         type="button"
         className="mobile-image-lightbox__backdrop"
@@ -45,7 +91,10 @@ function MobileImageLightbox({ imageSrc, imageAlt = '', onClose, layout = 'stack
           <span aria-hidden="true">×</span>
           <span className="mobile-image-lightbox__close-text">닫기</span>
         </button>
-        <div className="mobile-image-lightbox__scroll" data-scroll-lock-allow>
+        <div
+          className="mobile-image-lightbox__scroll"
+          {...(allowInnerScroll ? { 'data-scroll-lock-allow': true } : {})}
+        >
           {layout === 'overlay' ? (
             <div
               className="mobile-image-lightbox__overlay mobile-image-lightbox__overlay--close"
