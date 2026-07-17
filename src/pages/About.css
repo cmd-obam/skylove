@@ -65,7 +65,7 @@
 
 .about-page__quote {
   position: relative;
-  max-width: 44rem;
+  max-width: min(100%, 48rem);
   margin: 0 auto;
   text-align: center;
 }
@@ -74,7 +74,7 @@
   position: relative;
   display: inline-block;
   max-width: 100%;
-  padding: 0.25rem calc(2.35rem + 15px) 0.25rem;
+  padding: 0.25rem clamp(1.5rem, 4vw, 2.5rem);
   text-align: center;
 }
 
@@ -82,39 +82,41 @@
 .about-page__quote-close {
   position: absolute;
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: clamp(2.75rem, 5vw, 4.25rem);
+  font-size: clamp(2rem, 4vw, 3.25rem);
   font-weight: 600;
   line-height: 1;
   color: var(--about-quote-mark);
 }
 
 .about-page__quote-open {
-  top: -0.25rem;
-  left: 0.2rem;
+  top: -0.15rem;
+  left: 0;
 }
 
 .about-page__quote-close {
-  right: 0.2rem;
-  bottom: 0;
+  right: 0;
+  bottom: -0.1rem;
 }
 
 .about-page__quote-text {
   margin: 0;
-  font-size: clamp(1.125rem, 2.2vw, 1.625rem);
+  font-size: clamp(0.9375rem, 1.7vw, 1.375rem);
   font-weight: 500;
-  line-height: 1.65;
+  line-height: 1.7;
   letter-spacing: 0;
   color: var(--about-quote-text);
+  word-break: keep-all;
 }
 
 .about-page__quote-line {
   display: block;
+  white-space: nowrap;
 }
 
 .about-page__quote-highlight {
   color: var(--about-quote-accent);
   font-weight: 600;
-  font-size: calc(1em + 3px);
+  font-size: 1.05em;
 }
 
 .about-page__scripture {
@@ -271,11 +273,15 @@
   }
 
   .about-page__quote-inner {
-    padding-inline: calc(1.75rem + 15px);
+    padding-inline: clamp(1.1rem, 4.5vw, 1.5rem);
   }
 
   .about-page__quote-text {
-    font-size: clamp(1rem, 4.2vw, 1.25rem);
+    font-size: clamp(0.75rem, 3.2vw, 0.9375rem);
+  }
+
+  .about-page__quote-line {
+    white-space: nowrap;
   }
 
   .about-page__pastor-zone {
@@ -340,7 +346,11 @@
   }
 
   .about-page__quote-inner {
-    padding-inline: 1.5rem;
+    padding-inline: 1.1rem;
+  }
+
+  .about-page__quote-text {
+    font-size: clamp(0.72rem, 3.1vw, 0.875rem);
   }
 
   .about-page__signature-visual {
