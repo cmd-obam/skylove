@@ -93,7 +93,7 @@ function EventPhotos() {
                       <BoardPostTitle title={post.title} commentsCount={post.commentsCount} />
                     </h2>
                     <p className="event-photos-card__meta">
-                      <span>{getPostAuthor(post)}</span>
+                      <span>작성자 : {getPostAuthor(post)}</span>
                       <span className="event-photos-card__meta-divider" aria-hidden="true">
                         ·
                       </span>
