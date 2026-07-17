@@ -13,7 +13,15 @@ function WelcomeHero({
   descriptionLines = NEW_FAMILY_HERO.descriptionLines,
 }) {
   const heroText = (
-    <div className="nf-hero__content">
+    <div
+      className="nf-hero__content"
+      data-scroll-lock-allow
+      onClick={(event) => {
+        if (event.currentTarget.closest('.mobile-image-lightbox__overlay')) {
+          event.stopPropagation()
+        }
+      }}
+    >
       <p className="nf-hero__welcome">
         <span className="nf-hero__welcome-text">{welcomeLine}</span>
       </p>

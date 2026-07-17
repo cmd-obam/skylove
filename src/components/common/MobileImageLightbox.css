@@ -151,7 +151,7 @@
   --worship-banner-text-top: 6px;
   --worship-banner-text-left: 6px;
   --worship-banner-text-bottom: 6px;
-  --worship-banner-text-width: calc(50% - 6px);
+  --worship-banner-text-width: calc(56% - 6px);
 }
 
 .mobile-image-lightbox__overlay .worship-template__intro--banner-lightbox .worship-template__intro-text {
@@ -162,110 +162,114 @@
   right: auto;
   bottom: 6px;
   left: 6px;
-  width: calc(50% - 6px);
+  width: calc(56% - 6px);
   height: calc(100% - 12px);
   max-height: calc(100% - 12px);
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
   gap: 0;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
+  padding: 2px 2px 6px;
+  box-sizing: border-box;
+  scrollbar-width: thin;
 }
 
 .mobile-image-lightbox__overlay
   .worship-template__intro--banner-lightbox
   .worship-template__intro-divider:not(.worship-template__intro-divider--top) {
-  margin-top: 10px;
+  margin-top: 0.45em;
 }
 
 .mobile-image-lightbox__overlay .worship-template__intro--banner-lightbox .worship-template__intro-title {
-  margin-top: 10px;
+  margin-top: 0.45em;
 }
 
 /* 새벽기도: 십자가 · 밑줄 · 문장 간격을 아래쪽 문장 간격과 맞춤 */
 .mobile-image-lightbox__overlay
   .worship-template__intro--banner-dawn-prayer
   .worship-template__intro-cross {
-  margin-bottom: 10px;
+  margin-bottom: 0.45em;
 }
 
 .mobile-image-lightbox__overlay
   .worship-template__intro--banner-dawn-prayer
   .worship-template__intro-divider--top {
   margin-top: 0;
-  margin-bottom: 10px;
+  margin-bottom: 0.45em;
 }
 
 .mobile-image-lightbox__overlay .worship-template__intro--banner-lightbox .worship-template__headline {
-  flex-shrink: 1;
-  min-height: 0;
+  flex: 0 0 auto;
   width: 100%;
   margin: 0;
 }
 
+/* Keep large readable type; avoid cqh shrink/squash. Long copy scrolls. */
 .mobile-image-lightbox__overlay .worship-template__intro--banner-lightbox .worship-template__headline,
 .mobile-image-lightbox__overlay .worship-template__intro--banner-lightbox .worship-template__headline-line {
-  font-size: clamp(0.875rem, 10cqh, 1.1875rem) !important;
-  line-height: 1.2 !important;
-  flex-shrink: 1;
-  min-height: 0;
+  font-size: 1.0625rem !important;
+  line-height: 1.28 !important;
+  flex-shrink: 0;
 }
 
 .mobile-image-lightbox__overlay .worship-template__intro--banner-lightbox .worship-template__intro-title {
-  font-size: clamp(0.75rem, 7.5cqh, 1rem) !important;
-  line-height: 1.2 !important;
-  flex-shrink: 0;
+  font-size: 0.875rem !important;
+  line-height: 1.28 !important;
+  flex: 0 0 auto;
 }
 
 .mobile-image-lightbox__overlay .worship-template__intro--banner-lightbox .worship-template__description,
 .mobile-image-lightbox__overlay .worship-template__intro--banner-lightbox .worship-template__description--rich {
-  font-size: clamp(0.6875rem, 6.8cqh, 0.9375rem) !important;
-  line-height: 1.28 !important;
-  flex-shrink: 1;
-  min-height: 0;
+  font-size: 0.8125rem !important;
+  line-height: 1.35 !important;
+  flex: 0 0 auto;
+  margin: 0;
 }
 
 .mobile-image-lightbox__overlay .worship-template__intro--banner-lightbox .worship-template__intro-divider {
   width: 1.25rem;
   height: 1px;
-  flex-shrink: 0;
+  flex: 0 0 auto;
 }
 
 .mobile-image-lightbox__overlay .worship-template__intro--banner-lightbox .worship-template__intro-cross {
-  flex-shrink: 0;
+  flex: 0 0 auto;
 }
 
 .mobile-image-lightbox__overlay .worship-template__intro--banner-lightbox .worship-template__intro-cross svg {
-  width: clamp(0.8125rem, 6.5cqh, 1.0625rem);
+  width: 0.9375rem;
   height: auto;
 }
 
-/* 엘샤다이 등 긴 본문: 세로 중앙 정렬을 위해 블록이 남는 공간을 먹지 않도록 */
 .mobile-image-lightbox__overlay .worship-template__intro--banner-lightbox .worship-template__description-blocks {
-  flex: 0 1 auto;
+  flex: 0 0 auto;
   width: 100%;
-  min-height: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .mobile-image-lightbox__overlay
   .worship-template__intro--banner-lightbox
   .worship-template__description-blocks
   .worship-template__description {
-  font-size: clamp(0.6875rem, 6.4cqh, 0.875rem) !important;
-  line-height: 1.24 !important;
+  font-size: 0.75rem !important;
+  line-height: 1.32 !important;
 }
 
 .mobile-image-lightbox__overlay
   .worship-template__intro--banner-lightbox
   .worship-template__description-block
   + .worship-template__description-block {
-  margin-top: 0.08em;
+  margin-top: 0.2em;
 }
 
 .mobile-image-lightbox__overlay
   .worship-template__intro--banner-lightbox
   .worship-template__description-divider {
-  margin: 0.12em auto;
+  margin: 0.2em auto;
 }
 
 .mobile-image-lightbox__overlay .worship-template__headline-line,

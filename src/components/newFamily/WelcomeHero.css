@@ -151,19 +151,27 @@
 .mobile-image-lightbox__overlay .nf-hero--banner-lightbox .nf-hero__content {
   position: absolute;
   display: flex !important;
+  flex-direction: column;
   top: 8px;
   right: auto;
   bottom: 8px;
   left: calc(3.2% + 32px);
-  width: calc(52% - (3.2% + 32px));
+  width: calc(56% - (3.2% + 32px));
   height: auto;
   max-height: calc(100% - 16px);
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
   gap: 0;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: flex-start;
   transform: none;
   margin: 0;
+  padding: 2px 2px 6px;
+  box-sizing: border-box;
+  scrollbar-width: thin;
 }
 
 .mobile-image-lightbox__overlay .nf-hero--banner-lightbox .nf-hero__welcome,
@@ -172,37 +180,35 @@
 }
 
 .mobile-image-lightbox__overlay .nf-hero--banner-lightbox .nf-hero__welcome {
-  margin: 0 0 10px;
-  flex-shrink: 0;
+  margin: 0 0 0.45em;
+  flex: 0 0 auto;
 }
 
 .mobile-image-lightbox__overlay .nf-hero--banner-lightbox .nf-hero__welcome-text {
-  font-size: clamp(0.75rem, 7.5cqh, 1rem) !important;
-  line-height: 1.2 !important;
+  font-size: 0.875rem !important;
+  line-height: 1.28 !important;
   background-size: 5rem 0.22rem;
 }
 
 .mobile-image-lightbox__overlay .nf-hero--banner-lightbox .nf-hero__main-title {
   margin: 0 0 0.45em;
-  flex-shrink: 1;
-  min-height: 0;
+  flex: 0 0 auto;
   gap: 0.08em;
 }
 
 .mobile-image-lightbox__overlay .nf-hero--banner-lightbox .nf-hero__main-line,
 .mobile-image-lightbox__overlay .nf-hero--banner-lightbox .nf-hero__highlight {
-  font-size: clamp(0.875rem, 10cqh, 1.1875rem) !important;
-  line-height: 1.2 !important;
+  font-size: 1.0625rem !important;
+  line-height: 1.28 !important;
 }
 
 .mobile-image-lightbox__overlay .nf-hero--banner-lightbox .nf-hero__subcopy {
   margin: 0;
-  flex-shrink: 1;
-  min-height: 0;
+  flex: 0 0 auto;
   gap: 0.1em;
 }
 
 .mobile-image-lightbox__overlay .nf-hero--banner-lightbox .nf-hero__subcopy-line {
-  font-size: clamp(0.6875rem, 6.8cqh, 0.9375rem) !important;
-  line-height: 1.28 !important;
+  font-size: 0.8125rem !important;
+  line-height: 1.35 !important;
 }

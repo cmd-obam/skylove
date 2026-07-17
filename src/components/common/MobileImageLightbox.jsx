@@ -30,11 +30,6 @@ function MobileImageLightbox({ imageSrc, imageAlt = '', onClose, layout = 'stack
     }
 
     const stopScrollGesture = (event) => {
-      if (!allowInnerScroll) {
-        event.preventDefault()
-        return
-      }
-
       const target = event.target
       if (!(target instanceof Element)) {
         event.preventDefault()
@@ -42,19 +37,23 @@ function MobileImageLightbox({ imageSrc, imageAlt = '', onClose, layout = 'stack
       }
 
       const scrollable = target.closest('[data-scroll-lock-allow]')
-      if (!(scrollable instanceof Element)) {
+      if (scrollable instanceof Element) {
+        const style = window.getComputedStyle(scrollable)
+        const canScroll =
+          (style.overflowY === 'auto' || style.overflowY === 'scroll') &&
+          scrollable.scrollHeight > scrollable.clientHeight + 1
+
+        if (canScroll) {
+          return
+        }
+      }
+
+      if (!allowInnerScroll) {
         event.preventDefault()
         return
       }
 
-      const style = window.getComputedStyle(scrollable)
-      const canScroll =
-        (style.overflowY === 'auto' || style.overflowY === 'scroll') &&
-        scrollable.scrollHeight > scrollable.clientHeight + 1
-
-      if (!canScroll) {
-        event.preventDefault()
-      }
+      event.preventDefault()
     }
 
     root.addEventListener('touchmove', stopScrollGesture, { passive: false })
