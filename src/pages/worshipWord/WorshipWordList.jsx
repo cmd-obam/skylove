@@ -140,7 +140,7 @@ function WorshipWordList({ boardKey }) {
                   <div className="worship-word-card__body">
                     <h2 className="worship-word-card__title">{post.title}</h2>
                     <p className="worship-word-card__meta">
-                      <span>{getPostAuthor(post)}</span>
+                      <span>작성자 : {getPostAuthor(post)}</span>
                       <span className="worship-word-card__meta-sep" aria-hidden="true">
                         ·
                       </span>
