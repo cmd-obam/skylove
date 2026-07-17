@@ -44,6 +44,7 @@
   width: var(--nf-hero-text-width);
   max-width: none;
   box-sizing: border-box;
+  transform: translateY(-15px);
 }
 
 .nf-hero__welcome {
@@ -113,19 +114,23 @@
 
 @media (max-width: 768px) {
   .nf-hero--banner {
-    --nf-hero-text-left: calc(3.2% + 10px);
-    --nf-hero-text-width: calc(58% - (3.2% + 10px));
-    --nf-hero-text-top: 1px;
-    --nf-hero-text-bottom: 16px;
+    --nf-hero-text-left: calc(3.2% + 28px);
+    --nf-hero-text-width: calc(55% - (3.2% + 28px));
+    --nf-hero-text-top: 8px;
+    --nf-hero-text-bottom: 8px;
+  }
+
+  .nf-hero__content {
+    transform: none;
   }
 }
 
 @media (max-width: 480px) {
   .nf-hero--banner {
-    --nf-hero-text-left: calc(3.2% + 10px);
-    --nf-hero-text-width: calc(62% - (3.2% + 10px));
-    --nf-hero-text-top: -3px;
-    --nf-hero-text-bottom: 12px;
+    --nf-hero-text-left: calc(3.2% + 28px);
+    --nf-hero-text-width: calc(58% - (3.2% + 28px));
+    --nf-hero-text-top: 8px;
+    --nf-hero-text-bottom: 8px;
   }
 }
 
@@ -146,13 +151,13 @@
 .mobile-image-lightbox__overlay .nf-hero--banner-lightbox .nf-hero__content {
   position: absolute;
   display: flex !important;
-  top: -9px;
+  top: 8px;
   right: auto;
-  bottom: 6px;
-  left: calc(3.2% + 8px);
-  width: calc(58% - (3.2% + 8px));
-  height: calc(100% - 12px);
-  max-height: calc(100% - 12px);
+  bottom: 8px;
+  left: calc(3.2% + 32px);
+  width: calc(52% - (3.2% + 32px));
+  height: auto;
+  max-height: calc(100% - 16px);
   overflow: hidden;
   gap: clamp(0.05rem, 0.7cqh, 0.18rem);
   justify-content: center;
