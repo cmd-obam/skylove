@@ -13,7 +13,9 @@ function SlideBody({ slide }) {
     return (
       <div className="banner-lightbox-slides__copy banner-lightbox-slides__copy--nf">
         {slide.welcome ? (
-          <p className="banner-lightbox-slides__welcome">{slide.welcome}</p>
+          <p className="banner-lightbox-slides__welcome">
+            <span className="banner-lightbox-slides__welcome-text">{slide.welcome}</span>
+          </p>
         ) : null}
         <div className="banner-lightbox-slides__headline">
           {slide.lines.map((line, index) => (
@@ -33,9 +35,6 @@ function SlideBody({ slide }) {
             </span>
           ))}
         </div>
-        {slide.showUnderline ? (
-          <span className="banner-lightbox-slides__underline" aria-hidden="true" />
-        ) : null}
       </div>
     )
   }
