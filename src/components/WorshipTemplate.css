@@ -419,13 +419,13 @@
 
 .worship-template__intro--banner-lightbox .worship-template__intro-title {
   margin-top: 10px;
-  font-size: clamp(0.75rem, 4.6cqi, 0.9375rem);
+  font-size: clamp(1rem, 6.6cqi, 1.1875rem);
   line-height: 1.2;
 }
 
 .worship-template__intro--banner-lightbox .worship-template__headline,
 .worship-template__intro--banner-lightbox .worship-template__headline-line {
-  font-size: clamp(0.8125rem, 6.5cqi, 1.125rem);
+  font-size: clamp(1.0625rem, 8.5cqi, 1.375rem);
   line-height: 1.22;
 }
 
@@ -436,7 +436,7 @@
 
 .worship-template__intro--banner-lightbox .worship-template__description,
 .worship-template__intro--banner-lightbox .worship-template__description--rich {
-  font-size: clamp(0.6875rem, 4cqi, 0.8125rem);
+  font-size: clamp(0.9375rem, 6cqi, 1.0625rem);
   line-height: 1.28;
 }
 
@@ -449,7 +449,7 @@
 .worship-template__intro--banner-lightbox
   .worship-template__description-blocks
   .worship-template__description {
-  font-size: clamp(0.625rem, 3.6cqi, 0.75rem);
+  font-size: clamp(0.875rem, 5.6cqi, 1rem);
   line-height: 1.24;
 }
 
