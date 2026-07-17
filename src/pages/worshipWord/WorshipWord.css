@@ -319,3 +319,26 @@
     grid-template-columns: 1fr;
   }
 }
+
+.worship-word-pagination__nav:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.worship-word-pagination__nav svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+@media (max-width: 768px) {
+  .worship-word-pagination {
+    margin-top: 1.5rem;
+    gap: 0.25rem;
+  }
+
+  .worship-word-pagination .church-news-board__page {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.875rem;
+  }
+}
