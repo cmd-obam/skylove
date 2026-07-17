@@ -318,13 +318,19 @@
     max-width: 100%;
     /* ~12% smaller than previous mobile padding */
     padding: 7px 0.8rem;
+    border: 1.5px solid transparent;
     font-size: 0.7rem;
     line-height: 1.2;
     white-space: nowrap;
   }
 
+  /* Match secondary outer size (border included) */
+  .hero__btn--primary {
+    border-color: #0091ff;
+  }
+
   .hero__btn--secondary {
-    border-width: 1.5px;
+    border-color: var(--color-white);
   }
 
   .hero__indicators {
