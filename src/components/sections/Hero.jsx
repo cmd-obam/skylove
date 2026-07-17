@@ -49,7 +49,7 @@ function Hero() {
                 src={src}
                 alt=""
                 draggable={false}
-                className={`hero__slide hero__bg${
+                className={`hero__slide hero__bg hero__slide--${index + 1}${
                   index === currentSlide ? ' hero__slide--active' : ''
                 }`}
               />

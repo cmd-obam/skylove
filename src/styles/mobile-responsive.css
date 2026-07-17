@@ -350,36 +350,45 @@
 }
 
 @media (max-width: 767px) {
-  /* Align with Hero.css mobile hero (cover retained; shorter frame, safer crop). */
+  /* Align with Hero.css: panoramic slides readable on mobile, cover kept. */
   .hero {
     aspect-ratio: auto;
-    min-height: clamp(310px, 54vh, 420px);
+    height: clamp(200px, 48vw, 280px);
+    min-height: 200px;
+    max-height: 280px;
   }
 
   .hero__slide,
   .hero__bg {
     object-fit: cover;
-    object-position: 45% 32%;
+  }
+
+  .hero__slide--1 {
+    object-position: 50% 48%;
+  }
+
+  .hero__slide--2 {
+    object-position: 38% 28%;
   }
 
   .hero__content {
-    max-width: min(100%, 19.5rem);
+    max-width: min(100%, 17.5rem);
   }
 
   .hero__title {
     max-width: 100%;
-    font-size: clamp(1.45rem, 6vw, 1.9rem);
+    font-size: clamp(1.25rem, 5.4vw, 1.65rem);
   }
 
   .hero__subtitle {
     max-width: 100%;
-    font-size: 0.875rem;
-    margin-bottom: 1.25rem;
+    font-size: 0.8125rem;
+    margin-bottom: 0.875rem;
   }
 
   .hero__btn {
-    font-size: 0.84375rem;
-    padding: 11px 1.05rem;
+    font-size: 0.75rem;
+    padding: 8px 0.9rem;
   }
 
   .worship-first-visit {
