@@ -757,3 +757,18 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+@media (max-width: 767px) {
+  /* 예배안내 모바일 배너 헤드라인: 주일축복예배 글자 크기로 통일 */
+  .mobile-banner-expand.worship-template__intro--banner .worship-template__headline,
+  .mobile-banner-expand.worship-template__intro--banner .worship-template__headline-line,
+  .mobile-banner-expand.worship-template__intro--banner .worship-template__headline-accent,
+  .mobile-banner-expand.worship-template__intro--banner.worship-template__intro--typography-classic
+    .worship-template__headline,
+  .mobile-banner-expand.worship-template__intro--banner.worship-template__intro--typography-classic
+    .worship-template__headline-line {
+    font-size: clamp(1.0625rem, 7.8cqi, 2.125rem);
+    font-weight: 800;
+    line-height: 1.34;
+  }
+}
