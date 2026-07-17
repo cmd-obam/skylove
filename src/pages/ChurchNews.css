@@ -204,8 +204,9 @@
 
 .event-photos-card__meta {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.35rem;
   margin: 0;
   font-size: 0.8125rem;
   color: #9ca3af;
@@ -213,6 +214,17 @@
 
 .event-photos-card__meta-divider {
   color: #d1d5db;
+}
+
+.event-photos-card__likes {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.event-photos-card__likes svg {
+  width: 0.9rem;
+  height: 0.9rem;
 }
 
 .event-photos-empty {

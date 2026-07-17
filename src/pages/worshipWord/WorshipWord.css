@@ -68,8 +68,9 @@
   overflow: hidden;
 }
 
-.worship-word-card__likes {
-  display: inline-flex;
+.worship-word-card__meta {
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.35rem;
   margin: 0;
@@ -77,33 +78,19 @@
   color: #8a929b;
 }
 
+.worship-word-card__meta-sep {
+  color: #d1d5db;
+}
+
+.worship-word-card__likes {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
 .worship-word-card__likes svg {
   width: 0.9rem;
   height: 0.9rem;
-}
-
-.worship-word-card__author {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  margin: 0.15rem 0 0;
-  font-size: 0.8125rem;
-  color: #6b7280;
-}
-
-.worship-word-card__avatar {
-  display: inline-grid;
-  place-items: center;
-  width: 1.4rem;
-  height: 1.4rem;
-  border-radius: 999px;
-  background: #e5e7eb;
-  color: #9ca3af;
-}
-
-.worship-word-card__avatar svg {
-  width: 0.85rem;
-  height: 0.85rem;
 }
 
 .worship-word-detail {
