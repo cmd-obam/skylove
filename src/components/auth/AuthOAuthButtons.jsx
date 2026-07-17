@@ -45,14 +45,6 @@ function AuthOAuthButtons() {
         >
           {pendingProvider === 'kakao' ? '카카오 연결 중...' : '카카오로 시작하기'}
         </button>
-        <button
-          type="button"
-          className="auth-oauth__button auth-oauth__button--naver"
-          onClick={() => handleOAuthClick('naver')}
-          disabled={Boolean(pendingProvider)}
-        >
-          {pendingProvider === 'naver' ? '네이버 연결 중...' : '네이버로 시작하기'}
-        </button>
       </div>
 
       {errorMessage && (
