@@ -4,7 +4,7 @@ import AuthBreadcrumb from '@/components/auth/AuthBreadcrumb'
 import MemberMenuSidebar from '@/components/auth/MemberMenuSidebar'
 import {
   findUsernameByNameEmail,
-  verifyMemberForPasswordReset,
+  verifyMemberForPasswordResetByLoginId,
 } from '@/services/auth/accountRecovery'
 import { AUTH_MESSAGES } from '@/constants/authMessages'
 import { setPasswordResetSession } from '@/utils/passwordResetSession'
@@ -40,7 +40,7 @@ const PAGE_CONTENT = {
   },
   'find-password': {
     title: '비밀번호 찾기',
-    subtitle: '가입 시 등록한 이름과 이메일로 본인 확인 후 비밀번호를 재설정할 수 있습니다.',
+    subtitle: '가입 시 등록한 아이디 확인 후, 보안 질문 답변으로 비밀번호를 재설정할 수 있습니다.',
     breadcrumb: '비밀번호 찾기',
   },
 }
@@ -158,10 +158,7 @@ function Auth() {
     const formData = new FormData(event.currentTarget)
 
     try {
-      const result = await verifyMemberForPasswordReset({
-        name: formData.get('name'),
-        email: formData.get('email'),
-      })
+      const result = await verifyMemberForPasswordResetByLoginId(formData.get('loginId'))
 
       if (!result.success) {
         setFormFeedback({
@@ -174,12 +171,14 @@ function Auth() {
       setPasswordResetSession({
         email: result.email,
         name: result.name,
+        loginId: result.username,
       })
 
       navigate('/reset-password/security-question', {
         state: {
           email: result.email,
           name: result.name,
+          loginId: result.username,
         },
       })
     } catch {
@@ -315,22 +314,11 @@ function Auth() {
             {activeTab === 'find-password' && (
               <form className="auth-sub-form" onSubmit={handleFindPasswordSubmit} autoComplete="off">
                 <input
-                  name="name"
+                  name="loginId"
                   type="text"
                   className="auth-form__input"
-                  placeholder="이름"
-                  aria-label="이름"
-                  autoComplete={AUTOCOMPLETE_OFF}
-                  autoCorrect="off"
-                  autoCapitalize="off"
-                  spellCheck={false}
-                />
-                <input
-                  name="email"
-                  type="email"
-                  className="auth-form__input"
-                  placeholder="이메일"
-                  aria-label="이메일"
+                  placeholder="아이디"
+                  aria-label="아이디"
                   autoComplete={AUTOCOMPLETE_OFF}
                   autoCorrect="off"
                   autoCapitalize="off"

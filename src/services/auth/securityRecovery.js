@@ -32,8 +32,7 @@ async function fetchQuestionFromTable({ name, email }) {
   if (!data.security_question) {
     return {
       success: false,
-      message:
-        '등록된 비밀번호 찾기 질문이 없습니다. 회원가입 시 질문을 등록했는지 확인해주세요.',
+      message: AUTH_MESSAGES.securityQuestionMissing,
     }
   }
 
@@ -57,7 +56,14 @@ export async function fetchPasswordRecoveryQuestion({ name, email }) {
     p_email: trimmedEmail,
   })
 
-  if (!error && data) {
+  if (!error) {
+    if (!data) {
+      return {
+        success: false,
+        message: AUTH_MESSAGES.securityQuestionMissing,
+      }
+    }
+
     return {
       success: true,
       question: data,

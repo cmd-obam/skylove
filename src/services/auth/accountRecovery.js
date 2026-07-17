@@ -252,5 +252,47 @@ export async function verifyMemberForPasswordReset({ name, email }) {
     success: true,
     email: result.email,
     name: result.name ?? trimmedName,
+    username: result.username,
+  }
+}
+
+/**
+ * 비밀번호 찾기: 아이디(username)로 회원 확인 후 name/email 반환.
+ * 기존 login 조회와 동일하게 profiles.username SELECT 를 사용합니다.
+ */
+export async function verifyMemberForPasswordResetByLoginId(loginId) {
+  const trimmedLoginId = String(loginId ?? '').trim()
+
+  if (!trimmedLoginId) {
+    return { success: false, message: '아이디를 입력해주세요.' }
+  }
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('username, email, name, security_question')
+    .eq('username', trimmedLoginId)
+    .maybeSingle()
+
+  if (error) {
+    console.error('[AccountRecovery] username lookup for password reset failed', error)
+    return { success: false, message: '회원 조회 중 오류가 발생했습니다.' }
+  }
+
+  if (!data?.username || !data?.email || !data?.name) {
+    return { success: false, message: '존재하지 않는 아이디입니다.' }
+  }
+
+  if (!data.security_question) {
+    return {
+      success: false,
+      message: '등록된 보안 질문이 없습니다.\n관리자에게 문의해주세요.',
+    }
+  }
+
+  return {
+    success: true,
+    username: data.username,
+    email: data.email,
+    name: data.name,
   }
 }
