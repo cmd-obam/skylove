@@ -731,14 +731,14 @@
   }
 
   .home-welcome .home-section__eyebrow {
-    font-size: 0.8125rem;
+    font-size: 0.9375rem;
     margin-bottom: 0.5rem;
   }
 
-  /* ~12% smaller than previous mobile title */
+  /* One step larger than previous mobile title */
   .home-welcome .home-section__title {
     margin-left: 0;
-    font-size: clamp(1.2rem, 4.8vw, 1.4rem);
+    font-size: clamp(1.35rem, 5.4vw, 1.55rem);
     line-height: 1.32;
   }
 
