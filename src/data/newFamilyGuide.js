@@ -33,7 +33,6 @@ export const NEW_FAMILY_HERO = {
           { text: '으로 환영합니다.' },
         ],
       ],
-      showUnderline: true,
     },
     {
       id: 'body',

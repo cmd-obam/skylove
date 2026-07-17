@@ -344,9 +344,17 @@
     pointer-events: none;
   }
 
-  .mobile-banner-expand.nf-hero--banner .nf-hero__welcome,
   .mobile-banner-expand.nf-hero--banner .nf-hero__subcopy {
     display: none !important;
+  }
+
+  .mobile-banner-expand.nf-hero--banner .nf-hero__welcome {
+    display: block !important;
+    margin: 0 0 0.35em;
+  }
+
+  .mobile-banner-expand.nf-hero--banner .nf-hero__welcome-text {
+    font-size: clamp(0.625rem, 5.2cqi, 0.8125rem);
   }
 
   .mobile-banner-expand.nf-hero--banner .nf-hero__main-title {

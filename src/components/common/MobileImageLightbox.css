@@ -160,7 +160,7 @@
   color: #5aa9ff;
 }
 
-.mobile-image-lightbox__overlay .nf-hero--banner-lightbox .banner-lightbox-slides__welcome {
+.mobile-image-lightbox__overlay .nf-hero--banner-lightbox .banner-lightbox-slides__welcome-text {
   color: #a65d5d;
 }
 
@@ -173,10 +173,6 @@
 
 .mobile-image-lightbox__overlay .nf-hero--banner-lightbox .banner-lightbox-slides__accent {
   color: #d64545;
-}
-
-.mobile-image-lightbox__overlay .nf-hero--banner-lightbox .banner-lightbox-slides__underline {
-  background-color: #1e3a5f;
 }
 
 .mobile-image-lightbox__overlay
