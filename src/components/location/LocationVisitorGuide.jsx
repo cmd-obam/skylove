@@ -1,36 +1,8 @@
+import carIconImage from '@/assets/images/location/location-icon-car.png'
+import busIconImage from '@/assets/images/location/location-icon-bus.png'
 import parkingImage from '@/assets/images/location/location-parking.png'
 import { ACCESS_GUIDES } from '@/data/location'
 import './LocationVisitorGuide.css'
-
-function IconCar() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M4 14h16l-1.5-5a2 2 0 0 0-1.9-1.4H7.4A2 2 0 0 0 5.5 9L4 14Zm2 5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Zm12 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinejoin="round"
-      />
-      <path d="M4 14h16" stroke="currentColor" strokeWidth="2" />
-    </svg>
-  )
-}
-
-function IconBus() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M6 5h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-1.2M6 5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h1.2M6 5v14"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinejoin="round"
-      />
-      <circle cx="8" cy="18" r="1.2" fill="currentColor" />
-      <circle cx="16" cy="18" r="1.2" fill="currentColor" />
-      <path d="M8 8h8M8 11h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  )
-}
 
 function IconParking() {
   return (
@@ -56,7 +28,7 @@ function LocationVisitorGuide() {
         <article className="location-visitor__card location-visitor__card--car">
           <div className="location-visitor__card-header">
             <span className="location-visitor__icon" aria-hidden="true">
-              <IconCar />
+              <img src={carIconImage} alt="" className="location-visitor__icon-image" />
             </span>
             <h2 className="location-visitor__card-title">{car.title}</h2>
           </div>
@@ -87,7 +59,7 @@ function LocationVisitorGuide() {
         <article className="location-visitor__card location-visitor__card--bus">
           <div className="location-visitor__card-header">
             <span className="location-visitor__icon" aria-hidden="true">
-              <IconBus />
+              <img src={busIconImage} alt="" className="location-visitor__icon-image" />
             </span>
             <h2 className="location-visitor__card-title">{bus.title}</h2>
           </div>
