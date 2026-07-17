@@ -145,6 +145,14 @@
   display: block;
 }
 
+.hero__subtitle-desktop {
+  display: contents;
+}
+
+.hero__subtitle-mobile {
+  display: none;
+}
+
 .hero__actions {
   display: flex;
   justify-content: flex-start;
@@ -229,14 +237,14 @@
 @media (max-width: 768px) {
   /*
    * Mobile-only for panoramic hero photos (~1024×406).
-   * Keep object-fit: cover (no contain). Shorter frame ≈ image AR
-   * so left/right crop is much lighter and the photos actually read.
+   * Keep object-fit: cover (no contain). Frame sized so photo + copy both fit.
    */
   .hero {
     aspect-ratio: auto;
-    height: clamp(200px, 48vw, 280px);
-    min-height: 200px;
-    max-height: 280px;
+    height: clamp(230px, 56vw, 300px);
+    min-height: 230px;
+    max-height: 300px;
+    align-items: center;
   }
 
   .hero__slide,
@@ -256,45 +264,71 @@
 
   .hero__content-wrap {
     padding-inline: 0.875rem;
-    padding-block: 0.5rem 1.75rem;
+    padding-block: 0.75rem 1.5rem;
+    box-sizing: border-box;
   }
 
   .hero__content {
-    max-width: min(100%, 17.5rem);
+    max-width: min(100%, 18.5rem);
+    overflow: visible;
   }
 
   .hero__title {
     max-width: 100%;
-    margin-bottom: 0.5rem;
-    font-size: clamp(1.25rem, 5.4vw, 1.65rem);
-    line-height: 1.22;
+    margin-bottom: 0.4rem;
+    gap: 0;
+    font-size: clamp(1.05rem, 4.6vw, 1.35rem);
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+  }
+
+  .hero__title-line {
+    overflow: visible;
+  }
+
+  .hero__subtitle-desktop {
+    display: none;
+  }
+
+  .hero__subtitle-mobile {
+    display: block;
   }
 
   .hero__subtitle {
     max-width: 100%;
-    margin-bottom: 0.875rem;
-    font-size: 0.8125rem;
-    line-height: 1.45;
+    margin-bottom: 0.7rem;
+    font-size: 0.75rem;
+    line-height: 1.4;
+  }
+
+  .hero__subtitle-line--spaced {
+    margin-top: 0.35rem;
   }
 
   .hero__actions {
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.45rem;
   }
 
   .hero__btn {
     box-sizing: border-box;
     width: auto;
     max-width: 100%;
-    padding: 8px 0.9rem;
-    font-size: 0.75rem;
+    /* ~12% smaller than previous mobile padding */
+    padding: 7px 0.8rem;
+    font-size: 0.7rem;
+    line-height: 1.2;
     white-space: nowrap;
   }
 
+  .hero__btn--secondary {
+    border-width: 1.5px;
+  }
+
   .hero__indicators {
-    bottom: 10px;
+    bottom: 8px;
     gap: 7px;
   }
 
@@ -306,57 +340,68 @@
 
 @media (max-width: 430px) {
   .hero {
-    height: clamp(190px, 50vw, 240px);
-    min-height: 190px;
-    max-height: 240px;
+    height: clamp(220px, 58vw, 270px);
+    min-height: 220px;
+    max-height: 270px;
   }
 
   .hero__content {
-    max-width: min(100%, 16.5rem);
+    max-width: min(100%, 17.25rem);
+  }
+
+  .hero__title {
+    font-size: clamp(1rem, 4.4vw, 1.25rem);
+    line-height: 1.18;
+  }
+
+  .hero__subtitle {
+    font-size: 0.7rem;
+    line-height: 1.35;
   }
 
   .hero__btn {
-    padding: 7px 0.8rem;
-    font-size: 0.72rem;
+    padding: 6px 0.7rem;
+    font-size: 0.66rem;
   }
 }
 
 @media (max-width: 390px) {
   .hero__title {
-    font-size: clamp(1.15rem, 5.2vw, 1.45rem);
+    font-size: clamp(0.95rem, 4.2vw, 1.15rem);
+    margin-bottom: 0.35rem;
   }
 
   .hero__subtitle {
-    font-size: 0.75rem;
-    margin-bottom: 0.75rem;
+    font-size: 0.68rem;
+    margin-bottom: 0.6rem;
   }
 
   .hero__btn {
-    padding: 7px 0.75rem;
-    font-size: 0.7rem;
+    padding: 6px 0.65rem;
+    font-size: 0.64rem;
   }
 }
 
 @media (max-width: 360px) {
   .hero {
-    height: clamp(180px, 52vw, 220px);
-    min-height: 180px;
-    max-height: 220px;
+    height: clamp(210px, 60vw, 250px);
+    min-height: 210px;
+    max-height: 250px;
   }
 
   .hero__content {
-    max-width: min(100%, 15.25rem);
+    max-width: min(100%, 16rem);
   }
 
   .hero__btn {
-    padding: 6px 0.7rem;
-    font-size: 0.68rem;
+    padding: 5px 0.6rem;
+    font-size: 0.62rem;
   }
 }
 
 @media (max-width: 320px) {
   .hero__btn {
-    padding: 6px 0.65rem;
-    font-size: 0.65rem;
+    padding: 5px 0.55rem;
+    font-size: 0.6rem;
   }
 }

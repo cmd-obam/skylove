@@ -76,11 +76,29 @@ function Hero() {
               ))}
             </h1>
             <p className="hero__subtitle">
-              {(HOME_HERO.subtitleLines ?? [HOME_HERO.subtitle]).map((line) => (
-                <span key={line} className="hero__subtitle-line">
-                  {line}
-                </span>
-              ))}
+              <span className="hero__subtitle-desktop">
+                {(HOME_HERO.subtitleLines ?? [HOME_HERO.subtitle]).map((line) => (
+                  <span key={line} className="hero__subtitle-line">
+                    {line}
+                  </span>
+                ))}
+              </span>
+              <span className="hero__subtitle-mobile">
+                {(HOME_HERO.subtitleLinesMobile ?? HOME_HERO.subtitleLines ?? [HOME_HERO.subtitle]).map(
+                  (line, index) => (
+                    <span
+                      key={`mobile-${line}`}
+                      className={`hero__subtitle-line${
+                        (HOME_HERO.subtitleMobileSpacedAfter ?? []).includes(index)
+                          ? ' hero__subtitle-line--spaced'
+                          : ''
+                      }`}
+                    >
+                      {line}
+                    </span>
+                  ),
+                )}
+              </span>
             </p>
             <div className="hero__actions">
               <Link to={HOME_HERO.primaryCta.href} className="hero__btn hero__btn--primary">

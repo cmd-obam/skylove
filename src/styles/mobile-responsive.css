@@ -371,24 +371,40 @@
     object-position: 38% 28%;
   }
 
+  .hero {
+    height: clamp(230px, 56vw, 300px);
+    min-height: 230px;
+    max-height: 300px;
+  }
+
   .hero__content {
-    max-width: min(100%, 17.5rem);
+    max-width: min(100%, 18.5rem);
   }
 
   .hero__title {
     max-width: 100%;
-    font-size: clamp(1.25rem, 5.4vw, 1.65rem);
+    font-size: clamp(1.05rem, 4.6vw, 1.35rem);
+    line-height: 1.2;
+  }
+
+  .hero__subtitle-desktop {
+    display: none;
+  }
+
+  .hero__subtitle-mobile {
+    display: block;
   }
 
   .hero__subtitle {
     max-width: 100%;
-    font-size: 0.8125rem;
-    margin-bottom: 0.875rem;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    margin-bottom: 0.7rem;
   }
 
   .hero__btn {
-    font-size: 0.75rem;
-    padding: 8px 0.9rem;
+    font-size: 0.7rem;
+    padding: 7px 0.8rem;
   }
 
   .worship-first-visit {

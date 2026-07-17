@@ -11,6 +11,14 @@ export const HOME_HERO = {
     '말씀 안에서 성장하고',
     '사랑으로 섬기며 다음 세대를 세워가는 하늘사랑교회입니다.',
   ],
+  /* Mobile-only line breaks (PC keeps subtitleLines). */
+  subtitleLinesMobile: [
+    '말씀 안에서 성장하고',
+    '사랑으로 섬기며,',
+    '다음 세대를 세워가는',
+    '하늘사랑교회입니다.',
+  ],
+  subtitleMobileSpacedAfter: [0, 2],
   primaryCta: { label: '처음오신분을 환영합니다', href: '/new-family' },
   secondaryCta: { label: '예배 안내 보기', href: '/worship' },
 }
