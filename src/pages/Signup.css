@@ -1814,7 +1814,7 @@
 
   .signup-info-form__row {
     grid-template-columns: 4.75rem minmax(0, 1fr);
-    align-items: center;
+    align-items: stretch;
   }
 
   .signup-info-form__row--birth {
@@ -1822,10 +1822,13 @@
   }
 
   .signup-info-form__label-cell {
+    align-self: stretch;
     align-items: center;
     justify-content: center;
     padding: 0.5rem 0.25rem;
     min-width: 4.75rem;
+    min-height: 100%;
+    background-color: #fafafa;
   }
 
   .signup-info-form__label {
