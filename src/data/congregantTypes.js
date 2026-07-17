@@ -10,7 +10,7 @@ export const CONGREGANT_TYPES = [
 
 export const CONGREGANT_TYPE_IDS = new Set(CONGREGANT_TYPES.map((item) => item.id))
 
-export const ATTENDING_CHURCH_PLACEHOLDER = '예) 사랑의교회, 행복한교회'
+export const ATTENDING_CHURCH_PLACEHOLDER = '예) 하늘교회, 사랑교회'
 
 export function isOtherCongregantType(value) {
   return value === CONGREGANT_TYPE_OTHER
