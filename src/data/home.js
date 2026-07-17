@@ -1,6 +1,7 @@
 import { LOCATION_DATA } from '@/data/location'
 import { WORSHIP_SCHEDULE } from '@/data/worship'
 import welcomeImage from '@/assets/images/home/welcome-church-exterior.png'
+import welcomeImageMobile from '@/assets/images/home/welcome-church-exterior-mobile.png'
 
 export const HOME_HERO = {
   title: '하나님을 만나 사람이 행복한 교회',
@@ -34,6 +35,7 @@ export const HOME_WELCOME = {
     '따뜻한 공동체입니다.',
   ],
   image: welcomeImage,
+  imageMobile: welcomeImageMobile,
   imageAlt: '하늘사랑교회 외관',
   links: [
     { label: '교회소개', href: '/about', icon: 'book' },

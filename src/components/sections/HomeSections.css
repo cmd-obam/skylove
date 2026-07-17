@@ -650,8 +650,11 @@
     max-width: none;
   }
 
+  /* Keep PC-like portrait crop until true mobile breakpoint */
   .home-welcome__image {
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 4 / 4.8;
+    object-fit: cover;
+    object-position: center center;
   }
 
   .home-location__info {
@@ -683,7 +686,25 @@
   }
 
   .home-welcome__inner {
-    gap: 2.25rem;
+    gap: 1.5rem;
+  }
+
+  .home-welcome__media {
+    width: 100%;
+  }
+
+  /*
+   * Mobile welcome graphic is portrait (church + sky text).
+   * Do not force a landscape box — that crops the building base and
+   * makes baked-in copy collide with the tower.
+   */
+  .home-welcome__image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: auto;
+    object-fit: contain;
+    object-position: center bottom;
+    border-radius: 14px;
   }
 
   .home-section__header--with-action {
@@ -706,7 +727,17 @@
 
   .home-welcome .home-section__title {
     margin-left: 0;
-    font-size: 1.8125rem;
+    font-size: clamp(1.35rem, 5.5vw, 1.625rem);
+    line-height: 1.35;
+  }
+
+  .home-welcome .home-section__title-line {
+    white-space: normal;
+  }
+
+  .home-welcome .home-section__eyebrow {
+    font-size: 0.875rem;
+    margin-bottom: 0.65rem;
   }
 
   .home-story__card-body {
@@ -723,13 +754,27 @@
   }
 
   .home-welcome__description {
-    font-size: 1.0625rem;
-    line-height: 1.85;
+    margin: 1.15rem 0 1.5rem;
+    font-size: 0.9375rem;
+    line-height: 1.7;
+  }
+
+  .home-welcome__links {
+    gap: 0.625rem;
   }
 
   .home-welcome__link {
+    max-width: none;
     width: 100%;
     justify-content: space-between;
+    padding: 0.7rem 0.875rem;
+    font-size: 0.9375rem;
+  }
+
+  .home-welcome__link-icon {
+    width: 1.9rem;
+    height: 1.9rem;
+    font-size: 1.2rem;
   }
 
   .home-worship__list {
