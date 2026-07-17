@@ -10,6 +10,21 @@ function restoreScrollY(scrollY) {
   documentElement.style.scrollBehavior = previousBehavior
 }
 
+function canElementScroll(element) {
+  if (!(element instanceof Element)) {
+    return false
+  }
+
+  const style = window.getComputedStyle(element)
+  const overflowY = style.overflowY
+  const allowsScroll = overflowY === 'auto' || overflowY === 'scroll'
+  if (!allowsScroll) {
+    return false
+  }
+
+  return element.scrollHeight > element.clientHeight + 1
+}
+
 /**
  * 모바일 오버레이(햄버거 메뉴 등)용 body 스크롤 잠금.
  * - iOS Safari: overflow:hidden 만으로는 배경이 움직이므로 position:fixed + scrollY 복원 사용
@@ -44,6 +59,7 @@ export default function useBodyScrollLock(locked, scrollYOverride) {
       bodyTouchAction: body.style.touchAction,
       bodyOverscroll: body.style.overscrollBehavior,
       htmlOverflow: documentElement.style.overflow,
+      htmlTouchAction: documentElement.style.touchAction,
       htmlOverscroll: documentElement.style.overscrollBehavior,
       htmlScrollBehavior: documentElement.style.scrollBehavior,
     }
@@ -59,9 +75,26 @@ export default function useBodyScrollLock(locked, scrollYOverride) {
     body.style.touchAction = 'none'
     body.style.overscrollBehavior = 'none'
     documentElement.style.overflow = 'hidden'
+    documentElement.style.touchAction = 'none'
     documentElement.style.overscrollBehavior = 'none'
 
+    const shouldAllowTouchMove = (event) => {
+      const target = event.target
+      if (!(target instanceof Element)) {
+        return false
+      }
+
+      const scrollable = target.closest('[data-scroll-lock-allow]')
+      return canElementScroll(scrollable)
+    }
+
     const preventTouchScroll = (event) => {
+      if (!shouldAllowTouchMove(event)) {
+        event.preventDefault()
+      }
+    }
+
+    const preventWheelScroll = (event) => {
       const target = event.target
       if (!(target instanceof Element)) {
         event.preventDefault()
@@ -69,20 +102,17 @@ export default function useBodyScrollLock(locked, scrollYOverride) {
       }
 
       const scrollable = target.closest('[data-scroll-lock-allow]')
-      if (!scrollable) {
-        event.preventDefault()
-        return
-      }
-
-      if (scrollable.scrollHeight <= scrollable.clientHeight + 1) {
+      if (!canElementScroll(scrollable)) {
         event.preventDefault()
       }
     }
 
-    document.addEventListener('touchmove', preventTouchScroll, { passive: false })
+    document.addEventListener('touchmove', preventTouchScroll, { passive: false, capture: true })
+    document.addEventListener('wheel', preventWheelScroll, { passive: false, capture: true })
 
     return () => {
-      document.removeEventListener('touchmove', preventTouchScroll)
+      document.removeEventListener('touchmove', preventTouchScroll, { capture: true })
+      document.removeEventListener('wheel', preventWheelScroll, { capture: true })
 
       body.style.position = previous.bodyPosition
       body.style.top = previous.bodyTop
@@ -93,6 +123,7 @@ export default function useBodyScrollLock(locked, scrollYOverride) {
       body.style.touchAction = previous.bodyTouchAction
       body.style.overscrollBehavior = previous.bodyOverscroll
       documentElement.style.overflow = previous.htmlOverflow
+      documentElement.style.touchAction = previous.htmlTouchAction
       documentElement.style.overscrollBehavior = previous.htmlOverscroll
       documentElement.style.scrollBehavior = previous.htmlScrollBehavior
       body.removeAttribute(LOCK_ATTR)
