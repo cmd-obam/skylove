@@ -236,8 +236,11 @@ export async function recoverSessionFromAuthUrl() {
 
   const pathname = window.location.pathname.replace(/\/$/, '')
 
+  // /auth/callback 등은 AuthCallback 전용.
+  // /auth/oauth-callback 은 OAuthCallback 이 직접 exchange 하므로 여기서 건드리지 않습니다.
   if (
     pathname.endsWith('/auth/callback') ||
+    pathname.endsWith('/auth/oauth-callback') ||
     pathname.endsWith('/auth/confirm') ||
     pathname.endsWith('/email-confirm')
   ) {

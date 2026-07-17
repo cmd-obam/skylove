@@ -1,10 +1,52 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '@/contexts/AuthContext'
 import { fetchProfileByUserId } from '@/services/auth/profile'
 import { OAUTH_PROFILE_COMPLETE_PATH } from '@/services/auth/oauthProfile'
 import { supabase } from '@/lib/supabase'
 import './OAuthCallback.css'
+
+async function waitForSessionUser({ retries = 12, delayMs = 150 } = {}) {
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
+
+    if (session?.user) {
+      return session.user
+    }
+
+    if (attempt < retries) {
+      await new Promise((resolve) => {
+        window.setTimeout(resolve, delayMs)
+      })
+    }
+  }
+
+  return null
+}
+
+function clearOAuthParamsFromUrl() {
+  try {
+    const url = new URL(window.location.href)
+    const hadParams =
+      url.searchParams.has('code') ||
+      url.searchParams.has('state') ||
+      url.searchParams.has('error') ||
+      url.searchParams.has('error_description')
+
+    if (!hadParams) {
+      return
+    }
+
+    url.searchParams.delete('code')
+    url.searchParams.delete('state')
+    url.searchParams.delete('error')
+    url.searchParams.delete('error_description')
+    window.history.replaceState(window.history.state, '', url.pathname + url.search)
+  } catch {
+    // no-op
+  }
+}
 
 /**
  * OAuth 전용 콜백.
@@ -12,7 +54,6 @@ import './OAuthCallback.css'
  */
 function OAuthCallback() {
   const navigate = useNavigate()
-  const { session, profile, loading } = useAuth()
   const [errorMessage, setErrorMessage] = useState('')
   const finishedRef = useRef(false)
 
@@ -25,45 +66,44 @@ function OAuthCallback() {
       }
 
       try {
-        // OAuth 전용: URL의 code로 직접 교환만 수행하고, 이메일 인증 전용 로직은 호출하지 않습니다.
         const url = new URL(window.location.href)
         const code = url.searchParams.get('code')
+        let user = null
 
         if (code) {
           const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
-          if (error) {
-            throw error
+          if (!error && data?.session?.user) {
+            user = data.session.user
+          } else if (error) {
+            // code 재사용/경합이어도 이미 세션이 생겼을 수 있으므로 바로 실패 표시하지 않습니다.
+            console.warn('[OAuthCallback] exchangeCodeForSession error — will probe session', {
+              message: error.message,
+              code: error.code,
+              status: error.status,
+            })
           }
 
-          // URL 정리 (code 제거)
-          try {
-            url.searchParams.delete('code')
-            url.searchParams.delete('state')
-            window.history.replaceState(window.history.state, '', url.pathname + url.search)
-          } catch {
-            // no-op
-          }
+          clearOAuthParamsFromUrl()
         }
 
-        const {
-          data: { session: currentSession },
-        } = await supabase.auth.getSession()
+        if (!user) {
+          user = await waitForSessionUser()
+        }
 
-        const user = currentSession?.user ?? session?.user ?? null
+        if (cancelled) {
+          return
+        }
 
         if (!user) {
-          if (loading) {
-            return
-          }
-
           setErrorMessage('간편 로그인 세션을 확인하지 못했습니다. 다시 시도해주세요.')
           return
         }
 
-        const existingProfile = profile
-          ? { success: true, profile }
-          : await fetchProfileByUserId(user.id)
+        // 성공 경로에서는 이전 경합으로 찍힌 실패 문구를 지우지 않도록, 에러 UI 전에 완료합니다.
+        setErrorMessage('')
+
+        const existingProfile = await fetchProfileByUserId(user.id)
 
         if (cancelled || finishedRef.current) {
           return
@@ -79,11 +119,35 @@ function OAuthCallback() {
         navigate(OAUTH_PROFILE_COMPLETE_PATH, { replace: true })
       } catch (error) {
         console.error('[OAuthCallback] finish failed', error)
-        if (!cancelled) {
-          setErrorMessage(
-            error?.message || '간편 로그인 처리 중 오류가 발생했습니다. 다시 시도해주세요.',
-          )
+
+        if (cancelled || finishedRef.current) {
+          return
         }
+
+        // 예외가 나도 세션이 있으면 진행합니다.
+        const user = await waitForSessionUser({ retries: 4, delayMs: 100 })
+
+        if (cancelled || finishedRef.current) {
+          return
+        }
+
+        if (user) {
+          setErrorMessage('')
+          finishedRef.current = true
+          const existingProfile = await fetchProfileByUserId(user.id)
+
+          if (existingProfile.success && existingProfile.profile) {
+            navigate('/', { replace: true })
+            return
+          }
+
+          navigate(OAUTH_PROFILE_COMPLETE_PATH, { replace: true })
+          return
+        }
+
+        setErrorMessage(
+          error?.message || '간편 로그인 처리 중 오류가 발생했습니다. 다시 시도해주세요.',
+        )
       }
     }
 
@@ -92,7 +156,7 @@ function OAuthCallback() {
     return () => {
       cancelled = true
     }
-  }, [loading, navigate, profile, session])
+  }, [navigate])
 
   if (errorMessage) {
     return (
