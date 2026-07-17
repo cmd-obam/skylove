@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import AuthBreadcrumb from '@/components/auth/AuthBreadcrumb'
+import { AUTH_MESSAGES } from '@/constants/authMessages'
 import {
   fetchPasswordRecoveryQuestion,
   verifyPasswordRecoveryAnswer,
@@ -9,6 +10,11 @@ import {
   getPasswordResetSession,
   setPasswordResetSecurityVerified,
 } from '@/utils/passwordResetSession'
+import {
+  clearSecurityAnswerFailures,
+  getSecurityAnswerLockStatus,
+  recordSecurityAnswerFailure,
+} from '@/utils/securityAnswerRateLimit'
 import '@/components/layout/CategoryLayout.css'
 import '@/components/layout/SubLayout.css'
 import '@/pages/Auth.css'
@@ -24,12 +30,22 @@ function ResetPasswordSecurityQuestion() {
   const [formFeedback, setFormFeedback] = useState(null)
   const [isLoadingQuestion, setIsLoadingQuestion] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isLocked, setIsLocked] = useState(false)
+  const [lockMessage, setLockMessage] = useState('')
+
+  const applyLockStatus = (identityKey) => {
+    const status = getSecurityAnswerLockStatus(identityKey)
+    setIsLocked(Boolean(status.locked))
+    setLockMessage(status.locked ? status.message || AUTH_MESSAGES.securityAnswerLocked : '')
+    return status
+  }
 
   useEffect(() => {
     const stateVerification = location.state?.email
       ? {
           email: location.state.email,
           name: location.state.name,
+          loginId: location.state.loginId || '',
         }
       : null
 
@@ -47,6 +63,7 @@ function ResetPasswordSecurityQuestion() {
     }
 
     setVerification(nextVerification)
+    applyLockStatus(nextVerification.email || nextVerification.loginId)
 
     let cancelled = false
 
@@ -84,10 +101,36 @@ function ResetPasswordSecurityQuestion() {
     }
   }, [location.state, navigate])
 
+  useEffect(() => {
+    if (!verification || !isLocked) {
+      return undefined
+    }
+
+    const timer = window.setInterval(() => {
+      const status = applyLockStatus(verification.email || verification.loginId)
+      if (!status.locked) {
+        setFormFeedback(null)
+      }
+    }, 1000)
+
+    return () => window.clearInterval(timer)
+  }, [verification, isLocked])
+
   const handleSubmit = async (event) => {
     event.preventDefault()
 
     if (!verification || !questionLabel) {
+      return
+    }
+
+    const identityKey = verification.email || verification.loginId
+    const lockStatus = applyLockStatus(identityKey)
+
+    if (lockStatus.locked) {
+      setFormFeedback({
+        type: 'error',
+        message: lockStatus.message || AUTH_MESSAGES.securityAnswerLocked,
+      })
       return
     }
 
@@ -103,6 +146,7 @@ function ResetPasswordSecurityQuestion() {
     setFormFeedback(null)
 
     try {
+      // normalizeAnswer 는 verifyPasswordRecoveryAnswer 내부에서 재사용됩니다.
       const result = await verifyPasswordRecoveryAnswer({
         name: verification.name,
         email: verification.email,
@@ -110,14 +154,23 @@ function ResetPasswordSecurityQuestion() {
       })
 
       if (!result.success) {
+        const nextLock = recordSecurityAnswerFailure(identityKey)
+        setIsLocked(Boolean(nextLock.locked))
+        setLockMessage(nextLock.locked ? nextLock.message || AUTH_MESSAGES.securityAnswerLocked : '')
+
         setFormFeedback({
           type: 'error',
-          message: result.message,
+          message: nextLock.locked
+            ? nextLock.message || AUTH_MESSAGES.securityAnswerLocked
+            : result.message || AUTH_MESSAGES.securityAnswerMismatch,
         })
         return
       }
 
+      clearSecurityAnswerFailures(identityKey)
       setPasswordResetSecurityVerified()
+      // 답변 원문은 상태에만 잠시 두고, 다음 단계로 이동 시 화면/스토리지에 저장하지 않습니다.
+      setAnswer('')
       navigate('/reset-password/email-verify', { replace: true })
     } catch {
       setFormFeedback({
@@ -133,6 +186,9 @@ function ResetPasswordSecurityQuestion() {
     return null
   }
 
+  const answerInputDisabled =
+    !questionLabel || isLoadingQuestion || isLocked || isSubmitting
+
   return (
     <div className="category-layout auth-page">
       <div className="category-layout__inner">
@@ -141,7 +197,7 @@ function ResetPasswordSecurityQuestion() {
             <div className="sub-layout__heading">
               <h1 className="sub-layout__title">비밀번호 찾기</h1>
               <p className="sub-layout__subtitle">
-                회원가입 시 등록한 질문에 답변해주세요.
+                회원가입 시 등록한 보안 질문에 답변한 뒤에만 새 비밀번호를 설정할 수 있습니다.
               </p>
             </div>
             <AuthBreadcrumb label="비밀번호 찾기" />
@@ -149,6 +205,23 @@ function ResetPasswordSecurityQuestion() {
 
           <div className="auth-page__body">
             <form className="auth-sub-form" onSubmit={handleSubmit} noValidate autoComplete="off">
+              {verification.loginId ? (
+                <div className="auth-form__field">
+                  <label className="auth-form__field-label" htmlFor="reset-login-id">
+                    아이디
+                  </label>
+                  <input
+                    id="reset-login-id"
+                    type="text"
+                    className="auth-form__input"
+                    value={verification.loginId}
+                    readOnly
+                    disabled
+                    autoComplete="off"
+                  />
+                </div>
+              ) : null}
+
               <div className="auth-form__field">
                 <label className="auth-form__field-label" htmlFor="reset-security-question">
                   비밀번호 분실 시 질문
@@ -161,48 +234,54 @@ function ResetPasswordSecurityQuestion() {
                   </p>
                 ) : (
                   <p className="auth-form__feedback auth-form__feedback--error" role="alert">
-                    등록된 비밀번호 찾기 질문이 없습니다.
+                    {AUTH_MESSAGES.securityQuestionMissing}
                   </p>
                 )}
               </div>
 
-              <input
-                id="reset-security-answer"
-                name="securityAnswer"
-                type="text"
-                className="auth-form__input"
-                placeholder="회원가입 시 입력한 답변을 입력하세요."
-                value={answer}
-                onChange={(event) => {
-                  setAnswer(event.target.value)
-                  setAnswerError('')
-                  setFormFeedback(null)
-                }}
-                disabled={!questionLabel || isLoadingQuestion}
-                autoComplete="off"
-                aria-label="비밀번호 분실 시 답변"
-              />
+              <div className="auth-form__field">
+                <label className="auth-form__field-label" htmlFor="reset-security-answer">
+                  보안 답변
+                </label>
+                <input
+                  id="reset-security-answer"
+                  name="securityAnswer"
+                  type="text"
+                  className="auth-form__input"
+                  placeholder="회원가입 시 입력한 답변을 입력하세요."
+                  value={answer}
+                  onChange={(event) => {
+                    setAnswer(event.target.value)
+                    setAnswerError('')
+                    setFormFeedback(null)
+                  }}
+                  disabled={answerInputDisabled}
+                  autoComplete="off"
+                  aria-label="비밀번호 분실 시 답변"
+                />
+              </div>
+
               {answerError && (
                 <p className="auth-form__feedback auth-form__feedback--error" role="alert">
                   {answerError}
                 </p>
               )}
 
-              {formFeedback && (
+              {(formFeedback || (isLocked && lockMessage)) && (
                 <p
-                  className={`auth-form__feedback auth-form__feedback--${formFeedback.type}`}
-                  role={formFeedback.type === 'error' ? 'alert' : 'status'}
+                  className="auth-form__feedback auth-form__feedback--error auth-form__feedback--multiline"
+                  role="alert"
                 >
-                  {formFeedback.message}
+                  {isLocked ? lockMessage : formFeedback?.message}
                 </p>
               )}
 
               <button
                 type="submit"
                 className="auth-sub-form__submit"
-                disabled={isSubmitting || isLoadingQuestion || !questionLabel}
+                disabled={isSubmitting || isLoadingQuestion || !questionLabel || isLocked}
               >
-                {isSubmitting ? '확인 중...' : '다음'}
+                {isSubmitting ? '확인 중...' : '답변 확인'}
               </button>
 
               <Link to="/login?tab=find-password" className="auth-page__footer-link auth-sub-form__back">

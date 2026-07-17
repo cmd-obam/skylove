@@ -32,10 +32,11 @@ function writePasswordResetSession(session) {
   sessionStorage.setItem(STORAGE_KEY, JSON.stringify(session))
 }
 
-export function setPasswordResetSession({ email, name }) {
+export function setPasswordResetSession({ email, name, loginId = '' }) {
   writePasswordResetSession({
     email: String(email ?? '').trim(),
     name: String(name ?? '').trim(),
+    loginId: String(loginId ?? '').trim(),
     securityVerified: false,
     emailOtpVerified: false,
     expiresAt: Date.now() + TTL_MS,
@@ -82,6 +83,7 @@ export function getPasswordResetSession() {
   return {
     email: parsed.email,
     name: parsed.name,
+    loginId: parsed.loginId || '',
     securityVerified: Boolean(parsed.securityVerified),
     emailOtpVerified: Boolean(parsed.emailOtpVerified),
   }
