@@ -1,17 +1,25 @@
 export const SECURITY_CUSTOM_QUESTION_ID = 'custom'
 
 export const SECURITY_QUESTIONS = [
+  { id: 'mother-full-name', label: '어머니 성함은 무엇인가요?' },
+  { id: 'father-full-name', label: '아버지 성함은 무엇인가요?' },
+  { id: 'birth-city', label: '태어난 도시는 어디인가요?' },
+  { id: 'elementary-school', label: '졸업한 초등학교는 어디인가요?' },
+  { id: 'first-attended-church', label: '첫 출석한 교회는 어디인가요?' },
+  { id: 'baptism-church', label: '세례를 받은 교회는 어디인가요?' },
+  { id: 'first-senior-pastor', label: '첫 담임목사님의 성함은 무엇인가요?' },
+  { id: 'first-workplace', label: '첫 직장 이름은 무엇인가요?' },
+  { id: SECURITY_CUSTOM_QUESTION_ID, label: '직접 입력' },
+]
+
+/** 이전 버전 회원가입 질문 ID (표시용) */
+const LEGACY_SECURITY_QUESTIONS = [
   { id: 'memorable-bible-verse', label: '가장 기억에 남는 성경 구절은 무엇인가요?' },
   { id: 'favorite-hymn', label: '가장 좋아하는 찬양은 무엇인가요?' },
   { id: 'respected-bible-figure', label: '가장 존경하는 성경 인물은 누구인가요?' },
   { id: 'childhood-nickname', label: '어릴 적 가장 기억에 남는 별명은 무엇인가요?' },
   { id: 'favorite-food', label: '가장 좋아하는 음식은 무엇인가요?' },
   { id: 'first-church', label: '처음 출석한 교회는 어디인가요?' },
-  { id: SECURITY_CUSTOM_QUESTION_ID, label: '직접 입력' },
-]
-
-/** 이전 버전 회원가입 질문 ID (표시용) */
-const LEGACY_SECURITY_QUESTIONS = [
   { id: 'favorite-character', label: '내가 좋아하는 캐릭터는?' },
   { id: 'body-secret', label: '타인이 모르는 자신만의 신체비밀이 있다면?' },
   { id: 'life-motto', label: '자신의 인생 좌우명은?' },
@@ -30,7 +38,7 @@ const LEGACY_SECURITY_QUESTIONS = [
   { id: 'mother-name', label: '어머니의 성함은?' },
 ]
 
-export const SECURITY_QUESTION_PLACEHOLDER = '---------- 선택하세요. ----------'
+export const SECURITY_QUESTION_PLACEHOLDER = '-------- 선택하세요 --------'
 
 export function getSecurityQuestionLabel(storedValue) {
   if (!storedValue) {
