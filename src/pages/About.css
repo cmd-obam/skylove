@@ -1,5 +1,5 @@
 .about-page {
-  --about-intro-bg: none;
+  --about-hero-bg: none;
   --about-quote-mark: #1a3d6e;
   --about-quote-text: #333333;
   --about-quote-accent: #0088e8;
@@ -20,19 +20,18 @@
   overflow: hidden;
 }
 
-.about-page::before {
-  content: '';
-  position: absolute;
-  inset: 0;
+.about-page__banner {
+  position: relative;
   z-index: 0;
-  background-image: var(--about-intro-bg);
+  width: 100%;
+  background-color: #fff;
+  background-image: var(--about-hero-bg);
   background-repeat: no-repeat;
   background-position: top center;
   background-size: 100% auto;
-  pointer-events: none;
 }
 
-.about-page > * {
+.about-page__banner > * {
   position: relative;
   z-index: 1;
 }
@@ -59,7 +58,8 @@
   display: flex;
   flex-direction: column;
   gap: clamp(2rem, 4vw, 3.5rem);
-  padding: clamp(1.75rem, 3.5vw, 2.75rem) var(--about-card-inline-padding, 2.5rem) 0;
+  padding: clamp(1.75rem, 3.5vw, 2.75rem) var(--about-card-inline-padding, 2.5rem)
+    clamp(1.75rem, 3.5vw, 2.5rem);
   padding-left: var(--about-inline-start);
 }
 
@@ -169,6 +169,7 @@
   margin-top: 10px;
   padding: clamp(1.5rem, 3vw, 2rem) var(--about-card-inline-padding, 2.5rem) 0.75rem;
   padding-left: var(--about-inline-start);
+  background-color: #fff;
 }
 
 .about-page__signature-zone {
@@ -227,8 +228,9 @@
     filter: none;
   }
 
-  .about-page::before {
-    display: none;
+  .about-page__banner {
+    background-size: cover;
+    background-position: top center;
   }
 
   .about-page__top {
@@ -253,10 +255,15 @@
     gap: 2rem;
     padding-inline: var(--about-card-inline-padding, 1.25rem);
     padding-left: var(--about-inline-start);
+    padding-bottom: 2rem;
   }
 
   .about-page__quote-inner {
     padding-inline: calc(1.75rem + 15px);
+  }
+
+  .about-page__quote-text {
+    font-size: clamp(1rem, 4.2vw, 1.25rem);
   }
 
   .about-page__pastor-zone {
@@ -275,7 +282,6 @@
   .about-page__signature-visual {
     width: min(88%, 22rem);
     margin-right: 0;
-    overflow: hidden;
     box-shadow: none !important;
     filter: none !important;
   }
@@ -286,21 +292,19 @@
     filter: none !important;
   }
 
-  /* Soft gray fringe is baked into the PNG bottom — clip it on mobile. */
   .about-page__signature-oval {
     display: block;
     width: 100%;
     height: auto;
-    clip-path: inset(0 0 4.5% 0);
-    transform: translateY(1px);
   }
 
   .about-page__scripture-ref {
-    font-size: 1.125rem;
+    font-size: 1rem;
   }
 
   .about-page__scripture-text {
-    font-size: 1.0625rem;
+    font-size: 0.875rem;
+    letter-spacing: 1px;
   }
 }
 
