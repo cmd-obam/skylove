@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase'
 import { AUTH_MESSAGES } from '@/constants/authMessages'
 import { getSecurityQuestionLabel } from '@/data/securityQuestions'
+import { normalizeAnswer } from '@/services/auth/normalizeAnswer'
 
 const VERIFY_EDGE_FUNCTION = 'verify_security_answer'
 
@@ -89,10 +90,54 @@ async function verifyAnswerViaEdgeFunction({ name, email, answer }) {
   return Boolean(data?.success)
 }
 
+async function verifyAnswerViaRpc({ name, email, answer }) {
+  const { data, error } = await supabase.rpc('verify_password_recovery_answer', {
+    p_name: name,
+    p_email: email,
+    p_answer: answer,
+  })
+
+  if (!error) {
+    return { ok: true, matched: Boolean(data) }
+  }
+
+  if (error.code !== 'PGRST202') {
+    console.error('[SecurityRecovery] verify_password_recovery_answer failed', error)
+    return {
+      ok: false,
+      matched: false,
+      fatal: {
+        success: false,
+        message: '답변 확인 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+      },
+    }
+  }
+
+  return { ok: false, matched: false, rpcMissing: true }
+}
+
+function buildAnswerCompareCandidates(answer) {
+  const raw = String(answer ?? '')
+  const normalized = normalizeAnswer(raw)
+  const legacyTrimmed = raw.trim()
+  const candidates = []
+
+  if (normalized) {
+    candidates.push(normalized)
+  }
+
+  // 정규화 이전에 저장된 기존 해시와의 호환 (trim만 적용된 값)
+  if (legacyTrimmed && legacyTrimmed !== normalized) {
+    candidates.push(legacyTrimmed)
+  }
+
+  return candidates
+}
+
 export async function verifyPasswordRecoveryAnswer({ name, email, answer }) {
   const trimmedName = String(name ?? '').trim()
   const trimmedEmail = String(email ?? '').trim()
-  const trimmedAnswer = String(answer ?? '').trim()
+  const compareCandidates = buildAnswerCompareCandidates(answer)
 
   if (!trimmedName) {
     return { success: false, message: '이름을 입력해주세요.' }
@@ -102,49 +147,58 @@ export async function verifyPasswordRecoveryAnswer({ name, email, answer }) {
     return { success: false, message: '이메일을 입력해주세요.' }
   }
 
-  if (!trimmedAnswer) {
+  if (compareCandidates.length === 0) {
     return { success: false, message: '답변을 입력해주세요.' }
   }
 
-  const { data, error } = await supabase.rpc('verify_password_recovery_answer', {
-    p_name: trimmedName,
-    p_email: trimmedEmail,
-    p_answer: trimmedAnswer,
-  })
+  let rpcMissing = false
 
-  if (!error) {
-    if (!data) {
-      return { success: false, message: AUTH_MESSAGES.securityAnswerMismatch }
+  for (const candidate of compareCandidates) {
+    const rpcResult = await verifyAnswerViaRpc({
+      name: trimmedName,
+      email: trimmedEmail,
+      answer: candidate,
+    })
+
+    if (rpcResult.fatal) {
+      return rpcResult.fatal
     }
 
-    return { success: true }
-  }
+    if (rpcResult.ok && rpcResult.matched) {
+      return { success: true }
+    }
 
-  if (error.code !== 'PGRST202') {
-    console.error('[SecurityRecovery] verify_password_recovery_answer failed', error)
-    return {
-      success: false,
-      message: '답변 확인 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+    if (rpcResult.rpcMissing) {
+      rpcMissing = true
+      break
     }
   }
 
-  const edgeVerified = await verifyAnswerViaEdgeFunction({
-    name: trimmedName,
-    email: trimmedEmail,
-    answer: trimmedAnswer,
-  })
-
-  if (edgeVerified === true) {
-    return { success: true }
-  }
-
-  if (edgeVerified === false) {
+  if (!rpcMissing) {
     return { success: false, message: AUTH_MESSAGES.securityAnswerMismatch }
   }
 
-  return {
-    success: false,
-    message:
-      '답변 확인 기능이 아직 설정되지 않았습니다. Supabase SQL Editor에서 supabase/fix_account_recovery.sql 을 실행해주세요.',
+  for (const candidate of compareCandidates) {
+    const edgeVerified = await verifyAnswerViaEdgeFunction({
+      name: trimmedName,
+      email: trimmedEmail,
+      answer: candidate,
+    })
+
+    if (edgeVerified === true) {
+      return { success: true }
+    }
+
+    if (edgeVerified === false) {
+      continue
+    }
+
+    return {
+      success: false,
+      message:
+        '답변 확인 기능이 아직 설정되지 않았습니다. Supabase SQL Editor에서 supabase/fix_account_recovery.sql 을 실행해주세요.',
+    }
   }
+
+  return { success: false, message: AUTH_MESSAGES.securityAnswerMismatch }
 }

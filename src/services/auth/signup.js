@@ -33,6 +33,7 @@ import {
   CONGREGANT_TYPE_IDS,
   isOtherCongregantType,
 } from '@/data/congregantTypes'
+import { normalizeAnswer } from '@/services/auth/normalizeAnswer'
 import { withAllowedOtpSend } from '@/services/auth/otpSendGuard'
 
 const LOGIN_ID_PATTERN = /^[a-zA-Z0-9_]{4,20}$/
@@ -1333,7 +1334,7 @@ async function insertProfile(userId, formData) {
     const { error: securityError } = await supabase.rpc('set_profile_security_recovery', {
       p_user_id: userId,
       p_security_question: resolveSecurityQuestionForStorage(formData),
-      p_security_answer: formData.securityAnswer.trim(),
+      p_security_answer: normalizeAnswer(formData.securityAnswer),
     })
 
     if (!securityError) {
@@ -1363,7 +1364,7 @@ async function insertProfile(userId, formData) {
     p_email: basePayload.email,
     p_phone: basePayload.phone,
     p_security_question: resolveSecurityQuestionForStorage(formData),
-    p_security_answer: formData.securityAnswer.trim(),
+    p_security_answer: normalizeAnswer(formData.securityAnswer),
   }
 
   console.warn('[Signup] falling back to create_profile_after_signup RPC', {

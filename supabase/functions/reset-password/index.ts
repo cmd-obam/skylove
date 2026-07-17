@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { handleOptionsRequest, jsonResponse, withCors } from '../_shared/cors.ts'
+import { normalizeAnswer } from '../_shared/normalizeAnswer.ts'
 
 function validatePassword(password: unknown): string | null {
   if (typeof password !== 'string' || !password) {
@@ -32,7 +33,8 @@ Deno.serve(
     const loginId = String(body?.loginId ?? '').trim()
     const email = String(body?.email ?? '').trim()
     const password = body?.password
-    const securityAnswer = String(body?.securityAnswer ?? '').trim()
+    const rawSecurityAnswer = String(body?.securityAnswer ?? '')
+    const normalizedSecurityAnswer = normalizeAnswer(rawSecurityAnswer)
 
     if (!name) {
       return jsonResponse({ error: 'validation', message: '이름을 입력해주세요.' }, 400)
@@ -52,7 +54,7 @@ Deno.serve(
       return jsonResponse({ error: 'validation', message: passwordError }, 400)
     }
 
-    if (!securityAnswer) {
+    if (!normalizedSecurityAnswer) {
       return jsonResponse({ error: 'validation', message: '비밀번호 찾기 답변을 입력해주세요.' }, 400)
     }
 
@@ -97,18 +99,29 @@ Deno.serve(
       )
     }
 
-    const { data: answerVerified, error: verifyError } = await adminClient.rpc(
-      'verify_password_recovery_answer',
-      {
+    const answerCandidates = [normalizedSecurityAnswer]
+    const legacyTrimmed = rawSecurityAnswer.trim()
+    if (legacyTrimmed && legacyTrimmed !== normalizedSecurityAnswer) {
+      answerCandidates.push(legacyTrimmed)
+    }
+
+    let answerVerified = false
+    for (const candidate of answerCandidates) {
+      const { data, error: verifyError } = await adminClient.rpc('verify_password_recovery_answer', {
         p_name: name,
         p_email: email,
-        p_answer: securityAnswer,
-      },
-    )
+        p_answer: candidate,
+      })
 
-    if (verifyError) {
-      console.error('[reset-password] security answer verify failed', verifyError)
-      return jsonResponse({ error: 'verify_failed', message: '답변 확인 중 오류가 발생했습니다.' }, 500)
+      if (verifyError) {
+        console.error('[reset-password] security answer verify failed', verifyError)
+        return jsonResponse({ error: 'verify_failed', message: '답변 확인 중 오류가 발생했습니다.' }, 500)
+      }
+
+      if (data) {
+        answerVerified = true
+        break
+      }
     }
 
     if (!answerVerified) {

@@ -6,6 +6,7 @@ import {
 import { resolveSecurityQuestionForStorage } from '@/data/securityQuestions'
 import { DEFAULT_MEMBER_ROLE } from '@/services/auth/profileSchema'
 import { fetchProfileByUserId } from '@/services/auth/profile'
+import { normalizeAnswer } from '@/services/auth/normalizeAnswer'
 import {
   checkDuplicateId,
   formatPhoneNumber,
@@ -160,7 +161,7 @@ export async function createOAuthProfile(userId, formData) {
     const { error: securityError } = await supabase.rpc('set_profile_security_recovery', {
       p_user_id: userId,
       p_security_question: resolveSecurityQuestionForStorage(formData),
-      p_security_answer: formData.securityAnswer.trim(),
+      p_security_answer: normalizeAnswer(formData.securityAnswer),
     })
 
     if (securityError) {
@@ -190,7 +191,7 @@ export async function createOAuthProfile(userId, formData) {
     p_email: basePayload.email,
     p_phone: basePayload.phone,
     p_security_question: resolveSecurityQuestionForStorage(formData),
-    p_security_answer: formData.securityAnswer.trim(),
+    p_security_answer: normalizeAnswer(formData.securityAnswer),
   }
 
   const { error: rpcError } = await supabase.rpc('create_profile_after_signup', rpcParams)
