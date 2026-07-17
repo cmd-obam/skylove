@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { FiChevronLeft, FiChevronRight, FiFileText, FiHeart, FiUser } from 'react-icons/fi'
+import { FiChevronLeft, FiChevronRight, FiFileText, FiHeart } from 'react-icons/fi'
 import Breadcrumb from '@/components/Breadcrumb'
 import BoardWriteButton from '@/components/board/BoardWriteButton'
 import { useBoardPostList } from '@/hooks/useBoardPostList'
 import useIsMobile from '@/hooks/useIsMobile'
 import { getWorshipWordBoard } from '@/data/worshipWord'
+import { formatBoardDate } from '@/utils/formatBoardDate'
+import { getPostAuthor } from '@/utils/getPostAuthor'
 import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 import '@/pages/ChurchNews.css'
 import './WorshipWord.css'
@@ -137,15 +139,21 @@ function WorshipWordList({ boardKey }) {
                   </div>
                   <div className="worship-word-card__body">
                     <h2 className="worship-word-card__title">{post.title}</h2>
-                    <p className="worship-word-card__likes">
-                      <FiHeart aria-hidden="true" />
-                      <span>{post.likesCount ?? 0}</span>
-                    </p>
-                    <p className="worship-word-card__author">
-                      <span className="worship-word-card__avatar" aria-hidden="true">
-                        <FiUser />
+                    <p className="worship-word-card__meta">
+                      <span>{getPostAuthor(post)}</span>
+                      <span className="worship-word-card__meta-sep" aria-hidden="true">
+                        ·
                       </span>
-                      <span>{post.authorName || post.writer || '관리자'}</span>
+                      <time dateTime={post.createdAt || post.date}>
+                        {formatBoardDate(post.date || post.createdAt)}
+                      </time>
+                      <span className="worship-word-card__meta-sep" aria-hidden="true">
+                        ·
+                      </span>
+                      <span className="worship-word-card__likes">
+                        <FiHeart aria-hidden="true" />
+                        <span>{post.likesCount ?? 0}</span>
+                      </span>
                     </p>
                   </div>
                 </Link>

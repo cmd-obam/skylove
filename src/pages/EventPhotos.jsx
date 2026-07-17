@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { FiFileText } from 'react-icons/fi'
+import { FiFileText, FiHeart } from 'react-icons/fi'
 import Breadcrumb from '@/components/Breadcrumb'
 import BoardWriteButton from '@/components/board/BoardWriteButton'
 import BoardPostTitle from '@/components/board/BoardPostTitle'
@@ -8,6 +8,7 @@ import churchPlaceholder from '@/assets/images/home/welcome-church-exterior.png'
 import { useBoardPostList } from '@/hooks/useBoardPostList'
 import { getAlbumThumbnailSrc } from '@/utils/albumThumbnail'
 import { formatBoardDate } from '@/utils/formatBoardDate'
+import { getPostAuthor } from '@/utils/getPostAuthor'
 import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 import './ChurchNews.css'
 
@@ -92,11 +93,20 @@ function EventPhotos() {
                       <BoardPostTitle title={post.title} commentsCount={post.commentsCount} />
                     </h2>
                     <p className="event-photos-card__meta">
-                      <span>{formatBoardDate(post.date)}</span>
+                      <span>{getPostAuthor(post)}</span>
                       <span className="event-photos-card__meta-divider" aria-hidden="true">
                         ·
                       </span>
-                      <span>조회 {post.views ?? 0}</span>
+                      <time dateTime={post.createdAt || post.date}>
+                        {formatBoardDate(post.date || post.createdAt)}
+                      </time>
+                      <span className="event-photos-card__meta-divider" aria-hidden="true">
+                        ·
+                      </span>
+                      <span className="event-photos-card__likes">
+                        <FiHeart aria-hidden="true" />
+                        <span>{post.likesCount ?? 0}</span>
+                      </span>
                     </p>
                   </div>
                 </Link>
