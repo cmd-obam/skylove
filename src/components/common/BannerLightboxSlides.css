@@ -156,8 +156,19 @@
   color: #1e3a5f;
 }
 
+/* Match PC worship banner accent (#5aa9ff); NF override below */
 .banner-lightbox-slides__accent {
+  color: #5aa9ff;
+  font-weight: 700;
+}
+
+.banner-lightbox-slides__copy--nf .banner-lightbox-slides__accent {
   color: #d64545;
+  font-weight: inherit;
+}
+
+.banner-lightbox-slides__copy--headline .banner-lightbox-slides__accent {
+  font-weight: 800;
 }
 
 .banner-lightbox-slides__dots {

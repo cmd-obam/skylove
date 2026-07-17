@@ -4,6 +4,25 @@ import './BannerLightboxSlides.css'
 
 const AUTO_SLIDE_MS = 4000
 
+function renderRichParts(parts) {
+  return parts.map((part, partIndex) => (
+    <span
+      key={partIndex}
+      className={part.accent ? 'banner-lightbox-slides__accent' : undefined}
+    >
+      {part.text}
+    </span>
+  ))
+}
+
+function renderLine(line, key) {
+  return (
+    <span key={key} className="banner-lightbox-slides__line">
+      {Array.isArray(line) ? renderRichParts(line) : line}
+    </span>
+  )
+}
+
 function SlideBody({ slide }) {
   if (!slide) {
     return null
@@ -18,22 +37,7 @@ function SlideBody({ slide }) {
           </p>
         ) : null}
         <div className="banner-lightbox-slides__headline">
-          {slide.lines.map((line, index) => (
-            <span key={index} className="banner-lightbox-slides__line">
-              {Array.isArray(line)
-                ? line.map((part, partIndex) => (
-                    <span
-                      key={partIndex}
-                      className={
-                        part.accent ? 'banner-lightbox-slides__accent' : undefined
-                      }
-                    >
-                      {part.text}
-                    </span>
-                  ))
-                : line}
-            </span>
-          ))}
+          {slide.lines.map((line, index) => renderLine(line, index))}
         </div>
       </div>
     )
@@ -43,11 +47,7 @@ function SlideBody({ slide }) {
     return (
       <div className="banner-lightbox-slides__copy banner-lightbox-slides__copy--headline">
         <div className="banner-lightbox-slides__headline">
-          {slide.lines.map((line) => (
-            <span key={line} className="banner-lightbox-slides__line">
-              {line}
-            </span>
-          ))}
+          {slide.lines.map((line, index) => renderLine(line, index))}
         </div>
         <span className="banner-lightbox-slides__underline" aria-hidden="true" />
       </div>
@@ -58,19 +58,15 @@ function SlideBody({ slide }) {
     <div className="banner-lightbox-slides__copy banner-lightbox-slides__copy--body">
       {slide.title ? <p className="banner-lightbox-slides__title">{slide.title}</p> : null}
       {slide.paragraphs
-        ? slide.paragraphs.map((paragraph) => (
-            <p key={paragraph} className="banner-lightbox-slides__paragraph">
-              {paragraph}
+        ? slide.paragraphs.map((paragraph, paragraphIndex) => (
+            <p key={paragraphIndex} className="banner-lightbox-slides__paragraph">
+              {Array.isArray(paragraph) ? renderRichParts(paragraph) : paragraph}
             </p>
           ))
         : null}
       {slide.lines ? (
         <div className="banner-lightbox-slides__body-lines">
-          {slide.lines.map((line) => (
-            <span key={line} className="banner-lightbox-slides__line">
-              {line}
-            </span>
-          ))}
+          {slide.lines.map((line, index) => renderLine(line, index))}
         </div>
       ) : null}
     </div>

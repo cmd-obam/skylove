@@ -124,7 +124,7 @@
   position: relative;
 }
 
-/* Match original banner copy colors */
+/* Match original PC banner copy colors */
 .mobile-image-lightbox__overlay .banner-lightbox-slides__copy--headline .banner-lightbox-slides__line {
   color: #1f2d3d;
 }
@@ -142,6 +142,10 @@
   color: #2d3748;
 }
 
+.mobile-image-lightbox__overlay .banner-lightbox-slides__accent {
+  color: #5aa9ff;
+}
+
 .mobile-image-lightbox__overlay
   .worship-template__intro--typography-classic
   .banner-lightbox-slides__copy--headline
@@ -149,15 +153,18 @@
   color: #2f6fad;
 }
 
+/* Choir / cell: second headline line is accent blue on PC */
 .mobile-image-lightbox__overlay
   .worship-template__intro--banner-choir
   .banner-lightbox-slides__copy--headline
-  .banner-lightbox-slides__line:nth-child(2),
-.mobile-image-lightbox__overlay
-  .worship-template__intro--banner-dawn-prayer
-  .banner-lightbox-slides__copy--headline
   .banner-lightbox-slides__line:nth-child(2) {
   color: #5aa9ff;
+}
+
+.mobile-image-lightbox__overlay
+  .worship-template__intro--banner-choir
+  .banner-lightbox-slides__accent {
+  font-weight: 800;
 }
 
 .mobile-image-lightbox__overlay .nf-hero--banner-lightbox .banner-lightbox-slides__welcome-text {
