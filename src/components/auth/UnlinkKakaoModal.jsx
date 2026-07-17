@@ -1,9 +1,20 @@
 import './DeleteAccountModal.css'
 
-function UnlinkKakaoModal({ isOpen, isUnlinking, error, onCancel, onConfirm }) {
+function UnlinkKakaoModal({
+  isOpen,
+  isUnlinking,
+  error,
+  otherLoginMethods = [],
+  onCancel,
+  onConfirm,
+}) {
   if (!isOpen) {
     return null
   }
+
+  const otherMethodsLabel = otherLoginMethods.length
+    ? otherLoginMethods.join(', ')
+    : '이메일 등 다른 로그인 수단'
 
   return (
     <div className="delete-account-modal" role="presentation">
@@ -27,7 +38,7 @@ function UnlinkKakaoModal({ isOpen, isUnlinking, error, onCancel, onConfirm }) {
             {'\n'}
             - 기존 회원 정보는 삭제되지 않습니다.
             {'\n'}
-            - 다시 이용하려면 카카오 로그인을 다시 연동해야 합니다.
+            - 이후에는 {otherMethodsLabel}으로 로그인할 수 있습니다.
           </p>
         </div>
         {error && (

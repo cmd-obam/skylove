@@ -67,6 +67,8 @@ function MemberEdit() {
   const [deleteError, setDeleteError] = useState(null)
   const [loginMethodLabel, setLoginMethodLabel] = useState('확인 중...')
   const [hasKakaoIdentity, setHasKakaoIdentity] = useState(false)
+  const [canUnlinkKakao, setCanUnlinkKakao] = useState(false)
+  const [otherLoginMethods, setOtherLoginMethods] = useState([])
   const [isUnlinkModalOpen, setIsUnlinkModalOpen] = useState(false)
   const [isUnlinkingKakao, setIsUnlinkingKakao] = useState(false)
   const [unlinkError, setUnlinkError] = useState(null)
@@ -108,6 +110,8 @@ function MemberEdit() {
       setAuthSession(result.profile)
       setLoginMethodLabel(loginMethods.primaryLabel || '알 수 없음')
       setHasKakaoIdentity(Boolean(loginMethods.hasKakao))
+      setCanUnlinkKakao(Boolean(loginMethods.canUnlinkKakao))
+      setOtherLoginMethods(loginMethods.otherLoginMethods || [])
       setIsLoading(false)
     }
 
@@ -155,29 +159,47 @@ function MemberEdit() {
     setUnlinkError(null)
     setAccountFeedback(null)
 
-    const result = await unlinkKakaoIdentity()
+    try {
+      const result = await unlinkKakaoIdentity()
 
-    if (!result.success) {
-      setUnlinkError(result.message)
-      setIsUnlinkingKakao(false)
-      return
-    }
-
-    setAccountFeedback({
-      type: 'success',
-      message: result.message || '카카오 계정 연동이 해제되었습니다.',
-    })
-    setIsUnlinkModalOpen(false)
-    setIsUnlinkingKakao(false)
-
-    window.setTimeout(async () => {
-      try {
-        await signOut()
-      } catch {
-        // ignore — still move to login
+      if (!result.success) {
+        setUnlinkError(result.message)
+        setAccountFeedback({
+          type: 'error',
+          message: result.message,
+        })
+        setIsUnlinkingKakao(false)
+        return
       }
-      navigate('/login', { replace: true })
-    }, 1200)
+
+      setHasKakaoIdentity(false)
+      setCanUnlinkKakao(false)
+      setLoginMethodLabel(
+        result.remainingMethods?.[0] || otherLoginMethods[0] || '이메일 로그인',
+      )
+      setAccountFeedback({
+        type: 'success',
+        message: result.message || '카카오 계정 연동이 해제되었습니다.',
+      })
+      setIsUnlinkModalOpen(false)
+      setIsUnlinkingKakao(false)
+
+      window.setTimeout(async () => {
+        try {
+          await signOut()
+        } catch {
+          // ignore — still move to login
+        }
+        navigate('/login', { replace: true })
+      }, 1500)
+    } catch (error) {
+      console.error('[MemberEdit] handleUnlinkKakao unexpected', error)
+      const message =
+        error?.message || '카카오 계정 연동 해제 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
+      setUnlinkError(message)
+      setAccountFeedback({ type: 'error', message })
+      setIsUnlinkingKakao(false)
+    }
   }
 
   const updateField = (name, value) => {
@@ -274,6 +296,7 @@ function MemberEdit() {
         isOpen={isUnlinkModalOpen}
         isUnlinking={isUnlinkingKakao}
         error={unlinkError}
+        otherLoginMethods={otherLoginMethods}
         onCancel={() => {
           if (!isUnlinkingKakao) {
             setIsUnlinkModalOpen(false)
@@ -460,15 +483,27 @@ function MemberEdit() {
                   className="signup-btn signup-btn--danger"
                   onClick={() => {
                     setUnlinkError(null)
+                    setAccountFeedback(null)
                     setIsUnlinkModalOpen(true)
                   }}
-                  disabled={isSubmitting || isDeletingAccount || isUnlinkingKakao}
+                  disabled={
+                    isSubmitting || isDeletingAccount || isUnlinkingKakao || !canUnlinkKakao
+                  }
                 >
                   카카오 계정 연동 해제
                 </button>
-                <p className="member-account-section__hint">
-                  연동 해제 후에도 회원 정보는 유지되며, 다시 카카오 로그인하면 재연동할 수 있습니다.
-                </p>
+                {canUnlinkKakao ? (
+                  <p className="member-account-section__hint">
+                    연동 해제 후에도 회원 정보는 유지됩니다. 다른 로그인 수단(
+                    {otherLoginMethods.join(', ') || '이메일 등'}
+                    )으로 계속 이용할 수 있습니다.
+                  </p>
+                ) : (
+                  <p className="member-account-section__hint" role="status">
+                    현재 로그인 수단이 카카오뿐이라 연동을 해제할 수 없습니다. 이메일 등 다른
+                    로그인 수단을 추가한 뒤 다시 시도해주세요.
+                  </p>
+                )}
               </div>
             ) : (
               <p className="member-account-section__hint">연동된 카카오 계정이 없습니다.</p>
