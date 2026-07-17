@@ -124,38 +124,66 @@
   position: relative;
 }
 
-.mobile-image-lightbox__overlay .banner-lightbox-slides__copy {
+/* Match original banner copy colors */
+.mobile-image-lightbox__overlay .banner-lightbox-slides__copy--headline .banner-lightbox-slides__line {
   color: #1f2d3d;
 }
 
-.mobile-image-lightbox__overlay .worship-template__intro--banner-choir .banner-lightbox-slides__copy,
+.mobile-image-lightbox__overlay .banner-lightbox-slides__underline {
+  background-color: #2f6fad;
+}
+
+.mobile-image-lightbox__overlay .banner-lightbox-slides__title {
+  color: #1f2d3d;
+}
+
+.mobile-image-lightbox__overlay .banner-lightbox-slides__body-lines .banner-lightbox-slides__line,
+.mobile-image-lightbox__overlay .banner-lightbox-slides__paragraph {
+  color: #2d3748;
+}
+
 .mobile-image-lightbox__overlay
-  .worship-template__intro--banner-dawn-prayer
-  .banner-lightbox-slides__copy,
-.mobile-image-lightbox__overlay .nf-hero--banner-lightbox .banner-lightbox-slides__copy {
-  color: #ffffff;
+  .worship-template__intro--typography-classic
+  .banner-lightbox-slides__copy--headline
+  .banner-lightbox-slides__line {
+  color: #2f6fad;
 }
 
 .mobile-image-lightbox__overlay
   .worship-template__intro--banner-choir
-  .banner-lightbox-slides__body-lines
-  .banner-lightbox-slides__line,
-.mobile-image-lightbox__overlay
-  .worship-template__intro--banner-choir
-  .banner-lightbox-slides__paragraph,
+  .banner-lightbox-slides__copy--headline
+  .banner-lightbox-slides__line:nth-child(2),
 .mobile-image-lightbox__overlay
   .worship-template__intro--banner-dawn-prayer
-  .banner-lightbox-slides__body-lines
-  .banner-lightbox-slides__line,
+  .banner-lightbox-slides__copy--headline
+  .banner-lightbox-slides__line:nth-child(2) {
+  color: #5aa9ff;
+}
+
+.mobile-image-lightbox__overlay .nf-hero--banner-lightbox .banner-lightbox-slides__welcome {
+  color: #a65d5d;
+}
+
 .mobile-image-lightbox__overlay
-  .worship-template__intro--banner-dawn-prayer
-  .banner-lightbox-slides__paragraph,
-.mobile-image-lightbox__overlay .nf-hero--banner-lightbox .banner-lightbox-slides__welcome,
+  .nf-hero--banner-lightbox
+  .banner-lightbox-slides__copy--nf
+  .banner-lightbox-slides__line {
+  color: #1e3a5f;
+}
+
+.mobile-image-lightbox__overlay .nf-hero--banner-lightbox .banner-lightbox-slides__accent {
+  color: #d64545;
+}
+
+.mobile-image-lightbox__overlay .nf-hero--banner-lightbox .banner-lightbox-slides__underline {
+  background-color: #1e3a5f;
+}
+
 .mobile-image-lightbox__overlay
   .nf-hero--banner-lightbox
   .banner-lightbox-slides__body-lines
   .banner-lightbox-slides__line {
-  color: rgba(255, 255, 255, 0.95);
+  color: #3d4a5c;
 }
 
 .mobile-image-lightbox__image-button {

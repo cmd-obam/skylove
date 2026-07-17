@@ -62,7 +62,6 @@
   width: 100%;
   max-width: 100%;
   text-align: left;
-  color: #1f2d3d;
 }
 
 .banner-lightbox-slides__copy--headline,
@@ -83,6 +82,7 @@
   font-weight: 800;
   line-height: 1.3;
   letter-spacing: -0.02em;
+  color: #1f2d3d;
   word-break: keep-all;
 }
 
@@ -91,8 +91,7 @@
   width: 1.75rem;
   height: 2px;
   margin-top: 0.55rem;
-  background: currentColor;
-  opacity: 0.85;
+  background-color: #2f6fad;
 }
 
 .banner-lightbox-slides__title {
@@ -112,7 +111,7 @@
 
 .banner-lightbox-slides__body-lines .banner-lightbox-slides__line,
 .banner-lightbox-slides__paragraph {
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: 'Nanum Myeongjo', 'Noto Serif KR', serif;
   font-size: 0.8125rem;
   font-weight: 600;
   line-height: 1.4;
@@ -134,8 +133,16 @@
   font-size: 0.75rem;
   font-weight: 600;
   line-height: 1.35;
-  color: #374151;
+  color: #a65d5d;
   word-break: keep-all;
+}
+
+.banner-lightbox-slides__copy--nf .banner-lightbox-slides__line {
+  color: #1e3a5f;
+}
+
+.banner-lightbox-slides__copy--nf .banner-lightbox-slides__underline {
+  background-color: #1e3a5f;
 }
 
 .banner-lightbox-slides__accent {
