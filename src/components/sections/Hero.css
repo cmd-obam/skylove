@@ -227,83 +227,126 @@
 }
 
 @media (max-width: 768px) {
-  /* Keep a readable mobile height; fill the frame with cover (no letterbox/distort). */
+  /*
+   * Mobile-only: keep object-fit: cover (no contain/letterbox).
+   * Shorter frame (~12% vs previous) → less left/right crop on wide hero photos.
+   */
   .hero {
     aspect-ratio: auto;
-    min-height: clamp(360px, 62vh, 480px);
+    min-height: clamp(310px, 54vh, 420px);
   }
 
   .hero__slide,
   .hero__bg {
     object-fit: cover;
-    object-position: center center;
+    /* Favor faces / focal subjects (upper mid); still fills the frame */
+    object-position: 45% 32%;
+  }
+
+  .hero__content-wrap {
+    padding-inline: 1rem;
+    padding-block: 0.75rem 2.25rem;
+  }
+
+  .hero__content {
+    max-width: min(100%, 19.5rem);
   }
 
   .hero__title {
-    font-size: clamp(1.75rem, 7.5vw, 2.25rem);
+    max-width: 100%;
+    margin-bottom: 0.75rem;
+    font-size: clamp(1.45rem, 6vw, 1.9rem);
+    line-height: 1.25;
   }
 
   .hero__subtitle {
-    font-size: 1rem;
-    margin-bottom: 2rem;
+    max-width: 100%;
+    margin-bottom: 1.25rem;
+    font-size: 0.875rem;
+    line-height: 1.55;
   }
 
   .hero__actions {
     flex-direction: column;
     align-items: flex-start;
+    gap: 0.625rem;
   }
 
   .hero__btn {
     box-sizing: border-box;
     width: auto;
     max-width: 100%;
-    padding: 14px 1.25rem;
-    font-size: 0.9375rem;
+    padding: 11px 1.05rem;
+    font-size: 0.84375rem;
     white-space: nowrap;
   }
 
   .hero__indicators {
-    bottom: 20px;
+    bottom: 14px;
+    gap: 8px;
+  }
+
+  .hero__indicator {
+    width: 8px;
+    height: 8px;
   }
 }
 
 @media (max-width: 430px) {
+  .hero {
+    min-height: clamp(290px, 52vh, 390px);
+  }
+
+  .hero__content {
+    max-width: min(100%, 18.25rem);
+  }
+
   .hero__btn {
-    padding-inline: 1.125rem;
-    font-size: 0.875rem;
+    padding: 10px 0.95rem;
+    font-size: 0.8125rem;
   }
 }
 
 @media (max-width: 412px) {
   .hero__btn {
-    padding-inline: 1rem;
-    font-size: 0.84375rem;
+    padding-inline: 0.9rem;
+    font-size: 0.8rem;
   }
 }
 
 @media (max-width: 390px) {
-  .hero__btn {
-    padding-inline: 0.9375rem;
+  .hero__title {
+    font-size: clamp(1.35rem, 5.8vw, 1.75rem);
+  }
+
+  .hero__subtitle {
     font-size: 0.8125rem;
   }
-}
 
-@media (max-width: 375px) {
   .hero__btn {
-    padding-inline: 0.875rem;
+    padding: 9px 0.85rem;
+    font-size: 0.78125rem;
   }
 }
 
 @media (max-width: 360px) {
+  .hero {
+    min-height: clamp(275px, 50vh, 360px);
+  }
+
+  .hero__content {
+    max-width: min(100%, 16.75rem);
+  }
+
   .hero__btn {
-    padding-inline: 0.8125rem;
-    font-size: 0.78125rem;
+    padding: 9px 0.8rem;
+    font-size: 0.75rem;
   }
 }
 
 @media (max-width: 320px) {
   .hero__btn {
-    padding-inline: 0.75rem;
-    font-size: 0.75rem;
+    padding: 8px 0.7rem;
+    font-size: 0.72rem;
   }
 }
