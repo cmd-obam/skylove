@@ -96,7 +96,7 @@ export const HOME_STORY_CARDS = [
   },
 ]
 
-/** 홈 최근 소식: 카테고리별 최신 게시글 1건씩 */
+/** 홈 교회 이야기: 카테고리 탭별 최신 게시글 */
 export const HOME_RECENT_NEWS_SOURCES = [
   {
     id: 'church_news',
@@ -115,18 +115,20 @@ export const HOME_RECENT_NEWS_SOURCES = [
   {
     id: 'sunday_sermon',
     postType: 'sunday_sermon',
-    categoryLabel: '주일예배',
+    categoryLabel: '예배말씀',
     listPath: '/worship-word/sunday',
     detailPath: (postId) => `/worship-word/sunday/${postId}`,
   },
   {
     id: 'el_shaddai_choir',
     postType: 'el_shaddai_choir',
-    categoryLabel: '엘샤다이 찬양단',
+    categoryLabel: '찬양단',
     listPath: '/worship-word/el-shaddai',
     detailPath: (postId) => `/worship-word/el-shaddai/${postId}`,
   },
 ]
+
+export const HOME_RECENT_NEWS_LIMIT = 4
 
 export const HOME_LOCATION = {
   eyebrow: 'LOCATION',

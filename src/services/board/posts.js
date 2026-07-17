@@ -190,7 +190,7 @@ export async function fetchRelatedBoardPosts(postType, postId, limit = 5) {
 
 /** postType별 최신 게시글 1건 (created_at 내림차순 목록의 첫 글) */
 export async function fetchLatestBoardPost(postType) {
-  const result = await fetchBoardPosts(postType)
+  const result = await fetchLatestBoardPosts(postType, 1)
 
   if (!result.success || !result.posts?.length) {
     return { success: result.success, post: null, message: result.message }
@@ -200,6 +200,40 @@ export async function fetchLatestBoardPost(postType) {
     success: true,
     post: result.posts[0],
   }
+}
+
+/** postType별 최신 게시글 N건 */
+export async function fetchLatestBoardPosts(postType, limit = 4) {
+  const safeLimit = Math.max(1, Number(limit) || 4)
+
+  const { data, error } = await supabase
+    .from('board_post_list')
+    .select('id, post_type, title, writer, thumbnail, created_at')
+    .eq('post_type', postType)
+    .order('created_at', { ascending: false })
+    .limit(safeLimit)
+
+  if (error) {
+    const tempPosts = getTempBoardPosts(postType).slice(0, safeLimit)
+
+    if (tempPosts.length > 0) {
+      return { success: true, posts: tempPosts }
+    }
+
+    return { success: false, message: error.message, posts: [] }
+  }
+
+  const posts = (data ?? []).map((row) => mapBoardPostRow(row))
+
+  if (posts.length === 0) {
+    const tempPosts = getTempBoardPosts(postType).slice(0, safeLimit)
+
+    if (tempPosts.length > 0) {
+      return { success: true, posts: tempPosts }
+    }
+  }
+
+  return { success: true, posts }
 }
 
 /**

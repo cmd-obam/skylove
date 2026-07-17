@@ -1,9 +1,14 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { HOME_RECENT_NEWS_SOURCES, HOME_STORY_CARDS } from '@/data/home'
+import {
+  HOME_RECENT_NEWS_LIMIT,
+  HOME_RECENT_NEWS_SOURCES,
+  HOME_STORY_CARDS,
+} from '@/data/home'
 import HomeSectionHeader from '@/components/sections/HomeSectionHeader'
-import { fetchLatestBoardPost } from '@/services/board/posts'
+import { fetchLatestBoardPosts } from '@/services/board/posts'
 import { formatBoardDate } from '@/utils/formatBoardDate'
+import { getPostAuthor } from '@/utils/getPostAuthor'
 import './HomeSections.css'
 
 function StoryCard({ card }) {
@@ -36,51 +41,64 @@ function StoryCard({ card }) {
   return <article className="home-story__card">{content}</article>
 }
 
+function mapPostsForSource(source, posts) {
+  return posts.map((post) => ({
+    id: `${source.id}-${post.id}`,
+    title: post.title,
+    author: getPostAuthor(post),
+    date: formatBoardDate(post.createdAt || post.date),
+    href: source.detailPath(post.id),
+  }))
+}
+
 function HomeStory() {
-  const [newsItems, setNewsItems] = useState([])
-  const [newsLoading, setNewsLoading] = useState(true)
+  const [activeTabId, setActiveTabId] = useState(HOME_RECENT_NEWS_SOURCES[0].id)
+  const [postsByTab, setPostsByTab] = useState({})
+  const [loadingTabId, setLoadingTabId] = useState(HOME_RECENT_NEWS_SOURCES[0].id)
+  const postsCacheRef = useRef({})
 
   useEffect(() => {
     let isMounted = true
+    const source = HOME_RECENT_NEWS_SOURCES.find((item) => item.id === activeTabId)
 
-    async function loadRecentNews() {
-      const results = await Promise.all(
-        HOME_RECENT_NEWS_SOURCES.map(async (source) => {
-          const result = await fetchLatestBoardPost(source.postType)
-          const post = result.post
+    if (!source) {
+      return undefined
+    }
 
-          if (!post) {
-            return {
-              id: source.id,
-              title: `${source.categoryLabel} 준비 중`,
-              date: '준비 중',
-              href: source.listPath,
-              hasPost: false,
-            }
-          }
-
-          return {
-            id: source.id,
-            title: post.title,
-            date: formatBoardDate(post.createdAt || post.date),
-            href: source.detailPath(post.id),
-            hasPost: true,
-          }
-        }),
+    if (postsCacheRef.current[activeTabId]) {
+      setPostsByTab((prev) =>
+        prev[activeTabId] ? prev : { ...prev, [activeTabId]: postsCacheRef.current[activeTabId] },
       )
+      setLoadingTabId(null)
+      return undefined
+    }
+
+    setLoadingTabId(activeTabId)
+
+    async function loadTabPosts() {
+      const result = await fetchLatestBoardPosts(source.postType, HOME_RECENT_NEWS_LIMIT)
+      const items = result.success ? mapPostsForSource(source, result.posts ?? []) : []
+
+      postsCacheRef.current[activeTabId] = items
 
       if (isMounted) {
-        setNewsItems(results)
-        setNewsLoading(false)
+        setPostsByTab((prev) => ({ ...prev, [activeTabId]: items }))
+        setLoadingTabId(null)
       }
     }
 
-    loadRecentNews()
+    loadTabPosts()
 
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [activeTabId])
+
+  const activeSource =
+    HOME_RECENT_NEWS_SOURCES.find((item) => item.id === activeTabId) ??
+    HOME_RECENT_NEWS_SOURCES[0]
+  const activePosts = postsByTab[activeTabId] ?? []
+  const isLoading = loadingTabId === activeTabId
 
   return (
     <section className="home-section home-story" aria-label="교회 이야기">
@@ -89,7 +107,7 @@ function HomeStory() {
           eyebrow="OUR STORY"
           title="교회 이야기"
           action={
-            <Link to="/church-news" className="home-section__more">
+            <Link to={activeSource.listPath} className="home-section__more">
               더보기
             </Link>
           }
@@ -105,25 +123,75 @@ function HomeStory() {
           </ul>
 
           <div className="home-story__news">
-            <h3 className="home-story__news-title">최근 소식</h3>
-            <ul className="home-story__news-list">
-              {newsLoading
-                ? HOME_RECENT_NEWS_SOURCES.map((source) => (
-                    <li key={source.id} className="home-story__news-item">
-                      <div className="home-story__news-link">
-                        <span className="home-story__news-text">불러오는 중...</span>
-                        <span className="home-story__news-date">{source.categoryLabel}</span>
-                      </div>
-                    </li>
-                  ))
-                : newsItems.map((item) => (
-                    <li key={item.id} className="home-story__news-item">
-                      <Link to={item.href} className="home-story__news-link">
-                        <span className="home-story__news-text">{item.title}</span>
+            <div
+              className="home-story__news-tabs"
+              role="tablist"
+              aria-label="게시판 카테고리"
+            >
+              {HOME_RECENT_NEWS_SOURCES.map((source) => {
+                const isActive = source.id === activeTabId
+
+                return (
+                  <button
+                    key={source.id}
+                    type="button"
+                    role="tab"
+                    id={`home-story-tab-${source.id}`}
+                    aria-selected={isActive}
+                    aria-controls="home-story-news-panel"
+                    className={`home-story__news-tab${
+                      isActive ? ' home-story__news-tab--active' : ''
+                    }`}
+                    onClick={() => setActiveTabId(source.id)}
+                  >
+                    {source.categoryLabel}
+                  </button>
+                )
+              })}
+            </div>
+
+            <ul
+              id="home-story-news-panel"
+              className="home-story__news-list"
+              role="tabpanel"
+              aria-labelledby={`home-story-tab-${activeTabId}`}
+            >
+              {isLoading ? (
+                Array.from({ length: HOME_RECENT_NEWS_LIMIT }, (_, index) => (
+                  <li key={`loading-${index}`} className="home-story__news-item">
+                    <div className="home-story__news-link">
+                      <span className="home-story__news-text">불러오는 중...</span>
+                      <span className="home-story__news-meta">
+                        <span className="home-story__news-author"> </span>
+                        <span className="home-story__news-date"> </span>
+                      </span>
+                    </div>
+                  </li>
+                ))
+              ) : activePosts.length > 0 ? (
+                activePosts.map((item) => (
+                  <li key={item.id} className="home-story__news-item">
+                    <Link to={item.href} className="home-story__news-link">
+                      <span className="home-story__news-text">{item.title}</span>
+                      <span className="home-story__news-meta">
+                        <span className="home-story__news-author">{item.author}</span>
                         <span className="home-story__news-date">{item.date}</span>
+                      </span>
+                    </Link>
+                  </li>
+                ))
+              ) : (
+                <li className="home-story__news-item home-story__news-item--empty">
+                  <div className="home-story__news-link">
+                    <span className="home-story__news-text">등록된 게시글이 없습니다.</span>
+                    <span className="home-story__news-meta">
+                      <Link to={activeSource.listPath} className="home-story__news-empty-link">
+                        게시판 보기
                       </Link>
-                    </li>
-                  ))}
+                    </span>
+                  </div>
+                </li>
+              )}
             </ul>
           </div>
         </div>
