@@ -1,0 +1,164 @@
+.banner-lightbox-slides {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr) 2.25rem;
+  grid-template-rows: 1fr auto;
+  align-items: stretch;
+  pointer-events: none;
+}
+
+.banner-lightbox-slides__arrow {
+  pointer-events: auto;
+  z-index: 3;
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  margin: 0 0.15rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.42);
+  color: #ffffff;
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+.banner-lightbox-slides__arrow--prev {
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: start;
+}
+
+.banner-lightbox-slides__arrow--next {
+  grid-column: 3;
+  grid-row: 1;
+  justify-self: end;
+}
+
+.banner-lightbox-slides__stage {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-width: 0;
+  width: 100%;
+  max-width: 58%;
+  justify-self: start;
+  padding: 0.65rem 0.2rem;
+  box-sizing: border-box;
+}
+
+.banner-lightbox-slides__copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+  max-width: 100%;
+  text-align: left;
+  color: #1f2d3d;
+}
+
+.banner-lightbox-slides__copy--headline,
+.banner-lightbox-slides__copy--nf {
+  align-items: flex-start;
+}
+
+.banner-lightbox-slides__headline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12em;
+}
+
+.banner-lightbox-slides__line {
+  display: block;
+  font-family: 'Nanum Myeongjo', 'Noto Serif KR', serif;
+  font-size: 1.0625rem;
+  font-weight: 800;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  word-break: keep-all;
+}
+
+.banner-lightbox-slides__underline {
+  display: block;
+  width: 1.75rem;
+  height: 2px;
+  margin-top: 0.55rem;
+  background: currentColor;
+  opacity: 0.85;
+}
+
+.banner-lightbox-slides__title {
+  margin: 0 0 0.45rem;
+  font-family: 'Nanum Myeongjo', 'Noto Serif KR', serif;
+  font-size: 0.9375rem;
+  font-weight: 800;
+  line-height: 1.3;
+  color: #1f2d3d;
+}
+
+.banner-lightbox-slides__body-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12em;
+}
+
+.banner-lightbox-slides__body-lines .banner-lightbox-slides__line,
+.banner-lightbox-slides__paragraph {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #2d3748;
+}
+
+.banner-lightbox-slides__paragraph {
+  margin: 0;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.banner-lightbox-slides__paragraph + .banner-lightbox-slides__paragraph {
+  margin-top: 0.55rem;
+}
+
+.banner-lightbox-slides__welcome {
+  margin: 0 0 0.45rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #374151;
+  word-break: keep-all;
+}
+
+.banner-lightbox-slides__accent {
+  color: #d64545;
+}
+
+.banner-lightbox-slides__dots {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  display: flex;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0 0 0.45rem;
+  pointer-events: none;
+}
+
+.banner-lightbox-slides__dot {
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.banner-lightbox-slides__dot--active {
+  background: rgba(255, 255, 255, 0.95);
+}

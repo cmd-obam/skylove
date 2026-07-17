@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import footerCrossImage from '@/assets/images/worship/footer-cross-cloud.png'
 import Breadcrumb from '@/components/Breadcrumb'
+import BannerLightboxSlides from '@/components/common/BannerLightboxSlides'
 import MobileBannerExpand from '@/components/common/MobileBannerExpand'
 import './WorshipTemplate.css'
 
@@ -64,6 +65,7 @@ function WorshipTemplate({
   introTypographyVariant = null,
   introLayout = 'banner',
   introBackgroundPosition = 'right center',
+  lightboxSlides = null,
 }) {
   const rootRef = useRef(null)
   const isSplitIntro = Boolean(introImage) && introLayout === 'split'
@@ -276,6 +278,9 @@ function WorshipTemplate({
           className={introClassName}
           style={introStyle}
           lightboxLayout="overlay"
+          lightboxChildren={
+            lightboxSlides?.length ? <BannerLightboxSlides slides={lightboxSlides} /> : introText
+          }
         >
           {introText}
         </MobileBannerExpand>

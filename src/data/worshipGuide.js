@@ -57,6 +57,24 @@ export const WORSHIP_GUIDE_CONTENT = {
       [{ text: '하나님의 사랑과 은혜', accent: true }, { text: '를' }],
       [{ text: '함께 누리는 시간입니다.' }],
     ],
+    lightboxSlides: [
+      {
+        id: 'headline',
+        variant: 'headline',
+        lines: ['하나님의 은혜와', '축복이 머무는 예배'],
+      },
+      {
+        id: 'body',
+        variant: 'body',
+        title: '주일 축복예배',
+        lines: [
+          '주일 축복예배는',
+          '예배 가운데 임하시는',
+          '하나님의 사랑과 은혜를',
+          '함께 누리는 시간입니다.',
+        ],
+      },
+    ],
     heroImage: sundayBlessingHero,
     introImage: sundayBlessingIntro,
     introTypographyVariant: 'classic',
@@ -82,6 +100,25 @@ export const WORSHIP_GUIDE_CONTENT = {
       [{ text: '믿음을 새롭게 하는' }],
       [{ text: '은혜의 시간을 가집니다.' }],
     ],
+    lightboxSlides: [
+      {
+        id: 'headline',
+        variant: 'headline',
+        lines: ['그리스도의 사랑을', '기억하는 예배'],
+      },
+      {
+        id: 'body',
+        variant: 'body',
+        title: '매월 첫 주 성찬 예식',
+        lines: [
+          '매월 첫 주 성찬을 통해',
+          '주님의 희생과 사랑을 기억하고',
+          '구원의 은혜를 되새기며',
+          '믿음을 새롭게 하는',
+          '은혜의 시간을 가집니다.',
+        ],
+      },
+    ],
     heroImage: communionHero,
     introImage: communionIntro,
     introTypographyVariant: 'classic',
@@ -104,6 +141,24 @@ export const WORSHIP_GUIDE_CONTENT = {
       '감사와 사랑의 고백을 찬양으로 올려드리며',
       '기쁨 가운데 주님을 높이는',
       '은혜의 시간입니다.',
+    ],
+    lightboxSlides: [
+      {
+        id: 'headline',
+        variant: 'headline',
+        lines: ['찬양에 마음을 담아', '주님께 드리는 예배'],
+      },
+      {
+        id: 'body',
+        variant: 'body',
+        title: '주일 찬양예배',
+        lines: [
+          '주일 찬양예배는',
+          '감사와 사랑의 고백을 찬양으로 올려드리며',
+          '기쁨 가운데 주님을 높이는',
+          '은혜의 시간입니다.',
+        ],
+      },
     ],
     heroImage: sundayPraiseHero,
     introImage: sundayPraiseIntro,
@@ -132,6 +187,24 @@ export const WORSHIP_GUIDE_CONTENT = {
       [{ text: '말씀과 기도', accent: true }, { text: '로 하나님 앞에 나아가며' }],
       [{ text: '은혜와 새 힘', accent: true }, { text: '을 얻는 시간입니다.' }],
     ],
+    lightboxSlides: [
+      {
+        id: 'headline',
+        variant: 'headline',
+        lines: ['한 주의 중심에서', '말씀 앞에 머무는 예배'],
+      },
+      {
+        id: 'body',
+        variant: 'body',
+        title: '수요 예배',
+        lines: [
+          '수요 예배는',
+          '한 주의 걸음을 잠시 멈추고',
+          '말씀과 기도로 하나님 앞에 나아가며',
+          '은혜와 새 힘을 얻는 시간입니다.',
+        ],
+      },
+    ],
     heroImage: wednesdayHero,
     introImage: wednesdayIntro,
     introBannerVariant: 'cross-top',
@@ -157,6 +230,24 @@ export const WORSHIP_GUIDE_CONTENT = {
       [{ text: '기도와 말씀 가운데', accent: true }],
       [{ text: '새로운 힘과 소망', accent: true }, { text: '을 얻는' }],
       [{ text: '하늘사랑교회의 새벽기도입니다.' }],
+    ],
+    lightboxSlides: [
+      {
+        id: 'headline',
+        variant: 'headline',
+        lines: ['주님과 함께하는', '하루의 첫걸음'],
+      },
+      {
+        id: 'body',
+        variant: 'body',
+        title: '새벽기도',
+        lines: [
+          '하루의 첫 시간을 하나님께 드리며',
+          '기도와 말씀 가운데',
+          '새로운 힘과 소망을 얻는',
+          '하늘사랑교회의 새벽기도입니다.',
+        ],
+      },
     ],
     heroImage: dawnPrayerHero,
     introImage: dawnPrayerIntro,
@@ -193,6 +284,28 @@ export const WORSHIP_GUIDE_CONTENT = {
         { text: '의 찬양팀입니다.' },
       ],
     ],
+    lightboxSlides: [
+      {
+        id: 'headline',
+        variant: 'headline',
+        lines: ['찬양으로', '하나님께 영광을'],
+      },
+      {
+        id: 'body-1',
+        variant: 'body',
+        title: '엘샤다이 찬양단',
+        paragraphs: [
+          "'엘샤다이(El Shaddai)'는 세상 모든 것을 가능하게 하시는 전능하신 하나님, 우리의 모든 필요를 풍성히 채우시는 하나님을 뜻합니다.",
+        ],
+      },
+      {
+        id: 'body-2',
+        variant: 'body',
+        paragraphs: [
+          '우리는 그 이름을 높여 찬양하며, 예배 가운데 성도들과 함께 하나님께 영광을 올려드리는 하늘사랑교회의 찬양팀입니다.',
+        ],
+      },
+    ],
     heroImage: elShaddaiChoirHero,
     introImage: elShaddaiChoirIntro,
     introBannerVariant: 'choir',
@@ -214,6 +327,24 @@ export const WORSHIP_GUIDE_CONTENT = {
       '말씀과 기도로 서로를 격려하고',
       '믿음 안에서 함께 성장해 가는',
       '하늘사랑교회의 소그룹 공동체입니다.',
+    ],
+    lightboxSlides: [
+      {
+        id: 'headline',
+        variant: 'headline',
+        lines: ['삶을 나누고', '믿음을 세우는 공동체'],
+      },
+      {
+        id: 'body',
+        variant: 'body',
+        title: '셀모임',
+        lines: [
+          '셀모임은 삶과 신앙을 함께 나누며',
+          '말씀과 기도로 서로를 격려하고',
+          '믿음 안에서 함께 성장해 가는',
+          '하늘사랑교회의 소그룹 공동체입니다.',
+        ],
+      },
     ],
     heroImage: null,
     introImage: cellMeetingIntro,
