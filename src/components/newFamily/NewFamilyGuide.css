@@ -3,7 +3,7 @@
 .nf-guide {
   --nf-accent: #5aa9ff;
   --nf-accent-dark: #1f4e79;
-  --nf-section-gap: clamp(0.65rem, 1.35vw, 1rem);
+  --nf-section-gap: clamp(1.75rem, 3vw, 2.75rem);
 }
 
 .nf-guide.worship-template {
@@ -33,7 +33,7 @@
 /* ── Intro: text panel + inline YouTube ── */
 
 .nf-guide__intro-block {
-  margin-bottom: 1rem;
+  margin-bottom: var(--nf-section-gap);
 }
 
 .nf-guide__intro-block.nf-video {
@@ -556,7 +556,8 @@
 
 @media (max-width: 768px) {
   .nf-guide {
-    padding-bottom: 1rem;
+    --nf-section-gap: clamp(1.5rem, 5vw, 2.25rem);
+    padding-bottom: 1.5rem;
   }
 
   .nf-visit__grid {
