@@ -174,8 +174,11 @@ function HomeStory() {
                     <Link to={item.href} className="home-story__news-link">
                       <span className="home-story__news-text">{item.title}</span>
                       <span className="home-story__news-meta">
-                        <span className="home-story__news-author">{item.author}</span>
-                        <span className="home-story__news-date">{item.date}</span>
+                        <span className="home-story__news-author">작성자 : {item.author}</span>
+                        <span className="home-story__news-separator" aria-hidden="true">
+                          |
+                        </span>
+                        <span className="home-story__news-date">날짜 {item.date}</span>
                       </span>
                     </Link>
                   </li>
