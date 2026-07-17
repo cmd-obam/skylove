@@ -107,12 +107,15 @@ export const WORSHIP_GUIDE_CONTENT = {
         lines: ['그리스도의 사랑을', '기억하는 예배'],
       },
       {
-        id: 'body',
+        id: 'body-1',
         variant: 'body',
         title: '매월 첫 주 성찬 예식',
+        lines: ['매월 첫 주 성찬을 통해', '주님의 희생과 사랑을 기억하고'],
+      },
+      {
+        id: 'body-2',
+        variant: 'body',
         lines: [
-          '매월 첫 주 성찬을 통해',
-          '주님의 희생과 사랑을 기억하고',
           '구원의 은혜를 되새기며',
           '믿음을 새롭게 하는',
           '은혜의 시간을 가집니다.',
