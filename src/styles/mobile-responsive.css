@@ -222,16 +222,6 @@
 }
 
 @media (max-width: 767px) {
-  /* Hide the about-page watercolor background on mobile only.
-     Desktop keeps .about-page::before; the signature graphic stays in the page. */
-  .about-page::before {
-    display: none;
-  }
-
-  .about-page > .about-bg-expand {
-    display: none;
-  }
-
   .about-page__quote-text {
     font-size: clamp(1rem, 4.2vw, 1.25rem);
   }
