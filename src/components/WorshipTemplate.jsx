@@ -132,7 +132,15 @@ function WorshipTemplate({
     : undefined
 
   const introText = (
-    <div className="worship-template__intro-text">
+    <div
+      className="worship-template__intro-text"
+      data-scroll-lock-allow
+      onClick={(event) => {
+        if (event.currentTarget.closest('.mobile-image-lightbox__overlay')) {
+          event.stopPropagation()
+        }
+      }}
+    >
       {introBannerVariant === 'dawn-prayer' && (
         <>
           <span className="worship-template__intro-cross" aria-hidden="true">
