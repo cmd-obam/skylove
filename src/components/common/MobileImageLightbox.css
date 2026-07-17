@@ -90,21 +90,29 @@
 
 .mobile-image-lightbox__dialog--overlay {
   width: min(100%, 26rem);
+  height: fit-content;
   max-height: none;
   background: #ffffff;
 }
 
 .mobile-image-lightbox__dialog--overlay .mobile-image-lightbox__scroll {
   overflow: visible;
+  flex: 0 0 auto;
 }
 
 .mobile-image-lightbox__overlay {
   width: 100%;
 }
 
-.mobile-image-lightbox__overlay .worship-template__intro--banner {
+.mobile-image-lightbox__overlay .worship-template__intro--banner,
+.mobile-image-lightbox__overlay .worship-template__intro--banner-lightbox {
+  display: block;
   width: 100%;
+  margin: 0;
   border-radius: 0;
+  aspect-ratio: 1024 / 438;
+  height: auto;
+  min-height: 0;
 }
 
 .mobile-image-lightbox__overlay .worship-template__intro--banner-lightbox {
