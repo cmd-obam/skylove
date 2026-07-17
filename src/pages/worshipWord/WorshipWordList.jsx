@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FiChevronLeft, FiChevronRight, FiFileText, FiHeart } from 'react-icons/fi'
 import Breadcrumb from '@/components/Breadcrumb'
@@ -40,6 +40,11 @@ function WorshipWordList({ boardKey }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const { posts, loading } = useBoardPostList(board.postType)
+  const skipScrollOnMountRef = useRef(true)
+
+  const goToPage = (page) => {
+    setCurrentPage(page)
+  }
 
   const handleSearchSubmit = (event) => {
     event.preventDefault()
@@ -60,6 +65,15 @@ function WorshipWordList({ boardKey }) {
   useEffect(() => {
     setCurrentPage((prev) => Math.min(prev, totalPages))
   }, [totalPages, pageSize])
+
+  useEffect(() => {
+    if (skipScrollOnMountRef.current) {
+      skipScrollOnMountRef.current = false
+      return
+    }
+
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
+  }, [currentPage])
 
   const pagedPosts = useMemo(() => {
     const startIndex = (currentPage - 1) * pageSize
@@ -166,7 +180,7 @@ function WorshipWordList({ boardKey }) {
               <button
                 type="button"
                 className="church-news-board__page worship-word-pagination__nav"
-                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                onClick={() => goToPage(Math.max(1, currentPage - 1))}
                 disabled={currentPage <= 1}
                 aria-label="이전 페이지"
               >
@@ -183,7 +197,7 @@ function WorshipWordList({ boardKey }) {
                     className={`church-news-board__page${
                       isActive ? ' church-news-board__page--active' : ''
                     }`}
-                    onClick={() => setCurrentPage(pageNumber)}
+                    onClick={() => goToPage(pageNumber)}
                     aria-current={isActive ? 'page' : undefined}
                     disabled={isActive}
                   >
@@ -195,7 +209,7 @@ function WorshipWordList({ boardKey }) {
               <button
                 type="button"
                 className="church-news-board__page worship-word-pagination__nav"
-                onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                onClick={() => goToPage(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage >= totalPages}
                 aria-label="다음 페이지"
               >
