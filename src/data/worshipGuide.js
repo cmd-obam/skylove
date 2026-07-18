@@ -251,11 +251,15 @@ export const WORSHIP_GUIDE_CONTENT = {
         ],
       },
       {
-        id: 'body',
+        id: 'body-1',
         variant: 'body',
         title: '새벽기도',
+        lines: [[{ text: '하루의 첫 시간을 하나님께 드리며' }]],
+      },
+      {
+        id: 'body-2',
+        variant: 'body',
         lines: [
-          [{ text: '하루의 첫 시간을 하나님께 드리며' }],
           [{ text: '기도와 말씀 가운데', accent: true }],
           [{ text: '새로운 힘과 소망', accent: true }, { text: '을 얻는' }],
           [{ text: '하늘사랑교회의 새벽기도입니다.' }],
