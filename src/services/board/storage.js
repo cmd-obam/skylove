@@ -4,6 +4,12 @@ import { isAdminRole } from '@/services/auth/roles'
 const BUCKET = 'board-uploads'
 const PERMISSION_DENIED = '권한이 없습니다.'
 
+export const BOARD_STORAGE_KINDS = {
+  image: 'board-images',
+  thumbnail: 'board-thumbnails',
+  file: 'board-files',
+}
+
 export function getBoardFilePublicUrl(path) {
   const { data } = supabase.storage.from(BUCKET).getPublicUrl(path)
   return data.publicUrl
@@ -35,10 +41,21 @@ function sanitizeFileName(name) {
   return name.replace(/[^\w.\-가-힣]/g, '_')
 }
 
+/**
+ * @deprecated Prefer buildBoardCmsStoragePath with kind.
+ * Kept for legacy album/church-news path reads.
+ */
 export function buildBoardStoragePath(postType, postId, fileName) {
   const safeName = sanitizeFileName(fileName)
   const folder = postType === 'album' ? 'album' : 'church-news'
   return `${folder}/${postId}/${Date.now()}-${safeName}`
+}
+
+export function buildBoardCmsStoragePath(kind, postType, postId, fileName) {
+  const prefix = BOARD_STORAGE_KINDS[kind] || BOARD_STORAGE_KINDS.file
+  const safeType = sanitizeFileName(postType || 'board')
+  const safeName = sanitizeFileName(fileName)
+  return `${prefix}/${safeType}/${postId}/${Date.now()}-${safeName}`
 }
 
 export async function uploadBoardFile(path, file) {

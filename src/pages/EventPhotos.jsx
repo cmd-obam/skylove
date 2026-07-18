@@ -90,7 +90,11 @@ function EventPhotos() {
                   </div>
                   <div className="event-photos-card__body">
                     <h2 className="event-photos-card__title">
-                      <BoardPostTitle title={post.title} commentsCount={post.commentsCount} />
+                      <BoardPostTitle
+                        title={post.title}
+                        commentsCount={post.commentsCount}
+                        hasImage={Boolean(post.hasImage || post.thumbnail)}
+                      />
                     </h2>
                     <p className="event-photos-card__meta">
                       <span>작성자 : {getPostAuthor(post)}</span>

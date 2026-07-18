@@ -12,6 +12,7 @@ import { togglePostLike } from '@/services/board/postLikes'
 import { formatRelativeTime } from '@/utils/formatBoardDate'
 import { getPostAuthor } from '@/utils/getPostAuthor'
 import { extractYouTubeVideoId, getYouTubeEmbedUrl } from '@/utils/youtube'
+import { sanitizeBoardHtml } from '@/utils/sanitizeBoardHtml'
 import '@/pages/ChurchNews.css'
 import './WorshipWord.css'
 
@@ -158,7 +159,10 @@ function WorshipWordDetail({ boardKey }) {
           </div>
 
           {post.content?.trim() ? (
-            <p className="worship-word-detail__content">{post.content}</p>
+            <div
+              className="worship-word-detail__content worship-word-detail__content--html"
+              dangerouslySetInnerHTML={{ __html: sanitizeBoardHtml(post.content) }}
+            />
           ) : null}
         </div>
 

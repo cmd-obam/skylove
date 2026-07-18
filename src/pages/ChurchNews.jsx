@@ -104,7 +104,11 @@ function ChurchNews() {
                   <td>{post.no}</td>
                   <td className="church-news-board__post-title">
                     <Link to={`${LIST_PATH}/${post.id}`} className="church-news-board__post-link">
-                      <BoardPostTitle title={post.title} commentsCount={post.commentsCount} />
+                      <BoardPostTitle
+                        title={post.title}
+                        commentsCount={post.commentsCount}
+                        hasImage={Boolean(post.hasImage || post.thumbnail)}
+                      />
                     </Link>
                   </td>
                   <td className="church-news-board__col-date-cell">{formatBoardDate(post.date)}</td>

@@ -22,7 +22,14 @@ function getPostExcerpt(content, maxLength = 72) {
     return ''
   }
 
-  const text = String(content).replace(/\s+/g, ' ').trim()
+  const text = String(content)
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/\s+/g, ' ')
+    .trim()
 
   if (text.length <= maxLength) {
     return text
@@ -61,7 +68,7 @@ function mapStoryCard(source, post) {
     title: post.title || '제목 없음',
     excerpt: getPostExcerpt(post.content),
     dateLabel: formatStoryDate(post, source.dateSuffix),
-    imageSrc: getAlbumThumbnailSrc(post, null),
+    imageSrc: post.thumbnail || getAlbumThumbnailSrc(post, null),
     href: source.detailPath(post.id),
   }
 }

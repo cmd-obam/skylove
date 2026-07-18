@@ -5,12 +5,14 @@ import BoardPageHeader from '@/components/board/BoardPageHeader'
 import BoardPostExtras from '@/components/board/BoardPostExtras'
 import BoardPostComments from '@/components/board/BoardPostComments'
 import BoardPostAdminBar from '@/components/board/BoardPostAdminBar'
+import AlbumImageGallery from '@/components/board/AlbumImageGallery'
 import { useBoardPostStats } from '@/hooks/useBoardPostStats'
 import { useAuth } from '@/contexts/AuthContext'
 import { togglePostLike } from '@/services/board/postLikes'
 import { formatPostRegistrationDate } from '@/utils/formatBoardDate'
 import { getPostAuthor } from '@/utils/getPostAuthor'
 import { openBoardPostViewer } from '@/utils/boardPostViewer'
+import { sanitizeBoardHtml } from '@/utils/sanitizeBoardHtml'
 import '@/pages/ChurchNews.css'
 
 function BoardPostDetail({
@@ -77,6 +79,7 @@ function BoardPostDetail({
   }
 
   const hasImages = Boolean(post?.images?.length)
+  const bodyHtml = post?.content ? sanitizeBoardHtml(post.content) : ''
 
   if (!post) {
     return (
@@ -180,13 +183,23 @@ function BoardPostDetail({
 
         {children}
 
-        {post.content && <p className="church-news-detail__body">{post.content}</p>}
+        {bodyHtml ? (
+          <div
+            className="church-news-detail__body church-news-detail__body--html"
+            dangerouslySetInnerHTML={{ __html: bodyHtml }}
+          />
+        ) : null}
 
         {afterBody}
 
+        {hasImages ? (
+          <div className="church-news-detail__legacy-gallery">
+            <AlbumImageGallery images={post.images} />
+          </div>
+        ) : null}
+
         <BoardPostExtras
           attachments={post.attachments}
-          imageAttachments={isAlbumDetail ? [] : post.images}
           relatedPosts={relatedPosts}
           detailPathPrefix={detailPathPrefix}
         />

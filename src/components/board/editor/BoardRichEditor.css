@@ -1,0 +1,251 @@
+.board-editor {
+  overflow: hidden;
+  border: 1px solid #d7e3f0;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.board-editor--disabled {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.board-editor__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.5rem;
+  padding: 0.65rem 0.75rem;
+  border-bottom: 1px solid #e5eef7;
+  background: #f7fbff;
+}
+
+.board-editor__toolbar-group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+  padding-right: 0.45rem;
+  border-right: 1px solid #e0ebf5;
+}
+
+.board-editor__toolbar-group:last-child {
+  border-right: 0;
+  padding-right: 0;
+}
+
+.board-editor__tool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 0.4rem;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #35506f;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.board-editor__tool svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.board-editor__tool:hover,
+.board-editor__tool:focus-visible {
+  background: #e8f2fc;
+  outline: none;
+}
+
+.board-editor__tool--active {
+  background: rgba(77, 166, 255, 0.18);
+  color: #1f4e79;
+}
+
+.board-editor__tool:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.board-editor__select-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #35506f;
+}
+
+.board-editor__select {
+  height: 2rem;
+  border: 1px solid #d7e3f0;
+  border-radius: 8px;
+  background: #fff;
+  color: inherit;
+  font: inherit;
+  font-size: 0.8125rem;
+}
+
+.board-editor__color {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  height: 2rem;
+  padding: 0 0.35rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #35506f;
+  cursor: pointer;
+}
+
+.board-editor__color input {
+  width: 1.35rem;
+  height: 1.35rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.board-editor .tiptap,
+.board-editor__content {
+  min-height: 280px;
+  max-height: min(70vh, 640px);
+  overflow: auto;
+  padding: 1rem 1.1rem 1.25rem;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #1f3a5f;
+  outline: none;
+}
+
+.board-editor .tiptap p {
+  margin: 0 0 0.75rem;
+}
+
+.board-editor .tiptap h1,
+.board-editor .tiptap h2,
+.board-editor .tiptap h3,
+.board-editor .tiptap h4 {
+  margin: 1rem 0 0.6rem;
+  line-height: 1.35;
+  color: #1f3a5f;
+}
+
+.board-editor .tiptap h1 {
+  font-size: 1.75rem;
+}
+
+.board-editor .tiptap h2 {
+  font-size: 1.45rem;
+}
+
+.board-editor .tiptap h3 {
+  font-size: 1.2rem;
+}
+
+.board-editor .tiptap h4 {
+  font-size: 1.05rem;
+}
+
+.board-editor .tiptap blockquote {
+  margin: 0.75rem 0;
+  padding: 0.35rem 0 0.35rem 0.9rem;
+  border-left: 3px solid #4da6ff;
+  color: #5a7189;
+}
+
+.board-editor .tiptap pre,
+.board-editor__code-block {
+  margin: 0.75rem 0;
+  padding: 0.85rem 1rem;
+  overflow: auto;
+  border-radius: 10px;
+  background: #0f2740;
+  color: #e8f1fb;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+}
+
+.board-editor .tiptap ul,
+.board-editor .tiptap ol {
+  margin: 0.5rem 0 0.85rem;
+  padding-left: 1.35rem;
+}
+
+.board-editor .tiptap ul[data-type='taskList'] {
+  list-style: none;
+  padding-left: 0.15rem;
+}
+
+.board-editor .tiptap ul[data-type='taskList'] li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.board-editor .tiptap hr {
+  margin: 1rem 0;
+  border: 0;
+  border-top: 1px solid #d7e3f0;
+}
+
+.board-editor .tiptap img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.board-editor .tiptap a {
+  color: #2f7fd6;
+  text-decoration: underline;
+}
+
+.board-editor .tiptap p.is-editor-empty:first-child::before {
+  float: left;
+  height: 0;
+  color: #9aa8b8;
+  content: attr(data-placeholder);
+  pointer-events: none;
+}
+
+.board-editor__file-input {
+  display: none;
+}
+
+.board-editor__status,
+.board-editor__error {
+  margin: 0;
+  padding: 0.55rem 1rem 0.75rem;
+  font-size: 0.8125rem;
+}
+
+.board-editor__status {
+  color: #5a7189;
+}
+
+.board-editor__error {
+  color: #c62828;
+}
+
+@media (max-width: 768px) {
+  .board-editor__toolbar {
+    gap: 0.4rem;
+    padding: 0.55rem;
+  }
+
+  .board-editor__toolbar-group {
+    border-right: 0;
+    padding-right: 0;
+  }
+
+  .board-editor .tiptap,
+  .board-editor__content {
+    min-height: 220px;
+    max-height: 55vh;
+    padding: 0.85rem;
+    font-size: 0.9rem;
+  }
+}

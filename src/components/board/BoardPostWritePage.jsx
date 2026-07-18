@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { FiX } from 'react-icons/fi'
 import BoardPageHeader from '@/components/board/BoardPageHeader'
-import AlbumImageUploader, { revokeAlbumImagePreviews } from '@/components/board/AlbumImageUploader'
+import BoardRichEditor from '@/components/board/editor/BoardRichEditor'
+import BoardThumbnailField from '@/components/board/BoardThumbnailField'
+import BoardAttachmentField from '@/components/board/BoardAttachmentField'
 import { useAuth } from '@/contexts/AuthContext'
 import {
   createBoardPost,
@@ -10,49 +11,20 @@ import {
   updateBoardPost,
 } from '@/services/board/posts'
 import {
-  buildBoardStoragePath,
+  buildBoardCmsStoragePath,
   deleteBoardFiles,
   uploadBoardFile,
 } from '@/services/board/storage'
 import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
+import {
+  computeHasImage,
+  extractStoragePathFromPublicUrl,
+  getFirstContentImageSrc,
+} from '@/utils/boardContentImages'
+import { resizeImageFile, resizeThumbnailFile } from '@/utils/resizeImageFile'
+import { isBoardHtmlEmpty, sanitizeBoardHtml } from '@/utils/sanitizeBoardHtml'
 import { resolveYouTubeMedia } from '@/utils/youtube'
 import '@/pages/ChurchNews.css'
-
-async function uploadAlbumImages(postType, postId, images) {
-  const uploaded = []
-
-  for (const image of images) {
-    if (image.path && image.url) {
-      uploaded.push({
-        url: image.url,
-        path: image.path,
-        alt: image.alt || '',
-        name: image.name || '',
-      })
-      continue
-    }
-
-    if (!image.file) {
-      continue
-    }
-
-    const path = buildBoardStoragePath(postType, postId, image.file.name)
-    const result = await uploadBoardFile(path, image.file)
-
-    if (!result.success) {
-      return result
-    }
-
-    uploaded.push({
-      url: result.url,
-      path: result.path,
-      alt: image.alt || image.file.name,
-      name: image.file.name,
-    })
-  }
-
-  return { success: true, images: uploaded }
-}
 
 function mapBoardWriteErrorMessage(message) {
   if (!message) {
@@ -65,13 +37,20 @@ function mapBoardWriteErrorMessage(message) {
     message.includes('board_posts') ||
     message.includes('board_post_meta') ||
     message.includes('ensure_board_post_meta') ||
+    message.includes('has_image') ||
+    message.includes('attachments') ||
     message.includes('youtube_url') ||
     message.includes('post_type')
   ) {
-    return '게시판 DB가 아직 준비되지 않았습니다. Supabase에 예배말씀 마이그레이션(014)을 먼저 적용해 주세요.'
+    return '게시판 DB가 아직 준비되지 않았습니다. Supabase에 CMS 마이그레이션(019)을 먼저 적용해 주세요.'
   }
 
   return message
+}
+
+async function uploadCmsFile(kind, postType, postId, file) {
+  const path = buildBoardCmsStoragePath(kind, postType, postId, file.name)
+  return uploadBoardFile(path, file)
 }
 
 function BoardPostWritePage({
@@ -92,15 +71,14 @@ function BoardPostWritePage({
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [youtubeUrl, setYoutubeUrl] = useState('')
-  const [attachmentFile, setAttachmentFile] = useState(null)
-  const [existingAttachment, setExistingAttachment] = useState(null)
-  const [albumImages, setAlbumImages] = useState([])
-  const albumImagesRef = useRef(albumImages)
-  albumImagesRef.current = albumImages
-  const [removedImagePaths, setRemovedImagePaths] = useState([])
+  const [thumbnailState, setThumbnailState] = useState(null)
+  const [attachments, setAttachments] = useState([])
+  const [removedPaths, setRemovedPaths] = useState([])
+  const [legacyImages, setLegacyImages] = useState([])
   const [loadingPost, setLoadingPost] = useState(isEdit)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const draftPostIdRef = useRef(isEdit ? postId : crypto.randomUUID())
 
   useEffect(() => {
     if (!isEdit || !postId) {
@@ -122,26 +100,32 @@ function BoardPostWritePage({
         return
       }
 
-      setTitle(result.post.title)
-      setContent(result.post.content)
-      setYoutubeUrl(result.post.youtubeUrl || '')
+      const post = result.post
+      setTitle(post.title)
+      setContent(post.content || '')
+      setYoutubeUrl(post.youtubeUrl || '')
+      setLegacyImages(post.images ?? [])
 
-      if (result.post.attachments?.[0]) {
-        setExistingAttachment(result.post.attachments[0])
+      if (post.thumbnail) {
+        setThumbnailState({
+          file: null,
+          previewUrl: null,
+          existingUrl: post.thumbnail,
+          existingPath: extractStoragePathFromPublicUrl(post.thumbnail),
+        })
       }
 
-      if (postType === 'album') {
-        setAlbumImages(
-          (result.post.images ?? []).map((image) => ({
-            key: image.path || image.src,
-            url: image.src,
-            path: image.path,
-            preview: image.src,
-            alt: image.alt,
-            name: image.name,
-          })),
-        )
-      }
+      setAttachments(
+        (post.attachments ?? []).map((file, index) => ({
+          key: file.key || file.path || file.url || `existing-${index}`,
+          file: null,
+          name: file.name,
+          size: file.size,
+          mime: file.mime,
+          url: file.url,
+          path: file.path,
+        })),
+      )
 
       setLoadingPost(false)
     }
@@ -153,21 +137,37 @@ function BoardPostWritePage({
     }
   }, [isEdit, postId, postType])
 
-  useEffect(() => {
-    return () => {
-      revokeAlbumImagePreviews(albumImagesRef.current)
+  const handleThumbnailChange = (next) => {
+    if (thumbnailState?.existingPath) {
+      setRemovedPaths((current) => [...current, thumbnailState.existingPath])
     }
-  }, [])
 
-  const handleAttachmentChange = (event) => {
-    const file = event.target.files?.[0] ?? null
-    setAttachmentFile(file)
-    event.target.value = ''
+    if (thumbnailState?.previewUrl?.startsWith('blob:')) {
+      URL.revokeObjectURL(thumbnailState.previewUrl)
+    }
+
+    setThumbnailState(next)
   }
 
-  const handleClearAttachment = () => {
-    setAttachmentFile(null)
-    setExistingAttachment(null)
+  const handleAttachmentsChange = (next) => {
+    const removed = attachments.filter(
+      (item) => item.path && !next.some((candidate) => candidate.key === item.key),
+    )
+
+    if (removed.length > 0) {
+      setRemovedPaths((current) => [
+        ...current,
+        ...removed.map((item) => item.path).filter(Boolean),
+      ])
+    }
+
+    setAttachments(next)
+  }
+
+  const handleUploadEditorImage = async (file) => {
+    const postIdForUpload = isEdit ? postId : draftPostIdRef.current
+    const resized = await resizeImageFile(file, { maxWidth: 1600, maxHeight: 1600 })
+    return uploadCmsFile('image', postType, postIdForUpload, resized)
   }
 
   const handleSubmit = async (event) => {
@@ -175,7 +175,7 @@ function BoardPostWritePage({
     setError('')
 
     const trimmedTitle = title.trim()
-    const trimmedContent = content.trim()
+    const sanitizedContent = sanitizeBoardHtml(content)
     const trimmedYoutubeUrl = youtubeUrl.trim()
 
     if (!trimmedTitle) {
@@ -183,7 +183,7 @@ function BoardPostWritePage({
       return
     }
 
-    if (!isVideoWrite && !trimmedContent) {
+    if (!isVideoWrite && isBoardHtmlEmpty(sanitizedContent)) {
       setError('내용을 입력해 주세요.')
       return
     }
@@ -199,112 +199,151 @@ function BoardPostWritePage({
       }
     }
 
-    if (postType === 'album' && albumImages.length === 0) {
-      setError('사진을 한 장 이상 추가해 주세요.')
-      return
-    }
-
     setSubmitting(true)
 
     const writer = profile?.name?.trim() || '관리자'
-    const targetPostId = isEdit ? postId : crypto.randomUUID()
+    const targetPostId = isEdit ? postId : draftPostIdRef.current
     const uploadedPaths = []
 
-    let attachmentUrl = existingAttachment?.url ?? null
-    let attachmentName = existingAttachment?.name ?? null
+    try {
+      let thumbnailUrl = thumbnailState?.existingUrl ?? null
+      let thumbnailPath = thumbnailState?.existingPath ?? null
 
-    if (!isVideoWrite && attachmentFile) {
-      const path = buildBoardStoragePath(postType, targetPostId, attachmentFile.name)
-      const uploadResult = await uploadBoardFile(path, attachmentFile)
+      if (thumbnailState?.file) {
+        const resizedThumb = await resizeThumbnailFile(thumbnailState.file)
+        const uploadResult = await uploadCmsFile('thumbnail', postType, targetPostId, resizedThumb)
 
-      if (!uploadResult.success) {
-        setError(uploadResult.message)
-        setSubmitting(false)
-        return
+        if (!uploadResult.success) {
+          setError(uploadResult.message)
+          setSubmitting(false)
+          return
+        }
+
+        thumbnailUrl = uploadResult.url
+        thumbnailPath = uploadResult.path
+        uploadedPaths.push(uploadResult.path)
       }
 
-      attachmentUrl = uploadResult.url
-      attachmentName = attachmentFile.name
-      uploadedPaths.push(uploadResult.path)
-    } else if (!isVideoWrite && !existingAttachment) {
-      attachmentUrl = null
-      attachmentName = null
-    }
-
-    let imagesPayload = []
-    let thumbnail = null
-
-    if (postType === 'album') {
-      const uploadResult = await uploadAlbumImages(postType, targetPostId, albumImages)
-
-      if (!uploadResult.success) {
-        setError(uploadResult.message)
-        setSubmitting(false)
-        return
+      if (!thumbnailUrl && !isVideoWrite) {
+        thumbnailUrl = getFirstContentImageSrc(sanitizedContent)
       }
 
-      imagesPayload = uploadResult.images
-      thumbnail = imagesPayload[0]?.url ?? null
-      uploadedPaths.push(...uploadResult.images.map((image) => image.path).filter(Boolean))
-    }
+      if (isVideoWrite && !thumbnailUrl) {
+        thumbnailUrl = youtubeMedia.thumbnail
+      }
 
-    if (isVideoWrite) {
-      thumbnail = youtubeMedia.thumbnail
-      attachmentUrl = null
-      attachmentName = null
-      imagesPayload = []
-    }
+      const attachmentsPayload = []
 
-    const payload = {
-      title: trimmedTitle,
-      content: trimmedContent,
-      writer,
-      attachmentUrl,
-      attachmentName,
-      images: imagesPayload,
-      thumbnail,
-      youtubeUrl: isVideoWrite ? youtubeMedia.youtubeUrl : null,
-    }
+      for (const item of attachments) {
+        if (item.url && item.path) {
+          attachmentsPayload.push({
+            url: item.url,
+            path: item.path,
+            name: item.name,
+            size: item.size ?? null,
+            mime: item.mime || null,
+          })
+          continue
+        }
 
-    const result = isEdit
-      ? await updateBoardPost(postType, targetPostId, payload)
-      : await createBoardPost({
-          postType,
-          id: targetPostId,
-          ...payload,
+        if (item.url && !item.file) {
+          attachmentsPayload.push({
+            url: item.url,
+            path: item.path || null,
+            name: item.name,
+            size: item.size ?? null,
+            mime: item.mime || null,
+          })
+          continue
+        }
+
+        if (!item.file) {
+          continue
+        }
+
+        const uploadResult = await uploadCmsFile('file', postType, targetPostId, item.file)
+
+        if (!uploadResult.success) {
+          if (uploadedPaths.length > 0) {
+            await deleteBoardFiles(uploadedPaths)
+          }
+
+          setError(uploadResult.message)
+          setSubmitting(false)
+          return
+        }
+
+        uploadedPaths.push(uploadResult.path)
+        attachmentsPayload.push({
+          url: uploadResult.url,
+          path: uploadResult.path,
+          name: item.name,
+          size: item.file.size,
+          mime: item.file.type || null,
         })
+      }
 
-    if (!result.success) {
+      const hasImage = computeHasImage({
+        contentHtml: sanitizedContent,
+        thumbnail: thumbnailUrl,
+        images: legacyImages,
+      })
+
+      const firstAttachment = attachmentsPayload[0] ?? null
+
+      const payload = {
+        title: trimmedTitle,
+        content: sanitizedContent,
+        writer,
+        attachmentUrl: firstAttachment?.url ?? null,
+        attachmentName: firstAttachment?.name ?? null,
+        attachments: attachmentsPayload,
+        images: legacyImages.map((image) => ({
+          url: image.src,
+          path: image.path,
+          alt: image.alt || '',
+          name: image.name || '',
+        })),
+        thumbnail: thumbnailUrl,
+        hasImage,
+        youtubeUrl: isVideoWrite ? youtubeMedia.youtubeUrl : null,
+      }
+
+      // Keep thumbnail path for delete cleanup tracking (unused var ok via void)
+      void thumbnailPath
+
+      const result = isEdit
+        ? await updateBoardPost(postType, targetPostId, payload)
+        : await createBoardPost({
+            postType,
+            id: targetPostId,
+            ...payload,
+          })
+
+      if (!result.success) {
+        if (!isEdit && uploadedPaths.length > 0) {
+          await deleteBoardFiles(uploadedPaths)
+        }
+
+        setError(mapBoardWriteErrorMessage(result.message))
+        setSubmitting(false)
+        return
+      }
+
+      if (removedPaths.length > 0) {
+        await deleteBoardFiles(removedPaths)
+      }
+
+      window.alert(isEdit ? '게시글이 수정되었습니다.' : '게시글이 등록되었습니다.')
+      navigate(`${detailPathPrefix}/${targetPostId}`)
+    } catch (submitError) {
       if (!isEdit && uploadedPaths.length > 0) {
         await deleteBoardFiles(uploadedPaths)
       }
 
-      setError(mapBoardWriteErrorMessage(result.message))
+      setError(submitError.message || '게시글 저장 중 오류가 발생했습니다.')
       setSubmitting(false)
-      return
     }
-
-    if (removedImagePaths.length > 0) {
-      await deleteBoardFiles(removedImagePaths)
-    }
-
-    window.alert(isEdit ? '게시글이 수정되었습니다.' : '게시글이 등록되었습니다.')
-    navigate(`${detailPathPrefix}/${targetPostId}`)
-  }
-
-  const handleAlbumImagesChange = (nextImages) => {
-    const removed = albumImages.filter(
-      (image) => image.path && !nextImages.some((next) => next.key === image.key),
-    )
-
-    if (removed.length > 0) {
-      setRemovedImagePaths((current) => [
-        ...current,
-        ...removed.map((image) => image.path).filter(Boolean),
-      ])
-    }
-
-    setAlbumImages(nextImages)
   }
 
   if (loadingPost) {
@@ -361,62 +400,33 @@ function BoardPostWritePage({
         )}
 
         <div className="board-write-form__field">
-          <label htmlFor="board-write-content" className="board-write-form__label">
-            내용{isVideoWrite ? ' (선택)' : ''}
-          </label>
-          <textarea
-            id="board-write-content"
-            className="board-write-form__textarea"
+          <span className="board-write-form__label">내용{isVideoWrite ? ' (선택)' : ''}</span>
+          <BoardRichEditor
             value={content}
-            onChange={(event) => setContent(event.target.value)}
+            onChange={setContent}
+            onUploadImage={handleUploadEditorImage}
             disabled={submitting}
-            rows={isVideoWrite || postType === 'album' ? 6 : 12}
-            required={!isVideoWrite}
-            autoComplete={AUTOCOMPLETE_OFF}
+            placeholder={
+              isVideoWrite ? '영상 설명을 입력해 주세요. (선택)' : '내용을 입력해 주세요.'
+            }
           />
         </div>
 
-        {postType === 'church_news' && (
-          <div className="board-write-form__field">
-            <span className="board-write-form__label">첨부파일</span>
-            <div className="board-write-form__file-row">
-              <label className="board-write-form__file-button">
-                <input
-                  type="file"
-                  className="visually-hidden"
-                  onChange={handleAttachmentChange}
-                  disabled={submitting}
-                />
-                파일선택
-              </label>
-              {(attachmentFile || existingAttachment) && (
-                <div className="board-write-form__file-name">
-                  <span>{attachmentFile?.name || existingAttachment?.name}</span>
-                  <button
-                    type="button"
-                    className="board-write-form__file-remove"
-                    onClick={handleClearAttachment}
-                    disabled={submitting}
-                    aria-label="첨부파일 제거"
-                  >
-                    <FiX aria-hidden="true" />
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+        <div className="board-write-form__field">
+          <BoardThumbnailField
+            value={thumbnailState}
+            onChange={handleThumbnailChange}
+            disabled={submitting}
+          />
+        </div>
 
-        {postType === 'album' && (
-          <div className="board-write-form__field">
-            <span className="board-write-form__label">사진 업로드</span>
-            <AlbumImageUploader
-              images={albumImages}
-              onChange={handleAlbumImagesChange}
-              disabled={submitting}
-            />
-          </div>
-        )}
+        <div className="board-write-form__field">
+          <BoardAttachmentField
+            items={attachments}
+            onChange={handleAttachmentsChange}
+            disabled={submitting}
+          />
+        </div>
 
         {error && (
           <p className="board-write-form__error" role="alert">

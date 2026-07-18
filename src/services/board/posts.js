@@ -3,11 +3,41 @@ import { isAdminRole } from '@/services/auth/roles'
 import { fetchPostMeta } from '@/services/board/postStats'
 import { deleteBoardFiles } from '@/services/board/storage'
 import { getTempBoardPost, getTempBoardPosts } from '@/data/tempBoardPosts'
+import { extractStoragePathFromPublicUrl } from '@/utils/boardContentImages'
 
 const PERMISSION_DENIED = '권한이 없습니다.'
 
 export function mapBoardPostRow(row, meta) {
   const images = Array.isArray(row.images) ? row.images : []
+  const attachmentsJson = Array.isArray(row.attachments) ? row.attachments : []
+
+  const attachments =
+    attachmentsJson.length > 0
+      ? attachmentsJson.map((file, index) => ({
+          key: file.path || file.url || `attachment-${index}`,
+          name: file.name || `첨부파일-${index + 1}`,
+          url: file.url || null,
+          path: file.path || null,
+          size: file.size ?? null,
+          mime: file.mime || null,
+        }))
+      : row.attachment_url
+        ? [
+            {
+              key: row.attachment_url,
+              name: row.attachment_name || '첨부파일',
+              url: row.attachment_url,
+              path: null,
+              size: null,
+              mime: null,
+            },
+          ]
+        : []
+
+  const hasImage =
+    typeof row.has_image === 'boolean'
+      ? row.has_image
+      : Boolean(row.thumbnail) || images.length > 0
 
   return {
     id: row.id,
@@ -17,13 +47,12 @@ export function mapBoardPostRow(row, meta) {
     author: row.writer,
     authorName: row.writer,
     createdAt: row.created_at,
+    updatedAt: row.updated_at ?? row.created_at,
     date: row.created_at,
     views: meta?.views_count ?? 0,
     likesCount: meta?.likes_count ?? 0,
     commentsCount: meta?.comments_count ?? 0,
-    attachments: row.attachment_url
-      ? [{ name: row.attachment_name || '첨부파일', url: row.attachment_url }]
-      : [],
+    attachments,
     images: images.map((image, index) => ({
       src: image.url,
       alt: image.alt || '',
@@ -31,6 +60,7 @@ export function mapBoardPostRow(row, meta) {
       name: image.name || `image-${index + 1}`,
     })),
     thumbnail: row.thumbnail,
+    hasImage,
     youtubeUrl: row.youtube_url ?? null,
     attachmentUrl: row.attachment_url,
     attachmentName: row.attachment_name,
@@ -81,7 +111,7 @@ async function fetchPostsMetaMap(postType, postIds) {
 export async function fetchBoardPosts(postType) {
   const { data, error } = await supabase
     .from('board_post_list')
-    .select('id, post_type, title, writer, thumbnail, created_at')
+    .select('id, post_type, title, writer, thumbnail, created_at, has_image')
     .eq('post_type', postType)
     .order('created_at', { ascending: false })
 
@@ -194,7 +224,7 @@ export async function fetchLatestBoardPosts(postType, limit = 4) {
 
   const { data, error } = await supabase
     .from('board_post_list')
-    .select('id, post_type, title, writer, thumbnail, created_at')
+    .select('id, post_type, title, writer, thumbnail, created_at, has_image')
     .eq('post_type', postType)
     .order('created_at', { ascending: false })
     .limit(safeLimit)
@@ -230,7 +260,7 @@ export async function fetchLatestBoardPost(postType) {
   const { data, error } = await supabase
     .from('board_posts')
     .select(
-      'id, post_type, title, writer, content, thumbnail, images, youtube_url, created_at, attachment_url, attachment_name',
+      'id, post_type, title, writer, content, thumbnail, images, youtube_url, created_at, updated_at, attachment_url, attachment_name, has_image, attachments',
     )
     .eq('post_type', postType)
     .order('created_at', { ascending: false })
@@ -309,8 +339,10 @@ export async function createBoardPost({
   writer,
   attachmentUrl = null,
   attachmentName = null,
+  attachments = [],
   images = [],
   thumbnail = null,
+  hasImage = false,
   youtubeUrl = null,
 }) {
   const auth = await assertBoardAdmin()
@@ -331,8 +363,10 @@ export async function createBoardPost({
       writer,
       attachment_url: attachmentUrl,
       attachment_name: attachmentName,
+      attachments,
       images,
       thumbnail,
+      has_image: hasImage,
       youtube_url: youtubeUrl,
     })
     .select()
@@ -369,8 +403,10 @@ export async function updateBoardPost(postType, postId, payload) {
       writer: payload.writer,
       attachment_url: payload.attachmentUrl ?? null,
       attachment_name: payload.attachmentName ?? null,
+      attachments: payload.attachments ?? [],
       images: payload.images ?? [],
       thumbnail: payload.thumbnail ?? null,
+      has_image: Boolean(payload.hasImage),
       youtube_url: payload.youtubeUrl ?? null,
     })
     .eq('post_type', postType)
@@ -406,8 +442,10 @@ export async function deleteBoardPost(postType, postId) {
   }
 
   const storagePaths = [
-  ...(existing.post.images ?? []).map((image) => image.path),
-  ]
+    ...(existing.post.images ?? []).map((image) => image.path),
+    ...(existing.post.attachments ?? []).map((file) => file.path),
+    extractStoragePathFromPublicUrl(existing.post.thumbnail),
+  ].filter(Boolean)
 
   const { error } = await supabase
     .from('board_posts')

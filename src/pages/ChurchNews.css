@@ -740,6 +740,223 @@
   white-space: pre-line;
 }
 
+.church-news-detail__body--html {
+  white-space: normal;
+}
+
+.church-news-detail__body--html p {
+  margin: 0 0 0.85rem;
+}
+
+.church-news-detail__body--html h1,
+.church-news-detail__body--html h2,
+.church-news-detail__body--html h3,
+.church-news-detail__body--html h4 {
+  margin: 1.1rem 0 0.55rem;
+  line-height: 1.35;
+  color: #1f3a5f;
+}
+
+.church-news-detail__body--html img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0.85rem auto;
+  border-radius: 8px;
+}
+
+.church-news-detail__body--html ul,
+.church-news-detail__body--html ol {
+  margin: 0.5rem 0 0.85rem;
+  padding-left: 1.35rem;
+}
+
+.church-news-detail__body--html blockquote {
+  margin: 0.85rem 0;
+  padding: 0.35rem 0 0.35rem 0.9rem;
+  border-left: 3px solid #4da6ff;
+  color: #5a7189;
+}
+
+.church-news-detail__body--html pre {
+  margin: 0.85rem 0;
+  padding: 0.85rem 1rem;
+  overflow: auto;
+  border-radius: 10px;
+  background: #0f2740;
+  color: #e8f1fb;
+  font-size: 0.85rem;
+}
+
+.church-news-detail__body--html a {
+  color: #2f7fd6;
+}
+
+.church-news-detail__legacy-gallery {
+  margin-top: 1.5rem;
+}
+
+.board-post-title__image-icon {
+  display: inline-block;
+  width: 0.95rem;
+  height: 0.95rem;
+  margin-left: 0.35rem;
+  vertical-align: -0.1rem;
+  color: #4da6ff;
+}
+
+.board-post-extras__related-card--text-only {
+  display: block;
+}
+
+.board-post-extras__related-image-icon {
+  display: inline-block;
+  width: 0.9rem;
+  height: 0.9rem;
+  margin-left: 0.35rem;
+  vertical-align: -0.1rem;
+  color: #4da6ff;
+}
+
+.board-thumb-field,
+.board-attach-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.board-thumb-field__label,
+.board-attach-field__label {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #1f3a5f;
+}
+
+.board-thumb-field__hint,
+.board-attach-field__hint {
+  margin: 0.2rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: #7b8794;
+}
+
+.board-thumb-field__empty,
+.board-attach-field__add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 2.75rem;
+  padding: 0.65rem 1rem;
+  border: 1px dashed #b7cce3;
+  border-radius: 10px;
+  background: #f7fbff;
+  color: #35506f;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.board-thumb-field__preview-wrap {
+  position: relative;
+  overflow: hidden;
+  max-width: 320px;
+  border-radius: 12px;
+  background: #eef4fa;
+}
+
+.board-thumb-field__preview {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+.board-thumb-field__remove,
+.board-attach-field__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(15, 39, 64, 0.72);
+  color: #fff;
+  cursor: pointer;
+}
+
+.board-thumb-field__remove {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+}
+
+.board-thumb-field__change {
+  align-self: flex-start;
+  border: 0;
+  background: transparent;
+  color: #2f7fd6;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.board-thumb-field__input,
+.board-attach-field__input {
+  display: none;
+}
+
+.board-attach-field__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #e5eef7;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.board-attach-field__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.7rem 0.85rem;
+  border-top: 1px solid #eef3f8;
+}
+
+.board-attach-field__item:first-child {
+  border-top: 0;
+}
+
+.board-attach-field__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.875rem;
+  color: #1f3a5f;
+}
+
+.board-attach-field__remove {
+  background: #eef3f8;
+  color: #5a7189;
+}
+
+.board-attach-field__empty {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #8a96a5;
+}
+
+.board-thumb-field__error,
+.board-attach-field__error {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #c62828;
+}
+
 .church-news-detail__adjacent {
   margin-top: 2rem;
   border-top: 1px solid #edf1f5;

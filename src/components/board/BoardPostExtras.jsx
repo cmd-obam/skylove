@@ -1,29 +1,21 @@
 import { Link } from 'react-router-dom'
+import { FiImage } from 'react-icons/fi'
 import { formatBoardDate } from '@/utils/formatBoardDate'
 
 function BoardPostExtras({
   attachments = [],
   relatedPosts = [],
   detailPathPrefix,
-  imageAttachments = [],
 }) {
-  const fileList =
-    attachments.length > 0
-      ? attachments
-      : imageAttachments.map((image, index) => ({
-          name: image.name || `image-${index + 1}.jpg`,
-          url: image.src,
-        }))
-
   return (
     <div className="board-post-extras">
       <section className="board-post-extras__section" aria-label="첨부파일">
         <h3 className="board-post-extras__label">첨부파일</h3>
         <div className="board-post-extras__content">
-          {fileList.length > 0 ? (
+          {attachments.length > 0 ? (
             <ul className="board-post-extras__files">
-              {fileList.map((file) => (
-                <li key={file.name} className="board-post-extras__file-item">
+              {attachments.map((file) => (
+                <li key={file.key || file.url || file.name} className="board-post-extras__file-item">
                   {file.url ? (
                     <a href={file.url} className="board-post-extras__file-link" download>
                       {file.name}
@@ -45,32 +37,41 @@ function BoardPostExtras({
         {relatedPosts.length > 0 ? (
           <ul className="board-post-extras__related-list">
             {relatedPosts.map((relatedPost) => {
-              const thumbnail = relatedPost.images?.[0]
+              const thumbnail = relatedPost.thumbnail || relatedPost.images?.[0]?.src
+              const showImageIcon = Boolean(relatedPost.hasImage || thumbnail)
 
               return (
                 <li key={relatedPost.id} className="board-post-extras__related-item">
                   <Link
                     to={`${detailPathPrefix}/${relatedPost.id}`}
-                    className="board-post-extras__related-card"
+                    className={`board-post-extras__related-card${
+                      thumbnail ? '' : ' board-post-extras__related-card--text-only'
+                    }`}
                   >
-                    <div className="board-post-extras__related-thumb">
-                      {thumbnail ? (
+                    {thumbnail ? (
+                      <div className="board-post-extras__related-thumb">
                         <img
-                          src={thumbnail.src}
-                          alt={thumbnail.alt || relatedPost.title}
+                          src={thumbnail}
+                          alt=""
                           className="board-post-extras__related-image"
                         />
-                      ) : (
-                        <div className="board-post-extras__related-placeholder" aria-hidden="true" />
-                      )}
-                    </div>
+                      </div>
+                    ) : null}
                     <div className="board-post-extras__related-body">
-                      <p className="board-post-extras__related-post-title">{relatedPost.title}</p>
+                      <p className="board-post-extras__related-post-title">
+                        {relatedPost.title}
+                        {showImageIcon ? (
+                          <FiImage
+                            className="board-post-extras__related-image-icon"
+                            aria-label="이미지 있음"
+                          />
+                        ) : null}
+                      </p>
                       {relatedPost.eventPeriod && (
                         <p className="board-post-extras__related-period">{relatedPost.eventPeriod}</p>
                       )}
                       <p className="board-post-extras__related-date">
-                        {formatBoardDate(relatedPost.date)}
+                        {formatBoardDate(relatedPost.date || relatedPost.createdAt)}
                       </p>
                     </div>
                   </Link>

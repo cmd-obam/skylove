@@ -199,6 +199,22 @@
   white-space: pre-wrap;
 }
 
+.worship-word-detail__content--html {
+  white-space: normal;
+}
+
+.worship-word-detail__content--html img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0.85rem auto;
+  border-radius: 8px;
+}
+
+.worship-word-detail__content--html p {
+  margin: 0 0 0.85rem;
+}
+
 .worship-word-detail__actions-bar {
   display: flex;
   align-items: center;

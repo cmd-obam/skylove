@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import AlbumImageGallery from '@/components/board/AlbumImageGallery'
 import BoardPostDetail from '@/components/board/BoardPostDetail'
 import PostUtilityBar from '@/components/board/PostUtilityBar'
 import { fetchRelatedBoardPosts } from '@/services/board/posts'
@@ -51,11 +50,6 @@ function EventPhotoDetail() {
         ariaLabel="교회앨범 상세"
         listButtonLabel="목록"
         detailVariant="album"
-        afterBody={
-          post?.images?.length > 0 ? (
-            <AlbumImageGallery images={post.images} title={post.title} />
-          ) : null
-        }
       />
       {post && <PostUtilityBar />}
     </>
