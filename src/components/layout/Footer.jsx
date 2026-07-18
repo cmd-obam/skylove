@@ -4,10 +4,12 @@ import { LOCATION_DATA } from '@/data/location'
 import Modal from '@/components/common/Modal'
 import SitemapModal from '@/components/layout/SitemapModal'
 import { FOOTER_MODALS, FOOTER_LEGAL_LINKS } from '@/data/footerPolicies'
+import { formatVisitorCount, loadVisitorStats } from '@/services/analytics/visitorStats'
 import './Footer.css'
 
 function Footer() {
   const [activeModal, setActiveModal] = useState(null)
+  const [visitorStats, setVisitorStats] = useState({ todayCount: null, totalCount: null })
   const location = useLocation()
 
   const openModal = (modalId) => {
@@ -22,7 +24,31 @@ function Footer() {
     closeModal()
   }, [location.pathname])
 
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadStats() {
+      const stats = await loadVisitorStats()
+      if (!cancelled) {
+        setVisitorStats({
+          todayCount: stats.todayCount,
+          totalCount: stats.totalCount,
+        })
+      }
+    }
+
+    loadStats()
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
   const modal = activeModal && activeModal !== 'sitemap' ? FOOTER_MODALS[activeModal] : null
+  const todayLabel =
+    visitorStats.todayCount == null ? '—' : formatVisitorCount(visitorStats.todayCount)
+  const totalLabel =
+    visitorStats.totalCount == null ? '—' : formatVisitorCount(visitorStats.totalCount)
 
   return (
     <footer className="footer">
@@ -45,12 +71,25 @@ function Footer() {
           </div>
         </div>
 
-        <div className="footer__donation">
-          <p className="footer__donation-title">하늘사랑교회 온라인 헌금</p>
-          <p className="footer__donation-account">
-            <span className="footer__donation-bank">새마을금고</span>
-            <span className="footer__donation-number">9002-1741-6264-5</span>
-          </p>
+        <div className="footer__right">
+          <div className="footer__stats" aria-label="방문자 통계">
+            <div className="footer__stat">
+              <span className="footer__stat-label">TODAY</span>
+              <span className="footer__stat-value">{todayLabel}</span>
+            </div>
+            <div className="footer__stat">
+              <span className="footer__stat-label">TOTAL</span>
+              <span className="footer__stat-value">{totalLabel}</span>
+            </div>
+          </div>
+
+          <div className="footer__donation">
+            <p className="footer__donation-title">하늘사랑교회 온라인 헌금</p>
+            <p className="footer__donation-account">
+              <span className="footer__donation-bank">새마을금고</span>
+              <span className="footer__donation-number">9002-1741-6264-5</span>
+            </p>
+          </div>
         </div>
       </div>
 
