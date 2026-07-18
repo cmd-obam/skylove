@@ -537,7 +537,7 @@
   bottom: 1.35rem;
   left: 1.35rem;
   z-index: 1;
-  max-width: 18rem;
+  max-width: min(26rem, 72%);
   margin-left: auto;
   color: var(--color-white);
   text-align: right;
@@ -552,10 +552,15 @@
 
 .home-story__featured-title {
   margin: 0 0 0.55rem;
-  font-size: clamp(1.2rem, 1.05rem + 0.5vw, 1.55rem);
+  font-size: clamp(1.15rem, 1rem + 0.45vw, 1.45rem);
   font-weight: 800;
-  line-height: 1.35;
+  line-height: 1.4;
   word-break: keep-all;
+  overflow-wrap: break-word;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .home-story__featured-excerpt {
