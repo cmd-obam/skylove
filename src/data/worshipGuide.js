@@ -200,15 +200,19 @@ export const WORSHIP_GUIDE_CONTENT = {
         lines: ['한 주의 중심에서', '말씀 앞에 머무는 예배'],
       },
       {
-        id: 'body',
+        id: 'body-1',
         variant: 'body',
         title: '수요 예배',
         lines: [
           [{ text: '수요 예배는' }],
           [{ text: '한 주의 걸음을 잠시 멈추고' }],
           [{ text: '말씀과 기도', accent: true }, { text: '로 하나님 앞에 나아가며' }],
-          [{ text: '은혜와 새 힘', accent: true }, { text: '을 얻는 시간입니다.' }],
         ],
+      },
+      {
+        id: 'body-2',
+        variant: 'body',
+        lines: [[{ text: '은혜와 새 힘', accent: true }, { text: '을 얻는 시간입니다.' }]],
       },
     ],
     heroImage: wednesdayHero,
