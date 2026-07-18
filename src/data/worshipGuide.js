@@ -365,11 +365,15 @@ export const WORSHIP_GUIDE_CONTENT = {
         lines: ['삶을 나누고', '믿음을 세우는 공동체'],
       },
       {
-        id: 'body',
+        id: 'body-1',
         variant: 'body',
         title: '셀모임',
+        lines: ['셀모임은 삶과 신앙을 함께 나누며'],
+      },
+      {
+        id: 'body-2',
+        variant: 'body',
         lines: [
-          '셀모임은 삶과 신앙을 함께 나누며',
           '말씀과 기도로 서로를 격려하고',
           '믿음 안에서 함께 성장해 가는',
           '하늘사랑교회의 소그룹 공동체입니다.',
