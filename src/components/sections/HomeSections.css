@@ -651,7 +651,7 @@
   flex-direction: column;
   justify-content: flex-start;
   gap: 2.5rem;
-  padding-top: 2rem;
+  padding-top: 0;
 }
 
 .home-location__details {
