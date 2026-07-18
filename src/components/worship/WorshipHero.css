@@ -66,6 +66,10 @@
   color: var(--color-text-muted);
 }
 
+.worship-hero__subtitle-line {
+  display: block;
+}
+
 @media (max-width: 992px) {
   .worship-hero__content {
     width: 50%;

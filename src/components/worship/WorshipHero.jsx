@@ -7,7 +7,12 @@ import './WorshipHero.css'
 const WORSHIP_PATH = '/worship'
 
 function WorshipHero() {
-  const { title, subtitle } = getPageMeta(WORSHIP_PATH)
+  const { title, subtitle, subtitleLines } = getPageMeta(WORSHIP_PATH)
+  const lines = subtitleLines?.length
+    ? subtitleLines
+    : subtitle
+      ? [subtitle]
+      : []
 
   return (
     <div className="worship-hero-wrap">
@@ -25,7 +30,15 @@ function WorshipHero() {
         style={{ '--worship-hero-bg': `url(${worshipHeroImage})` }}
       >
         <div className="worship-hero__content">
-          {subtitle && <p className="worship-hero__subtitle">{subtitle}</p>}
+          {lines.length > 0 ? (
+            <p className="worship-hero__subtitle">
+              {lines.map((line) => (
+                <span key={line} className="worship-hero__subtitle-line">
+                  {line}
+                </span>
+              ))}
+            </p>
+          ) : null}
         </div>
       </MobileBannerExpand>
     </div>

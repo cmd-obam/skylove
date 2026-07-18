@@ -21,7 +21,12 @@ export const PAGE_META = {
   },
   '/worship': {
     title: '예배시간 안내',
-    subtitle: '하나님을 만나는 은혜로운 시간',
+    subtitle: '예배의 자리로 초대합니다',
+    subtitleLines: [
+      '예배의 자리로 초대합니다',
+      '말씀과 찬양 안에서 쉼을 누리며',
+      '하나님의 사랑을 함께 나누어요.',
+    ],
   },
   '/worship-guide/sunday-blessing': {
     title: '주일 축복 예배',
