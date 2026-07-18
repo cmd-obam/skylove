@@ -123,7 +123,6 @@
 /* Welcome */
 .home-welcome {
   background-color: var(--color-white);
-  padding-bottom: 2.75rem;
 }
 
 .home-welcome__inner {
@@ -261,14 +260,9 @@
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
 }
 
-/* Worship */
+/* Worship / Story / Location share .home-section vertical rhythm on PC */
 .home-worship {
   background-color: var(--color-white);
-  padding-top: calc(2.75rem - 50px);
-}
-
-.home-story {
-  padding-top: calc(5rem - 50px);
 }
 
 .home-worship .home-section__header {
@@ -643,7 +637,6 @@
 /* Location */
 .home-location {
   background-color: var(--color-white);
-  padding-top: calc(5rem - 50px);
 }
 
 .home-location__layout {
