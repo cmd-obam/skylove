@@ -2,7 +2,6 @@ import { supabase } from '@/lib/supabase'
 import { isAdminRole } from '@/services/auth/roles'
 import { fetchPostMeta } from '@/services/board/postStats'
 import { deleteBoardFiles } from '@/services/board/storage'
-import { getTempBoardPost, getTempBoardPosts } from '@/data/tempBoardPosts'
 import { extractStoragePathFromPublicUrl } from '@/utils/boardContentImages'
 
 const PERMISSION_DENIED = '권한이 없습니다.'
@@ -116,31 +115,16 @@ export async function fetchBoardPosts(postType) {
     .order('created_at', { ascending: false })
 
   if (error) {
-    const tempPosts = getTempBoardPosts(postType)
-
-    if (tempPosts.length > 0) {
-      return { success: true, posts: tempPosts }
-    }
-
     return { success: false, message: error.message, posts: [] }
   }
 
   const postIds = (data ?? []).map((row) => row.id)
-
   const metaMap = await fetchPostsMetaMap(postType, postIds)
 
   const posts = (data ?? []).map((row, index) => ({
     ...mapBoardPostRow(row, metaMap[String(row.id)]),
     no: (data ?? []).length - index,
   }))
-
-  if (posts.length === 0) {
-    const tempPosts = getTempBoardPosts(postType)
-
-    if (tempPosts.length > 0) {
-      return { success: true, posts: tempPosts }
-    }
-  }
 
   return { success: true, posts }
 }
@@ -158,13 +142,7 @@ export async function fetchBoardPost(postType, postId) {
   }
 
   if (!data) {
-    const tempPost = getTempBoardPost(postType, postId)
-
-    if (tempPost) {
-      return { success: true, post: tempPost, postType }
-    }
-
-    return { success: false, notFound: true }
+    return { success: false, notFound: true, message: '게시글을 찾을 수 없습니다.' }
   }
 
   const metaResult = await fetchPostMeta(postType, postId)
@@ -188,15 +166,7 @@ export async function fetchBoardPostById(postId) {
   }
 
   if (!data) {
-    for (const postType of ['album', 'church_news', 'sunday_sermon', 'el_shaddai_choir']) {
-      const tempPost = getTempBoardPost(postType, postId)
-
-      if (tempPost) {
-        return { success: true, post: tempPost, postType }
-      }
-    }
-
-    return { success: false, notFound: true }
+    return { success: false, notFound: true, message: '게시글을 찾을 수 없습니다.' }
   }
 
   const metaResult = await fetchPostMeta(data.post_type, postId)
@@ -230,24 +200,10 @@ export async function fetchLatestBoardPosts(postType, limit = 4) {
     .limit(safeLimit)
 
   if (error) {
-    const tempPosts = getTempBoardPosts(postType).slice(0, safeLimit)
-
-    if (tempPosts.length > 0) {
-      return { success: true, posts: tempPosts }
-    }
-
     return { success: false, message: error.message, posts: [] }
   }
 
   const posts = (data ?? []).map((row) => mapBoardPostRow(row))
-
-  if (posts.length === 0) {
-    const tempPosts = getTempBoardPosts(postType).slice(0, safeLimit)
-
-    if (tempPosts.length > 0) {
-      return { success: true, posts: tempPosts }
-    }
-  }
 
   return { success: true, posts }
 }
@@ -268,22 +224,10 @@ export async function fetchLatestBoardPost(postType) {
     .maybeSingle()
 
   if (error) {
-    const tempPost = getTempBoardPosts(postType)[0]
-
-    if (tempPost) {
-      return { success: true, post: tempPost }
-    }
-
     return { success: false, message: error.message, post: null }
   }
 
   if (!data) {
-    const tempPost = getTempBoardPosts(postType)[0]
-
-    if (tempPost) {
-      return { success: true, post: tempPost }
-    }
-
     return { success: true, post: null }
   }
 
@@ -437,8 +381,11 @@ export async function deleteBoardPost(postType, postId) {
 
   const existing = await fetchBoardPost(postType, postId)
 
-  if (!existing.success) {
-    return existing
+  if (!existing.success || !existing.post) {
+    return {
+      success: false,
+      message: existing.message || '게시글을 찾을 수 없습니다.',
+    }
   }
 
   const storagePaths = [
@@ -447,11 +394,12 @@ export async function deleteBoardPost(postType, postId) {
     extractStoragePathFromPublicUrl(existing.post.thumbnail),
   ].filter(Boolean)
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('board_posts')
     .delete()
     .eq('post_type', postType)
     .eq('id', postId)
+    .select('id')
 
   if (error) {
     if (error.code === '42501') {
@@ -460,6 +408,20 @@ export async function deleteBoardPost(postType, postId) {
 
     return { success: false, message: error.message }
   }
+
+  if (!data?.length) {
+    return {
+      success: false,
+      message: '게시글을 삭제할 수 없습니다. 관리자 권한을 확인해 주세요.',
+    }
+  }
+
+  // Clean related meta/likes/comments (no FK cascade on these tables)
+  await Promise.all([
+    supabase.from('board_post_meta').delete().eq('post_type', postType).eq('post_id', String(postId)),
+    supabase.from('post_likes').delete().eq('post_type', postType).eq('post_id', String(postId)),
+    supabase.from('board_comments').delete().eq('post_type', postType).eq('post_id', String(postId)),
+  ])
 
   if (storagePaths.length > 0) {
     await deleteBoardFiles(storagePaths)
