@@ -410,6 +410,17 @@ function SiteHeader() {
                   isMemberMenuExpanded ? ' site-header__drawer-submenu--open' : ''
                 }`}
               >
+                {memberMenuChildren.map((child) => (
+                  <li key={child.path} className="site-header__drawer-submenu-item">
+                    <Link
+                      to={child.path}
+                      className="site-header__drawer-submenu-link"
+                      onClick={closeMobileMenu}
+                    >
+                      {child.title}
+                    </Link>
+                  </li>
+                ))}
                 {isLoggedIn ? (
                   <li className="site-header__drawer-submenu-item">
                     <button
@@ -420,19 +431,7 @@ function SiteHeader() {
                       로그아웃
                     </button>
                   </li>
-                ) : (
-                  memberMenuChildren.map((child) => (
-                    <li key={child.path} className="site-header__drawer-submenu-item">
-                      <Link
-                        to={child.path}
-                        className="site-header__drawer-submenu-link"
-                        onClick={closeMobileMenu}
-                      >
-                        {child.title}
-                      </Link>
-                    </li>
-                  ))
-                )}
+                ) : null}
               </ul>
             </li>
           </ul>
