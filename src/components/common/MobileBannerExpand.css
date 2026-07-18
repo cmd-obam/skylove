@@ -437,7 +437,7 @@
     font-size: clamp(1.0625rem, 9.5cqi, 1.4375rem);
     font-weight: 600;
     line-height: 1.35;
-    color: var(--color-text-muted);
+    color: #2f6fad;
   }
 
   .mobile-banner-expand--title-only.location-hero .location-hero__tagline {
