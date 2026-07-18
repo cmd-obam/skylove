@@ -69,66 +69,52 @@ export const HOME_WORSHIP_ITEMS = WORSHIP_SCHEDULE.slice(0, 4).map((item) => ({
           : 'people',
 }))
 
-export const HOME_STORY_CARDS = [
-  {
-    id: 'worship-story',
-    title: '주일예배 이야기',
-    description: '예배와 말씀, 찬양의 은혜로운 순간을 전합니다.',
-    image: null,
-    href: '/church-news',
-    comingSoon: false,
-  },
-  {
-    id: 'next-gen-story',
-    title: '다음세대 이야기',
-    description: '아이들과 청소년이 함께 성장하는 이야기입니다.',
-    image: null,
-    href: null,
-    comingSoon: true,
-  },
-  {
-    id: 'together-story',
-    title: '함께하는 이야기',
-    description: '교제와 섬김으로 이어지는 공동체의 이야기입니다.',
-    image: null,
-    href: null,
-    comingSoon: true,
-  },
-]
+/** 홈 교회 이야기 섹션 헤더 */
+export const HOME_STORY = {
+  eyebrow: 'OUR STORY',
+  title: '교회 이야기',
+  subtitle: '하늘사랑감리교회의 다양한 소식과 이야기를 전합니다.',
+}
 
-/** 홈 교회 이야기: 카테고리 탭별 최신 게시글 */
-export const HOME_RECENT_NEWS_SOURCES = [
-  {
-    id: 'church_news',
-    postType: 'church_news',
-    categoryLabel: '교회소식',
-    listPath: '/church-news',
-    detailPath: (postId) => `/church-news/${postId}`,
-  },
-  {
-    id: 'album',
-    postType: 'album',
-    categoryLabel: '교회앨범',
-    listPath: '/church-news/album',
-    detailPath: (postId) => `/church-news/album/${postId}`,
-  },
+/**
+ * 홈 교회 이야기 카드 (왼쪽부터)
+ * 1. 예배말씀 최신 / 2. 엘샤다이 찬양단 최신 / 3. 교회소식 최신 / 4. 교회앨범 최신
+ */
+export const HOME_STORY_SOURCES = [
   {
     id: 'sunday_sermon',
     postType: 'sunday_sermon',
-    categoryLabel: '예배말씀',
+    badgeLabel: '주일예배 이야기',
+    dateSuffix: '주일예배',
+    featured: true,
     listPath: '/worship-word/sunday',
     detailPath: (postId) => `/worship-word/sunday/${postId}`,
   },
   {
     id: 'el_shaddai_choir',
     postType: 'el_shaddai_choir',
-    categoryLabel: '찬양단',
+    badgeLabel: '엘샤다이 찬양단',
+    featured: false,
     listPath: '/worship-word/el-shaddai',
     detailPath: (postId) => `/worship-word/el-shaddai/${postId}`,
   },
+  {
+    id: 'church_news',
+    postType: 'church_news',
+    badgeLabel: '교회소식',
+    featured: false,
+    listPath: '/church-news',
+    detailPath: (postId) => `/church-news/${postId}`,
+  },
+  {
+    id: 'album',
+    postType: 'album',
+    badgeLabel: '교회앨범',
+    featured: false,
+    listPath: '/church-news/album',
+    detailPath: (postId) => `/church-news/album/${postId}`,
+  },
 ]
-
-export const HOME_RECENT_NEWS_LIMIT = 4
 
 export const HOME_LOCATION = {
   eyebrow: 'LOCATION',

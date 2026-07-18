@@ -1,0 +1,15 @@
+---
+description: After code changes, automatically commit and push to origin
+alwaysApply: true
+---
+
+# Auto commit & push
+
+When finishing 수정/추가 work in this repo, **do not wait** for the user to ask for commit/push.
+
+1. Create a git commit with a concise message (why over what).
+2. Push the current branch to `origin` (usually `main`).
+3. If main push is blocked by safety review, request approval and retry.
+4. Skip only when the user explicitly says not to commit or push.
+
+Follow the existing git safety protocol (no force push, no config changes, no secrets).

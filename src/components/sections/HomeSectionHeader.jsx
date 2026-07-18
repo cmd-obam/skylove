@@ -1,4 +1,4 @@
-function HomeSectionHeader({ eyebrow, title, titleLines, action }) {
+function HomeSectionHeader({ eyebrow, title, titleLines, subtitle, action }) {
   const lines = titleLines ?? (title ? [title] : [])
 
   return (
@@ -12,6 +12,7 @@ function HomeSectionHeader({ eyebrow, title, titleLines, action }) {
             </span>
           ))}
         </h2>
+        {subtitle ? <p className="home-section__subtitle">{subtitle}</p> : null}
       </div>
       {action}
     </div>

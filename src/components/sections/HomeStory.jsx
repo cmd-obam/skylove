@@ -1,203 +1,229 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import {
-  HOME_RECENT_NEWS_LIMIT,
-  HOME_RECENT_NEWS_SOURCES,
-  HOME_STORY_CARDS,
-} from '@/data/home'
+import { FaChurch } from 'react-icons/fa'
+import { FiImage, FiMusic } from 'react-icons/fi'
+import { HiOutlineSpeakerphone } from 'react-icons/hi'
+import { HOME_STORY, HOME_STORY_SOURCES } from '@/data/home'
 import HomeSectionHeader from '@/components/sections/HomeSectionHeader'
-import { fetchLatestBoardPosts } from '@/services/board/posts'
-import { formatBoardDate } from '@/utils/formatBoardDate'
-import { getPostAuthor } from '@/utils/getPostAuthor'
+import { fetchHomeStoryPosts } from '@/services/board/posts'
+import { getAlbumThumbnailSrc } from '@/utils/albumThumbnail'
+import { formatPostRegistrationDate } from '@/utils/formatBoardDate'
 import './HomeSections.css'
 
-function StoryCard({ card }) {
-  const content = (
-    <>
-      <div className="home-story__card-media">
-        {card.image ? (
-          <img src={card.image} alt={card.title} className="home-story__card-image" />
-        ) : (
-          <div className="home-placeholder home-placeholder--card">
-            <span>{card.comingSoon ? '콘텐츠 준비 중' : '이미지 준비 중'}</span>
-          </div>
-        )}
-      </div>
-      <div className="home-story__card-body">
-        <h3 className="home-story__card-title">{card.title}</h3>
-        <p className="home-story__card-description">{card.description}</p>
-      </div>
-    </>
-  )
+const BADGE_ICONS = {
+  sunday_sermon: FaChurch,
+  el_shaddai_choir: FiMusic,
+  church_news: HiOutlineSpeakerphone,
+  album: FiImage,
+}
 
-  if (card.href && !card.comingSoon) {
+function getPostExcerpt(content, maxLength = 72) {
+  if (!content) {
+    return ''
+  }
+
+  const text = String(content).replace(/\s+/g, ' ').trim()
+
+  if (text.length <= maxLength) {
+    return text
+  }
+
+  return `${text.slice(0, maxLength).trim()}…`
+}
+
+function formatStoryDate(post, dateSuffix) {
+  const dateLabel = formatPostRegistrationDate(post)
+
+  if (!dateLabel) {
+    return ''
+  }
+
+  return dateSuffix ? `${dateLabel} ${dateSuffix}` : dateLabel
+}
+
+function mapStoryCard(source, post) {
+  if (!post) {
+    return {
+      id: source.id,
+      featured: source.featured,
+      badgeLabel: source.badgeLabel,
+      listPath: source.listPath,
+      empty: true,
+    }
+  }
+
+  return {
+    id: source.id,
+    featured: source.featured,
+    badgeLabel: source.badgeLabel,
+    listPath: source.listPath,
+    empty: false,
+    title: post.title || '제목 없음',
+    excerpt: getPostExcerpt(post.content),
+    dateLabel: formatStoryDate(post, source.dateSuffix),
+    imageSrc: getAlbumThumbnailSrc(post, null),
+    href: source.detailPath(post.id),
+  }
+}
+
+function StoryBadge({ sourceId, label, tone = 'solid' }) {
+  const Icon = BADGE_ICONS[sourceId]
+
+  return (
+    <span className={`home-story__badge home-story__badge--${tone}`}>
+      {Icon ? <Icon className="home-story__badge-icon" aria-hidden="true" /> : null}
+      <span>{label}</span>
+    </span>
+  )
+}
+
+function FeaturedStoryCard({ card }) {
+  if (card.empty) {
     return (
-      <Link to={card.href} className="home-story__card home-story__card--link">
-        {content}
-      </Link>
+      <article className="home-story__card home-story__card--featured home-story__card--empty">
+        <div className="home-story__featured-media">
+          <StoryBadge sourceId={card.id} label={card.badgeLabel} tone="solid" />
+          <div className="home-story__featured-placeholder">
+            <p>등록된 게시글이 없습니다.</p>
+            <Link to={card.listPath} className="home-story__more-link">
+              게시판 보기 →
+            </Link>
+          </div>
+        </div>
+      </article>
     )
   }
 
-  return <article className="home-story__card">{content}</article>
+  return (
+    <article className="home-story__card home-story__card--featured">
+      <div className="home-story__featured-media">
+        {card.imageSrc ? (
+          <img src={card.imageSrc} alt="" className="home-story__featured-image" />
+        ) : (
+          <div className="home-story__media-fallback" aria-hidden="true" />
+        )}
+        <div className="home-story__featured-overlay" aria-hidden="true" />
+        <StoryBadge sourceId={card.id} label={card.badgeLabel} tone="solid" />
+        <div className="home-story__featured-copy">
+          {card.dateLabel ? <p className="home-story__featured-date">{card.dateLabel}</p> : null}
+          <h3 className="home-story__featured-title">{card.title}</h3>
+          {card.excerpt ? <p className="home-story__featured-excerpt">{card.excerpt}</p> : null}
+        </div>
+      </div>
+      <div className="home-story__card-footer">
+        <Link to={card.href} className="home-story__more-link">
+          자세히 보기 →
+        </Link>
+      </div>
+    </article>
+  )
 }
 
-function mapPostsForSource(source, posts) {
-  return posts.map((post) => ({
-    id: `${source.id}-${post.id}`,
-    title: post.title,
-    author: getPostAuthor(post),
-    date: formatBoardDate(post.createdAt || post.date),
-    href: source.detailPath(post.id),
-  }))
+function StoryCard({ card }) {
+  if (card.empty) {
+    return (
+      <article className="home-story__card home-story__card--empty">
+        <div className="home-story__card-media">
+          <StoryBadge sourceId={card.id} label={card.badgeLabel} tone="soft" />
+          <div className="home-story__media-fallback home-story__media-fallback--muted" />
+        </div>
+        <div className="home-story__card-body">
+          <h3 className="home-story__card-title">등록된 게시글이 없습니다.</h3>
+          <Link to={card.listPath} className="home-story__more-link">
+            게시판 보기 →
+          </Link>
+        </div>
+      </article>
+    )
+  }
+
+  return (
+    <article className="home-story__card">
+      <div className="home-story__card-media">
+        {card.imageSrc ? (
+          <img src={card.imageSrc} alt="" className="home-story__card-image" />
+        ) : (
+          <div className="home-story__media-fallback home-story__media-fallback--muted" />
+        )}
+        <StoryBadge sourceId={card.id} label={card.badgeLabel} tone="soft" />
+      </div>
+      <div className="home-story__card-body">
+        {card.dateLabel ? <p className="home-story__card-date">{card.dateLabel}</p> : null}
+        <h3 className="home-story__card-title">{card.title}</h3>
+        {card.excerpt ? <p className="home-story__card-description">{card.excerpt}</p> : null}
+        <Link to={card.href} className="home-story__more-link">
+          자세히 보기 →
+        </Link>
+      </div>
+    </article>
+  )
+}
+
+function StoryCardSkeleton({ featured = false }) {
+  return (
+    <article
+      className={`home-story__card home-story__card--skeleton${
+        featured ? ' home-story__card--featured' : ''
+      }`}
+      aria-hidden="true"
+    >
+      <div className="home-story__skeleton-block" />
+    </article>
+  )
 }
 
 function HomeStory() {
-  const [activeTabId, setActiveTabId] = useState(HOME_RECENT_NEWS_SOURCES[0].id)
-  const [postsByTab, setPostsByTab] = useState({})
-  const [loadingTabId, setLoadingTabId] = useState(HOME_RECENT_NEWS_SOURCES[0].id)
-  const postsCacheRef = useRef({})
+  const [postsBySource, setPostsBySource] = useState({})
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     let isMounted = true
-    const source = HOME_RECENT_NEWS_SOURCES.find((item) => item.id === activeTabId)
 
-    if (!source) {
-      return undefined
-    }
-
-    if (postsCacheRef.current[activeTabId]) {
-      setPostsByTab((prev) =>
-        prev[activeTabId] ? prev : { ...prev, [activeTabId]: postsCacheRef.current[activeTabId] },
-      )
-      setLoadingTabId(null)
-      return undefined
-    }
-
-    setLoadingTabId(activeTabId)
-
-    async function loadTabPosts() {
-      const result = await fetchLatestBoardPosts(source.postType, HOME_RECENT_NEWS_LIMIT)
-      const items = result.success ? mapPostsForSource(source, result.posts ?? []) : []
-
-      postsCacheRef.current[activeTabId] = items
+    async function loadStoryPosts() {
+      setLoading(true)
+      const posts = await fetchHomeStoryPosts(HOME_STORY_SOURCES)
 
       if (isMounted) {
-        setPostsByTab((prev) => ({ ...prev, [activeTabId]: items }))
-        setLoadingTabId(null)
+        setPostsBySource(posts)
+        setLoading(false)
       }
     }
 
-    loadTabPosts()
+    loadStoryPosts()
 
     return () => {
       isMounted = false
     }
-  }, [activeTabId])
+  }, [])
 
-  const activeSource =
-    HOME_RECENT_NEWS_SOURCES.find((item) => item.id === activeTabId) ??
-    HOME_RECENT_NEWS_SOURCES[0]
-  const activePosts = postsByTab[activeTabId] ?? []
-  const isLoading = loadingTabId === activeTabId
+  const cards = HOME_STORY_SOURCES.map((source) =>
+    mapStoryCard(source, postsBySource[source.id] ?? null),
+  )
 
   return (
     <section className="home-section home-story" aria-label="교회 이야기">
+      <div className="home-story__decor home-story__decor--left" aria-hidden="true" />
+      <div className="home-story__decor home-story__decor--right" aria-hidden="true" />
       <div className="home-section__inner">
         <HomeSectionHeader
-          eyebrow="OUR STORY"
-          title="교회 이야기"
-          action={
-            <Link to={activeSource.listPath} className="home-section__more">
-              더보기
-            </Link>
-          }
+          eyebrow={HOME_STORY.eyebrow}
+          title={HOME_STORY.title}
+          subtitle={HOME_STORY.subtitle}
         />
 
-        <div className="home-story__layout">
-          <ul className="home-story__cards">
-            {HOME_STORY_CARDS.map((card) => (
-              <li key={card.id} className="home-story__cards-item">
-                <StoryCard card={card} />
-              </li>
-            ))}
-          </ul>
-
-          <div className="home-story__news">
-            <div
-              className="home-story__news-tabs"
-              role="tablist"
-              aria-label="게시판 카테고리"
-            >
-              {HOME_RECENT_NEWS_SOURCES.map((source) => {
-                const isActive = source.id === activeTabId
-
-                return (
-                  <button
-                    key={source.id}
-                    type="button"
-                    role="tab"
-                    id={`home-story-tab-${source.id}`}
-                    aria-selected={isActive}
-                    aria-controls="home-story-news-panel"
-                    className={`home-story__news-tab${
-                      isActive ? ' home-story__news-tab--active' : ''
-                    }`}
-                    onClick={() => setActiveTabId(source.id)}
-                  >
-                    {source.categoryLabel}
-                  </button>
-                )
-              })}
-            </div>
-
-            <ul
-              id="home-story-news-panel"
-              className="home-story__news-list"
-              role="tabpanel"
-              aria-labelledby={`home-story-tab-${activeTabId}`}
-            >
-              {isLoading ? (
-                Array.from({ length: HOME_RECENT_NEWS_LIMIT }, (_, index) => (
-                  <li key={`loading-${index}`} className="home-story__news-item">
-                    <div className="home-story__news-link">
-                      <span className="home-story__news-text">불러오는 중...</span>
-                      <span className="home-story__news-meta">
-                        <span className="home-story__news-author"> </span>
-                        <span className="home-story__news-date"> </span>
-                      </span>
-                    </div>
-                  </li>
-                ))
-              ) : activePosts.length > 0 ? (
-                activePosts.map((item) => (
-                  <li key={item.id} className="home-story__news-item">
-                    <Link to={item.href} className="home-story__news-link">
-                      <span className="home-story__news-text">{item.title}</span>
-                      <span className="home-story__news-meta">
-                        <span className="home-story__news-author">작성자 : {item.author}</span>
-                        <span className="home-story__news-separator" aria-hidden="true">
-                          |
-                        </span>
-                        <span className="home-story__news-date">날짜 {item.date}</span>
-                      </span>
-                    </Link>
-                  </li>
-                ))
-              ) : (
-                <li className="home-story__news-item home-story__news-item--empty">
-                  <div className="home-story__news-link">
-                    <span className="home-story__news-text">등록된 게시글이 없습니다.</span>
-                    <span className="home-story__news-meta">
-                      <Link to={activeSource.listPath} className="home-story__news-empty-link">
-                        게시판 보기
-                      </Link>
-                    </span>
-                  </div>
+        <ul className="home-story__layout">
+          {loading
+            ? HOME_STORY_SOURCES.map((source) => (
+                <li key={source.id} className="home-story__layout-item">
+                  <StoryCardSkeleton featured={source.featured} />
                 </li>
-              )}
-            </ul>
-          </div>
-        </div>
+              ))
+            : cards.map((card) => (
+                <li key={card.id} className="home-story__layout-item">
+                  {card.featured ? <FeaturedStoryCard card={card} /> : <StoryCard card={card} />}
+                </li>
+              ))}
+        </ul>
       </div>
     </section>
   )

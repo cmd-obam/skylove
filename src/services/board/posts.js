@@ -188,20 +188,6 @@ export async function fetchRelatedBoardPosts(postType, postId, limit = 5) {
   return result.posts.filter((post) => String(post.id) !== String(postId)).slice(0, limit)
 }
 
-/** postType별 최신 게시글 1건 (created_at 내림차순 목록의 첫 글) */
-export async function fetchLatestBoardPost(postType) {
-  const result = await fetchLatestBoardPosts(postType, 1)
-
-  if (!result.success || !result.posts?.length) {
-    return { success: result.success, post: null, message: result.message }
-  }
-
-  return {
-    success: true,
-    post: result.posts[0],
-  }
-}
-
 /** postType별 최신 게시글 N건 */
 export async function fetchLatestBoardPosts(postType, limit = 4) {
   const safeLimit = Math.max(1, Number(limit) || 4)
@@ -234,6 +220,56 @@ export async function fetchLatestBoardPosts(postType, limit = 4) {
   }
 
   return { success: true, posts }
+}
+
+/**
+ * postType별 최신 게시글 1건 (본문·이미지 포함).
+ * board_post_list에는 content/images가 없어 board_posts를 조회합니다.
+ */
+export async function fetchLatestBoardPost(postType) {
+  const { data, error } = await supabase
+    .from('board_posts')
+    .select(
+      'id, post_type, title, writer, content, thumbnail, images, youtube_url, created_at, attachment_url, attachment_name',
+    )
+    .eq('post_type', postType)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (error) {
+    const tempPost = getTempBoardPosts(postType)[0]
+
+    if (tempPost) {
+      return { success: true, post: tempPost }
+    }
+
+    return { success: false, message: error.message, post: null }
+  }
+
+  if (!data) {
+    const tempPost = getTempBoardPosts(postType)[0]
+
+    if (tempPost) {
+      return { success: true, post: tempPost }
+    }
+
+    return { success: true, post: null }
+  }
+
+  return { success: true, post: mapBoardPostRow(data) }
+}
+
+/** 홈 교회 이야기: 소스별 최신 게시글 병렬 조회 */
+export async function fetchHomeStoryPosts(sources) {
+  const results = await Promise.all(
+    sources.map(async (source) => {
+      const result = await fetchLatestBoardPost(source.postType)
+      return [source.id, result.success ? result.post : null]
+    }),
+  )
+
+  return Object.fromEntries(results)
 }
 
 /**
