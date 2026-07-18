@@ -867,6 +867,19 @@
     margin-right: 0;
   }
 
+  .home-location .home-section__header {
+    text-align: left;
+  }
+
+  .home-location .home-section__heading {
+    align-items: flex-start;
+  }
+
+  .home-location .home-section__title::after {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
   .home-story__card-body {
     padding: 0.875rem 0.75rem 1rem;
   }
