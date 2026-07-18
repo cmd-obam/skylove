@@ -793,13 +793,35 @@
     align-items: flex-start;
   }
 
+  .home-story .home-section__header {
+    text-align: left;
+  }
+
+  .home-story .home-section__heading {
+    align-items: flex-start;
+  }
+
+  .home-story .home-section__title::after {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
   .home-story .home-section__header--with-action {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .home-story .home-section__header--with-action .home-section__heading {
+    grid-column: auto;
+    justify-self: auto;
   }
 
   .home-story .home-section__header--with-action .home-section__more {
     justify-self: auto;
+    flex-shrink: 0;
+    margin-top: 0.35rem;
   }
 
   .home-story__news {
