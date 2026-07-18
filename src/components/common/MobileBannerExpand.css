@@ -386,9 +386,9 @@
   }
 
   .mobile-banner-expand--title-only.worship-hero {
-    aspect-ratio: 1024 / 481;
+    aspect-ratio: 1024 / 420;
     background-size: cover !important;
-    background-position: center right !important;
+    background-position: right 62% !important;
   }
 
   .mobile-banner-expand--title-only.location-hero {
@@ -434,7 +434,8 @@
 
   .mobile-banner-expand--title-only.worship-hero .worship-hero__subtitle {
     margin: 0;
-    font-size: clamp(0.6875rem, 6.2cqi, 0.9375rem);
+    font-size: clamp(1.0625rem, 9.5cqi, 1.4375rem);
+    font-weight: 600;
     line-height: 1.35;
     color: var(--color-text-muted);
   }

@@ -22,8 +22,8 @@
 
 .worship-hero {
   --worship-hero-bg: none;
-  /* Native worship-hero.png size — contained like 주일 축복 예배 hero. */
-  --worship-hero-ratio: 1024 / 481;
+  /* Slightly shorter than native 1024×481 — crops a bit from the top. */
+  --worship-hero-ratio: 1024 / 420;
 
   position: relative;
   display: flex;
@@ -33,7 +33,7 @@
   width: 100%;
   background-image: var(--worship-hero-bg);
   background-size: cover;
-  background-position: center right;
+  background-position: right 62%;
   background-repeat: no-repeat;
   overflow: hidden;
 }
@@ -60,8 +60,9 @@
 
 .worship-hero__subtitle {
   margin: 0;
-  font-size: 1.0625rem;
-  line-height: 1.6;
+  font-size: 1.6875rem;
+  font-weight: 600;
+  line-height: 1.5;
   color: var(--color-text-muted);
 }
 
@@ -102,6 +103,6 @@
   }
 
   .worship-hero__subtitle {
-    font-size: 0.9375rem;
+    font-size: 1.4375rem;
   }
 }
