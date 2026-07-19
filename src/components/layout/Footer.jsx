@@ -4,6 +4,7 @@ import { LOCATION_DATA } from '@/data/location'
 import Modal from '@/components/common/Modal'
 import SitemapModal from '@/components/layout/SitemapModal'
 import { FOOTER_MODALS, FOOTER_LEGAL_LINKS } from '@/data/footerPolicies'
+import { useAuth } from '@/contexts/AuthContext'
 import { formatVisitorCount, loadVisitorStats } from '@/services/analytics/visitorStats'
 import './Footer.css'
 
@@ -11,6 +12,7 @@ function Footer() {
   const [activeModal, setActiveModal] = useState(null)
   const [visitorStats, setVisitorStats] = useState({ todayCount: null, totalCount: null })
   const location = useLocation()
+  const { loading: authLoading } = useAuth()
 
   const openModal = (modalId) => {
     setActiveModal(modalId)
@@ -25,24 +27,37 @@ function Footer() {
   }, [location.pathname])
 
   useEffect(() => {
+    if (authLoading) {
+      return undefined
+    }
+
     let cancelled = false
 
-    async function loadStats() {
-      const stats = await loadVisitorStats()
-      if (!cancelled) {
-        setVisitorStats({
-          todayCount: stats.todayCount,
-          totalCount: stats.totalCount,
-        })
+    async function loadStats(attempt = 0) {
+      try {
+        const stats = await loadVisitorStats()
+        if (!cancelled) {
+          setVisitorStats({
+            todayCount: stats.todayCount,
+            totalCount: stats.totalCount,
+          })
+        }
+      } catch (error) {
+        console.warn('[Footer] visitor stats load failed', error)
+        if (!cancelled && attempt < 2) {
+          window.setTimeout(() => {
+            void loadStats(attempt + 1)
+          }, 400 * (attempt + 1))
+        }
       }
     }
 
-    loadStats()
+    void loadStats()
 
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [authLoading])
 
   const modal = activeModal && activeModal !== 'sitemap' ? FOOTER_MODALS[activeModal] : null
   const todayLabel =

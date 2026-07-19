@@ -117,22 +117,27 @@ export async function loadVisitorStats() {
   }
 
   inFlightPromise = (async () => {
-    const alreadyCounted = hasRecordedVisitToday()
+    try {
+      const alreadyCounted = hasRecordedVisitToday()
 
-    if (!alreadyCounted) {
-      const result = await recordVisitorIfNeeded()
-      if (result.stats) {
-        memoryCache = result.stats
-        return memoryCache
+      if (!alreadyCounted) {
+        const result = await recordVisitorIfNeeded()
+        if (result.stats) {
+          memoryCache = result.stats
+          return memoryCache
+        }
       }
-    }
 
-    const stats = await fetchVisitorStats()
-    memoryCache = {
-      todayCount: stats.todayCount,
-      totalCount: stats.totalCount,
+      const stats = await fetchVisitorStats()
+      memoryCache = {
+        todayCount: stats.todayCount,
+        totalCount: stats.totalCount,
+      }
+      return memoryCache
+    } catch (error) {
+      memoryCache = null
+      throw error
     }
-    return memoryCache
   })()
 
   try {

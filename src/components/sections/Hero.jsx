@@ -10,6 +10,7 @@ const SLIDE_INTERVAL = 5000
 
 function Hero() {
   const [currentSlide, setCurrentSlide] = useState(0)
+  const [transitionsEnabled, setTransitionsEnabled] = useState(false)
 
   const goToSlide = useCallback((index) => {
     setCurrentSlide(index)
@@ -20,6 +21,15 @@ function Hero() {
       const img = new Image()
       img.src = src
     })
+  }, [])
+
+  useEffect(() => {
+    // First paint: show the active slide at full opacity (no fade-from-0).
+    // Enable crossfade only after mount so the initial image is never stuck invisible.
+    const frame = window.requestAnimationFrame(() => {
+      setTransitionsEnabled(true)
+    })
+    return () => window.cancelAnimationFrame(frame)
   }, [])
 
   useEffect(() => {
@@ -42,7 +52,9 @@ function Hero() {
         aria-hidden="true"
       >
         <div className="hero__image-hit">
-          <div className="hero__slider">
+          <div
+            className={`hero__slider${transitionsEnabled ? ' hero__slider--transitions' : ''}`}
+          >
             {heroImages.map((src, index) => (
               <img
                 key={src}

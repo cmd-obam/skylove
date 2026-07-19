@@ -61,6 +61,10 @@
   -webkit-user-drag: none;
   user-select: none;
   -webkit-user-select: none;
+}
+
+.hero__slider--transitions .hero__slide,
+.hero__slider--transitions .hero__bg {
   transition: opacity 1.5s ease-in-out;
 }
 

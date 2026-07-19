@@ -5,9 +5,12 @@ import { FiImage, FiMusic } from 'react-icons/fi'
 import { HiOutlineSpeakerphone } from 'react-icons/hi'
 import { HOME_STORY, HOME_STORY_SOURCES } from '@/data/home'
 import HomeSectionHeader from '@/components/sections/HomeSectionHeader'
+import { useAuth } from '@/contexts/AuthContext'
 import { fetchHomeStoryPosts } from '@/services/board/posts'
 import { getAlbumThumbnailSrc } from '@/utils/albumThumbnail'
+import { getFirstContentImageSrc } from '@/utils/boardContentImages'
 import { formatPostRegistrationDate } from '@/utils/formatBoardDate'
+import { resolveYouTubeMedia } from '@/utils/youtube'
 import './HomeSections.css'
 
 const BADGE_ICONS = {
@@ -48,6 +51,28 @@ function formatStoryDate(post, dateSuffix) {
   return dateSuffix ? `${dateLabel} ${dateSuffix}` : dateLabel
 }
 
+function resolveStoryImageSrc(post) {
+  if (!post) {
+    return null
+  }
+
+  if (post.thumbnail) {
+    return post.thumbnail
+  }
+
+  const albumThumb = getAlbumThumbnailSrc(post, null)
+  if (albumThumb) {
+    return albumThumb
+  }
+
+  const contentImage = getFirstContentImageSrc(post.content)
+  if (contentImage) {
+    return contentImage
+  }
+
+  return resolveYouTubeMedia(post.youtubeUrl)?.thumbnail ?? null
+}
+
 function mapStoryCard(source, post) {
   if (!post) {
     return {
@@ -68,7 +93,7 @@ function mapStoryCard(source, post) {
     title: post.title || '제목 없음',
     excerpt: getPostExcerpt(post.content),
     dateLabel: formatStoryDate(post, source.dateSuffix),
-    imageSrc: post.thumbnail || getAlbumThumbnailSrc(post, null),
+    imageSrc: resolveStoryImageSrc(post),
     href: source.detailPath(post.id),
   }
 }
@@ -182,26 +207,47 @@ function StoryCardSkeleton({ featured = false }) {
 function HomeStory() {
   const [postsBySource, setPostsBySource] = useState({})
   const [loading, setLoading] = useState(true)
+  const { loading: authLoading } = useAuth()
 
   useEffect(() => {
+    if (authLoading) {
+      return undefined
+    }
+
     let isMounted = true
 
-    async function loadStoryPosts() {
+    async function loadStoryPosts(attempt = 0) {
       setLoading(true)
-      const posts = await fetchHomeStoryPosts(HOME_STORY_SOURCES)
 
-      if (isMounted) {
-        setPostsBySource(posts)
-        setLoading(false)
+      try {
+        const posts = await fetchHomeStoryPosts(HOME_STORY_SOURCES)
+
+        if (isMounted) {
+          setPostsBySource(posts)
+          setLoading(false)
+        }
+      } catch (error) {
+        console.warn('[HomeStory] fetch failed', error)
+        if (isMounted && attempt < 2) {
+          window.setTimeout(() => {
+            void loadStoryPosts(attempt + 1)
+          }, 400 * (attempt + 1))
+          return
+        }
+
+        if (isMounted) {
+          setPostsBySource({})
+          setLoading(false)
+        }
       }
     }
 
-    loadStoryPosts()
+    void loadStoryPosts()
 
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [authLoading])
 
   const cards = HOME_STORY_SOURCES.map((source) =>
     mapStoryCard(source, postsBySource[source.id] ?? null),

@@ -108,23 +108,32 @@ export function AuthProvider({ children }) {
 
     initAuth()
 
+    // Never await Supabase calls inside onAuthStateChange — that can deadlock the
+    // auth lock and hang every subsequent .from() / .rpc() until a full reload.
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, nextSession) => {
+    } = supabase.auth.onAuthStateChange((event, nextSession) => {
       console.log('[Auth] onAuthStateChange', event, nextSession?.user?.email)
 
-      if (!isMounted) {
+      if (event === 'INITIAL_SESSION') {
+        // initAuth already applies the session from getSession().
         return
       }
 
-      if (event === 'SIGNED_OUT') {
-        setSession(null)
-        setProfile(null)
-        clearAuthSession()
-        return
-      }
+      queueMicrotask(() => {
+        if (!isMounted) {
+          return
+        }
 
-      await applySession(nextSession)
+        if (event === 'SIGNED_OUT') {
+          setSession(null)
+          setProfile(null)
+          clearAuthSession()
+          return
+        }
+
+        void applySession(nextSession)
+      })
     })
 
     return () => {
