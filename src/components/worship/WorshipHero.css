@@ -96,17 +96,19 @@
   }
 
   .worship-hero {
-    align-items: flex-end;
-    padding-bottom: 1.75rem;
+    align-items: center;
+    padding-bottom: 0;
   }
 
   .worship-hero__content {
-    width: 100%;
-    padding: 0 1.5rem;
+    width: 54%;
+    padding: 0 0.75rem 0 1rem;
     text-align: left;
   }
 
   .worship-hero__subtitle {
-    font-size: 1.4375rem;
+    font-size: clamp(0.6875rem, 3.2vw, 0.875rem);
+    line-height: 1.35;
+    word-break: keep-all;
   }
 }

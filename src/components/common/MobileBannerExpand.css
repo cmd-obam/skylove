@@ -428,16 +428,31 @@
     box-sizing: border-box;
   }
 
+  .mobile-banner-expand--title-only.worship-hero .worship-hero__content {
+    width: 54% !important;
+    max-width: 54%;
+    margin: 0 0 0 12px !important;
+    padding: 0.35rem 0.5rem 0.35rem 0.75rem !important;
+    overflow: hidden;
+  }
+
   .mobile-banner-expand--title-only.location-hero .location-hero__welcome {
     display: none !important;
   }
 
   .mobile-banner-expand--title-only.worship-hero .worship-hero__subtitle {
     margin: 0;
-    font-size: clamp(1.0625rem, 9.5cqi, 1.4375rem);
+    max-width: 100%;
+    font-size: clamp(0.625rem, 4.4cqi, 0.8125rem);
     font-weight: 600;
     line-height: 1.35;
     color: #2f6fad;
+    word-break: keep-all;
+    overflow-wrap: normal;
+  }
+
+  .mobile-banner-expand--title-only.worship-hero .worship-hero__subtitle-line {
+    display: block;
   }
 
   .mobile-banner-expand--title-only.location-hero .location-hero__tagline {
