@@ -21,6 +21,7 @@ Migration 파일을 **번호 순서대로** Supabase SQL Editor에서 실행하�
 | 13 | `015_congregant_type.sql` | 교인 구분(congregant_type) + 출석 교회 |
 | 14 | `016_is_username_available.sql` | 아이디 중복확인 RPC (`is_username_available`) |
 | 15 | `019_board_cms_fields.sql` | CMS: `has_image`, `attachments` jsonb, `board_post_list` 갱신 |
+| 16 | `020_fix_super_admin_role_variable.sql` | 회원관리 RPC: `current_role`→`profiles.role` 충돌 수정 |
 
 > `003`은 `profiles.role`을 RLS에서 참조하므로 **`004`를 먼저** 실행해야 합니다.
 

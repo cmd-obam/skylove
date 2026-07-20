@@ -62,6 +62,8 @@ GRANT EXECUTE ON FUNCTION public.list_profiles_for_super_admin(text) TO authenti
 DROP FUNCTION IF EXISTS public.update_member_role_by_super_admin(uuid, text);
 DROP FUNCTION IF EXISTS public.update_member_role_by_super_admin(text, uuid);
 
+DROP FUNCTION IF EXISTS public.update_member_role_by_super_admin(jsonb);
+
 CREATE OR REPLACE FUNCTION public.update_member_role_by_super_admin(p_payload jsonb)
 RETURNS void
 LANGUAGE plpgsql
@@ -69,59 +71,76 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 DECLARE
-  target_user_id uuid;
-  target_profile_role text;
-  normalized_new_role text;
-  normalized_target_role text;
-  raw_new_role text;
+  v_caller_uid uuid;
+  v_target_user_id uuid;
+  v_target_member_role text;
+  v_new_member_role text;
+  v_raw_new_role text;
 BEGIN
-  IF NOT public.is_super_admin() THEN
-    RAISE EXCEPTION '접근 권한이 없습니다.';
+  v_caller_uid := auth.uid();
+
+  IF v_caller_uid IS NULL THEN
+    RAISE EXCEPTION '로그인이 필요합니다.';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1
+    FROM public.profiles AS caller
+    WHERE caller.user_id = v_caller_uid
+      AND lower(trim(caller.role)) = 'super_admin'
+  ) THEN
+    RAISE EXCEPTION '접근 권한이 없습니다. (현재 role: %)',
+      coalesce(
+        (
+          SELECT lower(trim(caller.role))
+          FROM public.profiles AS caller
+          WHERE caller.user_id = v_caller_uid
+        ),
+        '없음'
+      );
   END IF;
 
   IF p_payload IS NULL THEN
     RAISE EXCEPTION '요청 데이터가 없습니다.';
   END IF;
 
-  target_user_id := nullif(trim(p_payload->>'target_user_id'), '')::uuid;
-  raw_new_role := p_payload->>'new_role';
+  v_target_user_id := nullif(trim(p_payload->>'target_user_id'), '')::uuid;
+  v_raw_new_role := p_payload->>'new_role';
 
-  IF target_user_id IS NULL THEN
+  IF v_target_user_id IS NULL THEN
     RAISE EXCEPTION '대상 회원 ID가 없습니다. (payload: %)', p_payload::text;
   END IF;
 
-  normalized_new_role := lower(trim(coalesce(raw_new_role, '')));
+  v_new_member_role := lower(trim(coalesce(v_raw_new_role, '')));
 
-  IF normalized_new_role NOT IN ('member', 'admin') THEN
-    RAISE EXCEPTION '변경할 수 없는 권한입니다. (요청 role: %)', coalesce(raw_new_role, 'NULL');
+  IF v_new_member_role NOT IN ('member', 'admin') THEN
+    RAISE EXCEPTION '변경할 수 없는 권한입니다. (요청 role: %)', coalesce(v_raw_new_role, 'NULL');
   END IF;
 
-  SELECT lower(trim(p.role))
-  INTO target_profile_role
-  FROM public.profiles p
-  WHERE p.user_id = target_user_id;
+  SELECT lower(trim(target.role))
+  INTO v_target_member_role
+  FROM public.profiles AS target
+  WHERE target.user_id = v_target_user_id;
 
-  IF target_profile_role IS NULL THEN
-    RAISE EXCEPTION '회원을 찾을 수 없습니다. (user_id: %)', target_user_id;
+  IF v_target_member_role IS NULL THEN
+    RAISE EXCEPTION '회원을 찾을 수 없습니다. (user_id: %)', v_target_user_id;
   END IF;
 
-  normalized_target_role := target_profile_role;
-
-  IF normalized_target_role = 'super_admin' THEN
+  IF v_target_member_role = 'super_admin' THEN
     RAISE EXCEPTION '최고관리자 권한은 변경할 수 없습니다.';
   END IF;
 
-  IF normalized_target_role NOT IN ('member', 'admin') THEN
-    RAISE EXCEPTION '변경할 수 없는 권한입니다. (현재 role: %)', target_profile_role;
+  IF v_target_member_role NOT IN ('member', 'admin') THEN
+    RAISE EXCEPTION '변경할 수 없는 권한입니다. (현재 role: %)', v_target_member_role;
   END IF;
 
-  IF normalized_target_role = normalized_new_role THEN
-    RAISE EXCEPTION '이미 % 권한입니다.', normalized_new_role;
+  IF v_target_member_role = v_new_member_role THEN
+    RAISE EXCEPTION '이미 % 권한입니다.', v_new_member_role;
   END IF;
 
-  UPDATE public.profiles
-  SET role = normalized_new_role
-  WHERE user_id = target_user_id;
+  UPDATE public.profiles AS target
+  SET role = v_new_member_role
+  WHERE target.user_id = v_target_user_id;
 END;
 $$;
 
