@@ -87,13 +87,16 @@ supabase/fix_login_role.sql
 
 실행 후 `profiles` 테이블에 `role` 컬럼이 있는지 Table Editor에서 확인하세요.
 
-회원관리 페이지에서 `list_profiles_for_super_admin` RPC 404 (PGRST202) 가 나오면:
+회원관리 페이지에서 `list_profiles_for_super_admin` RPC 404 (PGRST202) 가 나오거나,
+권한 변경 시 `(현재 role: postgres)` 오류가 나오면:
 
 ```
 supabase/fix_super_admin_member_management.sql
 ```
 
-또는 migration `013_super_admin_member_management.sql` 을 SQL Editor에서 실행하세요.
+을 Supabase SQL Editor에서 **전체 실행**하세요. (코드 푸시만으로는 원격 DB 함수가 갱신되지 않습니다.)
+
+원인: PL/pgSQL 변수명 `current_role`이 PostgreSQL 내장 `current_role`(DB 세션 역할)과 충돌했습니다.
 
 **가장 빠른 방법** — Supabase SQL Editor에서 아래 파일 **전체** 실행:
 
