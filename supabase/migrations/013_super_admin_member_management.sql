@@ -70,9 +70,9 @@ SET search_path = public
 AS $$
 DECLARE
   target_user_id uuid;
-  current_role text;
+  target_profile_role text;
   normalized_new_role text;
-  normalized_current_role text;
+  normalized_target_role text;
   raw_new_role text;
 BEGIN
   IF NOT public.is_super_admin() THEN
@@ -96,26 +96,26 @@ BEGIN
     RAISE EXCEPTION '변경할 수 없는 권한입니다. (요청 role: %)', coalesce(raw_new_role, 'NULL');
   END IF;
 
-  SELECT p.role
-  INTO current_role
+  SELECT lower(trim(p.role))
+  INTO target_profile_role
   FROM public.profiles p
   WHERE p.user_id = target_user_id;
 
-  IF current_role IS NULL THEN
+  IF target_profile_role IS NULL THEN
     RAISE EXCEPTION '회원을 찾을 수 없습니다. (user_id: %)', target_user_id;
   END IF;
 
-  normalized_current_role := lower(trim(current_role));
+  normalized_target_role := target_profile_role;
 
-  IF normalized_current_role = 'super_admin' THEN
+  IF normalized_target_role = 'super_admin' THEN
     RAISE EXCEPTION '최고관리자 권한은 변경할 수 없습니다.';
   END IF;
 
-  IF normalized_current_role NOT IN ('member', 'admin') THEN
-    RAISE EXCEPTION '변경할 수 없는 권한입니다. (현재 role: %)', current_role;
+  IF normalized_target_role NOT IN ('member', 'admin') THEN
+    RAISE EXCEPTION '변경할 수 없는 권한입니다. (현재 role: %)', target_profile_role;
   END IF;
 
-  IF normalized_current_role = normalized_new_role THEN
+  IF normalized_target_role = normalized_new_role THEN
     RAISE EXCEPTION '이미 % 권한입니다.', normalized_new_role;
   END IF;
 
