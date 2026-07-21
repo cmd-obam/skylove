@@ -22,8 +22,17 @@ export const PROFILE_DB_COLUMNS = [
 ]
 
 /** PostgREST select — role 필수 (권한 판별) */
-export const PROFILE_SELECT =
-  'name,email,birth_date,phone,username,role,congregant_type,attending_church'
+export const PROFILE_SELECT_BASE = 'name,email,birth_date,phone,username,role'
+
+/** 교회정보 포함 확장 select (migration 015 적용 시 사용 가능) */
+export const PROFILE_SELECT_EXTENDED = `${PROFILE_SELECT_BASE},congregant_type,attending_church`
+
+/**
+ * 기본 프로필 select.
+ * 교회정보 컬럼은 확장 select(PROFILE_SELECT_EXTENDED)로 조회하며,
+ * 컬럼 미적용 환경에서는 기본 select로 자동 폴백합니다.
+ */
+export const PROFILE_SELECT = PROFILE_SELECT_BASE
 
 export const DEFAULT_MEMBER_ROLE = 'member'
 

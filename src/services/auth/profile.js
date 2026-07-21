@@ -5,13 +5,30 @@ import {
   serializeSupabaseError,
 } from '@/lib/supabaseErrorLog'
 import { mapProfileFetchError } from '@/services/auth/profileErrors'
-import { DEFAULT_MEMBER_ROLE, PROFILE_SELECT } from '@/services/auth/profileSchema'
+import {
+  DEFAULT_MEMBER_ROLE,
+  PROFILE_SELECT,
+  PROFILE_SELECT_BASE,
+  PROFILE_SELECT_EXTENDED,
+} from '@/services/auth/profileSchema'
 import { normalizeRole } from '@/services/auth/roles'
 import { logFetchProfileRoleDebug } from '@/utils/authRoleDebug'
 
 export { PROFILE_SELECT } from '@/services/auth/profileSchema'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL ?? ''
+
+function isMissingColumnError(error) {
+  const code = String(error?.code ?? '')
+  const message = String(error?.message ?? '').toLowerCase()
+
+  return (
+    code === '42703' ||
+    code === 'PGRST204' ||
+    message.includes('does not exist') ||
+    message.includes('schema cache')
+  )
+}
 
 async function fetchProfileRoleFallback(userId) {
   const { data: roleRow, error: roleError } = await supabase
@@ -28,12 +45,21 @@ async function fetchProfileRoleFallback(userId) {
   return roleRow?.role ?? null
 }
 
+async function selectProfileRow(userId, select) {
+  return supabase.from('profiles').select(select).eq('user_id', userId).single()
+}
+
 async function fetchProfileRowWithRole(userId) {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select(PROFILE_SELECT)
-    .eq('user_id', userId)
-    .single()
+  let { data, error } = await selectProfileRow(userId, PROFILE_SELECT_EXTENDED)
+
+  // migration 015(congregant_type/attending_church) 미적용 환경 폴백.
+  if (error && isMissingColumnError(error)) {
+    console.warn(
+      '[Profile] extended select failed (church columns missing) — retrying with base select',
+      { code: error.code, message: error.message },
+    )
+    ;({ data, error } = await selectProfileRow(userId, PROFILE_SELECT_BASE))
+  }
 
   if (error) {
     return { data: null, error }
