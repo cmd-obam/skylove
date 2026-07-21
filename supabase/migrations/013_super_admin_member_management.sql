@@ -53,7 +53,14 @@ BEGIN
     OR p.name ILIKE '%' || trim(p_search) || '%'
     OR p.email ILIKE '%' || trim(p_search) || '%'
   )
-  ORDER BY p.created_at DESC;
+  ORDER BY
+    CASE lower(trim(p.role))
+      WHEN 'super_admin' THEN 1
+      WHEN 'admin' THEN 2
+      WHEN 'member' THEN 3
+      ELSE 4
+    END,
+    p.created_at DESC;
 END;
 $$;
 

@@ -10,6 +10,7 @@ const BASE_MENU_ITEMS = [
 ]
 
 const SUPER_ADMIN_CHILDREN = [
+  { id: 'member-list', label: '회원관리', path: '/member/management' },
   { id: 'content-management', label: '게시글 & 댓글 관리', path: '/member/content-management' },
   { id: 'visitor-stats', label: '방문자 통계', path: '/member/visitor-stats' },
   { id: 'reports', label: '신고관리 (추후)', path: null, disabled: true },
@@ -96,7 +97,11 @@ function MemberMypageSidebar() {
                       <Link
                         to={item.path}
                         className={`category-sidebar__sublink${
-                          pathname === item.path ? ' category-sidebar__sublink--active' : ''
+                          pathname === item.path ||
+                          (item.path === '/member/management' &&
+                            pathname.startsWith('/member/management/'))
+                            ? ' category-sidebar__sublink--active'
+                            : ''
                         }`}
                       >
                         {item.label}

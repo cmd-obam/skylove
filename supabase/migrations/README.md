@@ -23,6 +23,7 @@ Migration 파일을 **번호 순서대로** Supabase SQL Editor에서 실행하�
 | 15 | `019_board_cms_fields.sql` | CMS: `has_image`, `attachments` jsonb, `board_post_list` 갱신 |
 | 16 | `020_fix_super_admin_role_variable.sql` | 회원관리 RPC: `current_role`→`profiles.role` 충돌 수정 |
 | 17 | `021_super_admin_content_cms.sql` | 최고관리자 게시글·댓글 CMS (휴지통 15일, 메모, 목록/일괄 RPC) |
+| 18 | `022_sort_member_management_by_role.sql` | 회원 목록을 최고관리자→관리자→일반회원 순으로 정렬 |
 
 > `003`은 `profiles.role`을 RLS에서 참조하므로 **`004`를 먼저** 실행해야 합니다.
 
