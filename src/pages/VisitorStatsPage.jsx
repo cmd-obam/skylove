@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import MemberMypageLayout from '@/components/auth/MemberMypageLayout'
 import { formatVisitorCount, loadVisitorStats } from '@/services/analytics/visitorStats'
 import '@/pages/MemberManagement.css'
+import './VisitorStatsPage.css'
 
 function VisitorStatsPage() {
   const [stats, setStats] = useState({ todayCount: null, totalCount: null })
@@ -34,7 +35,7 @@ function VisitorStatsPage() {
 
   return (
     <MemberMypageLayout>
-      <div className="member-management-page">
+      <div className="member-management-page visitor-stats-page">
         <header className="member-management-page__header">
           <h1 className="member-management-page__title">방문자 통계</h1>
           <p className="member-management-page__subtitle">
