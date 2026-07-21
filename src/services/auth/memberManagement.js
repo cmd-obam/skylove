@@ -135,6 +135,31 @@ export async function updateMemberRoleBySuperAdmin(userId, newRole) {
   }
 }
 
+export async function fetchMemberDetailForSuperAdmin(userId) {
+  const rpcParams = { p_user_id: userId }
+
+  const response = await supabase.rpc('get_member_detail_for_super_admin', rpcParams)
+  const { data, error } = response
+
+  if (error) {
+    logRpcError('fetchMemberDetailForSuperAdmin', error, {
+      rpc: 'get_member_detail_for_super_admin',
+      params: rpcParams,
+    })
+
+    return {
+      success: false,
+      message: mapListFetchError(error, '회원 상세정보를 불러오지 못했습니다.'),
+      member: null,
+    }
+  }
+
+  return {
+    success: true,
+    member: data?.[0] ?? null,
+  }
+}
+
 export async function deleteMemberBySuperAdmin(userId) {
   const { data, error } = await supabase.functions.invoke('admin-delete-member', {
     body: { targetUserId: userId },

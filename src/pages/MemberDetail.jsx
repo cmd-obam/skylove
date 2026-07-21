@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import MemberDetailSections from '@/components/auth/MemberDetailSections'
 import MemberMypageLayout from '@/components/auth/MemberMypageLayout'
-import { fetchMemberDetailForSuperAdmin } from '@/services/admin/contentManagement'
-import { getRoleLabel } from '@/services/auth/roles'
-import { formatBoardDate } from '@/utils/formatBoardDate'
+import { fetchMemberDetailForSuperAdmin } from '@/services/auth/memberManagement'
 import '@/pages/MemberManagement.css'
 
 function MemberDetail() {
@@ -57,35 +56,8 @@ function MemberDetail() {
         ) : error ? (
           <p className="member-management-page__feedback member-management-page__feedback--error">{error}</p>
         ) : (
-          <div className="member-management-page__table-wrap">
-            <table className="member-management-page__table">
-              <tbody>
-                <tr>
-                  <th scope="row">이름</th>
-                  <td>{member.name}</td>
-                </tr>
-                <tr>
-                  <th scope="row">아이디</th>
-                  <td>{member.username}</td>
-                </tr>
-                <tr>
-                  <th scope="row">이메일</th>
-                  <td>{member.email}</td>
-                </tr>
-                <tr>
-                  <th scope="row">전화</th>
-                  <td>{member.phone || '-'}</td>
-                </tr>
-                <tr>
-                  <th scope="row">권한</th>
-                  <td>{getRoleLabel(member.role)}</td>
-                </tr>
-                <tr>
-                  <th scope="row">가입일</th>
-                  <td>{formatBoardDate(member.created_at)}</td>
-                </tr>
-              </tbody>
-            </table>
+          <div className="member-management-page__detail-panel">
+            <MemberDetailSections member={member} />
           </div>
         )}
       </div>

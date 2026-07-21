@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
 import { FiUsers } from 'react-icons/fi'
+import MemberDetailSections from '@/components/auth/MemberDetailSections'
 import MemberMypageLayout from '@/components/auth/MemberMypageLayout'
 import {
   deleteMemberBySuperAdmin,
+  fetchMemberDetailForSuperAdmin,
   fetchMembersForSuperAdmin,
   updateMemberRoleBySuperAdmin,
 } from '@/services/auth/memberManagement'
@@ -57,6 +59,50 @@ function ConfirmModal({ isOpen, title, message, confirmLabel, isSubmitting, onCa
   )
 }
 
+function MemberDetailModal({ isOpen, loading, error, member, onClose }) {
+  if (!isOpen) {
+    return null
+  }
+
+  return (
+    <div className="member-management-modal" role="presentation" onClick={onClose}>
+      <div
+        className="member-management-modal__dialog member-management-modal__dialog--detail"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="member-detail-modal-title"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <h2 id="member-detail-modal-title" className="member-management-modal__title">
+          회원 상세정보
+        </h2>
+
+        <div className="member-management-modal__body">
+          {loading ? (
+            <p className="member-management-modal__status">불러오는 중...</p>
+          ) : error ? (
+            <p className="member-management-modal__status member-management-modal__status--error" role="alert">
+              {error}
+            </p>
+          ) : (
+            <MemberDetailSections member={member} />
+          )}
+        </div>
+
+        <div className="member-management-modal__actions">
+          <button
+            type="button"
+            className="member-management-modal__button member-management-modal__button--secondary"
+            onClick={onClose}
+          >
+            닫기
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function MemberManagement() {
   const [members, setMembers] = useState([])
   const [searchKeyword, setSearchKeyword] = useState('')
@@ -65,6 +111,10 @@ function MemberManagement() {
   const [feedback, setFeedback] = useState(null)
   const [roleModal, setRoleModal] = useState(null)
   const [deleteModal, setDeleteModal] = useState(null)
+  const [detailModal, setDetailModal] = useState(null)
+  const [detailMember, setDetailMember] = useState(null)
+  const [detailLoading, setDetailLoading] = useState(false)
+  const [detailError, setDetailError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const loadMembers = useCallback(async (query) => {
@@ -92,6 +142,32 @@ function MemberManagement() {
   const handleSearchSubmit = (event) => {
     event.preventDefault()
     setSearchQuery(searchKeyword.trim())
+  }
+
+  const handleOpenDetail = async (member) => {
+    setDetailModal({ userId: member.user_id, name: member.name })
+    setDetailMember(null)
+    setDetailError('')
+    setDetailLoading(true)
+
+    const result = await fetchMemberDetailForSuperAdmin(member.user_id)
+
+    if (!result.success || !result.member) {
+      setDetailError(result.message || '회원 상세정보를 불러오지 못했습니다.')
+      setDetailMember(null)
+      setDetailLoading(false)
+      return
+    }
+
+    setDetailMember(result.member)
+    setDetailLoading(false)
+  }
+
+  const handleCloseDetail = () => {
+    setDetailModal(null)
+    setDetailMember(null)
+    setDetailError('')
+    setDetailLoading(false)
   }
 
   const handleRoleConfirm = async () => {
@@ -232,6 +308,13 @@ function MemberManagement() {
                       <td>{formatBoardDate(member.created_at)}</td>
                       <td>
                         <div className="member-management-page__actions">
+                          <button
+                            type="button"
+                            className="member-management-page__action-button"
+                            onClick={() => handleOpenDetail(member)}
+                          >
+                            정보보기
+                          </button>
                           {canChangeRole && (
                             <button
                               type="button"
@@ -275,6 +358,14 @@ function MemberManagement() {
             </tbody>
           </table>
         </div>
+
+        <MemberDetailModal
+          isOpen={Boolean(detailModal)}
+          loading={detailLoading}
+          error={detailError}
+          member={detailMember}
+          onClose={handleCloseDetail}
+        />
 
         <ConfirmModal
           isOpen={Boolean(roleModal)}

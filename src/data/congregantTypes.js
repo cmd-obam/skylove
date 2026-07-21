@@ -15,3 +15,12 @@ export const ATTENDING_CHURCH_PLACEHOLDER = '예) 하늘교회, 사랑교회'
 export function isOtherCongregantType(value) {
   return value === CONGREGANT_TYPE_OTHER
 }
+
+export function getCongregantTypeLabel(value) {
+  const match = CONGREGANT_TYPES.find((item) => item.id === value)
+  return match?.label ?? ''
+}
+
+export function isNewcomerCongregantType(value) {
+  return value === CONGREGANT_TYPE_NEWCOMER
+}
