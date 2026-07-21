@@ -40,3 +40,11 @@
   pointer-events: none;
   color: #94a3b8;
 }
+
+.member-mypage-sidebar .category-sidebar__sublink--disabled {
+  display: block;
+  padding: 0.75rem 1.25rem 0.75rem 1.75rem;
+  color: #b8c4d1;
+  font-size: 0.875rem;
+  cursor: default;
+}
