@@ -1,0 +1,225 @@
+.content-cms-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.content-cms-tabs__button {
+  min-width: 96px;
+  height: 40px;
+  border: 1px solid #dce5ef;
+  border-radius: 8px;
+  background: #fff;
+  color: #5a7189;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.content-cms-tabs__button.is-active {
+  border-color: #4da6ff;
+  background: #4da6ff;
+  color: #fff;
+}
+
+.content-cms-filters {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.content-cms-filters__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.content-cms-filters select,
+.content-cms-filters input[type='date'],
+.content-cms-toolbar select,
+.content-cms-pagination button {
+  height: 40px;
+  padding: 0 0.75rem;
+  border: 1px solid #dce5ef;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 0.875rem;
+  background: #fff;
+}
+
+.content-cms-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.875rem;
+  color: #5a7189;
+}
+
+.content-cms-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.content-cms-toolbar__left,
+.content-cms-toolbar__right {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.content-cms-toolbar button {
+  height: 36px;
+  padding: 0 0.75rem;
+  border: 1px solid #dce5ef;
+  border-radius: 8px;
+  background: #fff;
+  color: #1f3a5f;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.content-cms-toolbar button.is-danger {
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+
+.content-cms-table {
+  min-width: 1100px;
+}
+
+.content-cms-title-cell {
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.content-cms-title-cell a {
+  color: #1f3a5f;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.content-cms-title-cell a:hover {
+  color: #4da6ff;
+}
+
+.content-cms-note-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-left: 0.35rem;
+  border-radius: 50%;
+  background: #f59e0b;
+  vertical-align: middle;
+}
+
+.content-cms-thumb {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.content-cms-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: #eef6ff;
+  color: #1d4ed8;
+}
+
+.content-cms-status--비공개,
+.content-cms-status--숨김 {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+.content-cms-status--삭제됨 {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.content-cms-status--공지 {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.content-cms-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.content-cms-note-dialog {
+  width: min(100%, 480px);
+}
+
+.content-cms-note-textarea {
+  width: 100%;
+  margin: 0.75rem 0 1rem;
+  padding: 0.75rem;
+  border: 1px solid #dce5ef;
+  border-radius: 8px;
+  font: inherit;
+  resize: vertical;
+}
+
+.content-cms-cards {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .content-cms-table-wrap {
+    display: none;
+  }
+
+  .content-cms-cards {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .content-cms-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 0.875rem;
+    background: #fff;
+  }
+
+  .content-cms-card__check {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    color: #5a7189;
+    font-size: 0.8125rem;
+  }
+
+  .content-cms-card__title {
+    display: block;
+    margin-bottom: 0.35rem;
+    color: #1f3a5f;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .content-cms-card__meta {
+    margin: 0.15rem 0 0;
+    color: #6b7280;
+    font-size: 0.8125rem;
+  }
+}

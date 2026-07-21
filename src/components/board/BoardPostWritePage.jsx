@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import BoardPageHeader from '@/components/board/BoardPageHeader'
 import BoardRichEditor from '@/components/board/editor/BoardRichEditor'
 import BoardThumbnailField from '@/components/board/BoardThumbnailField'
 import BoardAttachmentField from '@/components/board/BoardAttachmentField'
 import { useAuth } from '@/contexts/AuthContext'
+import { useUnsavedLeaveGuard } from '@/hooks/useUnsavedLeaveGuard'
 import {
   createBoardPost,
   fetchBoardPost,
@@ -25,6 +26,7 @@ import { resizeImageFile, resizeThumbnailFile } from '@/utils/resizeImageFile'
 import { isBoardHtmlEmpty, sanitizeBoardHtml } from '@/utils/sanitizeBoardHtml'
 import { resolveYouTubeMedia } from '@/utils/youtube'
 import '@/pages/ChurchNews.css'
+import '@/pages/MemberManagement.css'
 
 function mapBoardWriteErrorMessage(message) {
   if (!message) {
@@ -78,7 +80,63 @@ function BoardPostWritePage({
   const [loadingPost, setLoadingPost] = useState(isEdit)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [initialSnapshot, setInitialSnapshot] = useState(
+    JSON.stringify({
+      title: '',
+      content: '',
+      youtubeUrl: '',
+      thumbnail: null,
+      attachments: [],
+    }),
+  )
   const draftPostIdRef = useRef(isEdit ? postId : crypto.randomUUID())
+  const draftUploadedPathsRef = useRef([])
+
+  const currentSnapshot = useMemo(
+    () =>
+      JSON.stringify({
+        title,
+        content,
+        youtubeUrl,
+        thumbnail: thumbnailState
+          ? {
+              existingUrl: thumbnailState.existingUrl ?? null,
+              hasFile: Boolean(thumbnailState.file),
+            }
+          : null,
+        attachments: attachments.map((item) => ({
+          key: item.key,
+          name: item.name,
+          url: item.url ?? null,
+          hasFile: Boolean(item.file),
+        })),
+      }),
+    [attachments, content, thumbnailState, title, youtubeUrl],
+  )
+
+  const isDirty = !loadingPost && currentSnapshot !== initialSnapshot
+
+  const cleanupDraftUploads = async () => {
+    const paths = draftUploadedPathsRef.current.filter(Boolean)
+    draftUploadedPathsRef.current = []
+
+    if (paths.length > 0 && !isEdit) {
+      await deleteBoardFiles(paths)
+    }
+  }
+
+  const {
+    isLeaveModalOpen,
+    cancelLeave,
+    confirmLeave,
+    allowNavigation,
+    requestNavigation,
+  } = useUnsavedLeaveGuard({
+    isDirty,
+    onConfirmLeave: () => {
+      void cleanupDraftUploads()
+    },
+  })
 
   useEffect(() => {
     if (!isEdit || !postId) {
@@ -127,6 +185,23 @@ function BoardPostWritePage({
         })),
       )
 
+      setInitialSnapshot(
+        JSON.stringify({
+          title: post.title || '',
+          content: post.content || '',
+          youtubeUrl: post.youtubeUrl || '',
+          thumbnail: post.thumbnail
+            ? { existingUrl: post.thumbnail, hasFile: false }
+            : null,
+          attachments: (post.attachments ?? []).map((file, index) => ({
+            key: file.key || file.path || file.url || `existing-${index}`,
+            name: file.name,
+            url: file.url ?? null,
+            hasFile: false,
+          })),
+        }),
+      )
+
       setLoadingPost(false)
     }
 
@@ -167,7 +242,13 @@ function BoardPostWritePage({
   const handleUploadEditorImage = async (file) => {
     const postIdForUpload = isEdit ? postId : draftPostIdRef.current
     const resized = await resizeImageFile(file, { maxWidth: 1600, maxHeight: 1600 })
-    return uploadCmsFile('image', postType, postIdForUpload, resized)
+    const result = await uploadCmsFile('image', postType, postIdForUpload, resized)
+
+    if (result?.path && !isEdit) {
+      draftUploadedPathsRef.current.push(result.path)
+    }
+
+    return result
   }
 
   const handleSubmit = async (event) => {
@@ -334,6 +415,8 @@ function BoardPostWritePage({
         await deleteBoardFiles(removedPaths)
       }
 
+      draftUploadedPathsRef.current = []
+      allowNavigation()
       window.alert(isEdit ? '게시글이 수정되었습니다.' : '게시글이 등록되었습니다.')
       navigate(`${detailPathPrefix}/${targetPostId}`)
     } catch (submitError) {
@@ -435,12 +518,14 @@ function BoardPostWritePage({
         )}
 
         <div className="board-write-form__actions">
-          <Link
-            to={listPath}
+          <button
+            type="button"
             className="church-news-detail__list-button board-write-form__cancel"
+            onClick={() => requestNavigation(listPath)}
+            disabled={submitting}
           >
             취소
-          </Link>
+          </button>
           <button
             type="submit"
             className="church-news-board__search-button board-write-form__submit"
@@ -450,6 +535,35 @@ function BoardPostWritePage({
           </button>
         </div>
       </form>
+
+      {isLeaveModalOpen ? (
+        <div className="member-management-modal" role="presentation">
+          <div className="member-management-modal__dialog" role="dialog" aria-modal="true">
+            <h2 className="member-management-modal__title">페이지 이동</h2>
+            <p className="member-management-modal__message">
+              페이지 이동 시 작성된 게시글은 저장되지 않으며 삭제됩니다.
+              {'\n'}
+              정말 이동하시겠습니까?
+            </p>
+            <div className="member-management-modal__actions">
+              <button
+                type="button"
+                className="member-management-modal__button member-management-modal__button--secondary"
+                onClick={cancelLeave}
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                className="member-management-modal__button member-management-modal__button--primary"
+                onClick={confirmLeave}
+              >
+                확인
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   )
 }

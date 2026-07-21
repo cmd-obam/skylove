@@ -1,6 +1,7 @@
 import { useEffect, useId, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { findMenuSection, menuItemContainsPath } from '@/data/menu'
+import { resolveMenuAliasPath } from '@/utils/boardPaths'
 import MenuItemLabel from '@/components/layout/MenuItemLabel'
 import './CategorySidebar.css'
 
@@ -87,7 +88,8 @@ function CategorySidebarItem({ item, sectionPath, pathname }) {
 
 function CategorySidebar() {
   const { pathname } = useLocation()
-  const section = findMenuSection(pathname)
+  const menuPath = resolveMenuAliasPath(pathname)
+  const section = findMenuSection(menuPath)
   const navItems = section?.children ?? []
 
   if (!section || navItems.length === 0) {
@@ -108,7 +110,7 @@ function CategorySidebar() {
               key={item.path}
               item={item}
               sectionPath={section.path}
-              pathname={pathname}
+              pathname={menuPath}
             />
           ))}
         </ul>

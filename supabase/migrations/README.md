@@ -22,6 +22,7 @@ Migration 파일을 **번호 순서대로** Supabase SQL Editor에서 실행하�
 | 14 | `016_is_username_available.sql` | 아이디 중복확인 RPC (`is_username_available`) |
 | 15 | `019_board_cms_fields.sql` | CMS: `has_image`, `attachments` jsonb, `board_post_list` 갱신 |
 | 16 | `020_fix_super_admin_role_variable.sql` | 회원관리 RPC: `current_role`→`profiles.role` 충돌 수정 |
+| 17 | `021_super_admin_content_cms.sql` | 최고관리자 게시글·댓글 CMS (휴지통 15일, 메모, 목록/일괄 RPC) |
 
 > `003`은 `profiles.role`을 RLS에서 참조하므로 **`004`를 먼저** 실행해야 합니다.
 
@@ -87,16 +88,20 @@ supabase/fix_login_role.sql
 
 실행 후 `profiles` 테이블에 `role` 컬럼이 있는지 Table Editor에서 확인하세요.
 
-회원관리 페이지에서 `list_profiles_for_super_admin` RPC 404 (PGRST202) 가 나오거나,
-권한 변경 시 `(현재 role: postgres)` 오류가 나오면:
+회원관리에서 `(현재 role: postgres)` 오류가 나오거나,
+콘텐츠 CMS RPC가 없다면:
 
 ```
 supabase/fix_super_admin_member_management.sql
+supabase/fix_super_admin_content_cms.sql
 ```
 
-을 Supabase SQL Editor에서 **전체 실행**하세요. (코드 푸시만으로는 원격 DB 함수가 갱신되지 않습니다.)
+을 Supabase SQL Editor에서 각각 실행하세요.
 
-원인: PL/pgSQL 변수명 `current_role`이 PostgreSQL 내장 `current_role`(DB 세션 역할)과 충돌했습니다.
+15일 휴지통 자동 삭제는 Edge Function `purge-content-trash` 배포 후
+`supabase/cron_purge_content_trash.sql` 안내대로 cron을 설정하세요.
+Secret: `CONTENT_TRASH_CRON_SECRET`
+
 
 **가장 빠른 방법** — Supabase SQL Editor에서 아래 파일 **전체** 실행:
 

@@ -1194,8 +1194,26 @@
 }
 
 .board-comments__item {
+  scroll-margin-top: 96px;
   padding: 1.25rem 0;
   border-top: 1px solid #edf1f5;
+}
+
+.board-comments__item--highlight {
+  animation: board-comment-highlight 2.5s ease;
+  border-radius: 10px;
+}
+
+@keyframes board-comment-highlight {
+  0% {
+    background-color: rgba(77, 166, 255, 0.35);
+    box-shadow: 0 0 0 3px rgba(77, 166, 255, 0.35);
+  }
+
+  100% {
+    background-color: transparent;
+    box-shadow: none;
+  }
 }
 
 .board-comments__item:first-child {

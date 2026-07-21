@@ -106,6 +106,7 @@ export async function fetchComments(postType, postId, userId) {
     .select('*')
     .eq('post_type', postType)
     .eq('post_id', String(postId))
+    .is('deleted_at', null)
     .order('is_pinned', { ascending: false })
     .order('created_at', { ascending: false })
 
@@ -269,18 +270,20 @@ export async function resolveCommentReport(commentId) {
 }
 
 export async function deleteComment(commentId) {
-  const { error } = await supabase.from('board_comments').delete().eq('id', commentId)
+  const { error } = await supabase.rpc('soft_delete_board_comment', {
+    p_comment_id: commentId,
+  })
 
   if (error) {
     return {
       success: false,
-      message: '댓글 삭제 중 오류가 발생했습니다.',
+      message: error.message || '댓글 삭제 중 오류가 발생했습니다.',
     }
   }
 
   return {
     success: true,
-    message: '댓글이 삭제되었습니다.',
+    message: '댓글이 휴지통으로 이동되었습니다.',
   }
 }
 

@@ -17,6 +17,9 @@ import OAuthProfileComplete from '@/pages/OAuthProfileComplete'
 import EmailConfirmSuccess from '@/pages/EmailConfirmSuccess'
 import MemberEdit from '@/pages/MemberEdit'
 import MemberManagement from '@/pages/MemberManagement'
+import MemberDetail from '@/pages/MemberDetail'
+import ContentManagement from '@/pages/ContentManagement'
+import VisitorStatsPage from '@/pages/VisitorStatsPage'
 import ResetPassword from '@/pages/ResetPassword'
 import ResetPasswordSecurityQuestion from '@/pages/ResetPasswordSecurityQuestion'
 import ResetPasswordEmailVerify from '@/pages/ResetPasswordEmailVerify'
@@ -115,6 +118,30 @@ function App() {
               element={
                 <SuperAdminRoute>
                   <MemberManagement />
+                </SuperAdminRoute>
+              }
+            />
+            <Route
+              path="/member/management/:userId"
+              element={
+                <SuperAdminRoute>
+                  <MemberDetail />
+                </SuperAdminRoute>
+              }
+            />
+            <Route
+              path="/member/content-management"
+              element={
+                <SuperAdminRoute>
+                  <ContentManagement />
+                </SuperAdminRoute>
+              }
+            />
+            <Route
+              path="/member/visitor-stats"
+              element={
+                <SuperAdminRoute>
+                  <VisitorStatsPage />
                 </SuperAdminRoute>
               }
             />

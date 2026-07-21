@@ -34,8 +34,9 @@
   background-color: transparent;
 }
 
-.member-mypage-layout .signup-page {
-  min-height: auto;
-  padding: 0;
-  background-color: transparent;
+.member-mypage-sidebar .category-sidebar__link--disabled {
+  opacity: 0.55;
+  cursor: default;
+  pointer-events: none;
+  color: #94a3b8;
 }

@@ -97,6 +97,7 @@ function CommentItem({
 
   return (
     <article
+      id={`comment-${comment.id}`}
       className={`board-comments__item${comment.isHidden ? ' board-comments__item--hidden' : ''}${
         comment.isPinned ? ' board-comments__item--pinned' : ''
       }${isEditing ? ' board-comments__item--editing' : ''}`}
@@ -208,6 +209,34 @@ function BoardPostComments({ postType, postId, onCommentsCountChange }) {
     const timer = window.setTimeout(() => setFeedback(null), 3000)
     return () => window.clearTimeout(timer)
   }, [feedback, setFeedback])
+
+  useEffect(() => {
+    const hash = window.location.hash
+    const match = hash.match(/^#comment-(.+)$/)
+
+    if (!match || comments.length === 0) {
+      return undefined
+    }
+
+    const commentId = match[1]
+    const element = document.getElementById(`comment-${commentId}`)
+
+    if (!element) {
+      return undefined
+    }
+
+    element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    element.classList.add('board-comments__item--highlight')
+
+    const timer = window.setTimeout(() => {
+      element.classList.remove('board-comments__item--highlight')
+    }, 2500)
+
+    return () => {
+      window.clearTimeout(timer)
+      element.classList.remove('board-comments__item--highlight')
+    }
+  }, [comments])
 
   const handleSubmit = async () => {
     if (!isLoggedIn) {

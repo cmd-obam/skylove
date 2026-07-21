@@ -1,8 +1,6 @@
 import { supabase } from '@/lib/supabase'
 import { isAdminRole } from '@/services/auth/roles'
 import { fetchPostMeta } from '@/services/board/postStats'
-import { deleteBoardFiles } from '@/services/board/storage'
-import { extractStoragePathFromPublicUrl } from '@/utils/boardContentImages'
 
 const PERMISSION_DENIED = '권한이 없습니다.'
 
@@ -45,6 +43,7 @@ export function mapBoardPostRow(row, meta) {
     writer: row.writer,
     author: row.writer,
     authorName: row.writer,
+    authorId: row.author_id ?? null,
     createdAt: row.created_at,
     updatedAt: row.updated_at ?? row.created_at,
     date: row.created_at,
@@ -63,6 +62,9 @@ export function mapBoardPostRow(row, meta) {
     youtubeUrl: row.youtube_url ?? null,
     attachmentUrl: row.attachment_url,
     attachmentName: row.attachment_name,
+    status: row.status ?? 'public',
+    isNotice: Boolean(row.is_notice),
+    deletedAt: row.deleted_at ?? null,
   }
 }
 
@@ -85,7 +87,7 @@ async function assertBoardAdmin() {
     return { success: false, message: PERMISSION_DENIED }
   }
 
-  return { success: true, profile }
+  return { success: true, profile, userId: session.user.id }
 }
 
 async function fetchPostsMetaMap(postType, postIds) {
@@ -216,9 +218,11 @@ export async function fetchLatestBoardPost(postType) {
   const { data, error } = await supabase
     .from('board_posts')
     .select(
-      'id, post_type, title, writer, content, thumbnail, images, youtube_url, created_at, updated_at, attachment_url, attachment_name, has_image, attachments',
+      'id, post_type, title, writer, content, thumbnail, images, youtube_url, created_at, updated_at, attachment_url, attachment_name, has_image, attachments, author_id, status, deleted_at',
     )
     .eq('post_type', postType)
+    .is('deleted_at', null)
+    .eq('status', 'public')
     .order('created_at', { ascending: false })
     .limit(1)
     .maybeSingle()
@@ -305,6 +309,7 @@ export async function createBoardPost({
       title,
       content,
       writer,
+      author_id: auth.userId,
       attachment_url: attachmentUrl,
       attachment_name: attachmentName,
       attachments,
@@ -312,6 +317,7 @@ export async function createBoardPost({
       thumbnail,
       has_image: hasImage,
       youtube_url: youtubeUrl,
+      status: 'public',
     })
     .select()
     .single()
@@ -388,18 +394,10 @@ export async function deleteBoardPost(postType, postId) {
     }
   }
 
-  const storagePaths = [
-    ...(existing.post.images ?? []).map((image) => image.path),
-    ...(existing.post.attachments ?? []).map((file) => file.path),
-    extractStoragePathFromPublicUrl(existing.post.thumbnail),
-  ].filter(Boolean)
-
-  const { data, error } = await supabase
-    .from('board_posts')
-    .delete()
-    .eq('post_type', postType)
-    .eq('id', postId)
-    .select('id')
+  const { error } = await supabase.rpc('soft_delete_board_post', {
+    p_post_type: postType,
+    p_post_id: postId,
+  })
 
   if (error) {
     if (error.code === '42501') {
@@ -409,23 +407,9 @@ export async function deleteBoardPost(postType, postId) {
     return { success: false, message: error.message }
   }
 
-  if (!data?.length) {
-    return {
-      success: false,
-      message: '게시글을 삭제할 수 없습니다. 관리자 권한을 확인해 주세요.',
-    }
+  return {
+    success: true,
+    message: '게시글이 휴지통으로 이동되었습니다. 15일 후 자동 영구삭제됩니다.',
   }
-
-  // Clean related meta/likes/comments (no FK cascade on these tables)
-  await Promise.all([
-    supabase.from('board_post_meta').delete().eq('post_type', postType).eq('post_id', String(postId)),
-    supabase.from('post_likes').delete().eq('post_type', postType).eq('post_id', String(postId)),
-    supabase.from('board_comments').delete().eq('post_type', postType).eq('post_id', String(postId)),
-  ])
-
-  if (storagePaths.length > 0) {
-    await deleteBoardFiles(storagePaths)
-  }
-
-  return { success: true }
 }
+

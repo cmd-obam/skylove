@@ -70,9 +70,8 @@
   color: #047857;
 }
 
-.member-management-page__feedback--error {
-  background-color: #fef2f2;
-  color: #b91c1c;
+.member-management-modal__message {
+  white-space: pre-line;
 }
 
 .member-management-page__table-wrap {
