@@ -26,6 +26,7 @@ Migration 파일을 **번호 순서대로** Supabase SQL Editor에서 실행하�
 | 18 | `022_sort_member_management_by_role.sql` | 회원 목록을 최고관리자→관리자→일반회원 순으로 정렬 |
 | 19 | `023_get_member_detail_extended.sql` | 회원 상세 RPC 확장 (가입정보·최근로그인·활동집계, 민감정보 제외) |
 | 20 | `024_ensure_congregant_type_columns.sql` | 교인 구분 컬럼 보강 (015 누락 대비, 로그인 42703 방지) |
+| 21 | `025_unify_member_church_information.sql` | 가입·마이페이지·관리자 교인정보 저장/검증/RPC 통합 |
 
 > `003`은 `profiles.role`을 RLS에서 참조하므로 **`004`를 먼저** 실행해야 합니다.
 

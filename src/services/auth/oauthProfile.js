@@ -1,7 +1,6 @@
 import { supabase } from '@/lib/supabase'
 import {
-  CONGREGANT_TYPE_IDS,
-  isOtherCongregantType,
+  normalizeChurchInformation,
 } from '@/data/congregantTypes'
 import { resolveSecurityQuestionForStorage } from '@/data/securityQuestions'
 import { DEFAULT_MEMBER_ROLE } from '@/services/auth/profileSchema'
@@ -54,12 +53,11 @@ function isProfileAlreadyExistsError(error) {
 }
 
 function buildOAuthProfilePayload(userId, formData, birthDate) {
-  const congregantType = CONGREGANT_TYPE_IDS.has(formData.congregantType)
-    ? formData.congregantType
-    : null
-  const attendingChurch = isOtherCongregantType(congregantType)
-    ? String(formData.attendingChurch || '').trim() || null
-    : null
+  const churchInformation = normalizeChurchInformation(
+    formData.congregantType,
+    formData.attendingChurch,
+  )
+  const { congregantType, attendingChurch } = churchInformation
 
   const basePayload = {
     user_id: userId,

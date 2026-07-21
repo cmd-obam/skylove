@@ -18,7 +18,8 @@
     "deploy:verify-security-answer": "npx supabase functions deploy verify_security_answer --project-ref nwsytxwurnaxaabztomh --no-verify-jwt",
     "deploy:account-recovery-functions": "npx supabase functions deploy find_by_name_email verify_security_answer --project-ref nwsytxwurnaxaabztomh --no-verify-jwt",
     "deploy:all-edge-functions": "npx supabase functions deploy find_by_name_email verify_security_answer reset-password --project-ref nwsytxwurnaxaabztomh --no-verify-jwt && npx supabase functions deploy delete-account --project-ref nwsytxwurnaxaabztomh",
-    "test:edge-function-cors": "node --env-file=.env scripts/test-edge-function-cors.mjs"
+    "test:edge-function-cors": "node --env-file=.env scripts/test-edge-function-cors.mjs",
+    "test:church-profile": "node --test scripts/test-church-profile.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.2",

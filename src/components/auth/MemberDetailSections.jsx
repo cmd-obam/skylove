@@ -1,8 +1,9 @@
 import {
   CONGREGANT_TYPE_NEWCOMER,
   CONGREGANT_TYPE_OWN,
+  OWN_CHURCH_NAME,
   getCongregantTypeLabel,
-  isNewcomerCongregantType,
+  getNewcomerStatus,
 } from '@/data/congregantTypes'
 import { getRoleLabel } from '@/services/auth/roles'
 import { formatBoardDate, formatCommentDateTime } from '@/utils/formatBoardDate'
@@ -25,11 +26,11 @@ function formatCount(value) {
 
 function getAttendingChurch(member) {
   if (member.congregant_type === CONGREGANT_TYPE_OWN) {
-    return '하늘사랑교회'
+    return OWN_CHURCH_NAME
   }
 
   if (member.congregant_type === CONGREGANT_TYPE_NEWCOMER) {
-    return '해당 없음'
+    return '-'
   }
 
   return member.attending_church || '미입력'
@@ -57,7 +58,7 @@ export function MemberDetailSections({ member }) {
   }
 
   const congregantLabel = getCongregantTypeLabel(member.congregant_type)
-  const isNewcomer = isNewcomerCongregantType(member.congregant_type)
+  const isNewcomer = getNewcomerStatus(member.congregant_type)
 
   return (
     <div className="member-detail-sections">
@@ -82,7 +83,7 @@ export function MemberDetailSections({ member }) {
           { label: '출석교회', value: getAttendingChurch(member) },
           {
             label: '새가족 여부',
-            value: congregantLabel ? (isNewcomer ? '예' : '아니오') : '미입력',
+            value: isNewcomer === null ? '미입력' : isNewcomer ? '예' : '아니오',
           },
         ]}
       />

@@ -32,6 +32,7 @@ import {
 import {
   CONGREGANT_TYPE_IDS,
   isOtherCongregantType,
+  normalizeChurchInformation,
 } from '@/data/congregantTypes'
 import { normalizeAnswer } from '@/services/auth/normalizeAnswer'
 import { withAllowedOtpSend } from '@/services/auth/otpSendGuard'
@@ -1273,12 +1274,19 @@ async function insertProfile(userId, formData) {
     }
   }
 
-  const congregantType = CONGREGANT_TYPE_IDS.has(formData.congregantType)
-    ? formData.congregantType
-    : null
-  const attendingChurch = isOtherCongregantType(congregantType)
-    ? formData.attendingChurch.trim() || null
-    : null
+  const churchInformation = normalizeChurchInformation(
+    formData.congregantType,
+    formData.attendingChurch,
+  )
+
+  if (!churchInformation.valid) {
+    return {
+      code: '23514',
+      message: churchInformation.message,
+    }
+  }
+
+  const { congregantType, attendingChurch } = churchInformation
 
   const basePayload = buildBaseProfilePayload(userId, formData, birthDate)
 

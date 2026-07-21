@@ -13,6 +13,7 @@ import {
 import {
   CONGREGANT_TYPE_IDS,
   isOtherCongregantType,
+  normalizeChurchInformation,
 } from '@/data/congregantTypes'
 import { setAuthSession } from '@/utils/auth'
 
@@ -142,25 +143,39 @@ export async function handleProfileUpdate(form, currentProfile) {
   }
 
   const phone = form.phone.trim()
-  const attendingChurch = isOtherCongregantType(form.congregantType)
-    ? form.attendingChurch.trim()
-    : null
-  const { error: profileError } = await supabase
+  const churchInformation = normalizeChurchInformation(
+    form.congregantType,
+    form.attendingChurch,
+  )
+  const { congregantType, attendingChurch } = churchInformation
+  const { data: savedProfile, error: profileError } = await supabase
     .from('profiles')
     .update({
       name: form.name.trim(),
       birth_date: normalizeBirthDate(form.birthday),
       phone: phone || null,
       email: trimmedEmail,
-      congregant_type: form.congregantType,
+      congregant_type: congregantType,
       attending_church: attendingChurch,
     })
     .eq('user_id', user.id)
+    .select('congregant_type,attending_church')
+    .single()
 
   if (profileError) {
     return {
       success: false,
       message: mapProfileUpdateError(profileError),
+    }
+  }
+
+  if (
+    savedProfile.congregant_type !== congregantType ||
+    savedProfile.attending_church !== attendingChurch
+  ) {
+    return {
+      success: false,
+      message: '교인정보가 저장되지 않았습니다. 잠시 후 다시 시도해주세요.',
     }
   }
 
