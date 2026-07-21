@@ -10,6 +10,10 @@ import {
   normalizeBirthDate,
   validatePassword,
 } from '@/services/auth/signup'
+import {
+  CONGREGANT_TYPE_IDS,
+  isOtherCongregantType,
+} from '@/data/congregantTypes'
 import { setAuthSession } from '@/utils/auth'
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -27,6 +31,8 @@ export function createInitialProfileForm(profile) {
     name: profile?.name ?? '',
     birthday: profile?.birthday ?? '',
     phone: profile?.phone ?? '',
+    congregantType: profile?.congregantType ?? '',
+    attendingChurch: profile?.attendingChurch ?? '',
   }
 }
 
@@ -51,6 +57,15 @@ export function validateProfileUpdateForm(form) {
 
   if (form.phone.trim() && !PHONE_PATTERN.test(form.phone.trim())) {
     errors.phone = '휴대폰 번호 형식을 확인해주세요. (예: 010-0000-0000)'
+  }
+
+  if (!CONGREGANT_TYPE_IDS.has(form.congregantType)) {
+    errors.congregantType = '교인 구분을 선택해주세요.'
+  } else if (
+    isOtherCongregantType(form.congregantType) &&
+    !form.attendingChurch.trim()
+  ) {
+    errors.congregantType = '출석 교회를 입력해주세요.'
   }
 
   const isChangingPassword = Boolean(form.password || form.passwordConfirm)
@@ -127,6 +142,9 @@ export async function handleProfileUpdate(form, currentProfile) {
   }
 
   const phone = form.phone.trim()
+  const attendingChurch = isOtherCongregantType(form.congregantType)
+    ? form.attendingChurch.trim()
+    : null
   const { error: profileError } = await supabase
     .from('profiles')
     .update({
@@ -134,6 +152,8 @@ export async function handleProfileUpdate(form, currentProfile) {
       birth_date: normalizeBirthDate(form.birthday),
       phone: phone || null,
       email: trimmedEmail,
+      congregant_type: form.congregantType,
+      attending_church: attendingChurch,
     })
     .eq('user_id', user.id)
 

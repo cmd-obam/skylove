@@ -1,4 +1,6 @@
 import {
+  CONGREGANT_TYPE_NEWCOMER,
+  CONGREGANT_TYPE_OWN,
   getCongregantTypeLabel,
   isNewcomerCongregantType,
 } from '@/data/congregantTypes'
@@ -19,6 +21,18 @@ function formatCount(value) {
   }
 
   return String(value)
+}
+
+function getAttendingChurch(member) {
+  if (member.congregant_type === CONGREGANT_TYPE_OWN) {
+    return '하늘사랑교회'
+  }
+
+  if (member.congregant_type === CONGREGANT_TYPE_NEWCOMER) {
+    return '해당 없음'
+  }
+
+  return member.attending_church || '미입력'
 }
 
 function DetailSection({ title, rows }) {
@@ -61,9 +75,15 @@ export function MemberDetailSections({ member }) {
       <DetailSection
         title="교회정보"
         rows={[
-          { label: '교인구분', value: displayValue(congregantLabel || member.congregant_type) },
-          { label: '출석교회', value: displayValue(member.attending_church) },
-          { label: '새가족 여부', value: congregantLabel ? (isNewcomer ? '예' : '아니오') : '-' },
+          {
+            label: '교인구분',
+            value: congregantLabel || member.congregant_type || '미입력',
+          },
+          { label: '출석교회', value: getAttendingChurch(member) },
+          {
+            label: '새가족 여부',
+            value: congregantLabel ? (isNewcomer ? '예' : '아니오') : '미입력',
+          },
         ]}
       />
 

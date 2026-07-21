@@ -107,6 +107,8 @@ export async function fetchProfileByUserId(userId) {
     birthday: data.birth_date,
     phone: data.phone,
     username: data.username,
+    congregantType: data.congregant_type,
+    attendingChurch: data.attending_church,
   }
 
   console.log('[Profile] fetchProfileByUserId success', { userId, data, profile })

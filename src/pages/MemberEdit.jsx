@@ -4,6 +4,7 @@ import { FiUser, FiLock, FiCalendar, FiMail, FiSmartphone } from 'react-icons/fi
 import { supabase } from '@/lib/supabase'
 import DeleteAccountModal from '@/components/auth/DeleteAccountModal'
 import UnlinkKakaoModal from '@/components/auth/UnlinkKakaoModal'
+import SignupCongregantField from '@/components/signup/SignupCongregantField'
 import '@/components/auth/DeleteAccountModal.css'
 import { deleteAccount } from '@/services/auth/deleteAccount'
 import { fetchCurrentUserProfile } from '@/services/auth/profile'
@@ -23,6 +24,7 @@ import {
 } from '@/services/auth/updateProfile'
 import { BIRTH_DATE_MIN, getBirthDateMax, normalizeBirthDate } from '@/services/auth/signup'
 import { AUTOCOMPLETE_OFF, PASSWORD_AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
+import { CONGREGANT_TYPE_OTHER } from '@/data/congregantTypes'
 import MemberMypageLayout from '@/components/auth/MemberMypageLayout'
 import { useAuth } from '@/contexts/AuthContext'
 import { setAuthSession } from '@/utils/auth'
@@ -203,8 +205,18 @@ function MemberEdit() {
   }
 
   const updateField = (name, value) => {
-    setForm((prev) => ({ ...prev, [name]: value }))
-    setErrors((prev) => ({ ...prev, [name]: undefined }))
+    setForm((prev) => {
+      if (name === 'congregantType' && value !== CONGREGANT_TYPE_OTHER) {
+        return { ...prev, congregantType: value, attendingChurch: '' }
+      }
+
+      return { ...prev, [name]: value }
+    })
+    setErrors((prev) => ({
+      ...prev,
+      [name]: undefined,
+      ...(name === 'congregantType' ? { attendingChurch: undefined } : {}),
+    }))
     setFormFeedback(null)
   }
 
@@ -312,7 +324,7 @@ function MemberEdit() {
             <h1 className="signup-card__title">회원정보 수정</h1>
             <div className="signup-card__accent" aria-hidden="true" />
             <p className="signup-card__description">
-              비밀번호, 이름, 생년월일, 휴대폰, 이메일 정보를 수정할 수 있습니다.
+              계정 기본정보와 교회정보를 수정할 수 있습니다.
             </p>
           </header>
 
@@ -414,6 +426,14 @@ function MemberEdit() {
                   autoComplete={AUTOCOMPLETE_OFF}
                 />
               </ProfileFieldCard>
+
+              <SignupCongregantField
+                form={form}
+                errors={errors}
+                updateField={updateField}
+                idPrefix="member-edit"
+                radioName="memberEditCongregantType"
+              />
             </div>
 
             {formFeedback && (

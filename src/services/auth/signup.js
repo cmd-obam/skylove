@@ -1251,19 +1251,6 @@ export async function handleSignup(formData) {
 /** @deprecated handleSignup 사용 */
 export const handleProfileRegistration = handleSignup
 
-function isMissingColumnError(error) {
-  const code = error?.code ?? ''
-  const message = String(error?.message ?? '').toLowerCase()
-
-  return (
-    code === '42703' ||
-    code === 'PGRST204' ||
-    message.includes('does not exist') ||
-    message.includes('could not find the') ||
-    message.includes('schema cache')
-  )
-}
-
 function buildBaseProfilePayload(userId, formData, birthDate) {
   return {
     user_id: userId,
@@ -1295,39 +1282,21 @@ async function insertProfile(userId, formData) {
 
   const basePayload = buildBaseProfilePayload(userId, formData, birthDate)
 
-  // Live DB may not yet have congregant_type / attending_church (migration 015).
-  // Try full payload first, then retry without those columns when schema lacks them.
-  const payloads = [
-    {
-      ...basePayload,
-      congregant_type: congregantType,
-      attending_church: attendingChurch,
-    },
-    basePayload,
-  ]
+  const profilePayload = {
+    ...basePayload,
+    congregant_type: congregantType,
+    attending_church: attendingChurch,
+  }
+  const { error: insertError } = await supabase.from('profiles').insert(profilePayload)
 
-  let insertError = null
-
-  for (const payload of payloads) {
-    const { error } = await supabase.from('profiles').insert(payload)
-
-    if (!error) {
-      insertError = null
-      break
-    }
-
-    insertError = error
+  if (insertError) {
     console.warn('[Signup] profiles INSERT failed', {
-      code: error.code,
-      message: error.message,
-      details: error.details,
-      hint: error.hint,
-      payloadKeys: Object.keys(payload),
+      code: insertError.code,
+      message: insertError.message,
+      details: insertError.details,
+      hint: insertError.hint,
+      payloadKeys: Object.keys(profilePayload),
     })
-
-    if (!isMissingColumnError(error)) {
-      break
-    }
   }
 
   if (!insertError) {
@@ -1352,10 +1321,6 @@ async function insertProfile(userId, formData) {
 
   logProfileSaveError('direct_insert', insertError)
 
-  // Live RPC signature (실측):
-  // create_profile_after_signup(p_user_id, p_username, p_name, p_birth_date, p_email, p_phone,
-  //   p_security_question, p_security_answer)
-  // congregant params 는 아직 배포되지 않아 포함하면 PGRST202 가 납니다.
   const rpcParams = {
     p_user_id: userId,
     p_username: basePayload.username,
@@ -1365,6 +1330,8 @@ async function insertProfile(userId, formData) {
     p_phone: basePayload.phone,
     p_security_question: resolveSecurityQuestionForStorage(formData),
     p_security_answer: normalizeAnswer(formData.securityAnswer),
+    p_congregant_type: congregantType,
+    p_attending_church: attendingChurch,
   }
 
   console.warn('[Signup] falling back to create_profile_after_signup RPC', {

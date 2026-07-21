@@ -19,7 +19,7 @@ export const OAUTH_PROFILE_COMPLETE_PATH = '/oauth/complete'
 
 export function getOAuthHomeUrl() {
   const base = String(import.meta.env.BASE_URL || '/').replace(/\/$/, '')
-  return `${base || ''}/` || '/'
+  return `${base}/`
 }
 
 /**
@@ -39,19 +39,6 @@ export function validateOAuthProfileForm(form, { isIdChecked = false } = {}) {
     valid: Object.keys(errors).length === 0,
     errors,
   }
-}
-
-function isMissingColumnError(error) {
-  const code = error?.code ?? ''
-  const message = String(error?.message ?? '').toLowerCase()
-
-  return (
-    code === '42703' ||
-    code === 'PGRST204' ||
-    message.includes('does not exist') ||
-    message.includes('could not find the') ||
-    message.includes('schema cache')
-  )
 }
 
 function isProfileAlreadyExistsError(error) {
@@ -132,29 +119,15 @@ export async function createOAuthProfile(userId, formData) {
 
   const { basePayload, fullPayload } = buildOAuthProfilePayload(userId, formData, birthDate)
 
-  // Live DB may not yet have congregant_type / attending_church — same fallback as email signup.
-  const payloads = [fullPayload, basePayload]
-  let insertError = null
+  const { error: insertError } = await supabase.from('profiles').insert(fullPayload)
 
-  for (const payload of payloads) {
-    const { error } = await supabase.from('profiles').insert(payload)
-
-    if (!error) {
-      insertError = null
-      break
-    }
-
-    insertError = error
+  if (insertError) {
     console.warn('[OAuthProfile] profiles INSERT failed', {
-      code: error.code,
-      message: error.message,
-      details: error.details,
-      payloadKeys: Object.keys(payload),
+      code: insertError.code,
+      message: insertError.message,
+      details: insertError.details,
+      payloadKeys: Object.keys(fullPayload),
     })
-
-    if (!isMissingColumnError(error)) {
-      break
-    }
   }
 
   if (!insertError) {
@@ -182,7 +155,6 @@ export async function createOAuthProfile(userId, formData) {
     }
   }
 
-  // RPC fallback mirrors email signup (congregant params not in live RPC signature).
   const rpcParams = {
     p_user_id: userId,
     p_username: basePayload.username,
@@ -192,6 +164,8 @@ export async function createOAuthProfile(userId, formData) {
     p_phone: basePayload.phone,
     p_security_question: resolveSecurityQuestionForStorage(formData),
     p_security_answer: normalizeAnswer(formData.securityAnswer),
+    p_congregant_type: fullPayload.congregant_type,
+    p_attending_church: fullPayload.attending_church,
   }
 
   const { error: rpcError } = await supabase.rpc('create_profile_after_signup', rpcParams)
