@@ -52,7 +52,9 @@ BEGIN
     RAISE EXCEPTION '타 교회 교인은 출석 교회를 입력해야 합니다.';
   END IF;
 
-  IF NEW.congregant_type <> 'other_church' THEN
+  IF NEW.congregant_type = 'own_church' THEN
+    NEW.attending_church := '하늘사랑교회';
+  ELSIF NEW.congregant_type = 'newcomer' THEN
     NEW.attending_church := NULL;
   END IF;
 
@@ -66,6 +68,14 @@ CREATE TRIGGER profiles_validate_church_information
   ON public.profiles
   FOR EACH ROW
   EXECUTE FUNCTION public.validate_profile_church_information();
+
+-- 기존 유효 데이터도 동일한 저장 규칙으로 정규화한다.
+UPDATE public.profiles
+SET attending_church = CASE
+  WHEN congregant_type = 'own_church' THEN '하늘사랑교회'
+  ELSE NULL
+END
+WHERE congregant_type IN ('own_church', 'newcomer');
 
 -- 이전 인자 수의 RPC가 남아 교인정보 없이 가입되는 것을 막는다.
 DROP FUNCTION IF EXISTS public.create_profile_after_signup(
@@ -118,7 +128,9 @@ BEGIN
     RAISE EXCEPTION '타 교회 교인은 출석 교회를 입력해야 합니다.';
   END IF;
 
-  IF next_congregant_type <> 'other_church' THEN
+  IF next_congregant_type = 'own_church' THEN
+    next_attending_church := '하늘사랑교회';
+  ELSIF next_congregant_type = 'newcomer' THEN
     next_attending_church := NULL;
   END IF;
 

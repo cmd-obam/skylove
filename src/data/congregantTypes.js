@@ -61,7 +61,12 @@ export function normalizeChurchInformation(congregantType, attendingChurch = '')
   return {
     valid: true,
     congregantType: normalizedType,
-    attendingChurch: isOtherCongregantType(normalizedType) ? normalizedChurch : null,
+    attendingChurch:
+      normalizedType === CONGREGANT_TYPE_OWN
+        ? OWN_CHURCH_NAME
+        : isOtherCongregantType(normalizedType)
+          ? normalizedChurch
+          : null,
     isNewcomer: isNewcomerCongregantType(normalizedType),
     message: '',
   }
