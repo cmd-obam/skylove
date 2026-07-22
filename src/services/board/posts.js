@@ -1,8 +1,49 @@
 import { supabase } from '@/lib/supabase'
-import { isAdminRole } from '@/services/auth/roles'
+import {
+  canDeletePost,
+  canEditPost,
+  canHidePost,
+  canWritePost,
+} from '@/services/auth/roles'
 import { fetchPostMeta } from '@/services/board/postStats'
 
 const PERMISSION_DENIED = '권한이 없습니다.'
+
+async function getSessionProfile() {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+
+  if (!session) {
+    return { success: false, message: PERMISSION_DENIED }
+  }
+
+  const { data: profile, error } = await supabase
+    .from('profiles')
+    .select('role, name')
+    .eq('user_id', session.user.id)
+    .maybeSingle()
+
+  if (error || !profile) {
+    return { success: false, message: PERMISSION_DENIED }
+  }
+
+  return { success: true, profile, userId: session.user.id }
+}
+
+async function assertBoardWriter() {
+  const auth = await getSessionProfile()
+
+  if (!auth.success) {
+    return auth
+  }
+
+  if (!canWritePost(auth.profile)) {
+    return { success: false, message: PERMISSION_DENIED }
+  }
+
+  return auth
+}
 
 export function mapBoardPostRow(row, meta) {
   const images = Array.isArray(row.images) ? row.images : []
@@ -68,26 +109,27 @@ export function mapBoardPostRow(row, meta) {
   }
 }
 
-async function assertBoardAdmin() {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
+async function assertCanMutatePost(postType, postId, canMutate) {
+  const auth = await getSessionProfile()
 
-  if (!session) {
+  if (!auth.success) {
+    return auth
+  }
+
+  const existing = await fetchBoardPost(postType, postId)
+
+  if (!existing.success || !existing.post) {
+    return {
+      success: false,
+      message: existing.message || '게시글을 찾을 수 없습니다.',
+    }
+  }
+
+  if (!canMutate(auth.profile, existing.post, auth.userId)) {
     return { success: false, message: PERMISSION_DENIED }
   }
 
-  const { data: profile, error } = await supabase
-    .from('profiles')
-    .select('role, name')
-    .eq('user_id', session.user.id)
-    .maybeSingle()
-
-  if (error || !isAdminRole(profile?.role)) {
-    return { success: false, message: PERMISSION_DENIED }
-  }
-
-  return { success: true, profile, userId: session.user.id }
+  return { ...auth, post: existing.post }
 }
 
 async function fetchPostsMetaMap(postType, postIds) {
@@ -293,7 +335,7 @@ export async function createBoardPost({
   hasImage = false,
   youtubeUrl = null,
 }) {
-  const auth = await assertBoardAdmin()
+  const auth = await assertBoardWriter()
 
   if (!auth.success) {
     return auth
@@ -339,7 +381,7 @@ export async function createBoardPost({
 }
 
 export async function updateBoardPost(postType, postId, payload) {
-  const auth = await assertBoardAdmin()
+  const auth = await assertCanMutatePost(postType, postId, canEditPost)
 
   if (!auth.success) {
     return auth
@@ -378,20 +420,43 @@ export async function updateBoardPost(postType, postId, payload) {
   }
 }
 
-export async function deleteBoardPost(postType, postId) {
-  const auth = await assertBoardAdmin()
+export async function setBoardPostHidden(postType, postId, isHidden) {
+  const auth = await assertCanMutatePost(postType, postId, canHidePost)
 
   if (!auth.success) {
     return auth
   }
 
-  const existing = await fetchBoardPost(postType, postId)
+  const { data, error } = await supabase
+    .from('board_posts')
+    .update({
+      status: isHidden ? 'private' : 'public',
+    })
+    .eq('post_type', postType)
+    .eq('id', postId)
+    .select()
+    .single()
 
-  if (!existing.success || !existing.post) {
-    return {
-      success: false,
-      message: existing.message || '게시글을 찾을 수 없습니다.',
+  if (error) {
+    if (error.code === '42501') {
+      return { success: false, message: PERMISSION_DENIED }
     }
+
+    return { success: false, message: error.message }
+  }
+
+  return {
+    success: true,
+    message: isHidden ? '게시글이 숨김 처리되었습니다.' : '게시글 숨김이 해제되었습니다.',
+    post: mapBoardPostRow(data),
+  }
+}
+
+export async function deleteBoardPost(postType, postId) {
+  const auth = await assertCanMutatePost(postType, postId, canDeletePost)
+
+  if (!auth.success) {
+    return auth
   }
 
   const { error } = await supabase.rpc('soft_delete_board_post', {
@@ -400,7 +465,7 @@ export async function deleteBoardPost(postType, postId) {
   })
 
   if (error) {
-    if (error.code === '42501') {
+    if (error.code === '42501' || error.message?.includes('권한')) {
       return { success: false, message: PERMISSION_DENIED }
     }
 

@@ -4,12 +4,12 @@ import { useBoardAdmin } from '@/hooks/useBoardAdmin'
 import { logBoardWriteButtonDebug } from '@/utils/authRoleDebug'
 
 function BoardWriteButton({ to, buttonClassName = 'church-news-board__search-button' }) {
-  const { canManageBoard, loading } = useBoardAdmin()
-  const visible = !loading && canManageBoard
+  const { canWriteBoard, loading } = useBoardAdmin()
+  const visible = !loading && canWriteBoard
 
   useEffect(() => {
-    logBoardWriteButtonDebug({ loading, canManageBoard, visible })
-  }, [loading, canManageBoard, visible])
+    logBoardWriteButtonDebug({ loading, canWriteBoard, visible })
+  }, [loading, canWriteBoard, visible])
 
   if (!visible) {
     return null

@@ -44,6 +44,13 @@ Deno.serve(
       return jsonResponse({ error: 'profile_check_failed', message: '회원 정보를 확인할 수 없습니다.' }, 500)
     }
 
+    if (profile?.role === 'manager') {
+      return jsonResponse(
+        { error: 'forbidden', message: '매니저 계정은 직접 탈퇴할 수 없습니다.' },
+        403,
+      )
+    }
+
     if (profile?.role === 'admin') {
       return jsonResponse(
         { error: 'forbidden', message: '관리자 계정은 직접 탈퇴할 수 없습니다.' },

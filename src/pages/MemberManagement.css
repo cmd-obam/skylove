@@ -144,18 +144,42 @@
 }
 
 .member-management-page__role--member {
+  background-color: #f3f4f6;
+  color: #4b5563;
+}
+
+.member-management-page__role--manager {
+  background-color: #ecfdf5;
+  color: #047857;
+}
+
+.member-management-page__role--admin {
   background-color: #eff6ff;
   color: #1d4ed8;
 }
 
-.member-management-page__role--admin {
-  background-color: #fff7ed;
-  color: #c2410c;
+.member-management-page__role--super_admin {
+  background-color: #fef2f2;
+  color: #b91c1c;
 }
 
-.member-management-page__role--super_admin {
-  background-color: #f5f3ff;
-  color: #6d28d9;
+.member-management-page__role-select-label {
+  display: block;
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.member-management-page__role-select {
+  width: 100%;
+  margin-bottom: 1.25rem;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  color: #1f2937;
+  background: #fff;
 }
 
 .member-management-page__actions {

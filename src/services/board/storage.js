@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase'
-import { isAdminRole } from '@/services/auth/roles'
+import { canWritePost } from '@/services/auth/roles'
 
 const BUCKET = 'board-uploads'
 const PERMISSION_DENIED = '권한이 없습니다.'
@@ -15,7 +15,7 @@ export function getBoardFilePublicUrl(path) {
   return data.publicUrl
 }
 
-async function assertBoardAdmin() {
+async function assertBoardWriter() {
   const {
     data: { session },
   } = await supabase.auth.getSession()
@@ -30,7 +30,7 @@ async function assertBoardAdmin() {
     .eq('user_id', session.user.id)
     .maybeSingle()
 
-  if (error || !isAdminRole(profile?.role)) {
+  if (error || !canWritePost(profile)) {
     return { success: false, message: PERMISSION_DENIED }
   }
 
@@ -59,7 +59,7 @@ export function buildBoardCmsStoragePath(kind, postType, postId, fileName) {
 }
 
 export async function uploadBoardFile(path, file) {
-  const auth = await assertBoardAdmin()
+  const auth = await assertBoardWriter()
 
   if (!auth.success) {
     return auth
@@ -86,7 +86,7 @@ export async function uploadBoardFile(path, file) {
 }
 
 export async function deleteBoardFiles(paths) {
-  const auth = await assertBoardAdmin()
+  const auth = await assertBoardWriter()
 
   if (!auth.success) {
     return auth

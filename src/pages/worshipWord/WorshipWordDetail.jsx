@@ -123,6 +123,7 @@ function WorshipWordDetail({ boardKey }) {
                 postType={board.postType}
                 postId={postId}
                 listPath={board.listPath}
+                post={post}
               />
             </div>
           </div>

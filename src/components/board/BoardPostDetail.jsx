@@ -107,7 +107,12 @@ function BoardPostDetail({
           <div className="church-news-detail__title-row">
             <h2 className="church-news-detail__title">{post.title}</h2>
             <div className="church-news-detail__header-actions">
-              <BoardPostAdminBar postType={postType} postId={postId} listPath={listPath} />
+              <BoardPostAdminBar
+                postType={postType}
+                postId={postId}
+                listPath={listPath}
+                post={post}
+              />
               <Link to={listPath} className="church-news-detail__header-button">
                 {listButtonLabel}
               </Link>

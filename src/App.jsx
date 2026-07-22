@@ -26,6 +26,7 @@ import ResetPasswordEmailVerify from '@/pages/ResetPasswordEmailVerify'
 import ChangePassword from '@/pages/ChangePassword'
 import Admin from '@/pages/Admin'
 import AdminRoute from '@/components/auth/AdminRoute'
+import CmsAdminRoute from '@/components/auth/CmsAdminRoute'
 import ChurchNews from '@/pages/ChurchNews'
 import ChurchNewsDetail from '@/pages/ChurchNewsDetail'
 import ChurchNewsWrite from '@/pages/ChurchNewsWrite'
@@ -132,9 +133,9 @@ function App() {
             <Route
               path="/member/content-management"
               element={
-                <SuperAdminRoute>
+                <CmsAdminRoute>
                   <ContentManagement />
-                </SuperAdminRoute>
+                </CmsAdminRoute>
               }
             />
             <Route

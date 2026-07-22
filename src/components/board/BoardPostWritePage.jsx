@@ -6,6 +6,7 @@ import BoardThumbnailField from '@/components/board/BoardThumbnailField'
 import BoardAttachmentField from '@/components/board/BoardAttachmentField'
 import { useAuth } from '@/contexts/AuthContext'
 import { useUnsavedLeaveGuard } from '@/hooks/useUnsavedLeaveGuard'
+import { canEditPost } from '@/services/auth/roles'
 import {
   createBoardPost,
   fetchBoardPost,
@@ -66,7 +67,7 @@ function BoardPostWritePage({
   writeVariant = 'default',
 }) {
   const navigate = useNavigate()
-  const { profile } = useAuth()
+  const { profile, user } = useAuth()
   const isEdit = mode === 'edit'
   const isVideoWrite = writeVariant === 'video'
 
@@ -158,6 +159,12 @@ function BoardPostWritePage({
         return
       }
 
+      if (!canEditPost(profile, result.post, user?.id)) {
+        setError('이 게시글을 수정할 권한이 없습니다.')
+        setLoadingPost(false)
+        return
+      }
+
       const post = result.post
       setTitle(post.title)
       setContent(post.content || '')
@@ -210,7 +217,7 @@ function BoardPostWritePage({
     return () => {
       isMounted = false
     }
-  }, [isEdit, postId, postType])
+  }, [isEdit, postId, postType, profile, user?.id])
 
   const handleThumbnailChange = (next) => {
     if (thumbnailState?.existingPath) {

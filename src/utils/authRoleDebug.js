@@ -1,4 +1,10 @@
-import { canManageBoardPosts, isAdminRole, normalizeRole } from '@/services/auth/roles'
+import {
+  canManageBoardPosts,
+  canWritePost,
+  isAdminRole,
+  isBoardWriterRole,
+  normalizeRole,
+} from '@/services/auth/roles'
 
 export function logAuthRoleDebug(source, details) {
   console.group(`[AuthRoleDebug] ${source}`)
@@ -23,26 +29,37 @@ export function logAuthContextProfileDebug(profile) {
     'AuthContext profile': profile ?? null,
     'profile.role': profile?.role ?? null,
     isAdminRole: profile ? isAdminRole(profile.role) : false,
+    isBoardWriterRole: profile ? isBoardWriterRole(profile.role) : false,
+    canWritePost: profile ? canWritePost(profile) : false,
     canManageBoardPosts: profile ? canManageBoardPosts(profile) : false,
   })
 }
 
-export function logBoardAdminDebug({ profile, isLoggedIn, loading, canManageBoard }) {
+export function logBoardAdminDebug({
+  profile,
+  isLoggedIn,
+  loading,
+  canManageBoard,
+  canWriteBoard,
+}) {
   logAuthRoleDebug('useBoardAdmin', {
     'AuthContext profile': profile ?? null,
     'profile.role': profile?.role ?? null,
     isLoggedIn,
     loading,
     isAdminRole: profile ? isAdminRole(profile.role) : false,
+    isBoardWriterRole: profile ? isBoardWriterRole(profile.role) : false,
+    canWritePost: canWritePost(profile),
     canManageBoardPosts: canManageBoardPosts(profile),
+    canWriteBoard,
     canManageBoard,
   })
 }
 
-export function logBoardWriteButtonDebug({ loading, canManageBoard, visible }) {
+export function logBoardWriteButtonDebug({ loading, canWriteBoard, visible }) {
   logAuthRoleDebug('BoardWriteButton', {
     loading,
-    canManageBoard,
+    canWriteBoard,
     'BoardWriteButton visible': visible,
   })
 }

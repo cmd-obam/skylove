@@ -3,10 +3,39 @@ import { VALID_PROFILE_ROLES } from '@/services/auth/profileSchema'
 export const USER_ROLES = {
   SUPER_ADMIN: 'super_admin',
   ADMIN: 'admin',
+  MANAGER: 'manager',
   MEMBER: 'member',
 }
 
-export const ADMIN_ROLES = [USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN]
+/** 게시판 글쓰기·업로드 가능 (manager 이상) */
+export const BOARD_WRITER_ROLES = [
+  USER_ROLES.MANAGER,
+  USER_ROLES.ADMIN,
+  USER_ROLES.SUPER_ADMIN,
+]
+
+/** 모든 게시글 관리 (admin 이상) */
+export const BOARD_ADMIN_ROLES = [USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN]
+
+/** 댓글 삭제·숨김 등 운영 (manager 이상) */
+export const COMMENT_MODERATOR_ROLES = [
+  USER_ROLES.MANAGER,
+  USER_ROLES.ADMIN,
+  USER_ROLES.SUPER_ADMIN,
+]
+
+/** CMS(게시글·댓글 관리) 접근 (admin 이상) */
+export const CMS_ADMIN_ROLES = [USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN]
+
+/** Super Admin이 부여/변경 가능한 권한 */
+export const ASSIGNABLE_ROLES = [
+  USER_ROLES.MEMBER,
+  USER_ROLES.MANAGER,
+  USER_ROLES.ADMIN,
+]
+
+/** @deprecated BOARD_ADMIN_ROLES 사용 권장 */
+export const ADMIN_ROLES = BOARD_ADMIN_ROLES
 
 export function normalizeRole(role) {
   if (typeof role !== 'string') {
@@ -25,31 +54,137 @@ export function isSuperAdminRole(role) {
 export function isAdminRole(role) {
   const normalizedRole = normalizeRole(role)
 
-  return normalizedRole != null && ADMIN_ROLES.includes(normalizedRole)
+  return normalizedRole != null && BOARD_ADMIN_ROLES.includes(normalizedRole)
+}
+
+export function isManagerRole(role) {
+  return normalizeRole(role) === USER_ROLES.MANAGER
 }
 
 export function isMemberRole(role) {
   return normalizeRole(role) === USER_ROLES.MEMBER
 }
 
+export function isBoardWriterRole(role) {
+  const normalizedRole = normalizeRole(role)
+
+  return normalizedRole != null && BOARD_WRITER_ROLES.includes(normalizedRole)
+}
+
+export function isCommentModeratorRole(role) {
+  const normalizedRole = normalizeRole(role)
+
+  return normalizedRole != null && COMMENT_MODERATOR_ROLES.includes(normalizedRole)
+}
+
+export function isCmsAdminRole(role) {
+  const normalizedRole = normalizeRole(role)
+
+  return normalizedRole != null && CMS_ADMIN_ROLES.includes(normalizedRole)
+}
+
+function getProfileRole(profileOrRole) {
+  if (profileOrRole == null) {
+    return null
+  }
+
+  if (typeof profileOrRole === 'string') {
+    return normalizeRole(profileOrRole)
+  }
+
+  return normalizeRole(profileOrRole.role)
+}
+
+function isOwnResource(authorId, currentUserId) {
+  return Boolean(currentUserId && authorId && authorId === currentUserId)
+}
+
+/** 게시판 글쓰기·이미지·첨부 업로드 */
+export function canWritePost(profile) {
+  return isBoardWriterRole(getProfileRole(profile))
+}
+
+/**
+ * 모든 게시글에 대한 운영 권한 (admin 이상).
+ * manager는 본인 글만 가능하므로 canEditPost / canDeletePost 사용.
+ */
 export function canManageBoardPosts(profile) {
-  return isAdminRole(profile?.role)
+  return isAdminRole(getProfileRole(profile))
+}
+
+export function canEditPost(profile, post, currentUserId) {
+  const role = getProfileRole(profile)
+
+  if (isAdminRole(role)) {
+    return true
+  }
+
+  if (isManagerRole(role)) {
+    return isOwnResource(post?.authorId ?? post?.author_id, currentUserId)
+  }
+
+  return false
+}
+
+export function canDeletePost(profile, post, currentUserId) {
+  return canEditPost(profile, post, currentUserId)
+}
+
+export function canHidePost(profile, post, currentUserId) {
+  return canEditPost(profile, post, currentUserId)
+}
+
+/** 댓글 작성 — 로그인 회원 전원 (게시판 정책은 UI에서 추가 제한 가능) */
+export function canWriteComment(profile, isLoggedIn = Boolean(profile)) {
+  return Boolean(isLoggedIn && getProfileRole(profile))
+}
+
+export function canEditComment(profile, comment, currentUserId) {
+  if (isAdminRole(getProfileRole(profile))) {
+    return true
+  }
+
+  return isOwnResource(comment?.userId ?? comment?.user_id, currentUserId)
+}
+
+/**
+ * Manager는 작성자와 관계없이 모든 댓글 삭제 가능.
+ * Admin / Super Admin도 동일.
+ * 일반회원은 본인 댓글만.
+ */
+export function canDeleteComment(profile, comment, currentUserId) {
+  if (isCommentModeratorRole(getProfileRole(profile))) {
+    return true
+  }
+
+  return isOwnResource(comment?.userId ?? comment?.user_id, currentUserId)
+}
+
+/** Manager 이상: 모든 댓글 숨김 */
+export function canHideComment(profile) {
+  return isCommentModeratorRole(getProfileRole(profile))
+}
+
+export function canModerateComments(profile) {
+  return isCommentModeratorRole(getProfileRole(profile))
+}
+
+export function canAccessCMS(profile) {
+  return isCmsAdminRole(getProfileRole(profile))
 }
 
 export function canManageMembers(profile) {
-  return isSuperAdminRole(profile?.role)
+  return isSuperAdminRole(getProfileRole(profile))
 }
 
 export function canChangeMemberRole(targetRole) {
   const role = normalizeRole(targetRole)
 
-  return role === USER_ROLES.MEMBER || role === USER_ROLES.ADMIN
+  return role != null && ASSIGNABLE_ROLES.includes(role)
 }
 
 export function canDeleteMemberBySuperAdmin(targetRole) {
-  const role = normalizeRole(targetRole)
-
-  return role === USER_ROLES.MEMBER || role === USER_ROLES.ADMIN
+  return canChangeMemberRole(targetRole)
 }
 
 export function getRoleLabel(role) {
@@ -58,6 +193,8 @@ export function getRoleLabel(role) {
       return '최고관리자'
     case USER_ROLES.ADMIN:
       return '관리자'
+    case USER_ROLES.MANAGER:
+      return '매니저'
     case USER_ROLES.MEMBER:
       return '일반회원'
     default:
@@ -65,8 +202,27 @@ export function getRoleLabel(role) {
   }
 }
 
+export function getRoleBadgeTone(role) {
+  switch (normalizeRole(role)) {
+    case USER_ROLES.SUPER_ADMIN:
+      return 'super_admin'
+    case USER_ROLES.ADMIN:
+      return 'admin'
+    case USER_ROLES.MANAGER:
+      return 'manager'
+    case USER_ROLES.MEMBER:
+      return 'member'
+    default:
+      return 'member'
+  }
+}
+
 export function getSelfDeleteBlockMessage(role) {
   const normalizedRole = normalizeRole(role)
+
+  if (normalizedRole === USER_ROLES.MANAGER) {
+    return '매니저 계정은 직접 탈퇴할 수 없습니다.'
+  }
 
   if (normalizedRole === USER_ROLES.ADMIN) {
     return '관리자 계정은 직접 탈퇴할 수 없습니다.'
@@ -80,9 +236,9 @@ export function getSelfDeleteBlockMessage(role) {
 }
 
 export function canDeleteAccount(profile) {
-  return isMemberRole(profile?.role)
+  return isMemberRole(getProfileRole(profile))
 }
 
 export function isKnownRole(role) {
-  return isAdminRole(role) || isMemberRole(role)
+  return normalizeRole(role) != null
 }

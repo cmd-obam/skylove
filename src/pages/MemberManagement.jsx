@@ -9,6 +9,7 @@ import {
   updateMemberRoleBySuperAdmin,
 } from '@/services/auth/memberManagement'
 import {
+  ASSIGNABLE_ROLES,
   canChangeMemberRole,
   canDeleteMemberBySuperAdmin,
   getRoleLabel,
@@ -293,8 +294,6 @@ function MemberManagement() {
                   const memberRole = normalizeRole(member.role)
                   const canChangeRole = canChangeMemberRole(memberRole)
                   const canDelete = canDeleteMemberBySuperAdmin(memberRole)
-                  const nextRole =
-                    memberRole === USER_ROLES.MEMBER ? USER_ROLES.ADMIN : USER_ROLES.MEMBER
 
                   return (
                     <tr key={member.user_id}>
@@ -324,11 +323,15 @@ function MemberManagement() {
                                   userId: member.user_id,
                                   name: member.name,
                                   currentRole: memberRole,
-                                  nextRole,
+                                  nextRole: memberRole === USER_ROLES.MEMBER
+                                    ? USER_ROLES.MANAGER
+                                    : memberRole === USER_ROLES.MANAGER
+                                      ? USER_ROLES.ADMIN
+                                      : USER_ROLES.MEMBER,
                                 })
                               }
                             >
-                              {memberRole === USER_ROLES.MEMBER ? '관리자로 변경' : '일반회원으로 변경'}
+                              권한 변경
                             </button>
                           )}
                           {canDelete && (
@@ -367,23 +370,71 @@ function MemberManagement() {
           onClose={handleCloseDetail}
         />
 
-        <ConfirmModal
-          isOpen={Boolean(roleModal)}
-          title="권한 변경"
-          message={
-            roleModal
-              ? `${roleModal.name}님의 권한을 ${getRoleLabel(roleModal.currentRole)}에서 ${getRoleLabel(roleModal.nextRole)}(으)로 변경하시겠습니까?`
-              : ''
-          }
-          confirmLabel="변경"
-          isSubmitting={isSubmitting}
-          onCancel={() => {
-            if (!isSubmitting) {
-              setRoleModal(null)
-            }
-          }}
-          onConfirm={handleRoleConfirm}
-        />
+        {roleModal ? (
+          <div className="member-management-modal" role="presentation">
+            <div
+              className="member-management-modal__dialog"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="member-role-modal-title"
+            >
+              <h2 id="member-role-modal-title" className="member-management-modal__title">
+                권한 변경
+              </h2>
+              <p className="member-management-modal__message">
+                {roleModal.name}님의 권한을 변경합니다. (현재: {getRoleLabel(roleModal.currentRole)})
+              </p>
+              <label className="member-management-page__role-select-label" htmlFor="member-role-select">
+                변경할 권한
+              </label>
+              <select
+                id="member-role-select"
+                className="member-management-page__role-select"
+                value={roleModal.nextRole}
+                onChange={(event) =>
+                  setRoleModal((current) =>
+                    current
+                      ? {
+                          ...current,
+                          nextRole: event.target.value,
+                        }
+                      : current,
+                  )
+                }
+                disabled={isSubmitting}
+              >
+                {ASSIGNABLE_ROLES.map((role) => (
+                  <option key={role} value={role} disabled={role === roleModal.currentRole}>
+                    {getRoleLabel(role)}
+                    {role === roleModal.currentRole ? ' (현재)' : ''}
+                  </option>
+                ))}
+              </select>
+              <div className="member-management-modal__actions">
+                <button
+                  type="button"
+                  className="member-management-modal__button member-management-modal__button--secondary"
+                  onClick={() => {
+                    if (!isSubmitting) {
+                      setRoleModal(null)
+                    }
+                  }}
+                  disabled={isSubmitting}
+                >
+                  취소
+                </button>
+                <button
+                  type="button"
+                  className="member-management-modal__button member-management-modal__button--primary"
+                  onClick={handleRoleConfirm}
+                  disabled={isSubmitting || roleModal.nextRole === roleModal.currentRole}
+                >
+                  {isSubmitting ? '처리 중...' : '변경'}
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : null}
 
         <ConfirmModal
           isOpen={Boolean(deleteModal)}

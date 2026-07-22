@@ -87,7 +87,7 @@ export async function fetchMembersForSuperAdmin(search = '') {
 export async function updateMemberRoleBySuperAdmin(userId, newRole) {
   const normalizedRole = normalizeRole(newRole)
 
-  if (normalizedRole !== USER_ROLES.MEMBER && normalizedRole !== USER_ROLES.ADMIN) {
+  if (normalizedRole !== USER_ROLES.MEMBER && normalizedRole !== USER_ROLES.MANAGER && normalizedRole !== USER_ROLES.ADMIN) {
     return {
       success: false,
       message: '변경할 수 없는 권한입니다.',
