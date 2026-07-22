@@ -186,3 +186,68 @@ export async function deleteMemberBySuperAdmin(userId) {
     message: '회원 탈퇴 처리가 완료되었습니다.',
   }
 }
+
+/**
+ * 이메일/휴대폰 전체보기: 감사 로그 기록 후 평문 값 반환.
+ * 비밀번호·토큰 등 인증 비밀값은 절대 반환하지 않는다.
+ */
+export async function revealMemberPiiForSuperAdmin({
+  targetUserId,
+  targetName = '',
+  fieldName,
+  context = 'detail',
+}) {
+  if (!targetUserId || (fieldName !== 'email' && fieldName !== 'phone')) {
+    return {
+      success: false,
+      message: '잘못된 조회 요청입니다.',
+      value: '',
+    }
+  }
+
+  const rpcParams = {
+    p_payload: {
+      target_user_id: targetUserId,
+      target_name: targetName,
+      field_name: fieldName,
+      context,
+    },
+  }
+
+  const { data, error } = await supabase.rpc('reveal_member_pii_for_super_admin', rpcParams)
+
+  if (error) {
+    logRpcError('revealMemberPiiForSuperAdmin', error, {
+      rpc: 'reveal_member_pii_for_super_admin',
+      params: rpcParams,
+    })
+
+    if (isMissingRpcFunctionError(error)) {
+      return {
+        success: false,
+        message:
+          '개인정보 조회 로그 RPC가 없습니다. Supabase에서 supabase/migrations/027_member_pii_access_log.sql 을 실행해주세요.',
+        value: '',
+      }
+    }
+
+    if (error.message?.includes('접근 권한이 없습니다')) {
+      return {
+        success: false,
+        message: '접근 권한이 없습니다.',
+        value: '',
+      }
+    }
+
+    return {
+      success: false,
+      message: error.message || '개인정보 조회에 실패했습니다.',
+      value: '',
+    }
+  }
+
+  return {
+    success: true,
+    value: data?.value ?? '',
+  }
+}

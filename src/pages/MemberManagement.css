@@ -87,19 +87,23 @@
 }
 
 .member-management-page__col-name {
-  width: 120px;
+  width: 100px;
 }
 
 .member-management-page__col-email {
-  width: 220px;
+  width: 200px;
+}
+
+.member-management-page__col-phone {
+  width: 170px;
 }
 
 .member-management-page__col-role {
-  width: 110px;
+  width: 100px;
 }
 
 .member-management-page__col-date {
-  width: 110px;
+  width: 100px;
 }
 
 .member-management-page__col-actions {
@@ -127,9 +131,65 @@
   vertical-align: middle;
 }
 
-.member-management-page__table tbody td:nth-child(2) {
+.member-management-page__table tbody td:nth-child(2),
+.member-management-page__table tbody td:nth-child(3) {
   text-align: left;
   word-break: break-all;
+}
+
+.member-management-page__pii-cell {
+  padding-top: 0.5rem !important;
+  padding-bottom: 0.5rem !important;
+}
+
+.masked-pii-field {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+  min-width: 0;
+}
+
+.masked-pii-field__value {
+  font-variant-numeric: tabular-nums;
+  word-break: break-all;
+}
+
+.masked-pii-field__reveal {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.15rem 0.45rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+  color: #374151;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.2;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.masked-pii-field__reveal:hover {
+  border-color: #9ca3af;
+  background: #f9fafb;
+}
+
+.masked-pii-field__hint {
+  width: 100%;
+  font-size: 0.6875rem;
+  color: #9ca3af;
+}
+
+.masked-pii-field__error {
+  width: 100%;
+  font-size: 0.75rem;
+  color: #b91c1c;
+}
+
+.member-management-modal--pii {
+  z-index: 60;
 }
 
 .member-management-page__role {
@@ -346,6 +406,10 @@
   font-size: 0.875rem;
   color: #1f2937;
   word-break: break-word;
+}
+
+.member-detail-sections__row .masked-pii-field {
+  gap: 0.4rem 0.6rem;
 }
 
 .member-management-modal__title {

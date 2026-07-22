@@ -5,8 +5,10 @@ import {
   getCongregantTypeLabel,
   getNewcomerStatus,
 } from '@/data/congregantTypes'
+import MaskedPiiField from '@/components/auth/MaskedPiiField'
 import { getRoleLabel } from '@/services/auth/roles'
 import { formatBoardDate, formatCommentDateTime } from '@/utils/formatBoardDate'
+import { PII_FIELD } from '@/utils/maskPii'
 
 function displayValue(value) {
   if (value === null || value === undefined || value === '') {
@@ -59,6 +61,8 @@ export function MemberDetailSections({ member }) {
 
   const congregantLabel = getCongregantTypeLabel(member.congregant_type)
   const isNewcomer = getNewcomerStatus(member.congregant_type)
+  const targetUserId = member.user_id
+  const targetName = member.name || ''
 
   return (
     <div className="member-detail-sections">
@@ -67,8 +71,30 @@ export function MemberDetailSections({ member }) {
         rows={[
           { label: '이름', value: displayValue(member.name) },
           { label: '아이디', value: displayValue(member.username) },
-          { label: '이메일', value: displayValue(member.email) },
-          { label: '연락처', value: displayValue(member.phone) },
+          {
+            label: '이메일',
+            value: (
+              <MaskedPiiField
+                field={PII_FIELD.EMAIL}
+                value={member.email}
+                targetUserId={targetUserId}
+                targetName={targetName}
+                context="detail"
+              />
+            ),
+          },
+          {
+            label: '연락처',
+            value: (
+              <MaskedPiiField
+                field={PII_FIELD.PHONE}
+                value={member.phone}
+                targetUserId={targetUserId}
+                targetName={targetName}
+                context="detail"
+              />
+            ),
+          },
           { label: '생년월일', value: displayValue(member.birth_date) },
         ]}
       />
