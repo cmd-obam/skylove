@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { FiChevronDown, FiHeart, FiUser } from 'react-icons/fi'
 import BoardPageHeader from '@/components/board/BoardPageHeader'
 import BoardPostAdminBar from '@/components/board/BoardPostAdminBar'
+import PostCopyright from '@/components/board/PostCopyright'
 import { useAuth } from '@/contexts/AuthContext'
 import { useBoardPost } from '@/hooks/useBoardPost'
 import { useBoardPostStats } from '@/hooks/useBoardPostStats'
@@ -164,6 +165,8 @@ function WorshipWordDetail({ boardKey }) {
               dangerouslySetInnerHTML={{ __html: sanitizeBoardHtml(post.content) }}
             />
           ) : null}
+
+          <PostCopyright />
         </div>
 
         <div className="worship-word-detail__actions-bar">

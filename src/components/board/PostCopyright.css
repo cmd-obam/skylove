@@ -1,0 +1,53 @@
+.post-copyright {
+  margin: 2.25rem 0 0;
+  padding: 1.75rem 1rem;
+  border-top: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: center;
+  color: #666;
+  font-size: 0.8125rem;
+  line-height: 1.75;
+}
+
+.post-copyright__owner {
+  margin: 0 0 0.85rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.post-copyright__body {
+  margin: 0;
+}
+
+.post-copyright__body p {
+  margin: 0;
+}
+
+.post-copyright__body p + p {
+  margin-top: 0.15rem;
+}
+
+.post-copyright__spacer {
+  height: 0.65rem;
+}
+
+.post-copyright__link {
+  display: inline-block;
+  margin-top: 0.85rem;
+  color: #2f7fd6;
+  text-decoration: none;
+  word-break: break-all;
+}
+
+.post-copyright__link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .post-copyright {
+    margin-top: 1.75rem;
+    padding: 1.5rem 0.75rem;
+    font-size: 0.75rem;
+    line-height: 1.7;
+  }
+}

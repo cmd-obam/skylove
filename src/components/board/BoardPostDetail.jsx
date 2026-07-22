@@ -6,6 +6,7 @@ import BoardPostExtras from '@/components/board/BoardPostExtras'
 import BoardPostComments from '@/components/board/BoardPostComments'
 import BoardPostAdminBar from '@/components/board/BoardPostAdminBar'
 import AlbumImageGallery from '@/components/board/AlbumImageGallery'
+import PostCopyright from '@/components/board/PostCopyright'
 import { useBoardPostStats } from '@/hooks/useBoardPostStats'
 import { useAuth } from '@/contexts/AuthContext'
 import { togglePostLike } from '@/services/board/postLikes'
@@ -189,6 +190,8 @@ function BoardPostDetail({
             dangerouslySetInnerHTML={{ __html: bodyHtml }}
           />
         ) : null}
+
+        <PostCopyright />
 
         {afterBody}
 
