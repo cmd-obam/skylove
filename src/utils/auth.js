@@ -1,4 +1,5 @@
 import { isAdminRole } from '@/services/auth/roles'
+import { clearBrowserSession, markBrowserSession } from '@/utils/browserSession'
 
 const AUTH_STORAGE_KEY = 'skylove_auth'
 const PROFILE_STORAGE_KEY = 'skylove_profile'
@@ -38,6 +39,7 @@ export function setAuthSession(profile) {
 
   storage.setItem(AUTH_STORAGE_KEY, 'true')
   storage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profile))
+  markBrowserSession()
 }
 
 export function clearAuthSession() {
@@ -49,6 +51,7 @@ export function clearAuthSession() {
 
   storage.removeItem(AUTH_STORAGE_KEY)
   storage.removeItem(PROFILE_STORAGE_KEY)
+  clearBrowserSession()
 
   // 이전 sessionStorage 기반 잔여 플래그 정리
   try {

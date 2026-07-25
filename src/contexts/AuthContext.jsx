@@ -4,6 +4,7 @@ import { fetchProfileByUserId } from '@/services/auth/profile'
 import { recoverSessionFromAuthUrl } from '@/services/auth/authCallbackSession'
 import { isMissingProfileError } from '@/lib/supabaseErrorLog'
 import { clearAuthSession, setAuthSession } from '@/utils/auth'
+import { markBrowserSession } from '@/utils/browserSession'
 import { logAuthContextProfileDebug } from '@/utils/authRoleDebug'
 
 const AuthContext = createContext(null)
@@ -76,6 +77,7 @@ export function AuthProvider({ children }) {
     }
 
     setProfile(nextProfile)
+    markBrowserSession()
     logAuthContextProfileDebug(nextProfile)
   }, [])
 
