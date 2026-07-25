@@ -2,14 +2,10 @@ import { COPYRIGHT_NOTICE } from '@/constants/siteCopyright'
 import './PostCopyright.css'
 
 function PostCopyright() {
-  const { church, english, homepage, year, lines } = COPYRIGHT_NOTICE
+  const { church, english, year, lines } = COPYRIGHT_NOTICE
 
   return (
     <aside className="post-copyright" aria-label="저작권 안내">
-      <p className="post-copyright__owner">
-        © {year} {church}({english})
-      </p>
-
       <div className="post-copyright__body">
         {lines.map((line, index) =>
           line ? (
@@ -20,14 +16,9 @@ function PostCopyright() {
         )}
       </div>
 
-      <a
-        className="post-copyright__link"
-        href={homepage}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        {homepage}
-      </a>
+      <p className="post-copyright__owner">
+        © {year} {church}({english})
+      </p>
     </aside>
   )
 }

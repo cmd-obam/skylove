@@ -9,12 +9,6 @@
   line-height: 1.75;
 }
 
-.post-copyright__owner {
-  margin: 0 0 0.85rem;
-  font-weight: 500;
-  letter-spacing: -0.01em;
-}
-
 .post-copyright__body {
   margin: 0;
 }
@@ -31,16 +25,10 @@
   height: 0.65rem;
 }
 
-.post-copyright__link {
-  display: inline-block;
-  margin-top: 0.85rem;
-  color: #2f7fd6;
-  text-decoration: none;
-  word-break: break-all;
-}
-
-.post-copyright__link:hover {
-  text-decoration: underline;
+.post-copyright__owner {
+  margin: 0.85rem 0 0;
+  font-weight: 500;
+  letter-spacing: -0.01em;
 }
 
 @media (max-width: 640px) {
