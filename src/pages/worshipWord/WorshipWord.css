@@ -338,7 +338,7 @@
   }
 
   .worship-word-detail__body {
-    text-align: center;
+    text-align: start;
     overflow-x: clip;
     max-width: 100%;
   }
@@ -351,6 +351,25 @@
     max-width: 100% !important;
     width: auto !important;
     height: auto !important;
+  }
+
+  .worship-word-detail__body img[data-align='left'],
+  .worship-word-detail__body video[data-align='left'] {
+    margin-left: 0 !important;
+    margin-right: auto !important;
+  }
+
+  .worship-word-detail__body img[data-align='right'],
+  .worship-word-detail__body video[data-align='right'] {
+    margin-left: auto !important;
+    margin-right: 0 !important;
+  }
+
+  .worship-word-detail__body img[data-align='center'],
+  .worship-word-detail__body img:not([data-align]),
+  .worship-word-detail__body video[data-align='center'],
+  .worship-word-detail__body video:not([data-align]),
+  .worship-word-detail__body iframe {
     margin-left: auto !important;
     margin-right: auto !important;
   }

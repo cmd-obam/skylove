@@ -772,8 +772,25 @@
   max-width: 100% !important;
   width: auto !important;
   height: auto !important;
-  margin: 0.85rem auto !important;
   border-radius: 8px;
+}
+
+.church-news-detail__body--html img[data-align='left'],
+.church-news-detail__body--html video[data-align='left'] {
+  margin: 0.85rem auto 0.85rem 0 !important;
+}
+
+.church-news-detail__body--html img[data-align='right'],
+.church-news-detail__body--html video[data-align='right'] {
+  margin: 0.85rem 0 0.85rem auto !important;
+}
+
+.church-news-detail__body--html img[data-align='center'],
+.church-news-detail__body--html img:not([data-align]),
+.church-news-detail__body--html video[data-align='center'],
+.church-news-detail__body--html video:not([data-align]),
+.church-news-detail__body--html iframe {
+  margin: 0.85rem auto !important;
 }
 
 .church-news-detail__body--html figure {
@@ -1605,24 +1622,9 @@
 
   .church-news-detail__body,
   .church-news-detail__body--html {
-    text-align: center;
+    /* 글쓰기에서 지정한 text-align 을 그대로 사용 (강제 가운데 정렬 금지) */
+    text-align: start;
     padding-inline: 0.25rem;
-  }
-
-  .church-news-detail__body--html p,
-  .church-news-detail__body--html h1,
-  .church-news-detail__body--html h2,
-  .church-news-detail__body--html h3,
-  .church-news-detail__body--html h4,
-  .church-news-detail__body--html li,
-  .church-news-detail__body--html blockquote {
-    text-align: center;
-  }
-
-  .church-news-detail__body--html ul,
-  .church-news-detail__body--html ol {
-    padding-left: 0;
-    list-style-position: inside;
   }
 
   .board-post-extras__comment-submit {
