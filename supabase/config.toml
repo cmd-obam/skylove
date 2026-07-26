@@ -26,3 +26,10 @@ verify_jwt = true
 
 [functions.purge-content-trash]
 verify_jwt = false
+
+# Local Auth email templates only. Hosted project: paste the same content in
+# Dashboard → Authentication → Email Templates → Magic Link
+# (signup uses signInWithOtp → Magic Link template)
+[auth.email.template.magic_link]
+subject = "[하늘사랑교회] 이메일 인증을 완료해주세요."
+content_path = "./email-templates/magic-link.html"
