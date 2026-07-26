@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { markBrowserSession } from '@/utils/browserSession'
 
 export const OAUTH_PROVIDERS = {
   kakao: 'kakao',
@@ -30,6 +31,9 @@ export async function startOAuthLogin(provider) {
   const redirectTo = getOAuthCallbackUrl()
 
   console.log('[OAuth] signInWithOAuth start', { provider, redirectTo })
+
+  // PKCE verifier 가 콜백 전까지 유지되도록 브라우저 세션 마커를 먼저 둡니다.
+  markBrowserSession()
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider,

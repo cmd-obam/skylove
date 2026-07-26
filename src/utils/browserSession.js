@@ -36,15 +36,24 @@ function shouldClearPersistedAuthKey(key) {
     return false
   }
 
-  const isSupabaseAuthToken = key.startsWith('sb-') && key.includes('auth-token')
-  const isAppAuthFlag = key === 'skylove_auth' || key === 'skylove_profile'
+  if (key === 'skylove_auth' || key === 'skylove_profile') {
+    return true
+  }
 
-  return isSupabaseAuthToken || isAppAuthFlag
+  // Supabase 키:
+  // - sb-<ref>-auth-token              → 세션(JWT). 브라우저 종료 후 제거 대상
+  // - sb-<ref>-auth-token-code-verifier → PKCE verifier. 절대 제거하면 안 됨
+  // includes('auth-token') 은 verifier 키까지 매칭하므로 endsWith 로만 판별합니다.
+  if (key.includes('code-verifier')) {
+    return false
+  }
+
+  return key.startsWith('sb-') && key.endsWith('-auth-token')
 }
 
 /**
  * 브라우저를 다시 연 뒤(세션 쿠키 없음) 남아 있는 로그인 토큰만 제거합니다.
- * PKCE code-verifier 는 이메일 인증 링크용으로 유지합니다.
+ * PKCE code-verifier(`…-auth-token-code-verifier`)는 이메일/OAuth 콜백용으로 유지합니다.
  */
 export function clearPersistedAuthTokensForEndedBrowserSession() {
   if (typeof window === 'undefined' || hasBrowserSession()) {

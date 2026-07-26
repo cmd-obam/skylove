@@ -49,24 +49,28 @@ function createCrossBrowserAuthError() {
   return error
 }
 
-/** localStorage에 PKCE code_verifier가 있는지 확인 */
+/** localStorage/sessionStorage에 PKCE code_verifier가 있는지 확인 */
 export function hasPkceCodeVerifier() {
   if (typeof window === 'undefined') {
     return false
   }
 
   try {
-    for (let index = 0; index < window.localStorage.length; index += 1) {
-      const key = window.localStorage.key(index)
+    const storages = [window.localStorage, window.sessionStorage]
 
-      if (!key || !key.includes('code-verifier')) {
-        continue
-      }
+    for (const storage of storages) {
+      for (let index = 0; index < storage.length; index += 1) {
+        const key = storage.key(index)
 
-      const value = window.localStorage.getItem(key)
+        if (!key || !key.includes('code-verifier')) {
+          continue
+        }
 
-      if (value && value.trim()) {
-        return true
+        const value = storage.getItem(key)
+
+        if (value && value.trim()) {
+          return true
+        }
       }
     }
   } catch (error) {
@@ -398,15 +402,11 @@ async function resolveAuthCallbackSessionInner(debugRunId = 'unknown') {
     session = data.session
   } else if ((!session || !session.user?.email) && params.code) {
     // SDK가 이미 교환했다면 URL의 code가 남아 있어도 세션이 있을 수 있음 — 위에서 처리됨.
-    // verifier가 없으면 다른 브라우저/기기이므로 교환을 시도하지 않고 안내합니다.
-    if (!hasPkceCodeVerifier()) {
-      log('exchangeCodeForSession skipped — missing code_verifier')
-      throw createCrossBrowserAuthError()
-    }
-
+    // 사전 차단 없이 Supabase 기본 흐름(exchangeCodeForSession)을 먼저 시도합니다.
+    // verifier 부재는 SDK 오류를 isMissingPkceVerifierError 로 매핑합니다.
     log('exchangeCodeForSession start', {
       codePrefix: params.code.slice(0, 8),
-      hasVerifier: true,
+      hasVerifier: hasPkceCodeVerifier(),
     })
 
     const { data, error } = await supabase.auth.exchangeCodeForSession(params.code)

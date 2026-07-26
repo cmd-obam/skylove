@@ -6,6 +6,7 @@ import {
 import { isEmailConfirmed } from '@/services/auth/authCallbackSession'
 import { syncSupabaseAuthSession } from '@/services/auth/authCallbackSession'
 import { clearAuthSession } from '@/utils/auth'
+import { markBrowserSession } from '@/utils/browserSession'
 import {
   classifyProfileSaveError,
   formatSupabaseError,
@@ -796,6 +797,9 @@ export async function sendEmailVerification(email, { source = 'signup-email-veri
     baseUrl: import.meta.env.BASE_URL,
     pathname: typeof window !== 'undefined' ? window.location.pathname : null,
   })
+
+  // 이메일 인증 콜백까지 PKCE verifier 가 지워지지 않도록 브라우저 세션을 표시합니다.
+  markBrowserSession()
 
   const { data, error } = await withAllowedOtpSend(source, () =>
     supabase.auth.signInWithOtp({
