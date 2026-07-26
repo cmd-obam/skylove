@@ -106,16 +106,13 @@ async function main() {
   const inbox = `signup-otp-${Date.now().toString(36)}`
   const email = `${inbox}@mailinator.com`
 
-  console.log('\n=== 3) sendEmailVerification → signUp Confirm email ===')
+  console.log('\n=== 3) sendEmailVerification → OTP ===')
   console.log('email:', email)
-  const sendResult = await sendEmailVerification(email, {
-    password: `Test!${Date.now().toString(36)}Aa1`,
-    source: 'signup-email-verify',
-  })
+  const sendResult = await sendEmailVerification(email, { source: 'signup-email-verify' })
   console.log('sendResult:', sendResult)
 
   if (!sendResult.success) {
-    throw new Error(`signUp email send failed: ${sendResult.message}`)
+    throw new Error(`OTP send failed: ${sendResult.message}`)
   }
 
   console.log('\n=== 4) Wait for mailbox ===')

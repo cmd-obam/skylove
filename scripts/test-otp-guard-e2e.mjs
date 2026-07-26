@@ -76,7 +76,7 @@ async function testGuardBlocksCallbackRoute() {
 
   let blocked = false
   try {
-    await withAllowedOtpSend('password-reset-email', async () => 'should-not-run')
+    await withAllowedOtpSend('signup-email-verify', async () => 'should-not-run')
   } catch (error) {
     blocked = /인증 완료 라우트/.test(error.message)
     console.log('withAllowedOtpSend blocked:', error.message)
@@ -94,17 +94,17 @@ async function testGuardBlocksCallbackRoute() {
   console.log('PASS: callback route cannot send OTP')
 }
 
-async function testGuardAllowsPasswordResetRoute() {
-  console.log('\n=== 2) Guard allows password-reset source on /login ===')
+async function testGuardAllowsSignupRoute() {
+  console.log('\n=== 2) Guard allows /signup with source ===')
   const { withAllowedOtpSend, assertOtpSendAllowed } =
-    await loadOtpGuardWithPathname('/login')
+    await loadOtpGuardWithPathname('/signup')
 
-  const result = await withAllowedOtpSend('password-reset-email', async () => {
+  const result = await withAllowedOtpSend('signup-email-verify', async () => {
     const source = assertOtpSendAllowed()
     return source
   })
-  assert(result === 'password-reset-email', `unexpected source ${result}`)
-  console.log('PASS: password-reset source can send OTP with allowlisted source')
+  assert(result === 'signup-email-verify', `unexpected source ${result}`)
+  console.log('PASS: signup route can send OTP with allowlisted source')
 }
 
 async function pollMailinator(inbox, { timeoutMs = 90000 } = {}) {
@@ -362,7 +362,7 @@ async function testSignupToCallbackNoSecondOtp() {
 
 async function main() {
   await testGuardBlocksCallbackRoute()
-  await testGuardAllowsPasswordResetRoute()
+  await testGuardAllowsSignupRoute()
   const e2e = await testSignupToCallbackNoSecondOtp()
 
   console.log('\n=== SUMMARY ===')

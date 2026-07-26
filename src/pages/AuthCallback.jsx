@@ -30,8 +30,7 @@ function sleep(ms) {
 /**
  * AuthCallback은 인증 완료만 수행합니다.
  * - 허용: exchangeCodeForSession / verifyOtp(token_hash) via resolveAuthCallbackSession
- * - 금지: signInWithOtp / OTP 재발송 (supabase.js otpSendGuard가 차단)
- *   회원가입 메일 발송(signUp/resend)은 이 라우트에서 호출하지 않습니다.
+ * - 금지: signInWithOtp / signUp / OTP 재발송 (supabase.js otpSendGuard가 차단)
  */
 function AuthCallbackLoading() {
   return (

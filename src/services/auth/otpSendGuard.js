@@ -1,15 +1,17 @@
 /**
- * signInWithOtp(/otp) 호출을 비밀번호 찾기 등
+ * signInWithOtp(/otp) 호출을 회원가입·비밀번호 찾기 등
  * 명시적 사용자 액션으로만 제한합니다.
- *
- * 회원가입 이메일 인증은 auth.signUp() / auth.resend({ type: 'signup' }) 를 사용합니다.
  *
  * AuthCallback(/auth/callback, /auth/confirm)에서는
  * exchangeCodeForSession / verifyOtp 만 허용하고
  * OTP 재발송은 차단합니다.
  */
 
-const ALLOWED_OTP_SEND_SOURCES = new Set(['password-reset-email'])
+const ALLOWED_OTP_SEND_SOURCES = new Set([
+  'signup-email-verify',
+  'signup-email-resend',
+  'password-reset-email',
+])
 
 let activeOtpSendSource = null
 

@@ -126,55 +126,10 @@ function SignupStepForm({
         </SignupFormRow>
 
         <SignupFormRow
-          label="비밀번호"
-          required
-          htmlFor="signup-password"
-          hint={PASSWORD_REQUIREMENT_HINT}
-          alwaysShowHint
-          reserveFeedback
-          error={displayedPasswordError}
-          success={displayedPasswordSuccess}
-          rowClassName="signup-info-form__row--password"
-        >
-          <PasswordInput
-            id="signup-password"
-            name="password"
-            placeholder={PASSWORD_PLACEHOLDER}
-            value={form.password}
-            onChange={(event) => updateField('password', event.target.value)}
-            className="signup-info-form__input"
-            wrapperClassName="signup-info-form__password"
-          />
-        </SignupFormRow>
-
-        <SignupFormRow
-          label="비밀번호 확인"
-          required
-          htmlFor="signup-password-confirm"
-          reserveFeedback
-          error={displayedPasswordConfirmError}
-          success={displayedPasswordConfirmSuccess}
-          rowClassName="signup-info-form__row--password-confirm"
-        >
-          <PasswordInput
-            id="signup-password-confirm"
-            name="passwordConfirm"
-            placeholder={SIGNUP_PASSWORD_CONFIRM_PLACEHOLDER}
-            value={form.passwordConfirm}
-            onChange={(event) => {
-              setPasswordConfirmTouched(true)
-              updateField('passwordConfirm', event.target.value)
-            }}
-            className="signup-info-form__input"
-            wrapperClassName="signup-info-form__password"
-          />
-        </SignupFormRow>
-
-        <SignupFormRow
           label="이메일"
           required
           htmlFor="signup-email-local"
-          hint="비밀번호를 입력한 뒤 이메일 인증을 완료해야 회원가입이 가능합니다."
+          hint="이메일 인증을 완료해야 회원가입이 가능합니다."
           error={errors.email}
           success={emailFieldSuccess}
         >
@@ -220,6 +175,51 @@ function SignupStepForm({
               </button>
             </div>
           )}
+        </SignupFormRow>
+
+        <SignupFormRow
+          label="비밀번호"
+          required
+          htmlFor="signup-password"
+          hint={PASSWORD_REQUIREMENT_HINT}
+          alwaysShowHint
+          reserveFeedback
+          error={displayedPasswordError}
+          success={displayedPasswordSuccess}
+          rowClassName="signup-info-form__row--password"
+        >
+          <PasswordInput
+            id="signup-password"
+            name="password"
+            placeholder={PASSWORD_PLACEHOLDER}
+            value={form.password}
+            onChange={(event) => updateField('password', event.target.value)}
+            className="signup-info-form__input"
+            wrapperClassName="signup-info-form__password"
+          />
+        </SignupFormRow>
+
+        <SignupFormRow
+          label="비밀번호 확인"
+          required
+          htmlFor="signup-password-confirm"
+          reserveFeedback
+          error={displayedPasswordConfirmError}
+          success={displayedPasswordConfirmSuccess}
+          rowClassName="signup-info-form__row--password-confirm"
+        >
+          <PasswordInput
+            id="signup-password-confirm"
+            name="passwordConfirm"
+            placeholder={SIGNUP_PASSWORD_CONFIRM_PLACEHOLDER}
+            value={form.passwordConfirm}
+            onChange={(event) => {
+              setPasswordConfirmTouched(true)
+              updateField('passwordConfirm', event.target.value)
+            }}
+            className="signup-info-form__input"
+            wrapperClassName="signup-info-form__password"
+          />
         </SignupFormRow>
 
         <SignupFormRow
