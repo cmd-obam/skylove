@@ -64,19 +64,22 @@ async function main() {
 
   const inbox = `gate-${Date.now().toString(36)}`
   const email = `${inbox}@mailinator.com`
-  const sendResult = await sendEmailVerification(email, { source: 'signup-email-verify' })
-  assert(sendResult.success === true, `OTP send failed: ${sendResult.message}`)
+  const sendResult = await sendEmailVerification(email, {
+    password: `Test!${Date.now().toString(36)}Aa1`,
+    source: 'signup-email-verify',
+  })
+  assert(sendResult.success === true, `signUp email send failed: ${sendResult.message}`)
   assert(sendResult.alreadyVerified !== true, 'must not short-circuit as alreadyVerified')
 
   const statusAfterSend = await checkEmailVerificationStatus(email)
-  assert(statusAfterSend.verified === false, 'after OTP send still must not be verified')
+  assert(statusAfterSend.verified === false, 'after signUp send still must not be verified')
 
   console.log(
     JSON.stringify(
       {
         confirmedAtBypassBlocked: true,
         withoutBeaconVerified: statusWithoutBeacon.verified,
-        otpSent: sendResult.success,
+        signupEmailSent: sendResult.success,
         afterSendVerified: statusAfterSend.verified,
       },
       null,

@@ -75,9 +75,15 @@ export function mapEmailVerificationError(error) {
   }
 
   if (
+    code === 'user_already_exists' ||
+    message.includes('already registered') ||
+    message.includes('already been registered') ||
     code === 'otp_disabled' ||
+    code === 'weak_password' ||
+    message.includes('password') ||
     message.includes('redirect') ||
-    message.includes('redirect_to')
+    message.includes('redirect_to') ||
+    message.includes('invalid email')
   ) {
     return mapSupabaseAuthError(error)
   }

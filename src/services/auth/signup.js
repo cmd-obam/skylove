@@ -16,6 +16,7 @@ import {
   SIGNUP_COMPLETE_MESSAGE,
   SIGNUP_EMAIL_ALREADY_VERIFIED_MESSAGE,
   SIGNUP_EMAIL_NOT_VERIFIED_MESSAGE,
+  SIGNUP_EMAIL_SEND_FAILED_MESSAGE,
   SIGNUP_EMAIL_SENT_MESSAGE,
 } from '@/services/auth/signupErrors'
 import { DEFAULT_MEMBER_ROLE } from '@/services/auth/profileSchema'
@@ -36,7 +37,6 @@ import {
   normalizeChurchInformation,
 } from '@/data/congregantTypes'
 import { normalizeAnswer } from '@/services/auth/normalizeAnswer'
-import { withAllowedOtpSend } from '@/services/auth/otpSendGuard'
 
 const LOGIN_ID_PATTERN = /^[a-zA-Z0-9_]{4,20}$/
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -766,12 +766,15 @@ export async function checkEmailVerificationStatus(expectedEmail) {
   }
 }
 
-export async function sendEmailVerification(email, { source = 'signup-email-verify' } = {}) {
+export async function sendEmailVerification(
+  email,
+  { password, source = 'signup-email-verify' } = {},
+) {
   const trimmedEmail = email.trim().toLowerCase()
   const emailRedirectTo = getEmailConfirmRedirectTo()
 
-  // 아이디 RPC와 무관. 세션/beacon으로 인증 완료를 건너뛰지 않고
-  // 항상 signInWithOtp 로 인증 메일을 발송합니다.
+  // Confirm sign up 템플릿 발송: signUp() / resend({ type: 'signup' })
+  // (signInWithOtp 는 Magic Link 템플릿을 쓰므로 회원가입에서 사용하지 않습니다.)
   try {
     const duplicateEmail = await checkDuplicateEmail(trimmedEmail)
 
@@ -789,7 +792,60 @@ export async function sendEmailVerification(email, { source = 'signup-email-veri
     }
   }
 
-  console.log('[Signup] signInWithOtp start', {
+  // 이메일 인증 콜백까지 PKCE verifier 가 지워지지 않도록 브라우저 세션을 표시합니다.
+  markBrowserSession()
+
+  if (source === 'signup-email-resend') {
+    console.log('[Signup] auth.resend(signup) start', {
+      email: trimmedEmail,
+      emailRedirectTo,
+      source,
+    })
+
+    const { data, error } = await supabase.auth.resend({
+      type: 'signup',
+      email: trimmedEmail,
+      options: {
+        emailRedirectTo,
+      },
+    })
+
+    console.log('[Signup] auth.resend(signup) data:', data)
+    logSignUpError(error)
+
+    if (error) {
+      return {
+        success: false,
+        message: mapEmailVerificationError(error),
+        error: formatAuthError(error),
+      }
+    }
+
+    return {
+      success: true,
+      message: SIGNUP_EMAIL_SENT_MESSAGE,
+    }
+  }
+
+  const trimmedPassword = String(password ?? '')
+
+  if (!trimmedPassword) {
+    return {
+      success: false,
+      message: '비밀번호를 입력한 뒤 이메일 인증을 진행해주세요.',
+    }
+  }
+
+  const passwordError = validatePassword(trimmedPassword)
+
+  if (passwordError) {
+    return {
+      success: false,
+      message: passwordError,
+    }
+  }
+
+  console.log('[Signup] auth.signUp start', {
     email: trimmedEmail,
     emailRedirectTo,
     source,
@@ -798,20 +854,20 @@ export async function sendEmailVerification(email, { source = 'signup-email-veri
     pathname: typeof window !== 'undefined' ? window.location.pathname : null,
   })
 
-  // 이메일 인증 콜백까지 PKCE verifier 가 지워지지 않도록 브라우저 세션을 표시합니다.
-  markBrowserSession()
+  const { data, error } = await supabase.auth.signUp({
+    email: trimmedEmail,
+    password: trimmedPassword,
+    options: {
+      emailRedirectTo,
+    },
+  })
 
-  const { data, error } = await withAllowedOtpSend(source, () =>
-    supabase.auth.signInWithOtp({
-      email: trimmedEmail,
-      options: {
-        emailRedirectTo,
-        shouldCreateUser: true,
-      },
-    }),
-  )
-
-  console.log('[Signup] signInWithOtp data:', data)
+  console.log('[Signup] auth.signUp data:', {
+    userId: data?.user?.id ?? null,
+    hasSession: Boolean(data?.session),
+    identitiesCount: data?.user?.identities?.length ?? null,
+    emailConfirmedAt: data?.user?.email_confirmed_at ?? null,
+  })
   logSignUpError(error)
 
   if (error) {
@@ -819,6 +875,21 @@ export async function sendEmailVerification(email, { source = 'signup-email-veri
       success: false,
       message: mapEmailVerificationError(error),
       error: formatAuthError(error),
+    }
+  }
+
+  // 이미 가입된 이메일이면 identities 가 빈 배열로 올 수 있습니다(이메일 열거 방지).
+  if (data?.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+    return {
+      success: false,
+      message: '이미 가입된 이메일입니다.',
+    }
+  }
+
+  if (!data?.user) {
+    return {
+      success: false,
+      message: SIGNUP_EMAIL_SEND_FAILED_MESSAGE,
     }
   }
 
@@ -934,7 +1005,7 @@ async function stepCheckEmailVerification(formData) {
 
 async function stepEnsureAuthUser(user) {
   logSignupStep('supabase.auth.signUp()', true, {
-    note: 'OTP 사전 인증 — auth.users에 사용자 이미 존재',
+    note: '이메일 인증 완료 — auth.users에 signUp()으로 생성된 사용자 존재',
     userId: user.id,
     email: user.email,
     emailConfirmedAt: user.email_confirmed_at,

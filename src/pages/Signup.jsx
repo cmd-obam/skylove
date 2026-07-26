@@ -625,6 +625,24 @@ function Signup() {
       return
     }
 
+    if (!isPasswordReady) {
+      const passwordMessage =
+        getPasswordRuleLiveError(form.password) ||
+        getPasswordConfirmLiveError(form.password, form.passwordConfirm, true) ||
+        '비밀번호와 비밀번호 확인을 입력한 뒤 이메일 인증을 진행해주세요.'
+
+      setPasswordConfirmTouched(true)
+      setErrors((prev) => ({
+        ...prev,
+        password: getPasswordRuleLiveError(form.password) || (!form.password ? '비밀번호를 입력해주세요.' : undefined),
+        passwordConfirm:
+          getPasswordConfirmLiveError(form.password, form.passwordConfirm, true) ||
+          (!form.passwordConfirm ? '비밀번호 확인을 입력해주세요.' : undefined),
+      }))
+      showFeedback('error', passwordMessage)
+      return
+    }
+
     setIsSendingEmail(true)
     // 메일 발송 전에는 절대 인증 완료로 두지 않습니다.
     setIsEmailVerified(false)
@@ -635,10 +653,13 @@ function Signup() {
       try {
         await supabase.auth.signOut({ scope: 'local' })
       } catch (signOutError) {
-        console.warn('[Signup] local signOut before OTP ignored', signOutError)
+        console.warn('[Signup] local signOut before signUp ignored', signOutError)
       }
 
-      const result = await sendEmailVerification(email, { source: 'signup-email-verify' })
+      const result = await sendEmailVerification(email, {
+        password: form.password,
+        source: 'signup-email-verify',
+      })
 
       if (result.success) {
         setIsEmailVerified(false)
