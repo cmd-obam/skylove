@@ -6,6 +6,7 @@ import BoardWriteButton from '@/components/board/BoardWriteButton'
 import BoardPostTitle from '@/components/board/BoardPostTitle'
 import { useBoardPostList } from '@/hooks/useBoardPostList'
 import { formatBoardDate } from '@/utils/formatBoardDate'
+import { getPostAuthor } from '@/utils/getPostAuthor'
 import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 import './ChurchNews.css'
 
@@ -67,6 +68,7 @@ function ChurchNews() {
             <col className="church-news-board__col-title" />
             <col className="church-news-board__col-date" />
             <col className="church-news-board__col-views" />
+            <col className="church-news-board__col-author" />
           </colgroup>
           <thead>
             <tr>
@@ -78,12 +80,15 @@ function ChurchNews() {
               <th scope="col" className="church-news-board__col-views-header">
                 조회
               </th>
+              <th scope="col" className="church-news-board__col-author-header">
+                작성자
+              </th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={4} className="church-news-board__empty">
+                <td colSpan={5} className="church-news-board__empty">
                   <div className="church-news-board__empty-inner">
                     <span>불러오는 중...</span>
                   </div>
@@ -91,7 +96,7 @@ function ChurchNews() {
               </tr>
             ) : filteredPosts.length === 0 ? (
               <tr>
-                <td colSpan={4} className="church-news-board__empty">
+                <td colSpan={5} className="church-news-board__empty">
                   <div className="church-news-board__empty-inner">
                     <FiFileText className="church-news-board__empty-icon" aria-hidden="true" />
                     <span>등록된 게시글이 없습니다.</span>
@@ -113,6 +118,7 @@ function ChurchNews() {
                   </td>
                   <td className="church-news-board__col-date-cell">{formatBoardDate(post.date)}</td>
                   <td className="church-news-board__col-views-cell">{post.views}</td>
+                  <td className="church-news-board__col-author-cell">{getPostAuthor(post)}</td>
                 </tr>
               ))
             )}

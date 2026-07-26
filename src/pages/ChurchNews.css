@@ -408,19 +408,23 @@
 }
 
 .church-news-board__col-no {
-  width: 80px;
+  width: 72px;
 }
 
 .church-news-board__col-title {
-  width: 58%;
+  width: auto;
 }
 
 .church-news-board__col-date {
-  width: 180px;
+  width: 110px;
 }
 
 .church-news-board__col-views {
-  width: 80px;
+  width: 64px;
+}
+
+.church-news-board__col-author {
+  width: 100px;
 }
 
 .church-news-board__table thead th {
@@ -460,8 +464,17 @@
 .church-news-board__col-date-header,
 .church-news-board__col-date-cell,
 .church-news-board__col-views-header,
-.church-news-board__col-views-cell {
+.church-news-board__col-views-cell,
+.church-news-board__col-author-header,
+.church-news-board__col-author-cell {
   text-align: center;
+  white-space: nowrap;
+}
+
+.church-news-board__col-author-cell {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100px;
 }
 
 .church-news-board__post-title {
@@ -1549,15 +1562,23 @@
   }
 
   .church-news-board__col-no {
-    width: 56px;
+    width: 40px;
   }
 
   .church-news-board__col-date {
-    width: 120px;
+    width: 72px;
   }
 
   .church-news-board__col-views {
-    width: 56px;
+    width: 44px;
+  }
+
+  .church-news-board__col-author {
+    width: 64px;
+  }
+
+  .church-news-board__col-author-cell {
+    max-width: 64px;
   }
 
   .church-news-board__table thead th,
