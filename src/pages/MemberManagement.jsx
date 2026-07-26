@@ -22,7 +22,16 @@ import { PII_FIELD } from '@/utils/maskPii'
 import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 import './MemberManagement.css'
 
-function ConfirmModal({ isOpen, title, message, confirmLabel, isSubmitting, onCancel, onConfirm }) {
+function ConfirmModal({
+  isOpen,
+  title,
+  message,
+  confirmLabel,
+  isSubmitting,
+  errorMessage,
+  onCancel,
+  onConfirm,
+}) {
   if (!isOpen) {
     return null
   }
@@ -39,6 +48,11 @@ function ConfirmModal({ isOpen, title, message, confirmLabel, isSubmitting, onCa
           {title}
         </h2>
         <p className="member-management-modal__message">{message}</p>
+        {errorMessage ? (
+          <p className="member-management-modal__status member-management-modal__status--error" role="alert">
+            {errorMessage}
+          </p>
+        ) : null}
         <div className="member-management-modal__actions">
           <button
             type="button"
@@ -114,6 +128,8 @@ function MemberManagement() {
   const [feedback, setFeedback] = useState(null)
   const [roleModal, setRoleModal] = useState(null)
   const [deleteModal, setDeleteModal] = useState(null)
+  const [deleteError, setDeleteError] = useState('')
+  const [roleError, setRoleError] = useState('')
   const [detailModal, setDetailModal] = useState(null)
   const [detailMember, setDetailMember] = useState(null)
   const [detailLoading, setDetailLoading] = useState(false)
@@ -179,16 +195,19 @@ function MemberManagement() {
     }
 
     setIsSubmitting(true)
+    setRoleError('')
 
     const result = await updateMemberRoleBySuperAdmin(roleModal.userId, roleModal.nextRole)
 
     if (!result.success) {
+      setRoleError(result.message)
       setFeedback({ type: 'error', message: result.message })
       setIsSubmitting(false)
       return
     }
 
     setRoleModal(null)
+    setRoleError('')
     setIsSubmitting(false)
     await loadMembers(searchQuery)
     setFeedback({ type: 'success', message: result.message })
@@ -201,18 +220,24 @@ function MemberManagement() {
 
     const targetUserId = deleteModal.userId
     setIsSubmitting(true)
+    setDeleteError('')
 
     const result = await deleteMemberBySuperAdmin(targetUserId)
 
     if (!result.success) {
-      setFeedback({ type: 'error', message: result.message })
+      const message = result.message || '회원 삭제에 실패했습니다.'
+      console.error('[MemberManagement] delete failed', result)
+      setDeleteError(message)
+      setFeedback({ type: 'error', message })
       setIsSubmitting(false)
+      // 실패 시 모달을 닫지 않아 에러 메시지를 확인 가능하게 합니다.
       return
     }
 
     // 새로고침 없이 목록에서 즉시 제거 후 서버 목록으로 재동기화
     setMembers((prev) => prev.filter((member) => member.user_id !== targetUserId))
     setDeleteModal(null)
+    setDeleteError('')
     setIsSubmitting(false)
     setFeedback({ type: 'success', message: result.message })
     await loadMembers(searchQuery)
@@ -342,7 +367,8 @@ function MemberManagement() {
                             <button
                               type="button"
                               className="member-management-page__action-button"
-                              onClick={() =>
+                              onClick={() => {
+                                setRoleError('')
                                 setRoleModal({
                                   userId: member.user_id,
                                   name: member.name,
@@ -353,7 +379,7 @@ function MemberManagement() {
                                       ? USER_ROLES.ADMIN
                                       : USER_ROLES.MEMBER,
                                 })
-                              }
+                              }}
                             >
                               권한 변경
                             </button>
@@ -362,13 +388,14 @@ function MemberManagement() {
                             <button
                               type="button"
                               className="member-management-page__action-button member-management-page__action-button--danger"
-                              onClick={() =>
+                              onClick={() => {
+                                setDeleteError('')
                                 setDeleteModal({
                                   userId: member.user_id,
                                   name: member.name,
                                   roleLabel: getRoleLabel(member.role),
                                 })
-                              }
+                              }}
                             >
                               탈퇴
                             </button>
@@ -408,6 +435,11 @@ function MemberManagement() {
               <p className="member-management-modal__message">
                 {roleModal.name}님의 권한을 변경합니다. (현재: {getRoleLabel(roleModal.currentRole)})
               </p>
+              {roleError ? (
+                <p className="member-management-modal__status member-management-modal__status--error" role="alert">
+                  {roleError}
+                </p>
+              ) : null}
               <label className="member-management-page__role-select-label" htmlFor="member-role-select">
                 변경할 권한
               </label>
@@ -440,6 +472,7 @@ function MemberManagement() {
                   className="member-management-modal__button member-management-modal__button--secondary"
                   onClick={() => {
                     if (!isSubmitting) {
+                      setRoleError('')
                       setRoleModal(null)
                     }
                   }}
@@ -470,8 +503,10 @@ function MemberManagement() {
           }
           confirmLabel="탈퇴"
           isSubmitting={isSubmitting}
+          errorMessage={deleteError}
           onCancel={() => {
             if (!isSubmitting) {
+              setDeleteError('')
               setDeleteModal(null)
             }
           }}

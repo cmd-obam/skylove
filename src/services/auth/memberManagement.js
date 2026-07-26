@@ -175,54 +175,136 @@ export async function fetchMemberDetailForSuperAdmin(userId) {
   }
 }
 
+function formatDeleteError(error, fallbackMessage) {
+  if (!error) {
+    return fallbackMessage
+  }
+
+  const code = error.code ? ` [${error.code}]` : ''
+  const details = error.details ? ` / ${error.details}` : ''
+  const hint = error.hint ? ` (${error.hint})` : ''
+  const message = error.message || fallbackMessage
+
+  return `${message}${code}${details}${hint}`
+}
+
 export async function deleteMemberBySuperAdmin(userId) {
+  if (!userId) {
+    return {
+      success: false,
+      message: '삭제할 회원 ID가 없습니다.',
+    }
+  }
+
+  console.group('[MemberManagement] deleteMemberBySuperAdmin')
+  console.log('targetUserId =', userId)
+
+  // 1순위: DB SECURITY DEFINER RPC (auth.users 서버 삭제, Edge 배포 불필요)
+  const rpcResponse = await supabase.rpc('delete_member_by_super_admin', {
+    p_target_user_id: userId,
+  })
+
+  console.log('RPC response =', {
+    data: rpcResponse.data,
+    error: rpcResponse.error,
+    errorJSON: JSON.stringify(rpcResponse.error ?? null, null, 2),
+  })
+
+  if (!rpcResponse.error) {
+    const payload = rpcResponse.data
+
+    if (payload?.success === true) {
+      console.log('RPC delete success', payload)
+      console.groupEnd()
+      return {
+        success: true,
+        message: payload.message || '회원 탈퇴 처리가 완료되었습니다.',
+      }
+    }
+
+    console.groupEnd()
+    return {
+      success: false,
+      message:
+        payload?.message ||
+        '회원 삭제 RPC가 성공을 반환하지 않았습니다. 응답을 확인해주세요.',
+      error: payload,
+    }
+  }
+
+  // RPC 미배포인 경우에만 Edge Function 폴백
+  if (!isMissingRpcFunctionError(rpcResponse.error)) {
+    console.groupEnd()
+    return {
+      success: false,
+      message: formatDeleteError(
+        rpcResponse.error,
+        '회원 삭제에 실패했습니다.',
+      ),
+      error: rpcResponse.error,
+    }
+  }
+
+  console.warn('[MemberManagement] RPC missing — fallback to admin-delete-member edge function')
+
   const { data, error } = await supabase.functions.invoke('admin-delete-member', {
     body: { targetUserId: userId },
   })
 
-  if (error) {
-    console.error('[MemberManagement] deleteMemberBySuperAdmin failed', error, data)
+  console.log('Edge Function response =', {
+    data,
+    error,
+    errorJSON: JSON.stringify(error ?? null, null, 2),
+  })
 
-    let message =
-      '회원 삭제 서버 호출에 실패했습니다. Edge Function(admin-delete-member) 배포와 SERVICE_ROLE 설정을 확인해주세요.'
+  if (error) {
+    let message = formatDeleteError(
+      error,
+      '회원 삭제 서버 호출에 실패했습니다. 029_delete_member_by_super_admin.sql 실행 또는 admin-delete-member 배포를 확인해주세요.',
+    )
 
     if (data?.message) {
-      message = data.message
+      message = `${data.message}${data.error ? ` [${data.error}]` : ''}`
     } else {
       try {
         const context = error?.context
         if (context && typeof context.json === 'function') {
           const body = await context.json()
           if (body?.message) {
-            message = body.message
+            message = `${body.message}${body.error ? ` [${body.error}]` : ''}`
           }
         }
       } catch {
-        // ignore parse errors
+        // ignore
       }
     }
 
-    if (/Failed to send a request|FunctionsFetchError|not found|404/i.test(String(error?.message ?? ''))) {
-      message =
-        '회원 삭제 Edge Function을 찾을 수 없습니다. admin-delete-member 배포를 확인해주세요.'
-    }
-
+    console.groupEnd()
     return {
       success: false,
       message,
+      error: error,
     }
   }
 
-  if (data?.error) {
+  // 반드시 success === true 일 때만 성공 처리 (false success 방지)
+  if (data?.success === true) {
+    console.groupEnd()
     return {
-      success: false,
-      message: data.message || '회원 삭제에 실패했습니다.',
+      success: true,
+      message: data.message || '회원 탈퇴 처리가 완료되었습니다.',
     }
   }
 
+  console.groupEnd()
   return {
-    success: true,
-    message: '회원 탈퇴 처리가 완료되었습니다.',
+    success: false,
+    message:
+      data?.message ||
+      (data?.error
+        ? `회원 삭제에 실패했습니다. [${data.error}]`
+        : '회원 삭제 응답이 올바르지 않습니다. (success 없음)'),
+    error: data,
   }
 }
 
