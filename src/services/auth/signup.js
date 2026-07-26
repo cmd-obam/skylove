@@ -985,25 +985,31 @@ async function stepValidateSignupForm(formData) {
 async function stepSaveProfile(userId, formData) {
   const existingProfile = await fetchProfileByUserId(userId)
 
+  // 이메일 인증 직후 stub profile(auth trigger)이 있을 수 있으므로
+  // 같은 user_id 면 insert 대신 update 로 회원가입 정보를 채웁니다.
   if (existingProfile) {
-    const verification = await verifySignupCompleted(userId, formData)
+    const profileError = await upsertProfileForSignup(userId, formData, { mode: 'update' })
 
-    if (verification.completed) {
-      logSignupStep('create_profile_after_signup()', true, { note: '이미 저장됨', profileId: existingProfile.id })
-      logSignupStep('profiles 저장', true, { note: '기존 profile 사용' })
-      return { success: true, profileId: existingProfile.id, alreadyExists: true }
+    if (profileError) {
+      logSignupStep('profiles 저장', false, formatSupabaseError(profileError))
+      return {
+        success: false,
+        step: 'profile',
+        message: mapSupabaseProfileError(profileError),
+        error: formatSupabaseError(profileError),
+      }
     }
 
-    logSignupStep('profiles 저장', false, '다른 사용자 profile 충돌')
-    return {
-      success: false,
-      step: 'profile',
-      message: '이미 회원가입이 완료된 계정입니다.',
-    }
+    const savedProfile = await fetchProfileByUserId(userId)
+    logSignupStep('profiles 저장', true, {
+      note: '기존 profile 갱신',
+      profileId: savedProfile?.id ?? existingProfile.id,
+    })
+    return { success: true, profileId: savedProfile?.id ?? existingProfile.id, updated: true }
   }
 
   try {
-    const profileError = await insertProfile(userId, formData)
+    const profileError = await upsertProfileForSignup(userId, formData, { mode: 'insert' })
 
     if (profileError) {
       if (isProfileAlreadyExistsError(profileError)) {
@@ -1016,6 +1022,14 @@ async function stepSaveProfile(userId, formData) {
           })
           logSignupStep('profiles 저장', true, { note: '저장 확인됨' })
           return { success: true, profileId: verification.profile.id, recovered: true }
+        }
+
+        // 동시성으로 stub 가 생긴 경우 update 로 재시도
+        const updateError = await upsertProfileForSignup(userId, formData, { mode: 'update' })
+
+        if (!updateError) {
+          const savedProfile = await fetchProfileByUserId(userId)
+          return { success: true, profileId: savedProfile?.id ?? null, recovered: true }
         }
       }
 
@@ -1268,7 +1282,7 @@ function buildBaseProfilePayload(userId, formData, birthDate) {
   }
 }
 
-async function insertProfile(userId, formData) {
+async function upsertProfileForSignup(userId, formData, { mode = 'insert' } = {}) {
   const birthDate = resolveBirthDateForDatabase(formData.birthDate)
 
   if (!birthDate) {
@@ -1291,7 +1305,6 @@ async function insertProfile(userId, formData) {
   }
 
   const { congregantType, attendingChurch } = churchInformation
-
   const basePayload = buildBaseProfilePayload(userId, formData, birthDate)
 
   const profilePayload = {
@@ -1299,6 +1312,49 @@ async function insertProfile(userId, formData) {
     congregant_type: congregantType,
     attending_church: attendingChurch,
   }
+
+  if (mode === 'update') {
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({
+        username: profilePayload.username,
+        name: profilePayload.name,
+        birth_date: profilePayload.birth_date,
+        email: profilePayload.email,
+        phone: profilePayload.phone,
+        congregant_type: profilePayload.congregant_type,
+        attending_church: profilePayload.attending_church,
+      })
+      .eq('user_id', userId)
+
+    if (updateError) {
+      console.warn('[Signup] profiles UPDATE failed', {
+        code: updateError.code,
+        message: updateError.message,
+        details: updateError.details,
+        hint: updateError.hint,
+      })
+      logProfileSaveError('direct_update', updateError)
+      return updateError
+    }
+
+    const { error: securityError } = await supabase.rpc('set_profile_security_recovery', {
+      p_user_id: userId,
+      p_security_question: resolveSecurityQuestionForStorage(formData),
+      p_security_answer: normalizeAnswer(formData.securityAnswer),
+    })
+
+    if (securityError) {
+      console.warn('[Signup] set_profile_security_recovery failed after update', {
+        code: securityError.code,
+        message: securityError.message,
+      })
+      logProfileSaveError('security_recovery', securityError)
+    }
+
+    return null
+  }
+
   const { error: insertError } = await supabase.from('profiles').insert(profilePayload)
 
   if (insertError) {

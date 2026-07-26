@@ -199,9 +199,10 @@ function MemberManagement() {
       return
     }
 
+    const targetUserId = deleteModal.userId
     setIsSubmitting(true)
 
-    const result = await deleteMemberBySuperAdmin(deleteModal.userId)
+    const result = await deleteMemberBySuperAdmin(targetUserId)
 
     if (!result.success) {
       setFeedback({ type: 'error', message: result.message })
@@ -209,10 +210,12 @@ function MemberManagement() {
       return
     }
 
+    // 새로고침 없이 목록에서 즉시 제거 후 서버 목록으로 재동기화
+    setMembers((prev) => prev.filter((member) => member.user_id !== targetUserId))
     setDeleteModal(null)
     setIsSubmitting(false)
-    await loadMembers(searchQuery)
     setFeedback({ type: 'success', message: result.message })
+    await loadMembers(searchQuery)
   }
 
   return (

@@ -32,7 +32,7 @@ function mapListFetchError(error, fallbackMessage) {
   const message = error?.message ?? fallbackMessage
 
   if (isMissingRpcFunctionError(error)) {
-    return '회원관리 DB 함수가 없습니다. Supabase SQL Editor에서 supabase/fix_super_admin_member_management.sql 을 실행해주세요.'
+    return '회원관리 DB 함수가 없습니다. Supabase SQL Editor에서 supabase/fix_super_admin_member_management.sql 과 supabase/migrations/028_member_orphans_and_auth_profile_sync.sql 을 실행해주세요.'
   }
 
   if (message.includes('접근 권한이 없습니다')) {
@@ -57,6 +57,21 @@ function mapUpdateRoleError(error, fallbackMessage) {
 }
 
 export async function fetchMembersForSuperAdmin(search = '') {
+  // auth.users 만 있고 profiles 가 없는 고아 회원을 먼저 복구합니다.
+  try {
+    const syncResponse = await supabase.rpc('sync_orphan_profiles_for_super_admin')
+    if (syncResponse.error) {
+      console.warn('[MemberManagement] sync_orphan_profiles_for_super_admin', syncResponse.error)
+    } else if (syncResponse.data?.inserted_count > 0) {
+      console.info(
+        '[MemberManagement] orphan profiles synced',
+        syncResponse.data.inserted_count,
+      )
+    }
+  } catch (syncError) {
+    console.warn('[MemberManagement] orphan sync skipped', syncError)
+  }
+
   const rpcParams = { p_search: search.trim() || null }
 
   const response = await supabase.rpc('list_profiles_for_super_admin', rpcParams)
@@ -166,11 +181,35 @@ export async function deleteMemberBySuperAdmin(userId) {
   })
 
   if (error) {
-    console.error('[MemberManagement] deleteMemberBySuperAdmin failed', error)
+    console.error('[MemberManagement] deleteMemberBySuperAdmin failed', error, data)
+
+    let message =
+      '회원 삭제 서버 호출에 실패했습니다. Edge Function(admin-delete-member) 배포와 SERVICE_ROLE 설정을 확인해주세요.'
+
+    if (data?.message) {
+      message = data.message
+    } else {
+      try {
+        const context = error?.context
+        if (context && typeof context.json === 'function') {
+          const body = await context.json()
+          if (body?.message) {
+            message = body.message
+          }
+        }
+      } catch {
+        // ignore parse errors
+      }
+    }
+
+    if (/Failed to send a request|FunctionsFetchError|not found|404/i.test(String(error?.message ?? ''))) {
+      message =
+        '회원 삭제 Edge Function을 찾을 수 없습니다. admin-delete-member 배포를 확인해주세요.'
+    }
 
     return {
       success: false,
-      message: '회원 삭제 서버 호출에 실패했습니다. Edge Function(admin-delete-member) 배포를 확인해주세요.',
+      message,
     }
   }
 
