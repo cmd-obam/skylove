@@ -69,7 +69,7 @@
 
 .worship-hero__headline {
   margin: 0;
-  font-size: 1.875rem;
+  font-size: 2.125rem;
   font-weight: 800;
   line-height: 1.4;
   color: #2f6fad;
@@ -87,7 +87,7 @@
 
 .worship-hero__body {
   margin: 38px 0 0;
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   font-weight: 600;
   line-height: 1.6;
   color: #1f2d3d;
@@ -106,12 +106,12 @@
   }
 
   .worship-hero__headline {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
   }
 
   .worship-hero__body {
     margin-top: 1.75rem;
-    font-size: 1rem;
+    font-size: 1.125rem;
   }
 }
 
@@ -145,7 +145,7 @@
   }
 
   .worship-hero__headline {
-    font-size: clamp(0.75rem, 3.4vw, 0.9375rem);
+    font-size: clamp(0.875rem, 3.8vw, 1.0625rem);
     font-weight: 800;
     line-height: 1.35;
   }
@@ -158,7 +158,7 @@
 
   .worship-hero__body {
     margin-top: 0.85rem;
-    font-size: clamp(0.625rem, 2.8vw, 0.75rem);
+    font-size: clamp(0.6875rem, 3.2vw, 0.875rem);
     font-weight: 600;
     line-height: 1.55;
   }
