@@ -63,7 +63,8 @@
   padding-left: 3.5rem;
   padding-right: 1rem;
   text-align: center;
-  transform: translate(10px, -70px);
+  /* 가로만 미세 조정, 세로는 히어로 중앙 정렬 유지 */
+  transform: translateX(10px);
 }
 
 .worship-hero__headline {
@@ -101,7 +102,7 @@
   .worship-hero__content {
     width: 50%;
     padding-left: 2.5rem;
-    transform: translate(4px, -48px);
+    transform: translateX(4px);
   }
 
   .worship-hero__headline {
@@ -140,7 +141,7 @@
   .worship-hero__content {
     width: 54%;
     padding: 0 0.5rem 0 0.75rem;
-    transform: translate(4px, -20px);
+    transform: translateX(4px);
   }
 
   .worship-hero__headline {
