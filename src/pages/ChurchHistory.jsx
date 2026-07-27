@@ -145,9 +145,14 @@ function ChurchHistoryPeriod({ period }) {
       className="church-history-period"
       aria-labelledby={headingId}
     >
-      <h2 className="church-history-period__badge" id={headingId}>
-        {period.period}
-      </h2>
+      <header className="church-history-period__header">
+        <h2 className="church-history-period__badge" id={headingId}>
+          {period.period}
+        </h2>
+        {period.title ? (
+          <p className="church-history-period__title">{period.title}</p>
+        ) : null}
+      </header>
 
       <ChurchHistoryEventTable events={period.events} />
       {period.photos.length > 0 && <ChurchHistoryPhotoGrid photos={period.photos} />}

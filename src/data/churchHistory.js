@@ -15,10 +15,10 @@ export const CHURCH_HISTORY_INTRO = {
 
 export const CHURCH_HISTORY_PERIODS = [
   {
-    id: '2009-2012',
-    period: '2009~2012',
-    title: '개척과 섬김 이전',
-    category: 'pioneering',
+    id: '2009-2011',
+    period: '2009~2011',
+    title: '창립 및 기반 구축',
+    category: 'founding',
     events: [
       {
         date: '2009. 1. 4.',
@@ -97,6 +97,18 @@ export const CHURCH_HISTORY_PERIODS = [
         description:
           '하늘사랑교회 첫 부흥성회를 개최하였습니다.(강사: 최학량 목사, 미국 남가주연합회 회장)',
       },
+    ],
+    photos: [
+      { id: 'sanctuary-1', src: historySanctuary1, caption: '2009. 02 제 1성전' },
+      { id: 'sanctuary-2', src: historySanctuary2, caption: '2009. 12 제 2성전' },
+    ],
+  },
+  {
+    id: '2012-2015',
+    period: '2012~2015',
+    title: '제3성전 입당 및 사역 확장',
+    category: 'expansion',
+    events: [
       {
         date: '2012. 1. 10.',
         name: '제3성전 부지매입',
@@ -137,19 +149,6 @@ export const CHURCH_HISTORY_PERIODS = [
         name: '입당감사예배',
         description: '제3성전 입당감사예배를 드렸습니다.(주관: 천안지방회 감리사 고병호)',
       },
-    ],
-    photos: [
-      { id: 'sanctuary-1', src: historySanctuary1, caption: '2009. 02 제 1성전' },
-      { id: 'sanctuary-2', src: historySanctuary2, caption: '2009. 12 제 2성전' },
-      { id: 'sanctuary-3', src: historySanctuary3, caption: '2012. 01 제 3성전' },
-    ],
-  },
-  {
-    id: '2013-2018',
-    period: '2013~2018',
-    title: '예배·선교와 기도의 확장',
-    category: 'growth-prayer',
-    events: [
       {
         date: '2013. 3. 6.',
         name: '수요전도',
@@ -216,6 +215,17 @@ export const CHURCH_HISTORY_PERIODS = [
         name: '기도대행진',
         description: '매일 기도대행진 훈련을 시작하였습니다.',
       },
+    ],
+    photos: [
+      { id: 'sanctuary-3', src: historySanctuary3, caption: '2012. 01 제 3성전' },
+    ],
+  },
+  {
+    id: '2016-present',
+    period: '2016~현재',
+    title: '내실 강화 및 현재',
+    category: 'maturity',
+    events: [
       {
         date: '2016. 2. 20.',
         name: '이헤븐 찬양 공연',
@@ -273,15 +283,6 @@ export const CHURCH_HISTORY_PERIODS = [
         name: '기도학교 시작',
         description: '50주 기도학교를 시작하였습니다.',
       },
-    ],
-    photos: [],
-  },
-  {
-    id: '2019-2022',
-    period: '2019~2022',
-    title: '기념과 더 숲 카페',
-    category: 'space-cafe',
-    events: [
       {
         date: '2019. 10. 13.',
         name: '교회간판헌납',
@@ -304,15 +305,6 @@ export const CHURCH_HISTORY_PERIODS = [
         description:
           '1층 애찬실을 카페로 리모델링하는 공사를 시작하여 더 숲 카페를 조성하였습니다.',
       },
-    ],
-    photos: [],
-  },
-  {
-    id: '2023',
-    period: '2023',
-    title: '지역 섬김과 공동체의 발자취',
-    category: 'community',
-    events: [
       {
         date: '2023. 3. 26.',
         name: '전도 거리 청소',
@@ -328,15 +320,6 @@ export const CHURCH_HISTORY_PERIODS = [
         name: '성탄절 세례예식',
         description: '유아세례 노은, 장년세례 한재석 성도가 세례를 받았습니다.',
       },
-    ],
-    photos: [],
-  },
-  {
-    id: '2025-2026',
-    period: '2025~2026',
-    title: '전도와 다음 걸음',
-    category: 'evangelism',
-    events: [
       {
         date: '2025. 6. 29.',
         name: '전도 거리 청소',
