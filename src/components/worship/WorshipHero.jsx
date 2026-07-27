@@ -33,6 +33,7 @@ function WorshipHero() {
       >
         <div className="worship-hero__content">
           {headline ? <p className="worship-hero__headline">{headline}</p> : null}
+          {headline ? <span className="worship-hero__divider" aria-hidden="true" /> : null}
           {bodyLines.length > 0 ? (
             <p className="worship-hero__body">
               {bodyLines.map((line) => (

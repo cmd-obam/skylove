@@ -54,27 +54,41 @@
 .worship-hero__content {
   position: relative;
   z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   width: 42%;
   padding-left: 3.5rem;
-  /* 텍스트만 이동 — 이미지·배경은 그대로 */
-  transform: translate(-40px, -70px);
-}
-
-.worship-hero__headline,
-.worship-hero__body {
-  margin: 0;
-  font-size: 1.6875rem;
-  font-weight: 600;
-  color: #2f6fad;
+  padding-right: 1rem;
+  text-align: center;
+  /* 현재 대비 오른쪽으로 약 50px 이동 (목사님 사진과 균형) */
+  transform: translate(10px, -70px);
 }
 
 .worship-hero__headline {
-  line-height: 1.5;
+  margin: 0;
+  font-size: 1.875rem;
+  font-weight: 700;
+  line-height: 1.45;
+  color: #2f6fad;
+  word-break: keep-all;
+}
+
+.worship-hero__divider {
+  display: block;
+  width: 60px;
+  height: 2px;
+  margin-top: 1.25rem;
+  background-color: #d6b15a;
 }
 
 .worship-hero__body {
-  margin-top: 38px;
-  line-height: 1.55;
+  margin: 38px 0 0;
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1.6;
+  color: #2f6fad;
+  word-break: keep-all;
 }
 
 .worship-hero__body-line {
@@ -85,7 +99,15 @@
   .worship-hero__content {
     width: 50%;
     padding-left: 2.5rem;
-    transform: translate(-28px, -48px);
+    transform: translate(4px, -48px);
+  }
+
+  .worship-hero__headline {
+    font-size: 1.5rem;
+  }
+
+  .worship-hero__body {
+    font-size: 1.0625rem;
   }
 }
 
@@ -114,23 +136,26 @@
 
   .worship-hero__content {
     width: 54%;
-    padding: 0 0.75rem 0 1rem;
-    text-align: left;
-    transform: translate(-12px, -24px);
-  }
-
-  .worship-hero__headline,
-  .worship-hero__body {
-    font-size: clamp(0.6875rem, 3.2vw, 0.875rem);
-    word-break: keep-all;
+    padding: 0 0.5rem 0 0.75rem;
+    transform: translate(4px, -20px);
   }
 
   .worship-hero__headline {
+    font-size: clamp(0.75rem, 3.4vw, 0.9375rem);
+    font-weight: 700;
     line-height: 1.35;
   }
 
+  .worship-hero__divider {
+    width: 36px;
+    height: 1.5px;
+    margin-top: 0.55rem;
+  }
+
   .worship-hero__body {
-    margin-top: 0.85rem;
-    line-height: 1.5;
+    margin-top: 0.75rem;
+    font-size: clamp(0.625rem, 2.8vw, 0.75rem);
+    font-weight: 500;
+    line-height: 1.55;
   }
 }
