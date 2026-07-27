@@ -6,6 +6,8 @@ import './LocationHero.css'
 
 const LOCATION_PATH = '/about/location'
 
+const BODY_LINES = ['하늘사랑감리교회는', '언제나 여러분을 기다리고 있습니다.']
+
 function LocationHero() {
   const { title } = getPageMeta(LOCATION_PATH)
 
@@ -26,9 +28,13 @@ function LocationHero() {
       >
         <div className="location-hero__content">
           <p className="location-hero__welcome">Welcome to Heavenly Love Church</p>
-          <p className="location-hero__tagline">하늘사랑감리교회는</p>
-          <p className="location-hero__tagline">
-            언제나 <span className="location-hero__highlight">여러분</span>을 기다리고 있습니다.
+          <span className="location-hero__divider" aria-hidden="true" />
+          <p className="location-hero__body">
+            {BODY_LINES.map((line) => (
+              <span key={line} className="location-hero__body-line">
+                {line}
+              </span>
+            ))}
           </p>
         </div>
       </MobileBannerExpand>

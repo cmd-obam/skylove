@@ -436,7 +436,8 @@
     overflow: hidden;
   }
 
-  .mobile-banner-expand--title-only.location-hero .location-hero__welcome {
+  .mobile-banner-expand--title-only.location-hero .location-hero__welcome,
+  .mobile-banner-expand--title-only.location-hero .location-hero__divider {
     display: none !important;
   }
 
@@ -455,13 +456,14 @@
     display: block;
   }
 
-  .mobile-banner-expand--title-only.location-hero .location-hero__tagline {
+  .mobile-banner-expand--title-only.location-hero .location-hero__body {
     margin: 0;
     font-size: clamp(0.6875rem, 6.2cqi, 0.875rem);
     line-height: 1.35;
+    color: #1f2d3d;
   }
 
-  .mobile-banner-expand--title-only.location-hero .location-hero__tagline + .location-hero__tagline {
-    margin-top: 0.125rem;
+  .mobile-banner-expand--title-only.location-hero .location-hero__body-line {
+    display: block;
   }
 }
