@@ -53,7 +53,7 @@ function mapBoardWriteErrorMessage(message) {
 
 async function uploadCmsFile(kind, postType, postId, file) {
   const path = buildBoardCmsStoragePath(kind, postType, postId, file.name)
-  return uploadBoardFile(path, file)
+  return uploadBoardFile(path, file, postType)
 }
 
 function BoardPostWritePage({
@@ -122,7 +122,7 @@ function BoardPostWritePage({
     draftUploadedPathsRef.current = []
 
     if (paths.length > 0 && !isEdit) {
-      await deleteBoardFiles(paths)
+      await deleteBoardFiles(paths, postType)
     }
   }
 
@@ -353,7 +353,7 @@ function BoardPostWritePage({
 
         if (!uploadResult.success) {
           if (uploadedPaths.length > 0) {
-            await deleteBoardFiles(uploadedPaths)
+            await deleteBoardFiles(uploadedPaths, postType)
           }
 
           setError(uploadResult.message)
@@ -410,7 +410,7 @@ function BoardPostWritePage({
 
       if (!result.success) {
         if (!isEdit && uploadedPaths.length > 0) {
-          await deleteBoardFiles(uploadedPaths)
+          await deleteBoardFiles(uploadedPaths, postType)
         }
 
         setError(mapBoardWriteErrorMessage(result.message))
@@ -419,7 +419,7 @@ function BoardPostWritePage({
       }
 
       if (removedPaths.length > 0) {
-        await deleteBoardFiles(removedPaths)
+        await deleteBoardFiles(removedPaths, postType)
       }
 
       draftUploadedPathsRef.current = []
@@ -428,7 +428,7 @@ function BoardPostWritePage({
       navigate(`${detailPathPrefix}/${targetPostId}`)
     } catch (submitError) {
       if (!isEdit && uploadedPaths.length > 0) {
-        await deleteBoardFiles(uploadedPaths)
+        await deleteBoardFiles(uploadedPaths, postType)
       }
 
       setError(submitError.message || '게시글 저장 중 오류가 발생했습니다.')

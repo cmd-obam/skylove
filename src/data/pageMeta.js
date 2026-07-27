@@ -88,12 +88,20 @@ export const PAGE_META = {
     title: '교회소식',
     subtitle: '하늘사랑교회의 새로운 소식을 전합니다',
   },
+  '/church-news/pastor-story': {
+    title: '담임목사 이야기',
+    subtitle: '담임목사의 이야기를 전합니다.',
+  },
   '/church-news/album': {
     title: '교회앨범',
     subtitle: '교회 행사와 다양한 활동 사진을 소개합니다.',
   },
   '/news/write': {
     title: '교회소식 글쓰기',
+    subtitle: '',
+  },
+  '/pastor-story/write': {
+    title: '담임목사 이야기 글쓰기',
     subtitle: '',
   },
   '/album/write': {

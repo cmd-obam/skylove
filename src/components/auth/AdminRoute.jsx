@@ -2,8 +2,8 @@ import { Outlet } from 'react-router-dom'
 import AdminRequiredModal from '@/components/auth/AdminRequiredModal'
 import { useAdminRouteGuard } from '@/hooks/useAdminRouteGuard'
 
-function AdminRoute({ children }) {
-  const { loading, isAllowed, goHome } = useAdminRouteGuard()
+function AdminRoute({ children, postType }) {
+  const { loading, isAllowed, goHome } = useAdminRouteGuard(postType)
 
   if (loading) {
     return null

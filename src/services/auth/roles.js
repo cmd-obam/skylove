@@ -5,13 +5,23 @@ export const USER_ROLES = {
   ADMIN: 'admin',
   MANAGER: 'manager',
   MEMBER: 'member',
+  SENIOR_PASTOR: 'senior_pastor',
 }
 
-/** 게시판 글쓰기·업로드 가능 (manager 이상) */
+/** 담임목사 이야기 게시판 post_type (글쓰기 예외) */
+export const PASTOR_STORY_POST_TYPE = 'pastor_story'
+
+/** 게시판 글쓰기·업로드 가능 (manager 이상) — 기존 게시판용 */
 export const BOARD_WRITER_ROLES = [
   USER_ROLES.MANAGER,
   USER_ROLES.ADMIN,
   USER_ROLES.SUPER_ADMIN,
+]
+
+/** 담임목사 이야기 글쓰기 가능 */
+export const PASTOR_STORY_WRITER_ROLES = [
+  USER_ROLES.SUPER_ADMIN,
+  USER_ROLES.SENIOR_PASTOR,
 ]
 
 /** 모든 게시글 관리 (admin 이상) */
@@ -32,6 +42,7 @@ export const ASSIGNABLE_ROLES = [
   USER_ROLES.MEMBER,
   USER_ROLES.MANAGER,
   USER_ROLES.ADMIN,
+  USER_ROLES.SENIOR_PASTOR,
 ]
 
 /** @deprecated BOARD_ADMIN_ROLES 사용 권장 */
@@ -65,10 +76,22 @@ export function isMemberRole(role) {
   return normalizeRole(role) === USER_ROLES.MEMBER
 }
 
+export function isSeniorPastorRole(role) {
+  return normalizeRole(role) === USER_ROLES.SENIOR_PASTOR
+}
+
 export function isBoardWriterRole(role) {
   const normalizedRole = normalizeRole(role)
 
   return normalizedRole != null && BOARD_WRITER_ROLES.includes(normalizedRole)
+}
+
+export function isPastorStoryPostType(postType) {
+  return postType === PASTOR_STORY_POST_TYPE
+}
+
+function getPostTypeFromPost(post) {
+  return post?.postType ?? post?.post_type ?? null
 }
 
 export function isCommentModeratorRole(role) {
@@ -99,8 +122,13 @@ function isOwnResource(authorId, currentUserId) {
   return Boolean(currentUserId && authorId && authorId === currentUserId)
 }
 
-/** 게시판 글쓰기·이미지·첨부 업로드 */
-export function canWritePost(profile) {
+/** 게시판 글쓰기·이미지·첨부 업로드 (postType 지정 시 게시판별 예외 적용) */
+export function canWritePost(profile, postType) {
+  if (isPastorStoryPostType(postType)) {
+    const role = getProfileRole(profile)
+    return role != null && PASTOR_STORY_WRITER_ROLES.includes(role)
+  }
+
   return isBoardWriterRole(getProfileRole(profile))
 }
 
@@ -114,6 +142,19 @@ export function canManageBoardPosts(profile) {
 
 export function canEditPost(profile, post, currentUserId) {
   const role = getProfileRole(profile)
+  const postType = getPostTypeFromPost(post)
+
+  if (isPastorStoryPostType(postType)) {
+    if (isSuperAdminRole(role)) {
+      return true
+    }
+
+    if (isSeniorPastorRole(role)) {
+      return isOwnResource(post?.authorId ?? post?.author_id, currentUserId)
+    }
+
+    return false
+  }
 
   if (isAdminRole(role)) {
     return true
@@ -193,6 +234,8 @@ export function getRoleLabel(role) {
       return '최고관리자'
     case USER_ROLES.ADMIN:
       return '관리자'
+    case USER_ROLES.SENIOR_PASTOR:
+      return '담임목사'
     case USER_ROLES.MANAGER:
       return '매니저'
     case USER_ROLES.MEMBER:
@@ -208,6 +251,8 @@ export function getRoleBadgeTone(role) {
       return 'super_admin'
     case USER_ROLES.ADMIN:
       return 'admin'
+    case USER_ROLES.SENIOR_PASTOR:
+      return 'senior_pastor'
     case USER_ROLES.MANAGER:
       return 'manager'
     case USER_ROLES.MEMBER:
@@ -226,6 +271,10 @@ export function getSelfDeleteBlockMessage(role) {
 
   if (normalizedRole === USER_ROLES.ADMIN) {
     return '관리자 계정은 직접 탈퇴할 수 없습니다.'
+  }
+
+  if (normalizedRole === USER_ROLES.SENIOR_PASTOR) {
+    return '담임목사 계정은 직접 탈퇴할 수 없습니다.'
   }
 
   if (normalizedRole === USER_ROLES.SUPER_ADMIN) {

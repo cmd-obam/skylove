@@ -36,6 +36,12 @@ export const PROFILE_SELECT = PROFILE_SELECT_BASE
 
 export const DEFAULT_MEMBER_ROLE = 'member'
 
-export const VALID_PROFILE_ROLES = ['member', 'manager', 'admin', 'super_admin']
+export const VALID_PROFILE_ROLES = [
+  'member',
+  'manager',
+  'admin',
+  'super_admin',
+  'senior_pastor',
+]
 
 export const ROLE_MIGRATION_PATH = 'supabase/migrations/004_add_role_column.sql'

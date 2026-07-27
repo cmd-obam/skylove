@@ -7,12 +7,12 @@ import {
 } from '@/services/auth/roles'
 import { logBoardAdminDebug } from '@/utils/authRoleDebug'
 
-export function useBoardAdmin() {
+export function useBoardAdmin(postType) {
   const { profile, isLoggedIn, loading } = useAuth()
 
   const canWriteBoard = useMemo(
-    () => isLoggedIn && canWritePost(profile),
-    [isLoggedIn, profile],
+    () => isLoggedIn && canWritePost(profile, postType),
+    [isLoggedIn, profile, postType],
   )
 
   const canManageBoard = useMemo(
@@ -32,8 +32,9 @@ export function useBoardAdmin() {
       loading,
       canManageBoard,
       canWriteBoard,
+      postType,
     })
-  }, [profile, isLoggedIn, loading, canManageBoard, canWriteBoard])
+  }, [profile, isLoggedIn, loading, canManageBoard, canWriteBoard, postType])
 
   return {
     canWriteBoard,

@@ -76,6 +76,7 @@ export const MENU_ITEMS = [
     path: '/church-news',
     children: [
       { title: '교회소식', path: '/church-news' },
+      { title: '담임목사 이야기', path: '/church-news/pastor-story' },
       { title: '교회앨범', path: '/church-news/album' },
     ],
   },

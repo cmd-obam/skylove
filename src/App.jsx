@@ -31,6 +31,10 @@ import ChurchNews from '@/pages/ChurchNews'
 import ChurchNewsDetail from '@/pages/ChurchNewsDetail'
 import ChurchNewsWrite from '@/pages/ChurchNewsWrite'
 import ChurchNewsEdit from '@/pages/ChurchNewsEdit'
+import PastorStory from '@/pages/PastorStory'
+import PastorStoryDetail from '@/pages/PastorStoryDetail'
+import PastorStoryWrite from '@/pages/PastorStoryWrite'
+import PastorStoryEdit from '@/pages/PastorStoryEdit'
 import EventPhotos from '@/pages/EventPhotos'
 import EventPhotoDetail from '@/pages/EventPhotoDetail'
 import BoardPostViewerPage from '@/pages/BoardPostViewerPage'
@@ -56,6 +60,7 @@ import {
   FacilityVr,
 } from '@/pages/PlaceholderPage'
 import ScrollToTop from '@/components/common/ScrollToTop'
+import { PASTOR_STORY_POST_TYPE } from '@/services/auth/roles'
 import '@/App.css'
 import { AuthProvider } from '@/contexts/AuthContext'
 
@@ -188,6 +193,7 @@ function App() {
                 <Route path="/mission" element={<Mission />} />
                 <Route path="/fellowship" element={<Fellowship />} />
                 <Route path="/church-news" element={<ChurchNews />} />
+                <Route path="/church-news/pastor-story" element={<PastorStory />} />
                 <Route path="/church-news/album" element={<EventPhotos />} />
                 <Route element={<AdminRoute />}>
                   <Route path="/worship-word/sunday/write" element={<SundayWorshipWrite />} />
@@ -199,13 +205,22 @@ function App() {
                   <Route path="/album/write" element={<AlbumWrite />} />
                   <Route path="/album/edit/:postId" element={<AlbumEdit />} />
                 </Route>
+                <Route element={<AdminRoute postType={PASTOR_STORY_POST_TYPE} />}>
+                  <Route path="/pastor-story/write" element={<PastorStoryWrite />} />
+                  <Route path="/pastor-story/edit/:postId" element={<PastorStoryEdit />} />
+                </Route>
                 <Route element={<MemberRoute />}>
                   <Route path="/worship-word/sunday/:postId" element={<SundayWorshipDetail />} />
                   <Route path="/worship-word/el-shaddai/:postId" element={<ElShaddaiDetail />} />
+                  <Route path="/church-news/pastor-story/:postId" element={<PastorStoryDetail />} />
                   <Route path="/church-news/album/:postId" element={<EventPhotoDetail />} />
                   <Route path="/church-news/:postId" element={<ChurchNewsDetail />} />
                 </Route>
                 <Route path="/church-news/write" element={<Navigate to="/news/write" replace />} />
+                <Route
+                  path="/church-news/pastor-story/write"
+                  element={<Navigate to="/pastor-story/write" replace />}
+                />
                 <Route path="/church-news/album/write" element={<Navigate to="/album/write" replace />} />
                 <Route path="/new-family" element={<NewFamilyGuide />} />
               </Route>

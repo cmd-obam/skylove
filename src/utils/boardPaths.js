@@ -1,5 +1,6 @@
 export const BOARD_POST_TYPES = [
   { id: 'church_news', label: '교회소식' },
+  { id: 'pastor_story', label: '담임목사 이야기' },
   { id: 'album', label: '교회앨범' },
   { id: 'sunday_sermon', label: '주일예배' },
   { id: 'el_shaddai_choir', label: '엘샤다이 찬양단' },
@@ -13,6 +14,8 @@ export function getBoardDetailPath(postType, postId) {
   switch (postType) {
     case 'album':
       return `/church-news/album/${postId}`
+    case 'pastor_story':
+      return `/church-news/pastor-story/${postId}`
     case 'sunday_sermon':
       return `/worship-word/sunday/${postId}`
     case 'el_shaddai_choir':
@@ -27,6 +30,8 @@ export function getBoardEditPath(postType, postId) {
   switch (postType) {
     case 'album':
       return `/album/edit/${postId}`
+    case 'pastor_story':
+      return `/pastor-story/edit/${postId}`
     case 'sunday_sermon':
       return `/worship-word/sunday/edit/${postId}`
     case 'el_shaddai_choir':
@@ -41,6 +46,8 @@ export function getBoardListPath(postType) {
   switch (postType) {
     case 'album':
       return '/church-news/album'
+    case 'pastor_story':
+      return '/church-news/pastor-story'
     case 'sunday_sermon':
       return '/worship-word/sunday'
     case 'el_shaddai_choir':
@@ -67,6 +74,10 @@ export function resolveMenuAliasPath(pathname) {
 
   if (pathname === '/album/write' || pathname.startsWith('/album/edit/')) {
     return '/church-news/album'
+  }
+
+  if (pathname === '/pastor-story/write' || pathname.startsWith('/pastor-story/edit/')) {
+    return '/church-news/pastor-story'
   }
 
   if (

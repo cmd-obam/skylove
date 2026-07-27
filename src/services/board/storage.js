@@ -15,7 +15,7 @@ export function getBoardFilePublicUrl(path) {
   return data.publicUrl
 }
 
-async function assertBoardWriter() {
+async function assertBoardWriter(postType) {
   const {
     data: { session },
   } = await supabase.auth.getSession()
@@ -30,7 +30,7 @@ async function assertBoardWriter() {
     .eq('user_id', session.user.id)
     .maybeSingle()
 
-  if (error || !canWritePost(profile)) {
+  if (error || !canWritePost(profile, postType)) {
     return { success: false, message: PERMISSION_DENIED }
   }
 
@@ -58,8 +58,8 @@ export function buildBoardCmsStoragePath(kind, postType, postId, fileName) {
   return `${prefix}/${safeType}/${postId}/${Date.now()}-${safeName}`
 }
 
-export async function uploadBoardFile(path, file) {
-  const auth = await assertBoardWriter()
+export async function uploadBoardFile(path, file, postType) {
+  const auth = await assertBoardWriter(postType)
 
   if (!auth.success) {
     return auth
@@ -85,8 +85,8 @@ export async function uploadBoardFile(path, file) {
   }
 }
 
-export async function deleteBoardFiles(paths) {
-  const auth = await assertBoardWriter()
+export async function deleteBoardFiles(paths, postType) {
+  const auth = await assertBoardWriter(postType)
 
   if (!auth.success) {
     return auth

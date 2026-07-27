@@ -7,10 +7,12 @@ const LOCATION_PATH = '/about/location'
 const ABOUT_PATH = '/about'
 const WORSHIP_PATH = '/worship'
 const CHURCH_NEWS_PATH = '/church-news'
+const CHURCH_PASTOR_STORY_PATH = '/church-news/pastor-story'
 const CHURCH_ALBUM_PATH = '/church-news/album'
 const NEW_FAMILY_PATH = '/new-family'
 const FACILITIES_PATH = '/about/facilities'
 const NEWS_WRITE_PATH = '/news/write'
+const PASTOR_STORY_WRITE_PATH = '/pastor-story/write'
 const ALBUM_WRITE_PATH = '/album/write'
 const SUNDAY_BLESSING_PATH = '/worship-guide/sunday-blessing'
 const SUNDAY_PRAISE_PATH = '/worship-guide/sunday-praise'
@@ -25,10 +27,12 @@ const CUSTOM_HEADER_PATHS = new Set([
   LOCATION_PATH,
   WORSHIP_PATH,
   CHURCH_NEWS_PATH,
+  CHURCH_PASTOR_STORY_PATH,
   CHURCH_ALBUM_PATH,
   NEW_FAMILY_PATH,
   FACILITIES_PATH,
   NEWS_WRITE_PATH,
+  PASTOR_STORY_WRITE_PATH,
   ALBUM_WRITE_PATH,
 ])
 
@@ -38,6 +42,13 @@ function isChurchNewsPostDetail(pathname) {
   }
 
   if (pathname === CHURCH_ALBUM_PATH || pathname.startsWith(`${CHURCH_ALBUM_PATH}/`)) {
+    return false
+  }
+
+  if (
+    pathname === CHURCH_PASTOR_STORY_PATH ||
+    pathname.startsWith(`${CHURCH_PASTOR_STORY_PATH}/`)
+  ) {
     return false
   }
 
@@ -71,8 +82,10 @@ function SubLayout() {
     CUSTOM_HEADER_PATHS.has(pathname) ||
     pathname.startsWith('/news/') ||
     pathname.startsWith('/album/') ||
+    pathname.startsWith('/pastor-story/') ||
     pathname.startsWith('/worship-word/') ||
     pathname.startsWith(`${CHURCH_ALBUM_PATH}/`) ||
+    pathname.startsWith(`${CHURCH_PASTOR_STORY_PATH}/`) ||
     isChurchNewsPostDetail(pathname) ||
     isWorshipGuidePath(pathname)
 

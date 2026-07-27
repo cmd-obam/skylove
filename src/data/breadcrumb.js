@@ -9,6 +9,7 @@ function getBreadcrumbLabel(item) {
 const PATH_ALIASES = [
   { pattern: /^\/news(\/|$)/, resolveTo: '/church-news' },
   { pattern: /^\/album(\/|$)/, resolveTo: '/church-news/album' },
+  { pattern: /^\/pastor-story(\/|$)/, resolveTo: '/church-news/pastor-story' },
 ]
 
 function resolveMenuPathname(pathname) {

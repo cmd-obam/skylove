@@ -8,24 +8,10 @@ import {
   canHidePost,
 } from '@/services/auth/roles'
 import { deleteBoardPost, setBoardPostHidden } from '@/services/board/posts'
-import { getWorshipWordBoardByPostType } from '@/data/worshipWord'
+import { getBoardEditPath } from '@/utils/boardPaths'
 
 function getEditPath(postType, postId) {
-  if (postType === 'church_news') {
-    return `/news/edit/${postId}`
-  }
-
-  if (postType === 'album') {
-    return `/album/edit/${postId}`
-  }
-
-  const worshipWordBoard = getWorshipWordBoardByPostType(postType)
-
-  if (worshipWordBoard) {
-    return worshipWordBoard.editPath(postId)
-  }
-
-  return `/album/edit/${postId}`
+  return getBoardEditPath(postType, postId)
 }
 
 function BoardPostAdminBar({ postType, postId, listPath, post = null }) {
@@ -37,9 +23,12 @@ function BoardPostAdminBar({ postType, postId, listPath, post = null }) {
   const [postStatus, setPostStatus] = useState(post?.status ?? 'public')
 
   const currentUserId = user?.id ?? null
-  const canEdit = canEditPost(profile, post, currentUserId)
-  const canDelete = canDeletePost(profile, post, currentUserId)
-  const canHide = canHidePost(profile, post, currentUserId)
+  const postForPermission = post
+    ? { ...post, postType: post.postType ?? post.post_type ?? postType }
+    : { postType }
+  const canEdit = canEditPost(profile, postForPermission, currentUserId)
+  const canDelete = canDeletePost(profile, postForPermission, currentUserId)
+  const canHide = canHidePost(profile, postForPermission, currentUserId)
 
   if (loading || (!canEdit && !canDelete && !canHide)) {
     return null

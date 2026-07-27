@@ -31,14 +31,14 @@ async function getSessionProfile() {
   return { success: true, profile, userId: session.user.id }
 }
 
-async function assertBoardWriter() {
+async function assertBoardWriter(postType) {
   const auth = await getSessionProfile()
 
   if (!auth.success) {
     return auth
   }
 
-  if (!canWritePost(auth.profile)) {
+  if (!canWritePost(auth.profile, postType)) {
     return { success: false, message: PERMISSION_DENIED }
   }
 
@@ -79,6 +79,7 @@ export function mapBoardPostRow(row, meta) {
 
   return {
     id: row.id,
+    postType: row.post_type,
     title: row.title,
     content: row.content,
     writer: row.writer,
@@ -335,7 +336,7 @@ export async function createBoardPost({
   hasImage = false,
   youtubeUrl = null,
 }) {
-  const auth = await assertBoardWriter()
+  const auth = await assertBoardWriter(postType)
 
   if (!auth.success) {
     return auth
