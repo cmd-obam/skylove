@@ -56,17 +56,28 @@
   z-index: 1;
   width: 42%;
   padding-left: 3.5rem;
+  /* 텍스트만 이동 — 이미지·배경은 그대로 */
+  transform: translate(-40px, -70px);
 }
 
-.worship-hero__subtitle {
+.worship-hero__headline,
+.worship-hero__body {
   margin: 0;
   font-size: 1.6875rem;
   font-weight: 600;
-  line-height: 1.5;
   color: #2f6fad;
 }
 
-.worship-hero__subtitle-line {
+.worship-hero__headline {
+  line-height: 1.5;
+}
+
+.worship-hero__body {
+  margin-top: 38px;
+  line-height: 1.55;
+}
+
+.worship-hero__body-line {
   display: block;
 }
 
@@ -74,6 +85,7 @@
   .worship-hero__content {
     width: 50%;
     padding-left: 2.5rem;
+    transform: translate(-28px, -48px);
   }
 }
 
@@ -104,11 +116,21 @@
     width: 54%;
     padding: 0 0.75rem 0 1rem;
     text-align: left;
+    transform: translate(-12px, -24px);
   }
 
-  .worship-hero__subtitle {
+  .worship-hero__headline,
+  .worship-hero__body {
     font-size: clamp(0.6875rem, 3.2vw, 0.875rem);
-    line-height: 1.35;
     word-break: keep-all;
+  }
+
+  .worship-hero__headline {
+    line-height: 1.35;
+  }
+
+  .worship-hero__body {
+    margin-top: 0.85rem;
+    line-height: 1.5;
   }
 }

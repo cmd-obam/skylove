@@ -13,6 +13,8 @@ function WorshipHero() {
     : subtitle
       ? [subtitle]
       : []
+  const headline = lines[0] ?? ''
+  const bodyLines = lines.slice(1)
 
   return (
     <div className="worship-hero-wrap">
@@ -30,10 +32,11 @@ function WorshipHero() {
         style={{ '--worship-hero-bg': `url(${worshipHeroImage})` }}
       >
         <div className="worship-hero__content">
-          {lines.length > 0 ? (
-            <p className="worship-hero__subtitle">
-              {lines.map((line) => (
-                <span key={line} className="worship-hero__subtitle-line">
+          {headline ? <p className="worship-hero__headline">{headline}</p> : null}
+          {bodyLines.length > 0 ? (
+            <p className="worship-hero__body">
+              {bodyLines.map((line) => (
+                <span key={line} className="worship-hero__body-line">
                   {line}
                 </span>
               ))}
