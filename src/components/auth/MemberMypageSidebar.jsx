@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useCmsAdmin } from '@/hooks/useCmsAdmin'
 import { useSuperAdmin } from '@/hooks/useSuperAdmin'
+import useIsCompactNav from '@/hooks/useIsCompactNav'
 import '@/components/layout/CategorySidebar.css'
 import './MemberMypageSidebar.css'
 
@@ -24,6 +25,7 @@ const CMS_ADMIN_CHILDREN = [
 
 function MemberMypageSidebar() {
   const { pathname } = useLocation()
+  const isCompactNav = useIsCompactNav()
   const { isSuperAdmin } = useSuperAdmin()
   const { isCmsAdmin } = useCmsAdmin()
   const adminChildren = isSuperAdmin ? SUPER_ADMIN_CHILDREN : isCmsAdmin ? CMS_ADMIN_CHILDREN : []
@@ -42,6 +44,11 @@ function MemberMypageSidebar() {
       setIsManagementExpanded(true)
     }
   }, [isManagementPath])
+
+  // 모바일/태블릿은 햄버거 메뉴의 회원메뉴 하위를 사용하므로 본문 상단 카테고리를 렌더하지 않습니다.
+  if (isCompactNav) {
+    return null
+  }
 
   return (
     <aside className="category-sidebar member-mypage-sidebar" aria-label="회원 메뉴">

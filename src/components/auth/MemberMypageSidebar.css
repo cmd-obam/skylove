@@ -2,17 +2,10 @@
   display: block;
 }
 
+/* 예배말씀·교회소식과 동일: 햄버거 구간에서는 본문 상단 카테고리를 숨깁니다. */
 @media (max-width: 1024px) {
   .member-mypage-sidebar.category-sidebar {
-    width: calc(100% - 40px);
-    max-width: var(--category-layout-max-width);
-    margin: 0 auto 1rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .member-mypage-sidebar.category-sidebar {
-    width: calc(100% - 32px);
+    display: none !important;
   }
 }
 
