@@ -27,6 +27,7 @@ function ServingPersonCard({ person }) {
                 opacity="0.28"
               />
             </svg>
+            <span className="serving-person-card__placeholder-text">이미지 준비중</span>
           </div>
         )}
       </div>
