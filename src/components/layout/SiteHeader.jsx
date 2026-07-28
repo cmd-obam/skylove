@@ -147,11 +147,13 @@ function SiteHeader() {
     }
 
     const aboutSection = MENU_ITEMS.find((item) => item.title === '교회소개')
-    const tourItem = aboutSection?.children?.find((child) => child.children?.length)
+    const nestedItem = aboutSection?.children?.find(
+      (child) => child.children?.length && menuItemContainsPath(child, pathname),
+    )
 
-    if (tourItem && menuItemContainsPath(tourItem, pathname)) {
+    if (nestedItem) {
       setExpandedItem('교회소개')
-      setExpandedSubItem(tourItem.path)
+      setExpandedSubItem(nestedItem.path)
     }
   }, [isMobileMenuOpen, pathname])
 

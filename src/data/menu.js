@@ -27,6 +27,14 @@ export const MENU_ITEMS = [
     path: '/about',
     children: [
       { title: '담임목사 인사', path: '/about' },
+      {
+        title: '섬기는 사람들',
+        path: '/about/people',
+        children: [
+          { title: '교역자', path: '/about/people/clergy' },
+          { title: '사역자', path: '/about/people/ministers' },
+        ],
+      },
       { title: '교회역사', path: '/about/history' },
       { title: '예배시간 안내', path: '/worship' },
       {

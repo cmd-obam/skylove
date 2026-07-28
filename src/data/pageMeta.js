@@ -3,6 +3,18 @@ export const PAGE_META = {
     title: '담임목사 인사',
     subtitle: '하나님의 사랑으로 세워진 하늘사랑교회를 소개합니다',
   },
+  '/about/people': {
+    title: '섬기는 사람들',
+    subtitle: '하늘사랑교회를 섬기는 이들을 소개합니다.',
+  },
+  '/about/people/clergy': {
+    title: '섬기는 사람들',
+    subtitle: '하늘사랑교회를 섬기는 이들을 소개합니다.',
+  },
+  '/about/people/ministers': {
+    title: '섬기는 사람들',
+    subtitle: '하늘사랑교회를 섬기는 이들을 소개합니다.',
+  },
   '/about/history': {
     title: '교회역사',
     subtitle: '',

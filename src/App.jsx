@@ -7,6 +7,8 @@ import ImageProtection from '@/components/common/ImageProtection'
 import Home from '@/pages/Home'
 import About from '@/pages/About'
 import ChurchHistory from '@/pages/ChurchHistory'
+import ServingPeopleClergy from '@/pages/ServingPeopleClergy'
+import ServingPeopleMinisters from '@/pages/ServingPeopleMinisters'
 import Worship from '@/pages/Worship'
 import Location from '@/pages/Location'
 import Auth from '@/pages/Auth'
@@ -173,6 +175,11 @@ function App() {
             <Route element={<CategoryLayout />}>
               <Route element={<SubLayout />}>
                 <Route path="/about" element={<About />} />
+                <Route path="/about/people" element={<Navigate to="/about/people/clergy" replace />} />
+                <Route element={<MemberRoute />}>
+                  <Route path="/about/people/clergy" element={<ServingPeopleClergy />} />
+                  <Route path="/about/people/ministers" element={<ServingPeopleMinisters />} />
+                </Route>
                 <Route path="/about/history" element={<ChurchHistory />} />
                 <Route path="/about/facility-vr" element={<FacilityVr />} />
                 <Route path="/about/facilities" element={<Facilities />} />
