@@ -101,6 +101,7 @@ export const CHURCH_HISTORY_PERIODS = [
     photos: [
       { id: 'sanctuary-1', src: historySanctuary1, caption: '2009. 02 제 1성전' },
       { id: 'sanctuary-2', src: historySanctuary2, caption: '2009. 12 제 2성전' },
+      { id: 'sanctuary-3', src: historySanctuary3, caption: '2012. 01 제 3성전' },
     ],
   },
   {
@@ -216,9 +217,7 @@ export const CHURCH_HISTORY_PERIODS = [
         description: '매일 기도대행진 훈련을 시작하였습니다.',
       },
     ],
-    photos: [
-      { id: 'sanctuary-3', src: historySanctuary3, caption: '2012. 01 제 3성전' },
-    ],
+    photos: [],
   },
   {
     id: '2016-present',

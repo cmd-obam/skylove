@@ -149,9 +149,6 @@ function ChurchHistoryPeriod({ period }) {
         <h2 className="church-history-period__badge" id={headingId}>
           {period.period}
         </h2>
-        {period.title ? (
-          <p className="church-history-period__title">{period.title}</p>
-        ) : null}
       </header>
 
       <ChurchHistoryEventTable events={period.events} />
