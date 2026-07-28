@@ -1,4 +1,6 @@
-import ServingPersonCard from '@/components/servingPeople/ServingPersonCard'
+import ServingPersonCard, {
+  ServingPraiseCard,
+} from '@/components/servingPeople/ServingPersonCard'
 import { sortByOrder } from '@/data/servingPeople'
 import './ServingPeople.css'
 
@@ -20,19 +22,55 @@ function ServingPeopleGrid({ people }) {
   )
 }
 
+function ServingPraiseRow({ subgroups }) {
+  return (
+    <ul className="serving-praise-row">
+      {subgroups.map((subgroup) => {
+        const person = sortByOrder(subgroup.people)[0]
+        if (!person) {
+          return null
+        }
+
+        return (
+          <li key={subgroup.id} className="serving-praise-row__item">
+            <ServingPraiseCard teamTitle={subgroup.title} person={person} />
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
+
 function ServingPeopleGroup({ group }) {
   const hasSubgroups = Array.isArray(group.subgroups) && group.subgroups.length > 0
+  const isPraiseRow = group.layout === 'praise-row' && hasSubgroups
 
   return (
-    <section className="serving-people-group" aria-labelledby={`serving-group-${group.id}`}>
+    <section
+      className={`serving-people-group${isPraiseRow ? ' serving-people-group--praise' : ''}`}
+      aria-labelledby={`serving-group-${group.id}`}
+    >
       <header className="serving-people-group__header">
-        <span className="serving-people-group__rule" aria-hidden="true" />
-        <h2 className="serving-people-group__title" id={`serving-group-${group.id}`}>
-          {group.title}
-        </h2>
+        {isPraiseRow ? (
+          <h2
+            className="serving-people-group__title serving-people-group__title--praise"
+            id={`serving-group-${group.id}`}
+          >
+            {group.title}
+          </h2>
+        ) : (
+          <>
+            <span className="serving-people-group__rule" aria-hidden="true" />
+            <h2 className="serving-people-group__title" id={`serving-group-${group.id}`}>
+              {group.title}
+            </h2>
+          </>
+        )}
       </header>
 
-      {hasSubgroups ? (
+      {isPraiseRow ? (
+        <ServingPraiseRow subgroups={group.subgroups} />
+      ) : hasSubgroups ? (
         <div className="serving-people-group__subgroups">
           {group.subgroups.map((subgroup) => (
             <div key={subgroup.id} className="serving-people-subgroup">

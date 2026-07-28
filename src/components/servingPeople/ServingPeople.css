@@ -25,6 +25,23 @@
   letter-spacing: -0.01em;
 }
 
+.serving-people-group__title--praise {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  color: #1a1a1a;
+}
+
+.serving-people-group__title--praise::before {
+  content: '';
+  display: block;
+  width: 4px;
+  height: 1.15em;
+  background-color: var(--color-primary);
+  border-radius: 1px;
+  flex-shrink: 0;
+}
+
 .serving-people-group__subgroups {
   display: flex;
   flex-direction: column;
@@ -37,6 +54,67 @@
   font-weight: 600;
   line-height: 1.4;
   color: var(--color-text);
+}
+
+.serving-praise-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.serving-praise-row__item {
+  min-width: 0;
+  padding: 0.25rem 1.25rem;
+}
+
+.serving-praise-row__item + .serving-praise-row__item {
+  border-left: 1px solid #e6edf4;
+}
+
+.serving-praise-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.serving-praise-card__team {
+  margin: 0 0 1.25rem;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #1a1a1a;
+  word-break: keep-all;
+}
+
+.serving-praise-card__photo {
+  width: 100%;
+  max-width: 11rem;
+  margin: 0 auto;
+}
+
+.serving-praise-card__photo .serving-person-card__image,
+.serving-praise-card__photo .serving-person-card__placeholder {
+  aspect-ratio: 1 / 1;
+}
+
+.serving-praise-card__role {
+  margin: 1rem 0 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--color-primary);
+}
+
+.serving-praise-card__name {
+  margin: 0.4rem 0 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: #1a1a1a;
+  word-break: keep-all;
 }
 
 .serving-people-grid {
@@ -120,6 +198,14 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1.75rem 1.25rem;
   }
+
+  .serving-praise-row__item {
+    padding: 1.5rem 0.875rem;
+  }
+
+  .serving-praise-card__team {
+    font-size: 0.9375rem;
+  }
 }
 
 @media (max-width: 768px) {
@@ -142,6 +228,28 @@
 
   .serving-person-card__role {
     font-size: 0.8125rem;
+  }
+
+  .serving-praise-row {
+    grid-template-columns: minmax(0, 1fr);
+    border: none;
+  }
+
+  .serving-praise-row__item {
+    padding: 1.5rem 0;
+    border-top: 1px solid #e6edf4;
+  }
+
+  .serving-praise-row__item + .serving-praise-row__item {
+    border-left: none;
+  }
+
+  .serving-praise-row__item:last-child {
+    border-bottom: 1px solid #e6edf4;
+  }
+
+  .serving-praise-card__photo {
+    max-width: 12rem;
   }
 }
 

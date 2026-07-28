@@ -137,6 +137,7 @@ export const MINISTER_GROUPS = [
     id: 'praise',
     title: '찬양사역자',
     sortOrder: 2,
+    layout: 'praise-row',
     subgroups: [
       {
         id: 'maranatha',
@@ -146,6 +147,7 @@ export const MINISTER_GROUPS = [
             id: 'minister-jeong-jieun',
             name: '정지은',
             role: '대장',
+            churchTitle: '집사',
             photoUrl: null,
             sortOrder: 1,
           },
@@ -159,6 +161,7 @@ export const MINISTER_GROUPS = [
             id: 'minister-lee-jaeyeon-choir',
             name: '이재연',
             role: '단장',
+            churchTitle: '집사',
             photoUrl: null,
             sortOrder: 1,
           },
@@ -172,6 +175,7 @@ export const MINISTER_GROUPS = [
             id: 'minister-choi-seongmin',
             name: '최성민',
             role: '단장',
+            churchTitle: '성도',
             photoUrl: null,
             sortOrder: 1,
           },
