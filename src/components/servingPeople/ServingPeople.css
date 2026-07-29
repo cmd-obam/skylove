@@ -76,8 +76,8 @@
 .serving-praise-card {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
+  align-items: flex-start;
+  text-align: left;
 }
 
 .serving-praise-card__team {
@@ -92,7 +92,7 @@
 .serving-praise-card__photo {
   width: 100%;
   max-width: 11rem;
-  margin: 0 auto;
+  margin: 0;
 }
 
 .serving-praise-card__photo .serving-person-card__image,
