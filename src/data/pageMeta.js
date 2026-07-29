@@ -5,15 +5,15 @@ export const PAGE_META = {
   },
   '/about/people': {
     title: '섬기는 사람들',
-    subtitle: '하늘사랑교회를 섬기는 이들을 소개합니다.',
+    subtitle: '하늘사랑교회 교역자를 소개합니다',
   },
   '/about/people/clergy': {
     title: '섬기는 사람들',
-    subtitle: '하늘사랑교회를 섬기는 이들을 소개합니다.',
+    subtitle: '하늘사랑교회 교역자를 소개합니다',
   },
   '/about/people/ministers': {
     title: '섬기는 사람들',
-    subtitle: '하늘사랑교회를 섬기는 이들을 소개합니다.',
+    subtitle: '하늘사랑교회 사역자를 소개합니다',
   },
   '/about/history': {
     title: '교회역사',

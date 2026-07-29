@@ -8,7 +8,7 @@
 
 export const SERVING_PEOPLE_PAGE_INTRO = {
   title: '섬기는 사람들',
-  subtitle: '하늘사랑교회를 섬기는 이들을 소개합니다.',
+  subtitle: '하늘사랑교회 교역자를 소개합니다',
 }
 
 /** @typedef {{ id: string, name: string, role: string, photoUrl: string | null, sortOrder: number }} ServingPerson */
