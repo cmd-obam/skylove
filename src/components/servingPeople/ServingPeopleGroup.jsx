@@ -11,8 +11,12 @@ function ServingPeopleGrid({ people }) {
     return null
   }
 
+  const isMulti = orderedPeople.length > 1
+
   return (
-    <ul className="serving-people-grid">
+    <ul
+      className={`serving-people-grid${isMulti ? ' serving-people-grid--multi' : ''}`}
+    >
       {orderedPeople.map((person) => (
         <li key={person.id} className="serving-people-grid__item">
           <ServingPersonCard person={person} />

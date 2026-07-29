@@ -231,25 +231,40 @@
   }
 
   .serving-praise-row {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
     border: none;
   }
 
   .serving-praise-row__item {
-    padding: 1.5rem 0;
+    padding: 1.25rem 0.75rem;
     border-top: 1px solid #e6edf4;
   }
 
   .serving-praise-row__item + .serving-praise-row__item {
+    border-left: 1px solid #e6edf4;
+  }
+
+  .serving-praise-row__item:nth-child(2n + 1) {
     border-left: none;
   }
 
-  .serving-praise-row__item:last-child {
+  .serving-praise-row__item:nth-last-child(-n + 2) {
     border-bottom: 1px solid #e6edf4;
   }
 
+  .serving-praise-card__team {
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+  }
+
   .serving-praise-card__photo {
-    max-width: 12rem;
+    max-width: none;
+  }
+
+  .serving-praise-card__role,
+  .serving-praise-card__name {
+    font-size: 0.8125rem;
   }
 }
 
@@ -258,17 +273,37 @@
     gap: 2.25rem;
   }
 
-  .serving-people-grid {
+  /* 1명 그룹(담임목사·원로권사·간사 등): 세로 1열 유지 */
+  .serving-people-grid:not(.serving-people-grid--multi) {
     grid-template-columns: minmax(0, 1fr);
     gap: 1.75rem;
     justify-items: center;
   }
 
-  .serving-people-grid__item {
+  .serving-people-grid:not(.serving-people-grid--multi) .serving-people-grid__item {
     width: min(100%, 14rem);
+  }
+
+  /* 여러 명 그룹(권사·집사·사역담당 등): 2열 유지 */
+  .serving-people-grid--multi {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem 0.75rem;
+    justify-items: stretch;
+  }
+
+  .serving-people-grid--multi .serving-people-grid__item {
+    width: auto;
   }
 
   .serving-person-card__name {
     font-size: 1.0625rem;
+  }
+
+  .serving-people-grid--multi .serving-person-card__name {
+    font-size: 0.9375rem;
+  }
+
+  .serving-people-grid--multi .serving-person-card__role {
+    font-size: 0.75rem;
   }
 }
