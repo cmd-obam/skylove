@@ -28,7 +28,7 @@ function ServingPeopleGrid({ people }) {
 
 function ServingPraiseRow({ subgroups }) {
   return (
-    <ul className="serving-praise-row">
+    <ul className="serving-people-grid serving-people-grid--multi">
       {subgroups.map((subgroup) => {
         const person = sortByOrder(subgroup.people)[0]
         if (!person) {
@@ -36,7 +36,7 @@ function ServingPraiseRow({ subgroups }) {
         }
 
         return (
-          <li key={subgroup.id} className="serving-praise-row__item">
+          <li key={subgroup.id} className="serving-people-grid__item">
             <ServingPraiseCard teamTitle={subgroup.title} person={person} />
           </li>
         )
@@ -50,26 +50,12 @@ function ServingPeopleGroup({ group }) {
   const isPraiseRow = group.layout === 'praise-row' && hasSubgroups
 
   return (
-    <section
-      className={`serving-people-group${isPraiseRow ? ' serving-people-group--praise' : ''}`}
-      aria-labelledby={`serving-group-${group.id}`}
-    >
+    <section className="serving-people-group" aria-labelledby={`serving-group-${group.id}`}>
       <header className="serving-people-group__header">
-        {isPraiseRow ? (
-          <h2
-            className="serving-people-group__title serving-people-group__title--praise"
-            id={`serving-group-${group.id}`}
-          >
-            {group.title}
-          </h2>
-        ) : (
-          <>
-            <span className="serving-people-group__rule" aria-hidden="true" />
-            <h2 className="serving-people-group__title" id={`serving-group-${group.id}`}>
-              {group.title}
-            </h2>
-          </>
-        )}
+        <span className="serving-people-group__rule" aria-hidden="true" />
+        <h2 className="serving-people-group__title" id={`serving-group-${group.id}`}>
+          {group.title}
+        </h2>
       </header>
 
       {isPraiseRow ? (

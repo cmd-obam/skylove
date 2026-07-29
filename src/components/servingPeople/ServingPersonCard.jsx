@@ -51,13 +51,13 @@ function ServingPraiseCard({ teamTitle, person }) {
     : person.name
 
   return (
-    <article className="serving-praise-card">
-      <h3 className="serving-praise-card__team">{teamTitle}</h3>
-      <div className="serving-praise-card__photo">
+    <article className="serving-person-card">
+      <p className="serving-praise-card__team">{teamTitle}</p>
+      <div className="serving-person-card__photo">
         <ServingPersonPhoto person={person} alt={displayName} />
       </div>
-      <p className="serving-praise-card__role">{person.role}</p>
-      <p className="serving-praise-card__name">{displayName}</p>
+      <h3 className="serving-person-card__name">{displayName}</h3>
+      <p className="serving-person-card__role">{person.role}</p>
     </article>
   )
 }
