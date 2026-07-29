@@ -232,25 +232,17 @@
 
   .serving-praise-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0;
+    gap: 1.5rem 1rem;
     border: none;
   }
 
   .serving-praise-row__item {
-    padding: 1.25rem 0.75rem;
-    border-top: 1px solid #e6edf4;
+    padding: 0;
+    border: none;
   }
 
   .serving-praise-row__item + .serving-praise-row__item {
-    border-left: 1px solid #e6edf4;
-  }
-
-  .serving-praise-row__item:nth-child(2n + 1) {
     border-left: none;
-  }
-
-  .serving-praise-row__item:nth-last-child(-n + 2) {
-    border-bottom: 1px solid #e6edf4;
   }
 
   .serving-praise-card__team {
