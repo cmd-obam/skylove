@@ -20,9 +20,10 @@ import './WorshipWord.css'
 function WorshipWordDetail({ boardKey }) {
   const board = getWorshipWordBoard(boardKey)
   const { postId } = useParams()
-  const { isLoggedIn, user } = useAuth()
+  const { isLoggedIn, user, effectiveUserId } = useAuth()
   const { post, loading } = useBoardPost(board.postType, postId)
   const [adjacent, setAdjacent] = useState({ prev: null, next: null })
+  const currentUserId = effectiveUserId ?? user?.id
 
   const {
     stats,
@@ -33,8 +34,8 @@ function WorshipWordDetail({ boardKey }) {
   } = useBoardPostStats(board.postType, postId, post?.views ?? 0)
 
   useEffect(() => {
-    refreshLikeState(user?.id)
-  }, [refreshLikeState, user?.id])
+    refreshLikeState(currentUserId)
+  }, [refreshLikeState, currentUserId])
 
   useEffect(() => {
     if (!postId) {
@@ -67,7 +68,7 @@ function WorshipWordDetail({ boardKey }) {
     const result = await togglePostLike({
       postType: board.postType,
       postId,
-      userId: user.id,
+      userId: currentUserId,
       liked: likedByMe,
     })
 
@@ -79,12 +80,12 @@ function WorshipWordDetail({ boardKey }) {
     }
   }, [
     board.postType,
+    currentUserId,
     isLoggedIn,
     likedByMe,
     postId,
     refreshStats,
     setLikedByMe,
-    user?.id,
   ])
 
   if (loading) {

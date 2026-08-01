@@ -168,12 +168,12 @@ function CommentItem({
 }
 
 function BoardPostComments({ postType, postId, onCommentsCountChange }) {
-  const { isLoggedIn, user, profile } = useAuth()
+  const { isLoggedIn, user, profile, effectiveUserId } = useAuth()
   const [comment, setComment] = useState('')
   const [editingCommentId, setEditingCommentId] = useState(null)
   const [editBody, setEditBody] = useState('')
 
-  const currentUserId = user?.id ?? null
+  const currentUserId = effectiveUserId ?? user?.id ?? null
   const canViewHidden = canModerateComments(profile)
 
   const handleCommentsChange = useCallback(

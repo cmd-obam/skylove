@@ -100,12 +100,55 @@ async function fetchProfileRowWithRole(userId) {
   return { data, error: null }
 }
 
+/**
+ * 보조 로그인 계정이면 대표 auth user id 를 반환합니다.
+ * account_links 테이블/정책이 없으면 입력 userId 를 그대로 씁니다.
+ */
+async function resolveEffectiveUserId(userId) {
+  if (!userId) {
+    return userId
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('account_links')
+      .select('primary_user_id')
+      .eq('linked_user_id', userId)
+      .maybeSingle()
+
+    if (error) {
+      // 테이블 미적용·권한 없음 등은 기존 1:1 프로필 경로로 폴백
+      if (
+        error.code === '42P01' ||
+        error.code === 'PGRST205' ||
+        error.code === '42501' ||
+        /account_links|does not exist|schema cache/i.test(error.message || '')
+      ) {
+        return userId
+      }
+
+      console.warn('[Profile] resolveEffectiveUserId failed — using auth user id', error)
+      return userId
+    }
+
+    return data?.primary_user_id || userId
+  } catch (error) {
+    console.warn('[Profile] resolveEffectiveUserId threw — using auth user id', error)
+    return userId
+  }
+}
+
 export async function fetchProfileByUserId(userId) {
-  const request = describeProfileFetchRequest(supabaseUrl, userId, PROFILE_SELECT)
+  const effectiveUserId = await resolveEffectiveUserId(userId)
+  const request = describeProfileFetchRequest(supabaseUrl, effectiveUserId, PROFILE_SELECT)
 
-  console.log('[Profile] fetchProfileByUserId request', request)
+  console.log('[Profile] fetchProfileByUserId request', {
+    ...request,
+    authUserId: userId,
+    effectiveUserId,
+  })
 
-  const { data, error } = await fetchProfileRowWithRole(userId)
+  const { data, error } = await fetchProfileRowWithRole(effectiveUserId)
 
   if (error) {
     logSupabaseError('Profile', error, {
@@ -135,11 +178,17 @@ export async function fetchProfileByUserId(userId) {
     username: data.username,
     congregantType: data.congregant_type,
     attendingChurch: data.attending_church,
+    effectiveUserId,
   }
 
-  console.log('[Profile] fetchProfileByUserId success', { userId, data, profile })
+  console.log('[Profile] fetchProfileByUserId success', {
+    userId,
+    effectiveUserId,
+    data,
+    profile,
+  })
 
-  logFetchProfileRoleDebug({ userId, data, mappedProfile: profile })
+  logFetchProfileRoleDebug({ userId: effectiveUserId, data, mappedProfile: profile })
 
   return {
     success: true,

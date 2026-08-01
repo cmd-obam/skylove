@@ -15,14 +15,14 @@ function getEditPath(postType, postId) {
 }
 
 function BoardPostAdminBar({ postType, postId, listPath, post = null }) {
-  const { profile, user, loading } = useAuth()
+  const { profile, user, effectiveUserId, loading } = useAuth()
   const navigate = useNavigate()
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [hiding, setHiding] = useState(false)
   const [postStatus, setPostStatus] = useState(post?.status ?? 'public')
 
-  const currentUserId = user?.id ?? null
+  const currentUserId = effectiveUserId ?? user?.id ?? null
   const postForPermission = post
     ? { ...post, postType: post.postType ?? post.post_type ?? postType }
     : { postType }

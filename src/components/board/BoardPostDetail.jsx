@@ -30,9 +30,10 @@ function BoardPostDetail({
   afterBody = null,
   children,
 }) {
-  const { isLoggedIn, user } = useAuth()
+  const { isLoggedIn, user, effectiveUserId } = useAuth()
   const postId = post?.id
   const isAlbumDetail = detailVariant === 'album'
+  const currentUserId = effectiveUserId ?? user?.id
 
   const {
     stats,
@@ -43,8 +44,8 @@ function BoardPostDetail({
   } = useBoardPostStats(postType, postId, post?.views ?? 0)
 
   useEffect(() => {
-    refreshLikeState(user?.id)
-  }, [refreshLikeState, user?.id])
+    refreshLikeState(currentUserId)
+  }, [refreshLikeState, currentUserId])
 
   const handleCommentsCountChange = useCallback(() => {
     refreshStats()
@@ -59,7 +60,7 @@ function BoardPostDetail({
     const result = await togglePostLike({
       postType,
       postId,
-      userId: user.id,
+      userId: currentUserId,
       liked: likedByMe,
     })
 

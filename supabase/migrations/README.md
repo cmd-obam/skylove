@@ -31,8 +31,12 @@ Migration 파일을 **번호 순서대로** Supabase SQL Editor에서 실행하�
 | 23 | `027_member_pii_access_log.sql` | 회원 이메일/휴대폰 전체보기 감사 로그 + 목록 phone 컬럼 |
 | 24 | `028_member_orphans_and_auth_profile_sync.sql` | auth.users→profiles 자동 생성 트리거 + 고아 회원 백필 |
 | 25 | `029_delete_member_by_super_admin.sql` | 최고관리자 회원 탈퇴 RPC (`auth.users` 서버 삭제) |
+| 26 | `030_pastor_story_board.sql` | 담임목사 이야기 게시판 + `senior_pastor` 권한 |
+| 27 | `031_account_links.sql` | 회원 계정 연결(Linked Accounts) + 소유권 이관/원복 |
 
 > `003`은 `profiles.role`을 RLS에서 참조하므로 **`004`를 먼저** 실행해야 합니다.
+
+수동 재실행용 사본: `supabase/fix_account_links.sql`
 
 ## Edge Functions
 

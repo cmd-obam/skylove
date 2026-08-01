@@ -6,6 +6,7 @@ import {
   getNewcomerStatus,
 } from '@/data/congregantTypes'
 import MaskedPiiField from '@/components/auth/MaskedPiiField'
+import { getLoginProviderLabel } from '@/services/auth/accountLinks'
 import { getRoleLabel } from '@/services/auth/roles'
 import { formatBoardDate, formatCommentDateTime } from '@/utils/formatBoardDate'
 import { PII_FIELD } from '@/utils/maskPii'
@@ -54,7 +55,96 @@ function DetailSection({ title, rows }) {
   )
 }
 
-export function MemberDetailSections({ member }) {
+function LinkedAccountsSection({
+  linkedAccounts = [],
+  linkedLoading = false,
+  linkedError = '',
+  unlinkingUserId = '',
+  onUnlink,
+}) {
+  const secondaryAccounts = linkedAccounts.filter((account) => !account.is_primary)
+  const hasLinks = secondaryAccounts.length > 0
+
+  return (
+    <section className="member-detail-sections__section">
+      <h3 className="member-detail-sections__heading">연결된 계정</h3>
+
+      {linkedLoading ? (
+        <p className="member-detail-sections__status">불러오는 중...</p>
+      ) : linkedError ? (
+        <p className="member-detail-sections__status member-detail-sections__status--error" role="alert">
+          {linkedError}
+        </p>
+      ) : !hasLinks ? (
+        <p className="member-detail-sections__status">연결된 추가 계정이 없습니다.</p>
+      ) : (
+        <ol className="member-detail-sections__linked-list">
+          {linkedAccounts.map((account, index) => {
+            const providerLabel = getLoginProviderLabel(account.provider)
+            const title = account.is_primary
+              ? `${index + 1}. ${providerLabel} 로그인 (대표)`
+              : `${index + 1}. ${providerLabel} 로그인`
+
+            return (
+              <li key={`${account.user_id}-${account.is_primary ? 'primary' : 'linked'}`}>
+                <article className="member-detail-sections__linked-card">
+                  <header className="member-detail-sections__linked-header">
+                    <h4 className="member-detail-sections__linked-title">{title}</h4>
+                    {!account.is_primary && typeof onUnlink === 'function' ? (
+                      <button
+                        type="button"
+                        className="member-detail-sections__unlink-button"
+                        onClick={() => onUnlink(account)}
+                        disabled={Boolean(unlinkingUserId)}
+                      >
+                        {unlinkingUserId === account.user_id ? '해제 중...' : '연결 해제'}
+                      </button>
+                    ) : null}
+                  </header>
+                  <dl className="member-detail-sections__list">
+                    <div className="member-detail-sections__row">
+                      <dt>아이디</dt>
+                      <dd>{displayValue(account.username)}</dd>
+                    </div>
+                    <div className="member-detail-sections__row">
+                      <dt>이메일</dt>
+                      <dd>
+                        <MaskedPiiField
+                          field={PII_FIELD.EMAIL}
+                          value={account.email}
+                          targetUserId={account.user_id}
+                          targetName={account.name || ''}
+                          context="detail"
+                        />
+                      </dd>
+                    </div>
+                    <div className="member-detail-sections__row">
+                      <dt>가입방식</dt>
+                      <dd>{providerLabel}</dd>
+                    </div>
+                    <div className="member-detail-sections__row">
+                      <dt>가입일</dt>
+                      <dd>{displayValue(formatBoardDate(account.created_at))}</dd>
+                    </div>
+                  </dl>
+                </article>
+              </li>
+            )
+          })}
+        </ol>
+      )}
+    </section>
+  )
+}
+
+export function MemberDetailSections({
+  member,
+  linkedAccounts = [],
+  linkedLoading = false,
+  linkedError = '',
+  unlinkingUserId = '',
+  onUnlink,
+}) {
   if (!member) {
     return null
   }
@@ -136,6 +226,14 @@ export function MemberDetailSections({ member }) {
           { label: '받은 추천', value: formatCount(member.received_likes_count) },
           { label: '받은 신고', value: '추후 지원' },
         ]}
+      />
+
+      <LinkedAccountsSection
+        linkedAccounts={linkedAccounts}
+        linkedLoading={linkedLoading}
+        linkedError={linkedError}
+        unlinkingUserId={unlinkingUserId}
+        onUnlink={onUnlink}
       />
     </div>
   )

@@ -1,8 +1,13 @@
 import { useCallback, useEffect, useState } from 'react'
 import { FiUsers } from 'react-icons/fi'
+import AccountLinkModal from '@/components/auth/AccountLinkModal'
 import MaskedPiiField from '@/components/auth/MaskedPiiField'
 import MemberDetailSections from '@/components/auth/MemberDetailSections'
 import MemberMypageLayout from '@/components/auth/MemberMypageLayout'
+import {
+  fetchLinkedAccounts,
+  unlinkMemberAccount,
+} from '@/services/auth/accountLinks'
 import {
   deleteMemberBySuperAdmin,
   fetchMemberDetailForSuperAdmin,
@@ -76,7 +81,18 @@ function ConfirmModal({
   )
 }
 
-function MemberDetailModal({ isOpen, loading, error, member, onClose }) {
+function MemberDetailModal({
+  isOpen,
+  loading,
+  error,
+  member,
+  linkedAccounts,
+  linkedLoading,
+  linkedError,
+  unlinkingUserId,
+  onUnlink,
+  onClose,
+}) {
   if (!isOpen) {
     return null
   }
@@ -102,7 +118,14 @@ function MemberDetailModal({ isOpen, loading, error, member, onClose }) {
               {error}
             </p>
           ) : (
-            <MemberDetailSections member={member} />
+            <MemberDetailSections
+              member={member}
+              linkedAccounts={linkedAccounts}
+              linkedLoading={linkedLoading}
+              linkedError={linkedError}
+              unlinkingUserId={unlinkingUserId}
+              onUnlink={onUnlink}
+            />
           )}
         </div>
 
@@ -134,7 +157,37 @@ function MemberManagement() {
   const [detailMember, setDetailMember] = useState(null)
   const [detailLoading, setDetailLoading] = useState(false)
   const [detailError, setDetailError] = useState('')
+  const [linkedAccounts, setLinkedAccounts] = useState([])
+  const [linkedLoading, setLinkedLoading] = useState(false)
+  const [linkedError, setLinkedError] = useState('')
+  const [unlinkingUserId, setUnlinkingUserId] = useState('')
+  const [linkModalMember, setLinkModalMember] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const loadLinkedAccounts = useCallback(async (userId) => {
+    if (!userId) {
+      setLinkedAccounts([])
+      setLinkedError('')
+      setLinkedLoading(false)
+      return
+    }
+
+    setLinkedLoading(true)
+    setLinkedError('')
+
+    const result = await fetchLinkedAccounts(userId)
+
+    if (!result.success) {
+      setLinkedAccounts([])
+      setLinkedError(result.message || '연결된 계정을 불러오지 못했습니다.')
+      setLinkedLoading(false)
+      return
+    }
+
+    setLinkedAccounts(result.accounts || [])
+    setLinkedError(result.unavailable ? result.message || '' : '')
+    setLinkedLoading(false)
+  }, [])
 
   const loadMembers = useCallback(async (query) => {
     setLoading(true)
@@ -168,6 +221,9 @@ function MemberManagement() {
     setDetailMember(null)
     setDetailError('')
     setDetailLoading(true)
+    setLinkedAccounts([])
+    setLinkedError('')
+    void loadLinkedAccounts(member.user_id)
 
     const result = await fetchMemberDetailForSuperAdmin(member.user_id)
 
@@ -187,6 +243,51 @@ function MemberManagement() {
     setDetailMember(null)
     setDetailError('')
     setDetailLoading(false)
+    setLinkedAccounts([])
+    setLinkedError('')
+    setLinkedLoading(false)
+    setUnlinkingUserId('')
+  }
+
+  const handleLinked = async () => {
+    setLinkModalMember(null)
+    await loadMembers(searchQuery)
+    if (detailModal?.userId) {
+      await loadLinkedAccounts(detailModal.userId)
+    }
+    setFeedback({ type: 'success', message: '계정이 연결되었습니다.' })
+  }
+
+  const handleUnlinkAccount = async (account) => {
+    if (!account?.user_id || account.is_primary) {
+      return
+    }
+
+    const confirmed = window.confirm(
+      `${account.name || account.username || '선택한 계정'} 연결을 해제하시겠습니까?\n이관했던 게시글·댓글·좋아요는 해당 계정으로 되돌립니다.`,
+    )
+
+    if (!confirmed) {
+      return
+    }
+
+    setUnlinkingUserId(account.user_id)
+    setLinkedError('')
+
+    const result = await unlinkMemberAccount(account.user_id)
+
+    if (!result.success) {
+      setLinkedError(result.message || '계정 연결 해제에 실패했습니다.')
+      setUnlinkingUserId('')
+      return
+    }
+
+    setUnlinkingUserId('')
+    await loadMembers(searchQuery)
+    if (detailModal?.userId) {
+      await loadLinkedAccounts(detailModal.userId)
+    }
+    setFeedback({ type: 'success', message: result.message || '계정 연결이 해제되었습니다.' })
   }
 
   const handleRoleConfirm = async () => {
@@ -331,13 +432,25 @@ function MemberManagement() {
                     <tr key={member.user_id}>
                       <td>{member.name}</td>
                       <td className="member-management-page__pii-cell">
-                        <MaskedPiiField
-                          field={PII_FIELD.EMAIL}
-                          value={member.email}
-                          targetUserId={member.user_id}
-                          targetName={member.name}
-                          context="list"
-                        />
+                        <div className="member-management-page__email-actions">
+                          <MaskedPiiField
+                            field={PII_FIELD.EMAIL}
+                            value={member.email}
+                            targetUserId={member.user_id}
+                            targetName={member.name}
+                            context="list"
+                          />
+                          <button
+                            type="button"
+                            className="member-management-page__link-button"
+                            onClick={() => setLinkModalMember(member)}
+                          >
+                            추가 계정
+                            {Number(member.linked_accounts_count) > 0
+                              ? ` (${member.linked_accounts_count})`
+                              : ''}
+                          </button>
+                        </div>
                       </td>
                       <td className="member-management-page__pii-cell">
                         <MaskedPiiField
@@ -418,8 +531,23 @@ function MemberManagement() {
           loading={detailLoading}
           error={detailError}
           member={detailMember}
+          linkedAccounts={linkedAccounts}
+          linkedLoading={linkedLoading}
+          linkedError={linkedError}
+          unlinkingUserId={unlinkingUserId}
+          onUnlink={handleUnlinkAccount}
           onClose={handleCloseDetail}
         />
+
+        {linkModalMember ? (
+          <AccountLinkModal
+            key={linkModalMember.user_id}
+            isOpen
+            primaryMember={linkModalMember}
+            onClose={() => setLinkModalMember(null)}
+            onLinked={handleLinked}
+          />
+        ) : null}
 
         {roleModal ? (
           <div className="member-management-modal" role="presentation">

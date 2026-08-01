@@ -158,6 +158,8 @@ export function AuthProvider({ children }) {
       session,
       user: session?.user ?? null,
       profile,
+      // 연결된 보조 계정으로 로그인한 경우 대표 auth user id
+      effectiveUserId: profile?.effectiveUserId ?? session?.user?.id ?? null,
       isLoggedIn: Boolean(session?.user && profile),
       loading,
       signOut,

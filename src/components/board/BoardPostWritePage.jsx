@@ -67,7 +67,8 @@ function BoardPostWritePage({
   writeVariant = 'default',
 }) {
   const navigate = useNavigate()
-  const { profile, user } = useAuth()
+  const { profile, user, effectiveUserId } = useAuth()
+  const currentUserId = effectiveUserId ?? user?.id
   const isEdit = mode === 'edit'
   const isVideoWrite = writeVariant === 'video'
 
@@ -159,7 +160,7 @@ function BoardPostWritePage({
         return
       }
 
-      if (!canEditPost(profile, result.post, user?.id)) {
+      if (!canEditPost(profile, result.post, currentUserId)) {
         setError('이 게시글을 수정할 권한이 없습니다.')
         setLoadingPost(false)
         return
@@ -217,7 +218,7 @@ function BoardPostWritePage({
     return () => {
       isMounted = false
     }
-  }, [isEdit, postId, postType, profile, user?.id])
+  }, [isEdit, postId, postType, profile, currentUserId])
 
   const handleThumbnailChange = (next) => {
     if (thumbnailState?.existingPath) {
