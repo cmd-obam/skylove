@@ -129,7 +129,9 @@ $$;
 GRANT EXECUTE ON FUNCTION public.detect_auth_provider(uuid) TO authenticated;
 
 -- ---------- 3) 검색 / 목록 / 연결 / 해제 RPC ----------
-CREATE OR REPLACE FUNCTION public.search_linkable_accounts_for_super_admin(p_search text)
+DROP FUNCTION IF EXISTS public.search_linkable_accounts_for_super_admin(text);
+
+CREATE FUNCTION public.search_linkable_accounts_for_super_admin(p_search text)
 RETURNS TABLE (
   user_id uuid,
   username text,
@@ -188,7 +190,9 @@ $$;
 REVOKE ALL ON FUNCTION public.search_linkable_accounts_for_super_admin(text) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.search_linkable_accounts_for_super_admin(text) TO authenticated;
 
-CREATE OR REPLACE FUNCTION public.list_linked_accounts_for_super_admin(p_user_id uuid)
+DROP FUNCTION IF EXISTS public.list_linked_accounts_for_super_admin(uuid);
+
+CREATE FUNCTION public.list_linked_accounts_for_super_admin(p_user_id uuid)
 RETURNS TABLE (
   user_id uuid,
   username text,
@@ -376,7 +380,9 @@ BEGIN
       )
     RETURNING pl.id
   )
-  SELECT coalesce(array_agg(id), ARRAY[]::uuid[]) INTO v_deleted_post_like_ids FROM deleted;
+  SELECT coalesce(array_agg(deleted.id), ARRAY[]::uuid[])
+  INTO v_deleted_post_like_ids
+  FROM deleted;
 
   WITH deleted AS (
     DELETE FROM public.comment_likes AS cl
@@ -389,18 +395,20 @@ BEGIN
       )
     RETURNING cl.id
   )
-  SELECT coalesce(array_agg(id), ARRAY[]::uuid[]) INTO v_deleted_comment_like_ids FROM deleted;
+  SELECT coalesce(array_agg(deleted.id), ARRAY[]::uuid[])
+  INTO v_deleted_comment_like_ids
+  FROM deleted;
 
   -- 충돌로 삭제한 좋아요는 이관 목록에서 제외
-  SELECT coalesce(array_agg(id), ARRAY[]::uuid[])
+  SELECT coalesce(array_agg(t.id), ARRAY[]::uuid[])
   INTO v_post_like_ids
-  FROM unnest(v_post_like_ids) AS id
-  WHERE id <> ALL (v_deleted_post_like_ids);
+  FROM unnest(v_post_like_ids) AS t(id)
+  WHERE t.id <> ALL (v_deleted_post_like_ids);
 
-  SELECT coalesce(array_agg(id), ARRAY[]::uuid[])
+  SELECT coalesce(array_agg(t.id), ARRAY[]::uuid[])
   INTO v_comment_like_ids
-  FROM unnest(v_comment_like_ids) AS id
-  WHERE id <> ALL (v_deleted_comment_like_ids);
+  FROM unnest(v_comment_like_ids) AS t(id)
+  WHERE t.id <> ALL (v_deleted_comment_like_ids);
 
   UPDATE public.board_posts
   SET author_id = v_primary_user_id
@@ -503,21 +511,21 @@ BEGIN
     RAISE EXCEPTION '연결된 계정을 찾을 수 없습니다.';
   END IF;
 
-  SELECT coalesce(array_agg(value::uuid), ARRAY[]::uuid[])
+  SELECT coalesce(array_agg(t.value::uuid), ARRAY[]::uuid[])
   INTO v_post_ids
-  FROM jsonb_array_elements_text(coalesce(v_link.transferred->'post_ids', '[]'::jsonb)) AS value;
+  FROM jsonb_array_elements_text(coalesce(v_link.transferred->'post_ids', '[]'::jsonb)) AS t(value);
 
-  SELECT coalesce(array_agg(value::uuid), ARRAY[]::uuid[])
+  SELECT coalesce(array_agg(t.value::uuid), ARRAY[]::uuid[])
   INTO v_comment_ids
-  FROM jsonb_array_elements_text(coalesce(v_link.transferred->'comment_ids', '[]'::jsonb)) AS value;
+  FROM jsonb_array_elements_text(coalesce(v_link.transferred->'comment_ids', '[]'::jsonb)) AS t(value);
 
-  SELECT coalesce(array_agg(value::uuid), ARRAY[]::uuid[])
+  SELECT coalesce(array_agg(t.value::uuid), ARRAY[]::uuid[])
   INTO v_post_like_ids
-  FROM jsonb_array_elements_text(coalesce(v_link.transferred->'post_like_ids', '[]'::jsonb)) AS value;
+  FROM jsonb_array_elements_text(coalesce(v_link.transferred->'post_like_ids', '[]'::jsonb)) AS t(value);
 
-  SELECT coalesce(array_agg(value::uuid), ARRAY[]::uuid[])
+  SELECT coalesce(array_agg(t.value::uuid), ARRAY[]::uuid[])
   INTO v_comment_like_ids
-  FROM jsonb_array_elements_text(coalesce(v_link.transferred->'comment_like_ids', '[]'::jsonb)) AS value;
+  FROM jsonb_array_elements_text(coalesce(v_link.transferred->'comment_like_ids', '[]'::jsonb)) AS t(value);
 
   UPDATE public.board_posts
   SET author_id = v_linked_user_id
@@ -573,7 +581,11 @@ REVOKE ALL ON FUNCTION public.unlink_member_account_by_super_admin(jsonb) FROM P
 GRANT EXECUTE ON FUNCTION public.unlink_member_account_by_super_admin(jsonb) TO authenticated;
 
 -- ---------- 4) 회원 목록: phone 복구 + 연결 개수 + 보조 계정 제외 ----------
-CREATE OR REPLACE FUNCTION public.list_profiles_for_super_admin(p_search text DEFAULT NULL)
+-- RETURNS TABLE 컬럼이 바뀌므로 CREATE OR REPLACE 만으로는 교체할 수 없습니다. (42P13)
+DROP FUNCTION IF EXISTS public.list_profiles_for_super_admin(text);
+DROP FUNCTION IF EXISTS public.list_profiles_for_super_admin();
+
+CREATE FUNCTION public.list_profiles_for_super_admin(p_search text DEFAULT NULL)
 RETURNS TABLE (
   user_id uuid,
   username text,
