@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { fetchProfileByUserId } from '@/services/auth/profile'
-import { OAUTH_PROFILE_COMPLETE_PATH } from '@/services/auth/oauthProfile'
+import {
+  isSignupCompletedProfile,
+  OAUTH_PROFILE_COMPLETE_PATH,
+} from '@/services/auth/oauthProfile'
 import { supabase } from '@/lib/supabase'
 import './OAuthCallback.css'
 
@@ -111,7 +114,7 @@ function OAuthCallback() {
 
         finishedRef.current = true
 
-        if (existingProfile.success && existingProfile.profile) {
+        if (isSignupCompletedProfile(existingProfile.success ? existingProfile.profile : null)) {
           navigate('/', { replace: true })
           return
         }
@@ -136,7 +139,7 @@ function OAuthCallback() {
           finishedRef.current = true
           const existingProfile = await fetchProfileByUserId(user.id)
 
-          if (existingProfile.success && existingProfile.profile) {
+          if (isSignupCompletedProfile(existingProfile.success ? existingProfile.profile : null)) {
             navigate('/', { replace: true })
             return
           }

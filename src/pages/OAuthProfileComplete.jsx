@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import AuthBreadcrumb from '@/components/auth/AuthBreadcrumb'
 import BirthDateSelect from '@/components/signup/BirthDateSelect'
+import PasswordInput from '@/components/signup/PasswordInput'
 import SignupCongregantField from '@/components/signup/SignupCongregantField'
 import SignupFormRow from '@/components/signup/SignupFormRow'
 import {
@@ -17,8 +18,18 @@ import {
   createOAuthProfile,
   formatPhoneNumber,
   getOAuthHomeUrl,
+  isSignupCompletedProfile,
   validateOAuthProfileForm,
 } from '@/services/auth/oauthProfile'
+import {
+  getPasswordConfirmLiveError,
+  getPasswordConfirmLiveSuccess,
+  getPasswordRuleLiveError,
+  getPasswordRuleLiveSuccess,
+  isPasswordReadyForSignup,
+  PASSWORD_PLACEHOLDER,
+  PASSWORD_REQUIREMENT_HINT,
+} from '@/services/auth/signup'
 import { fetchProfileByUserId } from '@/services/auth/profile'
 import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 import '@/components/layout/CategoryLayout.css'
@@ -26,9 +37,13 @@ import '@/components/layout/SubLayout.css'
 import '@/pages/Signup.css'
 import './OAuthProfileComplete.css'
 
+const PASSWORD_CONFIRM_PLACEHOLDER = '비밀번호를 다시 입력해주세요'
+
 const INITIAL_FORM = {
-  name: '',
   loginId: '',
+  password: '',
+  passwordConfirm: '',
+  name: '',
   birthDate: '',
   phone: '',
   email: '',
@@ -51,6 +66,7 @@ function OAuthProfileComplete() {
   const [isCheckingId, setIsCheckingId] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [sessionReady, setSessionReady] = useState(false)
+  const [passwordConfirmTouched, setPasswordConfirmTouched] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -75,7 +91,7 @@ function OAuthProfileComplete() {
         return
       }
 
-      if (existing.success && existing.profile) {
+      if (isSignupCompletedProfile(existing.success ? existing.profile : null)) {
         window.location.replace(getOAuthHomeUrl())
         return
       }
@@ -204,6 +220,27 @@ function OAuthProfileComplete() {
     }
   }
 
+  const passwordRuleLiveError = getPasswordRuleLiveError(form.password)
+  const passwordRuleLiveSuccess = getPasswordRuleLiveSuccess(form.password)
+  const passwordConfirmLiveError = getPasswordConfirmLiveError(
+    form.password,
+    form.passwordConfirm,
+    passwordConfirmTouched,
+  )
+  const passwordConfirmLiveSuccess = getPasswordConfirmLiveSuccess(
+    form.password,
+    form.passwordConfirm,
+    passwordConfirmTouched,
+  )
+
+  const displayedPasswordError = errors.password || passwordRuleLiveError
+  const displayedPasswordSuccess = displayedPasswordError ? undefined : passwordRuleLiveSuccess
+  const displayedPasswordConfirmError = errors.passwordConfirm || passwordConfirmLiveError
+  const displayedPasswordConfirmSuccess = displayedPasswordConfirmError
+    ? undefined
+    : passwordConfirmLiveSuccess
+  const isPasswordReady = isPasswordReadyForSignup(form.password, form.passwordConfirm)
+
   if (!sessionReady) {
     return (
       <div className="category-layout oauth-complete-page">
@@ -224,7 +261,8 @@ function OAuthProfileComplete() {
             <div className="sub-layout__heading">
               <h1 className="sub-layout__title">추가 정보 입력</h1>
               <p className="sub-layout__subtitle">
-                간편 로그인 최초 이용을 위해 회원 정보를 입력해주세요.
+                간편 로그인 최초 이용을 위해 회원 정보를 입력해주세요. 가입 후에는 아이디·비밀번호
+                로그인과 카카오 로그인을 모두 사용할 수 있습니다.
               </p>
             </div>
             <AuthBreadcrumb label="추가 정보 입력" />
@@ -261,25 +299,6 @@ function OAuthProfileComplete() {
 
             <div className="signup-info-form__panel">
               <SignupFormRow
-                label="이름"
-                required
-                htmlFor="oauth-name"
-                hint="실명으로 입력해주세요."
-                error={errors.name}
-              >
-                <input
-                  id="oauth-name"
-                  name="name"
-                  type="text"
-                  className="signup-info-form__input"
-                  placeholder="이름을 입력하세요."
-                  value={form.name}
-                  onChange={(event) => updateField('name', event.target.value)}
-                  autoComplete={AUTOCOMPLETE_OFF}
-                />
-              </SignupFormRow>
-
-              <SignupFormRow
                 label="회원 아이디"
                 required
                 htmlFor="oauth-login-id"
@@ -312,6 +331,51 @@ function OAuthProfileComplete() {
               </SignupFormRow>
 
               <SignupFormRow
+                label="비밀번호"
+                required
+                htmlFor="oauth-password"
+                hint={PASSWORD_REQUIREMENT_HINT}
+                alwaysShowHint
+                reserveFeedback
+                error={displayedPasswordError}
+                success={displayedPasswordSuccess}
+                rowClassName="signup-info-form__row--password"
+              >
+                <PasswordInput
+                  id="oauth-password"
+                  name="password"
+                  placeholder={PASSWORD_PLACEHOLDER}
+                  value={form.password}
+                  onChange={(event) => updateField('password', event.target.value)}
+                  className="signup-info-form__input"
+                  wrapperClassName="signup-info-form__password"
+                />
+              </SignupFormRow>
+
+              <SignupFormRow
+                label="비밀번호 확인"
+                required
+                htmlFor="oauth-password-confirm"
+                reserveFeedback
+                error={displayedPasswordConfirmError}
+                success={displayedPasswordConfirmSuccess}
+                rowClassName="signup-info-form__row--password-confirm"
+              >
+                <PasswordInput
+                  id="oauth-password-confirm"
+                  name="passwordConfirm"
+                  placeholder={PASSWORD_CONFIRM_PLACEHOLDER}
+                  value={form.passwordConfirm}
+                  onChange={(event) => {
+                    setPasswordConfirmTouched(true)
+                    updateField('passwordConfirm', event.target.value)
+                  }}
+                  className="signup-info-form__input"
+                  wrapperClassName="signup-info-form__password"
+                />
+              </SignupFormRow>
+
+              <SignupFormRow
                 label="이메일"
                 required
                 htmlFor="oauth-email"
@@ -327,6 +391,25 @@ function OAuthProfileComplete() {
                   value={form.email}
                   readOnly
                   disabled
+                />
+              </SignupFormRow>
+
+              <SignupFormRow
+                label="이름"
+                required
+                htmlFor="oauth-name"
+                hint="실명으로 입력해주세요."
+                error={errors.name}
+              >
+                <input
+                  id="oauth-name"
+                  name="name"
+                  type="text"
+                  className="signup-info-form__input"
+                  placeholder="이름을 입력하세요."
+                  value={form.name}
+                  onChange={(event) => updateField('name', event.target.value)}
+                  autoComplete={AUTOCOMPLETE_OFF}
                 />
               </SignupFormRow>
 
@@ -468,7 +551,11 @@ function OAuthProfileComplete() {
             )}
 
             <div className="signup-info-form__actions">
-              <button type="submit" className="signup-btn signup-btn--dark" disabled={isSubmitting}>
+              <button
+                type="submit"
+                className="signup-btn signup-btn--dark"
+                disabled={isSubmitting || !isPasswordReady}
+              >
                 {isSubmitting ? '저장 중...' : '가입 완료'}
               </button>
               <Link to="/login" className="signup-btn signup-btn--cancel" replace>
