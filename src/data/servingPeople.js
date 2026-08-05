@@ -8,7 +8,7 @@
 
 export const SERVING_PEOPLE_PAGE_INTRO = {
   title: '섬기는 사람들',
-  subtitle: '하늘사랑교회 교역자를 소개합니다',
+  subtitle: '하늘사랑교회 직분자를 소개합니다',
 }
 
 /** @typedef {{ id: string, name: string, role: string, photoUrl: string | null, sortOrder: number }} ServingPerson */
@@ -18,23 +18,9 @@ export const SERVING_PEOPLE_PAGE_INTRO = {
 /** @type {ServingGroup[]} */
 export const CLERGY_GROUPS = [
   {
-    id: 'senior-pastor',
-    title: '담임목사',
-    sortOrder: 1,
-    people: [
-      {
-        id: 'clergy-choi-seokrim',
-        name: '최석림',
-        role: '담임목사',
-        photoUrl: null,
-        sortOrder: 1,
-      },
-    ],
-  },
-  {
     id: 'elder-deaconess',
     title: '원로권사',
-    sortOrder: 2,
+    sortOrder: 1,
     people: [
       {
         id: 'clergy-kim-jinsun',
@@ -48,7 +34,7 @@ export const CLERGY_GROUPS = [
   {
     id: 'deaconess',
     title: '권사',
-    sortOrder: 3,
+    sortOrder: 2,
     people: [
       {
         id: 'clergy-jo-changgyeong',
@@ -83,7 +69,7 @@ export const CLERGY_GROUPS = [
   {
     id: 'deacon',
     title: '집사',
-    sortOrder: 4,
+    sortOrder: 3,
     people: [
       {
         id: 'clergy-jeong-jieun',

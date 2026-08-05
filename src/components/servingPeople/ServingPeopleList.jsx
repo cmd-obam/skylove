@@ -4,7 +4,7 @@ import './ServingPeople.css'
 
 /**
  * 섬기는 사람들 목록 렌더러
- * groups 데이터만 교체하면 교역자/사역자 및 향후 CMS 연동이 가능합니다.
+ * groups 데이터만 교체하면 직분자/사역자 및 향후 CMS 연동이 가능합니다.
  */
 function ServingPeopleList({ groups }) {
   const orderedGroups = sortByOrder(groups)

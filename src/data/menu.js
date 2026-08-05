@@ -31,7 +31,7 @@ export const MENU_ITEMS = [
         title: '섬기는 사람들',
         path: '/about/people',
         children: [
-          { title: '교역자', path: '/about/people/clergy' },
+          { title: '직분자', path: '/about/people/clergy' },
           { title: '사역자', path: '/about/people/ministers' },
         ],
       },

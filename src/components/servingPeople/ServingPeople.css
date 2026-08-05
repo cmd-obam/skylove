@@ -163,7 +163,7 @@
     gap: 2.25rem;
   }
 
-  /* 1명 그룹(담임목사·원로권사·간사 등): 세로 1열 유지 */
+  /* 1명 그룹(원로권사·간사 등): 세로 1열 유지 */
   .serving-people-grid:not(.serving-people-grid--multi) {
     grid-template-columns: minmax(0, 1fr);
     gap: 1.75rem;
