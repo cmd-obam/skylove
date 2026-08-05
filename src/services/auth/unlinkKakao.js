@@ -21,6 +21,41 @@ function normalizeIdentities(rawIdentities) {
     }))
 }
 
+function hasGeneralLoginRegistered(user, providers) {
+  if (providers.includes('email')) {
+    return true
+  }
+
+  const metadata = user?.user_metadata || {}
+
+  if (metadata.general_login_registered === true) {
+    return true
+  }
+
+  // 카카오 가입 완료 시 updateUser 로 username 을 넣은 경우 (비밀번호 등록됨)
+  if (typeof metadata.username === 'string' && metadata.username.trim()) {
+    return true
+  }
+
+  return false
+}
+
+function buildLoginStatusLabel({ hasKakao, hasGeneralLogin, methods, primaryLabel }) {
+  if (hasKakao && hasGeneralLogin) {
+    return '카카오 로그인 + 일반 로그인'
+  }
+
+  if (hasKakao && !hasGeneralLogin) {
+    return '카카오 로그인 (일반 로그인 미등록)'
+  }
+
+  if (methods.length > 0) {
+    return methods.join(' + ')
+  }
+
+  return primaryLabel || '알 수 없음'
+}
+
 async function fetchUserIdentities() {
   const {
     data: { user },
@@ -69,9 +104,11 @@ export async function getAccountLoginMethods() {
       message: fetched.message,
       methods: [],
       hasKakao: false,
+      hasGeneralLogin: false,
       canUnlinkKakao: false,
       otherLoginMethods: [],
       primaryLabel: '알 수 없음',
+      loginStatusLabel: '알 수 없음',
       identities: [],
     }
   }
@@ -84,7 +121,8 @@ export async function getAccountLoginMethods() {
     (provider) => LOGIN_METHOD_LABELS[provider] || provider,
   )
   const methods = providers.map((provider) => LOGIN_METHOD_LABELS[provider] || provider)
-  const canUnlinkKakao = hasKakao && otherProviders.length > 0
+  const hasGeneralLogin = hasGeneralLoginRegistered(user, providers)
+  const canUnlinkKakao = hasKakao && hasGeneralLogin
   const primaryLabel =
     (hasKakao && LOGIN_METHOD_LABELS.kakao) ||
     methods[0] ||
@@ -96,18 +134,62 @@ export async function getAccountLoginMethods() {
     success: true,
     methods,
     hasKakao,
+    hasGeneralLogin,
     canUnlinkKakao,
     otherLoginMethods,
     primaryLabel,
+    loginStatusLabel: buildLoginStatusLabel({
+      hasKakao,
+      hasGeneralLogin,
+      methods,
+      primaryLabel,
+    }),
     identities,
     user,
   }
 }
 
+async function unlinkKakaoViaEdgeFunction() {
+  const { data, error } = await supabase.functions.invoke('unlink-kakao', {
+    method: 'POST',
+    body: {},
+  })
+
+  if (error) {
+    console.error('[UnlinkKakao] edge function invoke failed', error)
+    return {
+      success: false,
+      message:
+        error.message ||
+        '카카오 계정 연동 해제에 실패했습니다. 잠시 후 다시 시도해주세요.',
+      error,
+    }
+  }
+
+  if (data?.error || data?.success === false) {
+    return {
+      success: false,
+      message:
+        data?.message ||
+        '카카오 계정 연동 해제에 실패했습니다. 잠시 후 다시 시도해주세요.',
+      code: data?.error,
+    }
+  }
+
+  return {
+    success: true,
+    message:
+      data?.message ||
+      '카카오 계정 연동이 해제되었습니다.\n이후부터는 아이디 + 비밀번호 또는 이메일 + 비밀번호 로그인만 사용할 수 있습니다.',
+    remainingMethods: data?.remainingMethods,
+  }
+}
+
 /**
  * 카카오 identity 연동 해제 (profiles 행은 유지)
- * - 카카오만 있는 계정은 해제 불가
- * - 이메일 등 다른 identity가 있을 때만 Supabase unlinkIdentity 호출
+ * - 일반 로그인이 등록된 경우에만 허용
+ * - identities 가 2개 이상이면 클라이언트 unlinkIdentity
+ * - 아니면 Edge Function(service role)으로 카카오 identity 제거
  */
 export async function unlinkKakaoIdentity() {
   const methods = await getAccountLoginMethods()
@@ -120,12 +202,12 @@ export async function unlinkKakaoIdentity() {
     return { success: false, message: '카카오 계정 연동 정보를 찾을 수 없습니다.' }
   }
 
-  if (!methods.canUnlinkKakao) {
+  if (!methods.hasGeneralLogin) {
     return {
       success: false,
       message:
-        '현재 로그인 수단이 카카오뿐이라 연동을 해제할 수 없습니다. 이메일 등 다른 로그인 수단을 추가한 뒤에만 카카오 연동을 해제할 수 있습니다.',
-      code: 'ONLY_KAKAO_IDENTITY',
+        '현재 카카오 로그인만 사용 중입니다. 일반 로그인 계정을 먼저 등록해주세요.',
+      code: 'NEEDS_GENERAL_LOGIN',
     }
   }
 
@@ -138,33 +220,49 @@ export async function unlinkKakaoIdentity() {
     }
   }
 
-  console.log('[UnlinkKakao] unlinkIdentity start', {
-    identityId: kakaoIdentity.identity_id,
-    provider: kakaoIdentity.provider,
-    otherMethods: methods.otherLoginMethods,
-  })
+  const hasOtherIdentity = methods.identities.some((item) => item.provider !== 'kakao')
 
-  const { data, error } = await supabase.auth.unlinkIdentity(kakaoIdentity)
+  if (hasOtherIdentity) {
+    console.log('[UnlinkKakao] unlinkIdentity start', {
+      identityId: kakaoIdentity.identity_id,
+      provider: kakaoIdentity.provider,
+      otherMethods: methods.otherLoginMethods,
+    })
 
-  if (error) {
-    console.error('[UnlinkKakao] unlinkIdentity failed', {
+    const { data, error } = await supabase.auth.unlinkIdentity(kakaoIdentity)
+
+    if (!error) {
+      const after = await getAccountLoginMethods()
+
+      if (after.success && after.hasKakao) {
+        console.error('[UnlinkKakao] unlink reported success but kakao identity still present')
+        return {
+          success: false,
+          message:
+            '연동 해제 요청은 처리되었지만 카카오 연결이 남아 있습니다. 잠시 후 다시 확인해주세요.',
+        }
+      }
+
+      console.log('[UnlinkKakao] unlinkIdentity success', {
+        remainingMethods: after.methods,
+      })
+
+      return {
+        success: true,
+        message:
+          '카카오 계정 연동이 해제되었습니다.\n이후부터는 아이디 + 비밀번호 또는 이메일 + 비밀번호 로그인만 사용할 수 있습니다.',
+        data,
+        remainingMethods: after.methods,
+      }
+    }
+
+    console.warn('[UnlinkKakao] unlinkIdentity failed — trying edge function', {
       message: error.message,
       status: error.status,
       code: error.code,
-      name: error.name,
     })
 
     const message = String(error.message || '').toLowerCase()
-
-    if (message.includes('at least 2') || message.includes('single identity')) {
-      return {
-        success: false,
-        message:
-          '현재 로그인 수단이 카카오뿐이라 연동을 해제할 수 없습니다. 이메일 등 다른 로그인 수단을 추가한 뒤에만 카카오 연동을 해제할 수 있습니다.',
-        error,
-        code: 'ONLY_KAKAO_IDENTITY',
-      }
-    }
 
     if (message.includes('manual linking') || message.includes('not enabled')) {
       return {
@@ -175,33 +273,30 @@ export async function unlinkKakaoIdentity() {
         code: 'MANUAL_LINKING_DISABLED',
       }
     }
-
-    return {
-      success: false,
-      message: error.message || '카카오 계정 연동 해제에 실패했습니다. 잠시 후 다시 시도해주세요.',
-      error,
-    }
   }
 
-  // 해제 결과 검증
+  const edgeResult = await unlinkKakaoViaEdgeFunction()
+
+  if (!edgeResult.success) {
+    return edgeResult
+  }
+
   const after = await getAccountLoginMethods()
 
   if (after.success && after.hasKakao) {
-    console.error('[UnlinkKakao] unlink reported success but kakao identity still present')
+    console.error('[UnlinkKakao] edge unlink reported success but kakao identity still present')
     return {
       success: false,
-      message: '연동 해제 요청은 처리되었지만 카카오 연결이 남아 있습니다. 잠시 후 다시 확인해주세요.',
+      message:
+        '연동 해제 요청은 처리되었지만 카카오 연결이 남아 있습니다. 잠시 후 다시 확인해주세요.',
     }
   }
 
-  console.log('[UnlinkKakao] unlinkIdentity success', {
-    remainingMethods: after.methods,
-  })
-
   return {
     success: true,
-    message: '카카오 계정 연동이 해제되었습니다.',
-    data,
-    remainingMethods: after.methods,
+    message:
+      edgeResult.message ||
+      '카카오 계정 연동이 해제되었습니다.\n이후부터는 아이디 + 비밀번호 또는 이메일 + 비밀번호 로그인만 사용할 수 있습니다.',
+    remainingMethods: after.methods?.length ? after.methods : edgeResult.remainingMethods,
   }
 }

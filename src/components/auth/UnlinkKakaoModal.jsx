@@ -4,17 +4,12 @@ function UnlinkKakaoModal({
   isOpen,
   isUnlinking,
   error,
-  otherLoginMethods = [],
   onCancel,
   onConfirm,
 }) {
   if (!isOpen) {
     return null
   }
-
-  const otherMethodsLabel = otherLoginMethods.length
-    ? otherLoginMethods.join(', ')
-    : '이메일 등 다른 로그인 수단'
 
   return (
     <div className="delete-account-modal" role="presentation">
@@ -29,16 +24,20 @@ function UnlinkKakaoModal({
         </h2>
         <div className="delete-account-modal__content">
           <p className="delete-account-modal__question">
-            카카오 계정과의 연동을 해제하시겠습니까?
+            카카오 계정 연동을 해제하시겠습니까?
           </p>
           <p className="delete-account-modal__description">
-            연동을 해제하면
+            연동 해제 후에는
             {'\n'}
-            - 카카오 로그인으로 로그인할 수 없습니다.
+            아이디 + 비밀번호
             {'\n'}
-            - 기존 회원 정보는 삭제되지 않습니다.
+            또는
             {'\n'}
-            - 이후에는 {otherMethodsLabel}으로 로그인할 수 있습니다.
+            이메일 + 비밀번호
+            {'\n'}
+            로그인만 사용할 수 있습니다.
+            {'\n\n'}
+            카카오 로그인은 사용할 수 없습니다.
           </p>
         </div>
         {error && (

@@ -127,6 +127,7 @@ async function saveAuthPassword(formData) {
       data: {
         name: String(formData.name ?? '').trim(),
         username: String(formData.loginId ?? '').trim(),
+        general_login_registered: true,
       },
     })
 
