@@ -24,10 +24,13 @@
   --location-hero-bg: none;
   /* Native location-hero.png size — contained like 주일 축복 예배 hero. */
   --location-hero-ratio: 1024 / 576;
+  --location-banner-text-top: 20px;
+  --location-banner-text-left: 20px;
+  --location-banner-text-bottom: 20px;
+  --location-banner-text-width: calc(48% - 20px);
 
   position: relative;
-  display: flex;
-  align-items: center;
+  display: block;
   aspect-ratio: var(--location-hero-ratio);
   min-height: unset;
   width: 100%;
@@ -44,72 +47,86 @@
   inset: 0;
   background: linear-gradient(
     90deg,
-    rgba(255, 255, 255, 0.88) 0%,
-    rgba(255, 255, 255, 0.55) 42%,
-    transparent 68%
+    rgba(255, 255, 255, 0.92) 0%,
+    rgba(255, 255, 255, 0.72) 38%,
+    rgba(255, 255, 255, 0.2) 58%,
+    transparent 72%
   );
   pointer-events: none;
 }
 
+/* 주일축복예배 중간 배너와 동일한 왼쪽 중앙 정렬 텍스트 박스 */
 .location-hero__content {
-  position: relative;
+  container-type: inline-size;
+  position: absolute;
+  top: var(--location-banner-text-top);
+  left: var(--location-banner-text-left);
+  bottom: var(--location-banner-text-bottom);
   z-index: 1;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 46%;
-  padding-left: 3.5rem;
-  margin-left: 20px;
+  gap: 0.5em;
+  width: var(--location-banner-text-width);
+  max-width: none;
+  height: auto;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
   text-align: center;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
-.location-hero__welcome {
+.location-hero__headline {
+  flex-shrink: 1;
+  width: 100%;
   margin: 0;
-  font-family: var(--font-family-en);
-  font-size: 1.625rem;
-  font-style: italic;
-  font-weight: 400;
-  color: var(--color-primary);
-  line-height: 1.35;
+  font-family: 'Nanum Myeongjo', 'Noto Serif KR', serif;
+  font-size: clamp(1.0625rem, 7.8cqi, 2.125rem);
+  font-weight: 800;
+  font-synthesis: none;
+  line-height: 1.34;
+  color: #2f6fad;
+  text-align: center;
+  overflow-wrap: normal;
   word-break: keep-all;
+}
+
+.location-hero__headline-line {
+  display: block;
 }
 
 .location-hero__divider {
   display: block;
   flex-shrink: 0;
-  width: 60px;
+  width: 2.5rem;
   height: 2px;
-  margin: 1rem 0 0;
-  background-color: #d6b15a;
+  margin: 0;
+  background-color: #2f6fad;
 }
 
-.location-hero__body {
-  margin: 38px 0 0;
-  font-size: 1.625rem;
-  font-weight: 600;
-  line-height: 1.6;
+.location-hero__welcome {
+  flex-shrink: 0;
+  width: 100%;
+  margin: 0;
+  font-family: var(--font-family-en);
+  font-size: clamp(0.9375rem, 5.2cqi, 1.25rem);
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.35;
   color: #1f2d3d;
+  text-align: center;
   word-break: keep-all;
 }
 
-.location-hero__body-line {
-  display: block;
-}
-
 @media (max-width: 992px) {
-  .location-hero__content {
-    width: 52%;
-    padding-left: 2.5rem;
-  }
-
-  .location-hero__welcome {
-    font-size: 1.375rem;
-  }
-
-  .location-hero__body {
-    margin-top: 1.75rem;
-    font-size: 1.375rem;
+  .location-hero {
+    --location-banner-text-width: calc(52% - 16px);
+    --location-banner-text-left: 16px;
   }
 }
 
@@ -132,8 +149,10 @@
   }
 
   .location-hero {
-    align-items: center;
-    padding-bottom: 0;
+    --location-banner-text-top: 12px;
+    --location-banner-text-left: 12px;
+    --location-banner-text-bottom: 12px;
+    --location-banner-text-width: calc(100% - 24px);
   }
 
   .location-hero::before {
@@ -143,25 +162,5 @@
       rgba(255, 255, 255, 0.82) 55%,
       rgba(255, 255, 255, 0.95) 100%
     );
-  }
-
-  .location-hero__content {
-    width: 100%;
-    padding: 0 1.5rem;
-    margin-left: 0;
-  }
-
-  .location-hero__welcome {
-    font-size: clamp(0.9375rem, 3.8vw, 1.125rem);
-  }
-
-  .location-hero__divider {
-    width: 40px;
-    margin-top: 0.55rem;
-  }
-
-  .location-hero__body {
-    margin-top: 0.95rem;
-    font-size: clamp(0.9375rem, 3.8vw, 1.125rem);
   }
 }
