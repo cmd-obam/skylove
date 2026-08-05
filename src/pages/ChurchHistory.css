@@ -36,77 +36,83 @@
   color: var(--color-text-muted);
 }
 
-.church-history-filters {
+.church-history-accordion {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.church-history-accordion__item {
+  border: 1px solid #d7e3ef;
+  border-radius: 12px;
+  background-color: var(--color-white);
+  box-shadow: 0 6px 18px rgba(31, 45, 61, 0.06);
+  overflow: hidden;
+}
+
+.church-history-accordion__heading {
+  margin: 0;
+}
+
+.church-history-accordion__trigger {
+  display: flex;
+  align-items: center;
   justify-content: center;
   gap: 0.75rem;
-}
-
-.church-history-filters__button {
-  min-width: 6.5rem;
-  padding: 0.75rem 1.25rem;
-  border: 1px solid #d7e3ef;
-  border-radius: 999px;
-  background-color: var(--color-white);
+  width: 100%;
+  margin: 0;
+  padding: 1.125rem 1.25rem;
+  border: none;
+  background-color: transparent;
   font-family: inherit;
-  font-size: 0.9375rem;
-  font-weight: 600;
   color: var(--color-text);
   cursor: pointer;
-  transition:
-    background-color var(--transition),
-    border-color var(--transition),
-    color var(--transition);
+  transition: background-color var(--transition);
 }
 
-.church-history-filters__button:hover,
-.church-history-filters__button:focus-visible {
-  border-color: var(--color-primary);
+.church-history-accordion__trigger:hover,
+.church-history-accordion__trigger:focus-visible {
+  background-color: #f5f9fc;
+}
+
+.church-history-accordion__period {
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--color-primary);
+  letter-spacing: -0.01em;
+}
+
+.church-history-accordion__icon {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
   color: var(--color-primary);
 }
 
-.church-history-filters__button--active {
-  border-color: var(--color-topbar-bg);
-  background-color: var(--color-topbar-bg);
-  color: var(--color-white);
+.church-history-accordion__panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 0.35s ease,
+    opacity 0.28s ease;
 }
 
-.church-history-filters__button--active:hover,
-.church-history-filters__button--active:focus-visible {
-  border-color: var(--color-topbar-bg);
-  color: var(--color-white);
+.church-history-accordion__item--open .church-history-accordion__panel {
+  grid-template-rows: 1fr;
+  opacity: 1;
 }
 
-.church-history-periods {
-  display: flex;
-  flex-direction: column;
-  gap: 3.5rem;
+.church-history-accordion__panel-inner {
+  overflow: hidden;
+  min-height: 0;
+  padding: 0 1.25rem;
+  transition: padding 0.35s ease;
 }
 
-.church-history-period {
-  scroll-margin-top: 7rem;
-}
-
-.church-history-period__header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.75rem 1rem;
-  margin: 0 0 1.25rem;
-}
-
-.church-history-period__badge {
-  display: inline-block;
-  margin: 0;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  background-color: var(--color-primary);
-  font-size: 0.9375rem;
-  font-weight: 700;
-  line-height: 1.4;
-  color: var(--color-white);
-  white-space: nowrap;
+.church-history-accordion__item--open .church-history-accordion__panel-inner {
+  padding: 0.25rem 1.25rem 1.5rem;
 }
 
 .church-history-table-wrap {
@@ -254,27 +260,25 @@
     gap: 2rem;
   }
 
-  .church-history-periods {
-    gap: 2.5rem;
+  .church-history-accordion {
+    gap: 0.875rem;
   }
 
-  .church-history-period {
-    scroll-margin-top: 5.5rem;
+  .church-history-accordion__trigger {
+    padding: 1rem 1rem;
   }
 
-  .church-history-filters {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.75rem;
+  .church-history-accordion__period {
+    font-size: 1.0625rem;
   }
 
-  .church-history-filters__button {
-    min-width: 0;
-    width: 100%;
-    min-height: 3.25rem;
-    padding: 0.875rem 0.75rem;
-    border-radius: 8px;
-    font-size: 0.9375rem;
+  .church-history-accordion__panel-inner {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .church-history-accordion__item--open .church-history-accordion__panel-inner {
+    padding: 0.15rem 1rem 1.25rem;
   }
 
   .church-history-photos__grid {
@@ -293,15 +297,8 @@
 }
 
 @media (max-width: 480px) {
-  .church-history-filters {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.625rem;
-  }
-
-  .church-history-filters__button {
-    min-height: 3rem;
-    padding: 0.75rem 0.5rem;
-    font-size: 0.875rem;
+  .church-history-accordion__period {
+    font-size: 1rem;
   }
 
   .church-history-photos__grid {

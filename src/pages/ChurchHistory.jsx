@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react'
+import { FiChevronDown, FiChevronUp } from 'react-icons/fi'
 import churchHistoryIcon from '@/assets/images/about/church-history-icon.png'
 import useIsMobile from '@/hooks/useIsMobile'
 import MobileImageLightbox from '@/components/common/MobileImageLightbox'
@@ -8,6 +9,13 @@ import {
   CHURCH_HISTORY_PERIODS,
 } from '@/data/churchHistory'
 import './ChurchHistory.css'
+
+const DEFAULT_OPEN_PERIOD_ID =
+  CHURCH_HISTORY_PERIODS[CHURCH_HISTORY_PERIODS.length - 1]?.id ?? null
+
+function formatPeriodLabel(period) {
+  return String(period || '').replace(/~/g, ' ~ ')
+}
 
 function ChurchHistoryIntro() {
   return (
@@ -24,26 +32,6 @@ function ChurchHistoryIntro() {
         ))}
       </p>
     </section>
-  )
-}
-
-function ChurchHistoryNav({ activePeriodId, onNavigate }) {
-  return (
-    <nav className="church-history-filters" aria-label="교회역사 연도 이동">
-      {CHURCH_HISTORY_PERIODS.map((period) => (
-        <button
-          key={period.id}
-          type="button"
-          className={`church-history-filters__button${
-            activePeriodId === period.id ? ' church-history-filters__button--active' : ''
-          }`}
-          aria-current={activePeriodId === period.id ? 'true' : undefined}
-          onClick={() => onNavigate(period.id)}
-        >
-          {period.period}
-        </button>
-      ))}
-    </nav>
   )
 }
 
@@ -76,11 +64,14 @@ function ChurchHistoryPhotoGrid({ photos }) {
   const isMobile = useIsMobile()
   const [lightbox, setLightbox] = useState(null)
 
-  const openLightbox = useCallback((photo) => {
-    if (isMobile && photo.src) {
-      setLightbox(photo)
-    }
-  }, [isMobile])
+  const openLightbox = useCallback(
+    (photo) => {
+      if (isMobile && photo.src) {
+        setLightbox(photo)
+      }
+    },
+    [isMobile],
+  )
 
   const closeLightbox = useCallback(() => {
     setLightbox(null)
@@ -136,48 +127,80 @@ function ChurchHistoryPhotoGrid({ photos }) {
   )
 }
 
-function ChurchHistoryPeriod({ period }) {
+function ChurchHistoryAccordionItem({ period, isOpen, onToggle }) {
   const headingId = `history-period-heading-${period.id}`
+  const panelId = `history-period-panel-${period.id}`
+  const ChevronIcon = isOpen ? FiChevronUp : FiChevronDown
 
   return (
     <section
       id={`history-period-${period.id}`}
-      className="church-history-period"
+      className={`church-history-accordion__item${
+        isOpen ? ' church-history-accordion__item--open' : ''
+      }`}
       aria-labelledby={headingId}
     >
-      <header className="church-history-period__header">
-        <h2 className="church-history-period__badge" id={headingId}>
-          {period.period}
-        </h2>
-      </header>
+      <h2 className="church-history-accordion__heading" id={headingId}>
+        <button
+          type="button"
+          className="church-history-accordion__trigger"
+          aria-expanded={isOpen}
+          aria-controls={panelId}
+          onClick={() => onToggle(period.id)}
+        >
+          <span className="church-history-accordion__period">
+            {formatPeriodLabel(period.period)}
+          </span>
+          <ChevronIcon className="church-history-accordion__icon" aria-hidden="true" />
+        </button>
+      </h2>
 
-      <ChurchHistoryEventTable events={period.events} />
-      {period.photos.length > 0 && <ChurchHistoryPhotoGrid photos={period.photos} />}
+      <div
+        id={panelId}
+        className="church-history-accordion__panel"
+        role="region"
+        aria-labelledby={headingId}
+        aria-hidden={!isOpen}
+        inert={isOpen ? undefined : true}
+      >
+        <div className="church-history-accordion__panel-inner">
+          <ChurchHistoryEventTable events={period.events} />
+          {period.photos.length > 0 && <ChurchHistoryPhotoGrid photos={period.photos} />}
+        </div>
+      </div>
     </section>
   )
 }
 
 function ChurchHistory() {
-  const [activePeriodId, setActivePeriodId] = useState(null)
+  const [openPeriodIds, setOpenPeriodIds] = useState(() =>
+    DEFAULT_OPEN_PERIOD_ID ? new Set([DEFAULT_OPEN_PERIOD_ID]) : new Set(),
+  )
 
-  const scrollToPeriod = useCallback((periodId) => {
-    const target = document.getElementById(`history-period-${periodId}`)
-    if (!target) {
-      return
-    }
-
-    target.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    setActivePeriodId(periodId)
+  const handleToggle = useCallback((periodId) => {
+    setOpenPeriodIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(periodId)) {
+        next.delete(periodId)
+      } else {
+        next.add(periodId)
+      }
+      return next
+    })
   }, [])
 
   return (
     <div className="church-history-page">
       <ChurchHistoryIntro />
-      <ChurchHistoryNav activePeriodId={activePeriodId} onNavigate={scrollToPeriod} />
 
-      <div className="church-history-periods">
+      <div className="church-history-accordion" role="list">
         {CHURCH_HISTORY_PERIODS.map((period) => (
-          <ChurchHistoryPeriod key={period.id} period={period} />
+          <ChurchHistoryAccordionItem
+            key={period.id}
+            period={period}
+            isOpen={openPeriodIds.has(period.id)}
+            onToggle={handleToggle}
+          />
         ))}
       </div>
     </div>
