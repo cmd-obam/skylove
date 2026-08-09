@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { fetchProfileByUserId } from '@/services/auth/profile'
 import {
   canDeletePost,
   canEditPost,
@@ -18,17 +19,15 @@ async function getSessionProfile() {
     return { success: false, message: PERMISSION_DENIED }
   }
 
-  const { data: profile, error } = await supabase
-    .from('profiles')
-    .select('role, name')
-    .eq('user_id', session.user.id)
-    .maybeSingle()
+  const profileResult = await fetchProfileByUserId(session.user.id)
 
-  if (error || !profile) {
+  if (!profileResult.success || !profileResult.profile) {
     return { success: false, message: PERMISSION_DENIED }
   }
 
-  return { success: true, profile, userId: session.user.id }
+  const userId = profileResult.profile.effectiveUserId ?? session.user.id
+
+  return { success: true, profile: profileResult.profile, userId }
 }
 
 async function assertBoardWriter(postType) {
@@ -38,7 +37,7 @@ async function assertBoardWriter(postType) {
     return auth
   }
 
-  if (!canWritePost(auth.profile, postType)) {
+  if (!canWritePost(auth.profile, postType, auth.userId)) {
     return { success: false, message: PERMISSION_DENIED }
   }
 

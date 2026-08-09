@@ -11,6 +11,15 @@ export const USER_ROLES = {
 /** 담임목사 이야기 게시판 post_type (글쓰기 예외) */
 export const PASTOR_STORY_POST_TYPE = 'pastor_story'
 
+/**
+ * 담임목사 이야기 지정 작성자 (최석림).
+ * 이름 문자열이 아니라 profiles.user_id 기준으로 판별한다.
+ * username: rim0691
+ */
+export const PASTOR_STORY_WRITER_USER_IDS = [
+  '1e7c636b-f282-4eee-a2cd-1b6bd0aa3e2f',
+]
+
 /** 게시판 글쓰기·업로드 가능 (manager 이상) — 기존 게시판용 */
 export const BOARD_WRITER_ROLES = [
   USER_ROLES.MANAGER,
@@ -118,15 +127,46 @@ function getProfileRole(profileOrRole) {
   return normalizeRole(profileOrRole.role)
 }
 
+function getProfileUserId(profile, fallbackUserId = null) {
+  if (profile != null && typeof profile === 'object') {
+    return (
+      profile.effectiveUserId ??
+      profile.userId ??
+      profile.user_id ??
+      fallbackUserId ??
+      null
+    )
+  }
+
+  return fallbackUserId
+}
+
 function isOwnResource(authorId, currentUserId) {
   return Boolean(currentUserId && authorId && authorId === currentUserId)
 }
 
+/** 담임목사 이야기 지정 user_id (최석림) 여부 */
+export function isPastorStoryDesignatedWriter(profile, currentUserId = null) {
+  const userId = getProfileUserId(profile, currentUserId)
+
+  return Boolean(userId && PASTOR_STORY_WRITER_USER_IDS.includes(userId))
+}
+
+/** 담임목사 이야기 글쓰기 가능 (최고관리자 · senior_pastor · 지정 user_id) */
+export function canWritePastorStory(profile, currentUserId = null) {
+  const role = getProfileRole(profile)
+
+  if (role != null && PASTOR_STORY_WRITER_ROLES.includes(role)) {
+    return true
+  }
+
+  return isPastorStoryDesignatedWriter(profile, currentUserId)
+}
+
 /** 게시판 글쓰기·이미지·첨부 업로드 (postType 지정 시 게시판별 예외 적용) */
-export function canWritePost(profile, postType) {
+export function canWritePost(profile, postType, currentUserId = null) {
   if (isPastorStoryPostType(postType)) {
-    const role = getProfileRole(profile)
-    return role != null && PASTOR_STORY_WRITER_ROLES.includes(role)
+    return canWritePastorStory(profile, currentUserId)
   }
 
   return isBoardWriterRole(getProfileRole(profile))
@@ -143,14 +183,15 @@ export function canManageBoardPosts(profile) {
 export function canEditPost(profile, post, currentUserId) {
   const role = getProfileRole(profile)
   const postType = getPostTypeFromPost(post)
+  const effectiveUserId = getProfileUserId(profile, currentUserId)
 
   if (isPastorStoryPostType(postType)) {
     if (isSuperAdminRole(role)) {
       return true
     }
 
-    if (isSeniorPastorRole(role)) {
-      return isOwnResource(post?.authorId ?? post?.author_id, currentUserId)
+    if (isSeniorPastorRole(role) || isPastorStoryDesignatedWriter(profile, effectiveUserId)) {
+      return isOwnResource(post?.authorId ?? post?.author_id, effectiveUserId)
     }
 
     return false

@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { fetchProfileByUserId } from '@/services/auth/profile'
 import { canWritePost } from '@/services/auth/roles'
 
 const BUCKET = 'board-uploads'
@@ -24,13 +25,15 @@ async function assertBoardWriter(postType) {
     return { success: false, message: PERMISSION_DENIED }
   }
 
-  const { data: profile, error } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('user_id', session.user.id)
-    .maybeSingle()
+  const profileResult = await fetchProfileByUserId(session.user.id)
 
-  if (error || !canWritePost(profile, postType)) {
+  if (!profileResult.success || !profileResult.profile) {
+    return { success: false, message: PERMISSION_DENIED }
+  }
+
+  const userId = profileResult.profile.effectiveUserId ?? session.user.id
+
+  if (!canWritePost(profileResult.profile, postType, userId)) {
     return { success: false, message: PERMISSION_DENIED }
   }
 

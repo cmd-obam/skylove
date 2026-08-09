@@ -33,6 +33,7 @@ Migration 파일을 **번호 순서대로** Supabase SQL Editor에서 실행하�
 | 25 | `029_delete_member_by_super_admin.sql` | 최고관리자 회원 탈퇴 RPC (`auth.users` 서버 삭제) |
 | 26 | `030_pastor_story_board.sql` | 담임목사 이야기 게시판 + `senior_pastor` 권한 |
 | 27 | `031_account_links.sql` | 회원 계정 연결(Linked Accounts) + 소유권 이관/원복 |
+| 28 | `032_pastor_story_writer_choi.sql` | 최석림 `senior_pastor` 지정 + pastor_story 글쓰기 user_id 예외 |
 
 > `003`은 `profiles.role`을 RLS에서 참조하므로 **`004`를 먼저** 실행해야 합니다.
 

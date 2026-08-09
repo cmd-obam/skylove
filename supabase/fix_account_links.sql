@@ -781,7 +781,10 @@ AS $$
     WHEN p_post_type = 'pastor_story' THEN
       public.is_super_admin()
       OR (
-        public.is_senior_pastor()
+        (
+          public.is_senior_pastor()
+          OR public.effective_user_id() = '1e7c636b-f282-4eee-a2cd-1b6bd0aa3e2f'::uuid
+        )
         AND p_author_id IS NOT NULL
         AND p_author_id = public.effective_user_id()
       )

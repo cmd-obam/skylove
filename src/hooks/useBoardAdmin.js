@@ -9,10 +9,11 @@ import { logBoardAdminDebug } from '@/utils/authRoleDebug'
 
 export function useBoardAdmin(postType) {
   const { profile, isLoggedIn, loading } = useAuth()
+  const currentUserId = profile?.effectiveUserId ?? null
 
   const canWriteBoard = useMemo(
-    () => isLoggedIn && canWritePost(profile, postType),
-    [isLoggedIn, profile, postType],
+    () => isLoggedIn && canWritePost(profile, postType, currentUserId),
+    [isLoggedIn, profile, postType, currentUserId],
   )
 
   const canManageBoard = useMemo(
