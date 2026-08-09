@@ -140,20 +140,6 @@ export const MINISTER_GROUPS = [
         ],
       },
       {
-        id: 'el-shaddai',
-        title: '엘샤다이 중창단',
-        people: [
-          {
-            id: 'minister-lee-jaeyeon-choir',
-            name: '이재연',
-            role: '단장',
-            churchTitle: '집사',
-            photoUrl: null,
-            sortOrder: 1,
-          },
-        ],
-      },
-      {
         id: 'iheaven',
         title: '이헤븐 찬양단',
         people: [
@@ -170,9 +156,65 @@ export const MINISTER_GROUPS = [
     ],
   },
   {
+    id: 'el-shaddai',
+    title: '엘샤다이 중창단',
+    sortOrder: 3,
+    people: [
+      {
+        id: 'minister-lee-jaeyeon-choir',
+        name: '이재연 집사',
+        role: '단장',
+        photoUrl: null,
+        sortOrder: 1,
+      },
+      {
+        id: 'minister-el-kim-hyeju',
+        name: '김혜주',
+        role: '단원',
+        photoUrl: null,
+        sortOrder: 2,
+      },
+      {
+        id: 'minister-el-sim-minseop',
+        name: '심민섭',
+        role: '단원',
+        photoUrl: null,
+        sortOrder: 3,
+      },
+      {
+        id: 'minister-el-jeong-jiye',
+        name: '정지예',
+        role: '단원',
+        photoUrl: null,
+        sortOrder: 4,
+      },
+      {
+        id: 'minister-el-choi-seongmin',
+        name: '최성민',
+        role: '단원',
+        photoUrl: null,
+        sortOrder: 5,
+      },
+      {
+        id: 'minister-el-han-jaeseok',
+        name: '한재석',
+        role: '단원',
+        photoUrl: null,
+        sortOrder: 6,
+      },
+      {
+        id: 'minister-el-kang-jinmo',
+        name: '강진모',
+        role: '드럼',
+        photoUrl: null,
+        sortOrder: 7,
+      },
+    ],
+  },
+  {
     id: 'ministry-staff',
     title: '사역담당',
-    sortOrder: 3,
+    sortOrder: 4,
     people: [
       {
         id: 'minister-kim-hyemi',
