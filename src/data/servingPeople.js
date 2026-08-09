@@ -6,8 +6,8 @@
  * - groups[].people / subgroups[].people 순서는 sortOrder 기준
  */
 
-import kimHyemiPhoto from '@/assets/images/serving-people/kim-hyemi.png'
-import hanChanwooPhoto from '@/assets/images/serving-people/han-chanwoo.png'
+import kimHyemiPhoto from '@/assets/images/serving-people/kim-hyemi.jpg'
+import hanChanwooPhoto from '@/assets/images/serving-people/han-chanwoo.jpg'
 
 export const SERVING_PEOPLE_PAGE_INTRO = {
   title: '섬기는 사람들',
