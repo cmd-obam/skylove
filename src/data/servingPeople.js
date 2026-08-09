@@ -135,8 +135,7 @@ export const MINISTER_GROUPS = [
           {
             id: 'minister-jeong-jieun',
             name: '정지은',
-            role: '대장',
-            churchTitle: '집사',
+            role: '대장/집사',
             photoUrl: null,
             sortOrder: 1,
           },
@@ -149,8 +148,7 @@ export const MINISTER_GROUPS = [
           {
             id: 'minister-choi-seongmin',
             name: '최성민',
-            role: '단장',
-            churchTitle: '성도',
+            role: '단장/성도',
             photoUrl: null,
             sortOrder: 1,
           },
@@ -165,8 +163,8 @@ export const MINISTER_GROUPS = [
     people: [
       {
         id: 'minister-lee-jaeyeon-choir',
-        name: '이재연 집사',
-        role: '단장',
+        name: '이재연',
+        role: '단장/집사',
         photoUrl: null,
         sortOrder: 1,
       },
