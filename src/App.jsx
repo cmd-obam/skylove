@@ -207,8 +207,12 @@ function App() {
                   <Route path="/worship-word/sunday/edit/:postId" element={<SundayWorshipEdit />} />
                   <Route path="/worship-word/el-shaddai/write" element={<ElShaddaiWrite />} />
                   <Route path="/worship-word/el-shaddai/edit/:postId" element={<ElShaddaiEdit />} />
+                </Route>
+                <Route element={<AdminRoute postType="church_news" />}>
                   <Route path="/news/write" element={<ChurchNewsWrite />} />
                   <Route path="/news/edit/:postId" element={<ChurchNewsEdit />} />
+                </Route>
+                <Route element={<AdminRoute postType="album" />}>
                   <Route path="/album/write" element={<AlbumWrite />} />
                   <Route path="/album/edit/:postId" element={<AlbumEdit />} />
                 </Route>

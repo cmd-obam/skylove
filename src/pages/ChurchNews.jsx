@@ -58,7 +58,7 @@ function ChurchNews() {
             검색
           </button>
         </form>
-        <BoardWriteButton to="/news/write" />
+        <BoardWriteButton to="/news/write" postType="church_news" />
       </div>
 
       <div className="church-news-board__table-wrap">

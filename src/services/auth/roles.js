@@ -12,12 +12,19 @@ export const USER_ROLES = {
 export const PASTOR_STORY_POST_TYPE = 'pastor_story'
 
 /**
- * 담임목사 이야기 지정 작성자 (최석림).
+ * 담임목사(최석림) 지정 user_id.
  * 이름 문자열이 아니라 profiles.user_id 기준으로 판별한다.
  * username: rim0691
  */
 export const PASTOR_STORY_WRITER_USER_IDS = [
   '1e7c636b-f282-4eee-a2cd-1b6bd0aa3e2f',
+]
+
+/** 담임목사(senior_pastor) 글쓰기 가능 게시판 */
+export const SENIOR_PASTOR_WRITABLE_POST_TYPES = [
+  'church_news',
+  'album',
+  PASTOR_STORY_POST_TYPE,
 ]
 
 /** 게시판 글쓰기·업로드 가능 (manager 이상) — 기존 게시판용 */
@@ -145,11 +152,15 @@ function isOwnResource(authorId, currentUserId) {
   return Boolean(currentUserId && authorId && authorId === currentUserId)
 }
 
-/** 담임목사 이야기 지정 user_id (최석림) 여부 */
+/** 담임목사 지정 user_id (최석림) 여부 */
 export function isPastorStoryDesignatedWriter(profile, currentUserId = null) {
   const userId = getProfileUserId(profile, currentUserId)
 
   return Boolean(userId && PASTOR_STORY_WRITER_USER_IDS.includes(userId))
+}
+
+export function isSeniorPastorWritablePostType(postType) {
+  return SENIOR_PASTOR_WRITABLE_POST_TYPES.includes(postType)
 }
 
 /** 담임목사 이야기 글쓰기 가능 (최고관리자 · senior_pastor · 지정 user_id) */
@@ -163,13 +174,28 @@ export function canWritePastorStory(profile, currentUserId = null) {
   return isPastorStoryDesignatedWriter(profile, currentUserId)
 }
 
+function canWriteAsSeniorPastor(profile, postType, currentUserId = null) {
+  if (!isSeniorPastorWritablePostType(postType)) {
+    return false
+  }
+
+  return (
+    isSeniorPastorRole(getProfileRole(profile)) ||
+    isPastorStoryDesignatedWriter(profile, currentUserId)
+  )
+}
+
 /** 게시판 글쓰기·이미지·첨부 업로드 (postType 지정 시 게시판별 예외 적용) */
 export function canWritePost(profile, postType, currentUserId = null) {
   if (isPastorStoryPostType(postType)) {
     return canWritePastorStory(profile, currentUserId)
   }
 
-  return isBoardWriterRole(getProfileRole(profile))
+  if (isBoardWriterRole(getProfileRole(profile))) {
+    return true
+  }
+
+  return canWriteAsSeniorPastor(profile, postType, currentUserId)
 }
 
 /**
@@ -203,6 +229,10 @@ export function canEditPost(profile, post, currentUserId) {
 
   if (isManagerRole(role)) {
     return isOwnResource(post?.authorId ?? post?.author_id, currentUserId)
+  }
+
+  if (canWriteAsSeniorPastor(profile, postType, effectiveUserId)) {
+    return isOwnResource(post?.authorId ?? post?.author_id, effectiveUserId)
   }
 
   return false

@@ -60,7 +60,7 @@ function EventPhotos() {
             검색
           </button>
         </form>
-        <BoardWriteButton to="/album/write" />
+        <BoardWriteButton to="/album/write" postType="album" />
       </div>
 
       {loading ? (

@@ -34,6 +34,7 @@ Migration 파일을 **번호 순서대로** Supabase SQL Editor에서 실행하�
 | 26 | `030_pastor_story_board.sql` | 담임목사 이야기 게시판 + `senior_pastor` 권한 |
 | 27 | `031_account_links.sql` | 회원 계정 연결(Linked Accounts) + 소유권 이관/원복 |
 | 28 | `032_pastor_story_writer_choi.sql` | 최석림 `senior_pastor` 지정 + pastor_story 글쓰기 user_id 예외 |
+| 29 | `033_senior_pastor_church_news_album_write.sql` | 담임목사 글쓰기: 교회소식·교회앨범·담임목사 이야기 |
 
 > `003`은 `profiles.role`을 RLS에서 참조하므로 **`004`를 먼저** 실행해야 합니다.
 
