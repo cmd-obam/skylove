@@ -25,13 +25,16 @@ export const SENIOR_PASTOR_WRITABLE_POST_TYPES = [
   'church_news',
   'album',
   PASTOR_STORY_POST_TYPE,
+  'sunday_sermon',
+  'el_shaddai_choir',
 ]
 
-/** 게시판 글쓰기·업로드 가능 (manager 이상) — 기존 게시판용 */
+/** 게시판 글쓰기·업로드 가능 (manager 이상 + 담임목사) */
 export const BOARD_WRITER_ROLES = [
   USER_ROLES.MANAGER,
   USER_ROLES.ADMIN,
   USER_ROLES.SUPER_ADMIN,
+  USER_ROLES.SENIOR_PASTOR,
 ]
 
 /** 담임목사 이야기 글쓰기 가능 */
@@ -40,14 +43,15 @@ export const PASTOR_STORY_WRITER_ROLES = [
   USER_ROLES.SENIOR_PASTOR,
 ]
 
-/** 모든 게시글 관리 (admin 이상) */
+/** 모든 게시글 관리 (admin 이상) — 담임목사는 canManageBoardPosts에서 별도 허용 */
 export const BOARD_ADMIN_ROLES = [USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN]
 
-/** 댓글 삭제·숨김 등 운영 (manager 이상) */
+/** 댓글 삭제·숨김 등 운영 (manager 이상 + 담임목사) */
 export const COMMENT_MODERATOR_ROLES = [
   USER_ROLES.MANAGER,
   USER_ROLES.ADMIN,
   USER_ROLES.SUPER_ADMIN,
+  USER_ROLES.SENIOR_PASTOR,
 ]
 
 /** CMS(게시글·댓글 관리) 접근 (admin 이상) */
@@ -174,15 +178,24 @@ export function canWritePastorStory(profile, currentUserId = null) {
   return isPastorStoryDesignatedWriter(profile, currentUserId)
 }
 
-function canWriteAsSeniorPastor(profile, postType, currentUserId = null) {
-  if (!isSeniorPastorWritablePostType(postType)) {
-    return false
-  }
-
+function isSeniorPastorOperator(profile, currentUserId = null) {
   return (
     isSeniorPastorRole(getProfileRole(profile)) ||
     isPastorStoryDesignatedWriter(profile, currentUserId)
   )
+}
+
+function canWriteAsSeniorPastor(profile, postType, currentUserId = null) {
+  if (!isSeniorPastorOperator(profile, currentUserId)) {
+    return false
+  }
+
+  // 글쓰기 버튼/라우트에서 postType 미전달 시에도 허용
+  if (postType == null) {
+    return true
+  }
+
+  return isSeniorPastorWritablePostType(postType)
 }
 
 /** 게시판 글쓰기·이미지·첨부 업로드 (postType 지정 시 게시판별 예외 적용) */
@@ -199,11 +212,13 @@ export function canWritePost(profile, postType, currentUserId = null) {
 }
 
 /**
- * 모든 게시글에 대한 운영 권한 (admin 이상).
+ * 모든 게시글에 대한 운영 권한 (admin 이상 · 담임목사).
  * manager는 본인 글만 가능하므로 canEditPost / canDeletePost 사용.
  */
 export function canManageBoardPosts(profile) {
-  return isAdminRole(getProfileRole(profile))
+  return (
+    isAdminRole(getProfileRole(profile)) || isSeniorPastorOperator(profile)
+  )
 }
 
 export function canEditPost(profile, post, currentUserId) {
@@ -211,15 +226,11 @@ export function canEditPost(profile, post, currentUserId) {
   const postType = getPostTypeFromPost(post)
   const effectiveUserId = getProfileUserId(profile, currentUserId)
 
+  if (isSuperAdminRole(role) || isSeniorPastorOperator(profile, effectiveUserId)) {
+    return true
+  }
+
   if (isPastorStoryPostType(postType)) {
-    if (isSuperAdminRole(role)) {
-      return true
-    }
-
-    if (isSeniorPastorRole(role) || isPastorStoryDesignatedWriter(profile, effectiveUserId)) {
-      return isOwnResource(post?.authorId ?? post?.author_id, effectiveUserId)
-    }
-
     return false
   }
 
@@ -229,10 +240,6 @@ export function canEditPost(profile, post, currentUserId) {
 
   if (isManagerRole(role)) {
     return isOwnResource(post?.authorId ?? post?.author_id, currentUserId)
-  }
-
-  if (canWriteAsSeniorPastor(profile, postType, effectiveUserId)) {
-    return isOwnResource(post?.authorId ?? post?.author_id, effectiveUserId)
   }
 
   return false
@@ -252,7 +259,10 @@ export function canWriteComment(profile, isLoggedIn = Boolean(profile)) {
 }
 
 export function canEditComment(profile, comment, currentUserId) {
-  if (isAdminRole(getProfileRole(profile))) {
+  if (
+    isAdminRole(getProfileRole(profile)) ||
+    isSeniorPastorOperator(profile, currentUserId)
+  ) {
     return true
   }
 

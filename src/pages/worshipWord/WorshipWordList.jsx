@@ -119,7 +119,7 @@ function WorshipWordList({ boardKey }) {
             검색
           </button>
         </form>
-        <BoardWriteButton to={board.writePath} />
+        <BoardWriteButton to={board.writePath} postType={board.postType} />
       </div>
 
       {loading ? (
