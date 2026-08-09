@@ -6,6 +6,9 @@
  * - groups[].people / subgroups[].people 순서는 sortOrder 기준
  */
 
+import kimHyemiPhoto from '@/assets/images/serving-people/kim-hyemi.png'
+import hanChanwooPhoto from '@/assets/images/serving-people/han-chanwoo.png'
+
 export const SERVING_PEOPLE_PAGE_INTRO = {
   title: '섬기는 사람들',
   subtitle: '하늘사랑교회 직분자를 소개합니다',
@@ -220,14 +223,14 @@ export const MINISTER_GROUPS = [
         id: 'minister-kim-hyemi',
         name: '김혜미',
         role: '방송 및 영상담당',
-        photoUrl: null,
+        photoUrl: kimHyemiPhoto,
         sortOrder: 1,
       },
       {
         id: 'minister-han-chanwoo',
         name: '한찬우',
         role: '홈페이지 담당',
-        photoUrl: null,
+        photoUrl: hanChanwooPhoto,
         sortOrder: 2,
       },
     ],
