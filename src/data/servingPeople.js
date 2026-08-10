@@ -26,9 +26,23 @@ export const SERVING_PEOPLE_PAGE_INTRO = {
 /** @type {ServingGroup[]} */
 export const CLERGY_GROUPS = [
   {
-    id: 'pastor-wife',
-    title: '담임목사 사모님',
+    id: 'senior-pastor',
+    title: '담임목사',
     sortOrder: 1,
+    people: [
+      {
+        id: 'clergy-choi-seokrim',
+        name: '최석림',
+        role: '담임목사',
+        photoUrl: null,
+        sortOrder: 1,
+      },
+    ],
+  },
+  {
+    id: 'pastor-wife',
+    title: '사모님',
+    sortOrder: 2,
     people: [
       {
         id: 'clergy-kim-yeongae',
@@ -42,7 +56,7 @@ export const CLERGY_GROUPS = [
   {
     id: 'elder-deaconess',
     title: '원로권사',
-    sortOrder: 2,
+    sortOrder: 3,
     people: [
       {
         id: 'clergy-kim-jinsun',
@@ -56,7 +70,7 @@ export const CLERGY_GROUPS = [
   {
     id: 'deaconess',
     title: '권사',
-    sortOrder: 3,
+    sortOrder: 4,
     people: [
       {
         id: 'clergy-jo-changgyeong',
@@ -91,7 +105,7 @@ export const CLERGY_GROUPS = [
   {
     id: 'deacon',
     title: '집사',
-    sortOrder: 4,
+    sortOrder: 5,
     people: [
       {
         id: 'clergy-jeong-jieun',
