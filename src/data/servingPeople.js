@@ -8,6 +8,11 @@
 
 import kimHyemiPhoto from '@/assets/images/serving-people/kim-hyemi.jpg'
 import hanChanwooPhoto from '@/assets/images/serving-people/han-chanwoo.jpg'
+import kimNamyeonPhoto from '@/assets/images/serving-people/kim-namyeon.jpg'
+import kimYeongseongPhoto from '@/assets/images/serving-people/kim-yeongseong.jpg'
+import simMinseopPhoto from '@/assets/images/serving-people/sim-minseop.jpg'
+import choiSeongminPhoto from '@/assets/images/serving-people/choi-seongmin.jpg'
+import hanJaeseokPhoto from '@/assets/images/serving-people/han-jaeseok.jpg'
 
 export const SERVING_PEOPLE_PAGE_INTRO = {
   title: '섬기는 사람들',
@@ -50,7 +55,7 @@ export const CLERGY_GROUPS = [
         id: 'clergy-kim-yeongseong',
         name: '김영성',
         role: '권사',
-        photoUrl: null,
+        photoUrl: kimYeongseongPhoto,
         sortOrder: 2,
       },
       {
@@ -99,7 +104,7 @@ export const CLERGY_GROUPS = [
         id: 'clergy-kim-namyeon',
         name: '김남연',
         role: '집사',
-        photoUrl: null,
+        photoUrl: kimNamyeonPhoto,
         sortOrder: 4,
       },
     ],
@@ -149,7 +154,7 @@ export const MINISTER_GROUPS = [
             id: 'minister-choi-seongmin',
             name: '최성민',
             role: '단장/성도',
-            photoUrl: null,
+            photoUrl: choiSeongminPhoto,
             sortOrder: 1,
           },
         ],
@@ -179,7 +184,7 @@ export const MINISTER_GROUPS = [
         id: 'minister-el-sim-minseop',
         name: '심민섭',
         role: '단원',
-        photoUrl: null,
+        photoUrl: simMinseopPhoto,
         sortOrder: 3,
       },
       {
@@ -193,14 +198,14 @@ export const MINISTER_GROUPS = [
         id: 'minister-el-choi-seongmin',
         name: '최성민',
         role: '단원',
-        photoUrl: null,
+        photoUrl: choiSeongminPhoto,
         sortOrder: 5,
       },
       {
         id: 'minister-el-han-jaeseok',
         name: '한재석',
         role: '단원',
-        photoUrl: null,
+        photoUrl: hanJaeseokPhoto,
         sortOrder: 6,
       },
       {

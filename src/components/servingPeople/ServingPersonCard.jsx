@@ -1,16 +1,30 @@
 import './ServingPeople.css'
 
+function preventPhotoContextMenu(event) {
+  event.preventDefault()
+}
+
 function ServingPersonPhoto({ person, alt }) {
   const hasPhoto = Boolean(person.photoUrl)
 
   if (hasPhoto) {
     return (
-      <img
-        src={person.photoUrl}
-        alt={alt}
-        className="serving-person-card__image"
-        loading="lazy"
-      />
+      <div className="serving-person-card__photo-protect">
+        <img
+          src={person.photoUrl}
+          alt={alt}
+          className="serving-person-card__image"
+          loading="lazy"
+          draggable="false"
+          onContextMenu={preventPhotoContextMenu}
+          onDragStart={preventPhotoContextMenu}
+        />
+        <span
+          className="serving-person-card__photo-shield"
+          aria-hidden="true"
+          onContextMenu={preventPhotoContextMenu}
+        />
+      </div>
     )
   }
 
