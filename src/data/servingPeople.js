@@ -13,6 +13,8 @@ import kimYeongseongPhoto from '@/assets/images/serving-people/kim-yeongseong.jp
 import simMinseopPhoto from '@/assets/images/serving-people/sim-minseop.jpg'
 import choiSeongminPhoto from '@/assets/images/serving-people/choi-seongmin.jpg'
 import hanJaeseokPhoto from '@/assets/images/serving-people/han-jaeseok.jpg'
+import choiSeokrimPhoto from '@/assets/images/serving-people/choi-seokrim.jpg'
+import kimYeongaePhoto from '@/assets/images/serving-people/kim-yeongae.jpg'
 
 export const SERVING_PEOPLE_PAGE_INTRO = {
   title: '섬기는 사람들',
@@ -39,8 +41,8 @@ export const CLERGY_GROUPS = [
           {
             id: 'clergy-choi-seokrim',
             name: '최석림',
-            role: '',
-            photoUrl: null,
+            role: '담임목사',
+            photoUrl: choiSeokrimPhoto,
             sortOrder: 1,
           },
         ],
@@ -52,8 +54,8 @@ export const CLERGY_GROUPS = [
           {
             id: 'clergy-kim-yeongae',
             name: '김영애',
-            role: '',
-            photoUrl: null,
+            role: '사모님',
+            photoUrl: kimYeongaePhoto,
             sortOrder: 1,
           },
         ],
