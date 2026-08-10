@@ -67,7 +67,7 @@
   min-width: 0;
 }
 
-/* 담임목사 | 사모님: 다른 카테고리와 같은 4열 그리드 기준, 왼쪽 정렬 헤더 */
+/* 담임목사 | 사모님: 다른 카테고리와 같은 4열 그리드, 제목은 왼쪽 / 카드는 중앙 */
 .serving-people-grid--pair {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   justify-content: stretch;
@@ -77,21 +77,23 @@
 .serving-people-pair-item {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: stretch;
+  min-width: 0;
 }
 
 .serving-people-pair-item .serving-people-group__header {
   width: 100%;
+  margin: 0 0 1.5rem;
 }
 
 .serving-people-pair-item .serving-person-card {
   width: 100%;
-  align-items: flex-start;
-  text-align: left;
+  align-items: center;
+  text-align: center;
 }
 
 .serving-people-pair-item .serving-person-card__photo {
-  margin: 0;
+  margin: 0 auto;
 }
 
 .serving-person-card {
