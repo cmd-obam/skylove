@@ -14,7 +14,7 @@ const BASE_MENU_ITEMS = [
 const SUPER_ADMIN_CHILDREN = [
   { id: 'member-list', label: '회원관리', path: '/member/management' },
   { id: 'content-management', label: '게시글 & 댓글 관리', path: '/member/content-management' },
-  { id: 'visitor-stats', label: '방문자 통계', path: '/member/visitor-stats' },
+  { id: 'visitor-stats', label: '방문자통계', path: '/member/visitor-stats' },
   { id: 'reports', label: '신고관리 (추후)', path: null, disabled: true },
   { id: 'banned-words', label: '금칙어 관리 (추후)', path: null, disabled: true },
 ]

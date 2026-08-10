@@ -36,6 +36,7 @@ Migration 파일을 **번호 순서대로** Supabase SQL Editor에서 실행하�
 | 28 | `032_pastor_story_writer_choi.sql` | 최석림 `senior_pastor` 지정 + pastor_story 글쓰기 user_id 예외 |
 | 29 | `033_senior_pastor_church_news_album_write.sql` | 담임목사 글쓰기: 교회소식·교회앨범·담임목사 이야기 |
 | 30 | `034_senior_pastor_full_board_ops.sql` | 담임목사: 전 게시판 글쓰기 + 게시글/댓글 전체 운영 |
+| 31 | `035_member_visits_and_referrals.sql` | 회원 일별 접속·유입 경로 테이블/RPC (기존 TODAY/TOTAL 유지) |
 
 > `003`은 `profiles.role`을 RLS에서 참조하므로 **`004`를 먼저** 실행해야 합니다.
 
