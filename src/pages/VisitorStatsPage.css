@@ -36,8 +36,60 @@
   text-align: center;
 }
 
+.visitor-stats-page__summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.visitor-stats-page__summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.875rem 1rem;
+  border: 1px solid #edf1f5;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.visitor-stats-page__summary-label {
+  font-size: 0.8125rem;
+  color: #5a7189;
+}
+
+.visitor-stats-page__summary-item strong {
+  font-size: 1.25rem;
+  color: #1f3a5f;
+}
+
+.visitor-stats-page__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 52px;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.visitor-stats-page__badge--member {
+  background: #e8f1ff;
+  color: #1f3a5f;
+}
+
+.visitor-stats-page__badge--guest {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+.visitor-stats-page__referral-total td {
+  font-weight: 700;
+  background: #f8fafc;
+}
+
 .visitor-stats-page__member-table {
-  min-width: 860px;
+  min-width: 960px;
 }
 
 .visitor-stats-page__referral-table {

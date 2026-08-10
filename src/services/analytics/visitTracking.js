@@ -6,15 +6,14 @@ import {
   getOrCreateTrafficVisitorKey,
 } from '@/utils/visitReferral'
 
-/** userId → last successful upsert ms (동일 회원 과도한 갱신 방지) */
-const lastMemberVisitAtByUser = new Map()
-/** userId → in-flight promise */
-const memberVisitInFlightByUser = new Map()
+/** dayKey → last successful touch ms */
+const lastTrafficTouchAtByDayKey = new Map()
+/** dayKey → in-flight promise */
+const trafficInFlightByDayKey = new Map()
 
-let trafficRecordedForKey = ''
-let trafficRecordedAsMember = false
+let trafficRecordedAsMemberByDayKey = new Set()
 
-const MEMBER_VISIT_MIN_INTERVAL_MS = 20_000
+const TRAFFIC_TOUCH_MIN_INTERVAL_MS = 20_000
 
 function detectLoginProviderFromUser(user) {
   const metaProvider = String(user?.app_metadata?.provider || '').toLowerCase()
@@ -75,8 +74,16 @@ export async function resolveAuthenticatedUser(preferredUser = null) {
   }
 }
 
-/** 익명 포함 유입 이벤트 (visitor_key + 날짜 1회, 로그인 시 회원 플래그 업그레이드) */
-export async function recordTrafficEventIfNeeded({ isMember = false } = {}) {
+function getKoreaDayString() {
+  return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Seoul' })
+}
+
+/**
+ * 전체 방문 기록 upsert (회원/비회원 공통, visitor_key + 날짜 1건)
+ * - 비회원 방문 후 로그인 시 동일 행을 회원으로 승격
+ * - TODAY/TOTAL(record_site_visit)은 호출하지 않음
+ */
+export async function recordTrafficEventIfNeeded({ user = null } = {}) {
   if (typeof window === 'undefined') {
     return { recorded: false }
   }
@@ -86,116 +93,84 @@ export async function recordTrafficEventIfNeeded({ isMember = false } = {}) {
     return { recorded: false }
   }
 
-  const dayKey = `${visitorKey}_${new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Seoul' })}`
-  const alreadyRecorded = trafficRecordedForKey === dayKey
-  let sessionMarked = false
+  const authUser = user
+  const isMember = Boolean(authUser?.id)
+  const dayKey = `${visitorKey}_${getKoreaDayString()}`
+  const shouldUpgradeToMember = isMember && !trafficRecordedAsMemberByDayKey.has(dayKey)
+  const lastTouch = lastTrafficTouchAtByDayKey.get(dayKey) || 0
+  const recentlyTouched = Date.now() - lastTouch < TRAFFIC_TOUCH_MIN_INTERVAL_MS
 
+  let sessionMarked = false
   try {
     sessionMarked = window.sessionStorage.getItem(`traffic_${dayKey}`) === '1'
   } catch {
     // ignore
   }
 
-  if ((alreadyRecorded || sessionMarked) && (!isMember || trafficRecordedAsMember)) {
-    trafficRecordedForKey = dayKey
-    return { recorded: false }
+  // 이미 오늘 기록했고, 회원 승격도 아니고, 최근에 갱신했으면 스킵
+  if (sessionMarked && !shouldUpgradeToMember && recentlyTouched) {
+    return { recorded: false, skipped: true }
   }
 
-  const payload = {
-    visitor_key: visitorKey,
-    ...buildReferralPayload(),
-  }
-
-  const { error } = await supabase.rpc('record_site_traffic_event', {
-    p_payload: payload,
-  })
-
-  if (error) {
-    console.warn('[VisitTracking] traffic event failed', error)
-    return { recorded: false, error }
-  }
-
-  trafficRecordedForKey = dayKey
-  if (isMember) {
-    trafficRecordedAsMember = true
-  }
-
-  try {
-    window.sessionStorage.setItem(`traffic_${dayKey}`, '1')
-  } catch {
-    // ignore
-  }
-
-  return { recorded: true }
-}
-
-/** 로그인 회원 일별 접속 upsert (first 유지, last 갱신) — 회원별로 독립 */
-export async function upsertMemberDailyVisit(user) {
-  const authUser = await resolveAuthenticatedUser(user)
-  if (!authUser?.id) {
-    return { success: false, reason: 'no_user' }
-  }
-
-  const userId = authUser.id
-  const now = Date.now()
-  const lastAt = lastMemberVisitAtByUser.get(userId) || 0
-
-  if (now - lastAt < MEMBER_VISIT_MIN_INTERVAL_MS && !memberVisitInFlightByUser.has(userId)) {
-    return { success: true, skipped: true }
-  }
-
-  const existing = memberVisitInFlightByUser.get(userId)
+  const existing = trafficInFlightByDayKey.get(dayKey)
   if (existing) {
     return existing
   }
 
   const task = (async () => {
     const payload = {
-      login_provider: detectLoginProviderFromUser(authUser),
+      visitor_key: visitorKey,
+      login_provider: isMember ? detectLoginProviderFromUser(authUser) : 'guest',
       ...buildReferralPayload(),
     }
 
-    const { error } = await supabase.rpc('upsert_member_daily_visit', {
+    const { error } = await supabase.rpc('record_site_traffic_event', {
       p_payload: payload,
     })
 
     if (error) {
-      console.warn('[VisitTracking] member visit failed', {
+      console.warn('[VisitTracking] traffic event failed', {
         message: error.message,
         code: error.code,
         details: error.details,
         hint: error.hint,
-        userId,
+        isMember,
       })
-      return { success: false, error }
+      return { recorded: false, error }
     }
 
-    lastMemberVisitAtByUser.set(userId, Date.now())
-    return { success: true }
+    lastTrafficTouchAtByDayKey.set(dayKey, Date.now())
+    if (isMember) {
+      trafficRecordedAsMemberByDayKey.add(dayKey)
+    }
+
+    try {
+      window.sessionStorage.setItem(`traffic_${dayKey}`, '1')
+    } catch {
+      // ignore
+    }
+
+    return { recorded: true, isMember }
   })()
 
-  memberVisitInFlightByUser.set(userId, task)
+  trafficInFlightByDayKey.set(dayKey, task)
 
   try {
     return await task
   } finally {
-    memberVisitInFlightByUser.delete(userId)
+    trafficInFlightByDayKey.delete(dayKey)
   }
 }
 
 /**
  * 기존 TODAY/TOTAL(record_site_visit)과 무관하게
- * 유입 이벤트 + (로그인 시) 회원 일별 접속만 기록합니다.
+ * 전체 방문 기록(회원/비회원)만 site_traffic_events 에 기록합니다.
  */
 export async function trackSiteVisitExtensions({ user = null } = {}) {
   captureFirstTouchReferral()
 
   const authUser = await resolveAuthenticatedUser(user)
-  await recordTrafficEventIfNeeded({ isMember: Boolean(authUser) })
+  await recordTrafficEventIfNeeded({ user: authUser })
 
-  if (authUser) {
-    await upsertMemberDailyVisit(authUser)
-  }
-
-  return { userId: authUser?.id ?? null }
+  return { userId: authUser?.id ?? null, isMember: Boolean(authUser) }
 }

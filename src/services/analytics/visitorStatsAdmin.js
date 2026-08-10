@@ -38,16 +38,23 @@ export function resolveVisitorStatsRange(period, customFrom = '', customTo = '')
   }
 }
 
-function mapMemberVisitRow(row) {
+function mapSiteVisitRow(row) {
+  const isMember = Boolean(row.is_member)
+  const loginProvider = isMember ? row.login_provider || 'email' : 'guest'
+
   return {
-    userId: row.user_id,
-    username: row.username || '-',
-    name: row.name || '-',
+    id: row.id,
+    visitorKey: row.visitor_key,
+    isMember,
+    visitorTypeLabel: isMember ? '회원' : '비회원',
+    userId: row.user_id || null,
+    username: isMember ? row.username || '-' : '-',
+    name: isMember ? row.name || '-' : '-',
     visitDate: row.visit_date,
     firstVisitAt: row.first_visit_at,
     lastVisitAt: row.last_visit_at,
-    loginProvider: row.login_provider || 'email',
-    loginProviderLabel: getLoginMethodLabel(row.login_provider),
+    loginProvider,
+    loginProviderLabel: getLoginMethodLabel(loginProvider),
     referralSource: row.referral_source || 'unknown',
     referralSourceLabel: getReferralSourceLabel(row.referral_source),
     referralRaw: row.referral_raw || '',
@@ -59,8 +66,9 @@ function mapMemberVisitRow(row) {
   }
 }
 
-export async function fetchMemberDailyVisitsForAdmin(fromDate, toDate) {
-  const { data, error } = await supabase.rpc('list_member_daily_visits_for_super_admin', {
+/** 전체 방문 기록 (회원 + 비회원) */
+export async function fetchSiteVisitsForAdmin(fromDate, toDate) {
+  const { data, error } = await supabase.rpc('list_site_visits_for_super_admin', {
     p_from: fromDate,
     p_to: toDate,
   })
@@ -68,14 +76,27 @@ export async function fetchMemberDailyVisitsForAdmin(fromDate, toDate) {
   if (error) {
     return {
       success: false,
-      message: error.message || '회원 접속 기록을 불러오지 못했습니다.',
+      message: error.message || '방문 기록을 불러오지 못했습니다.',
       visits: [],
     }
   }
 
   return {
     success: true,
-    visits: (data ?? []).map(mapMemberVisitRow),
+    visits: (data ?? []).map(mapSiteVisitRow),
+  }
+}
+
+/** @deprecated 호환용 — fetchSiteVisitsForAdmin 사용 */
+export async function fetchMemberDailyVisitsForAdmin(fromDate, toDate) {
+  const result = await fetchSiteVisitsForAdmin(fromDate, toDate)
+  if (!result.success) {
+    return { ...result, visits: [] }
+  }
+
+  return {
+    success: true,
+    visits: result.visits.filter((visit) => visit.isMember),
   }
 }
 

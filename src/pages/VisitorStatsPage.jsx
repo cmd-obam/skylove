@@ -2,8 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 import MemberMypageLayout from '@/components/auth/MemberMypageLayout'
 import { formatVisitorCount, loadVisitorStats } from '@/services/analytics/visitorStats'
 import {
-  fetchMemberDailyVisitsForAdmin,
   fetchReferralStatsForAdmin,
+  fetchSiteVisitsForAdmin,
   formatVisitDateTime,
   formatVisitTime,
   resolveVisitorStatsRange,
@@ -20,6 +20,12 @@ const PERIOD_OPTIONS = [
   { id: 'custom', label: '직접 선택' },
 ]
 
+const VISIT_FILTERS = [
+  { id: 'all', label: '전체' },
+  { id: 'member', label: '회원' },
+  { id: 'guest', label: '비회원' },
+]
+
 function VisitorStatsPage() {
   const today = getKoreaDateString()
   const [stats, setStats] = useState({ todayCount: null, totalCount: null })
@@ -29,9 +35,10 @@ function VisitorStatsPage() {
   const [period, setPeriod] = useState('today')
   const [customFrom, setCustomFrom] = useState(today)
   const [customTo, setCustomTo] = useState(today)
+  const [visitFilter, setVisitFilter] = useState('all')
   const [detailLoading, setDetailLoading] = useState(true)
   const [detailError, setDetailError] = useState('')
-  const [memberVisits, setMemberVisits] = useState([])
+  const [visits, setVisits] = useState([])
   const [referralStats, setReferralStats] = useState([])
 
   const range = useMemo(
@@ -73,7 +80,7 @@ function VisitorStatsPage() {
       setDetailError('')
 
       const [visitsResult, referralResult] = await Promise.all([
-        fetchMemberDailyVisitsForAdmin(range.from, range.to),
+        fetchSiteVisitsForAdmin(range.from, range.to),
         fetchReferralStatsForAdmin(range.from, range.to),
       ])
 
@@ -84,9 +91,9 @@ function VisitorStatsPage() {
       const errors = []
       if (!visitsResult.success) {
         errors.push(visitsResult.message)
-        setMemberVisits([])
+        setVisits([])
       } else {
-        setMemberVisits(visitsResult.visits)
+        setVisits(visitsResult.visits)
       }
 
       if (!referralResult.success) {
@@ -106,14 +113,30 @@ function VisitorStatsPage() {
     }
   }, [range.from, range.to])
 
+  const visitCounts = useMemo(() => {
+    const member = visits.filter((visit) => visit.isMember).length
+    const guest = visits.length - member
+    return { total: visits.length, member, guest }
+  }, [visits])
+
+  const filteredVisits = useMemo(() => {
+    if (visitFilter === 'member') {
+      return visits.filter((visit) => visit.isMember)
+    }
+    if (visitFilter === 'guest') {
+      return visits.filter((visit) => !visit.isMember)
+    }
+    return visits
+  }, [visits, visitFilter])
+
   const recentVisits = useMemo(
     () =>
-      [...memberVisits].sort((a, b) => {
+      [...visits].sort((a, b) => {
         const aTime = a.lastVisitAt ? new Date(a.lastVisitAt).getTime() : 0
         const bTime = b.lastVisitAt ? new Date(b.lastVisitAt).getTime() : 0
         return bTime - aTime
       }),
-    [memberVisits],
+    [visits],
   )
 
   const periodLabel =
@@ -139,8 +162,7 @@ function VisitorStatsPage() {
         <header className="member-management-page__header">
           <h1 className="member-management-page__title">방문자통계</h1>
           <p className="member-management-page__subtitle">
-            TODAY / TOTAL은 로그인 여부와 무관한 전체 방문자 수입니다. 회원 접속은 로그인한
-            회원만 별도로 기록합니다.
+            TODAY / TOTAL은 기존 집계를 유지합니다. 아래 방문 기록에서 회원/비회원을 구분합니다.
           </p>
         </header>
 
@@ -180,8 +202,8 @@ function VisitorStatsPage() {
               </table>
             </div>
             <p className="visitor-stats-page__hint">
-              TODAY / TOTAL은 기존 방문자 수 집계이며, 아래 기간 필터·회원 접속 목록과 무관합니다.
-              비로그인 방문도 TODAY에 포함됩니다.
+              TODAY / TOTAL 계산 로직은 변경하지 않았습니다. 상세 회원/비회원 구분은 아래 방문
+              기록을 사용합니다.
             </p>
           </section>
         )}
@@ -229,14 +251,6 @@ function VisitorStatsPage() {
               </div>
             ) : null}
             <p className="visitor-stats-page__hint">현재 조회: {periodLabel}</p>
-            {!detailLoading ? (
-              <p className="visitor-stats-page__hint">
-                이 기간 회원 접속 {memberVisits.length}명
-                {referralTotals.total > 0
-                  ? ` · 유입 이벤트 ${referralTotals.total}건 (회원 ${referralTotals.member} / 비회원 ${referralTotals.guest})`
-                  : ''}
-              </p>
-            ) : null}
           </div>
         </section>
 
@@ -250,27 +264,65 @@ function VisitorStatsPage() {
           <p className="member-management-page__empty">상세 통계를 불러오는 중...</p>
         ) : (
           <>
-            <section className="visitor-stats-page__section" aria-labelledby="member-visits-today">
-              <h2 id="member-visits-today" className="visitor-stats-page__section-title">
-                {isSingleDay ? '회원 접속' : '기간 회원 접속'}
+            <section className="visitor-stats-page__section" aria-labelledby="visit-summary">
+              <h2 id="visit-summary" className="visitor-stats-page__section-title">
+                {isSingleDay ? '오늘 방문자' : '기간 방문자'}
+              </h2>
+              <div className="visitor-stats-page__summary">
+                <div className="visitor-stats-page__summary-item">
+                  <span className="visitor-stats-page__summary-label">전체</span>
+                  <strong>{visitCounts.total}명</strong>
+                </div>
+                <div className="visitor-stats-page__summary-item">
+                  <span className="visitor-stats-page__summary-label">회원</span>
+                  <strong>{visitCounts.member}명</strong>
+                </div>
+                <div className="visitor-stats-page__summary-item">
+                  <span className="visitor-stats-page__summary-label">비회원</span>
+                  <strong>{visitCounts.guest}명</strong>
+                </div>
+              </div>
+            </section>
+
+            <section className="visitor-stats-page__section" aria-labelledby="visit-records">
+              <h2 id="visit-records" className="visitor-stats-page__section-title">
+                방문 기록
                 <span className="visitor-stats-page__section-count">
                   {' '}
-                  ({memberVisits.length}명)
+                  ({filteredVisits.length}건)
                 </span>
               </h2>
-              <p className="visitor-stats-page__hint">
-                로그인한 회원만 표시됩니다. TODAY 숫자와 다를 수 있으며, 비로그인 방문은 포함되지
-                않습니다.
-              </p>
-              {memberVisits.length === 0 ? (
-                <p className="member-management-page__empty">해당 기간의 회원 접속 기록이 없습니다.</p>
+
+              <div className="visitor-stats-page__period-buttons" role="group" aria-label="방문 구분 필터">
+                {VISIT_FILTERS.map((option) => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    className={`visitor-stats-page__period-button${
+                      visitFilter === option.id ? ' visitor-stats-page__period-button--active' : ''
+                    }`}
+                    onClick={() => setVisitFilter(option.id)}
+                  >
+                    {option.label}
+                    {option.id === 'all'
+                      ? ` ${visitCounts.total}`
+                      : option.id === 'member'
+                        ? ` ${visitCounts.member}`
+                        : ` ${visitCounts.guest}`}
+                  </button>
+                ))}
+              </div>
+
+              {filteredVisits.length === 0 ? (
+                <p className="member-management-page__empty">해당 조건의 방문 기록이 없습니다.</p>
               ) : (
                 <>
                   <div className="member-management-page__table-wrap visitor-stats-page__desktop-only">
                     <table className="member-management-page__table visitor-stats-page__member-table">
                       <thead>
                         <tr>
-                          <th scope="col">회원</th>
+                          <th scope="col">방문자</th>
+                          <th scope="col">구분</th>
                           <th scope="col">아이디</th>
                           <th scope="col">로그인 방식</th>
                           <th scope="col">최초 접속</th>
@@ -279,9 +331,20 @@ function VisitorStatsPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {memberVisits.map((visit) => (
-                          <tr key={`${visit.userId}-${visit.visitDate}`}>
+                        {filteredVisits.map((visit) => (
+                          <tr key={visit.id || `${visit.visitorKey}-${visit.visitDate}`}>
                             <td>{visit.name}</td>
+                            <td>
+                              <span
+                                className={`visitor-stats-page__badge${
+                                  visit.isMember
+                                    ? ' visitor-stats-page__badge--member'
+                                    : ' visitor-stats-page__badge--guest'
+                                }`}
+                              >
+                                {visit.visitorTypeLabel}
+                              </span>
+                            </td>
                             <td>{visit.username}</td>
                             <td>{visit.loginProviderLabel}</td>
                             <td>
@@ -310,16 +373,33 @@ function VisitorStatsPage() {
                   </div>
 
                   <ul className="visitor-stats-page__card-list visitor-stats-page__mobile-only">
-                    {memberVisits.map((visit) => (
-                      <li key={`card-${visit.userId}-${visit.visitDate}`} className="visitor-stats-page__card">
+                    {filteredVisits.map((visit) => (
+                      <li
+                        key={`card-${visit.id || `${visit.visitorKey}-${visit.visitDate}`}`}
+                        className="visitor-stats-page__card"
+                      >
                         <p className="visitor-stats-page__card-title">
-                          {visit.name} <span>({visit.username})</span>
+                          {visit.isMember ? (
+                            <>
+                              {visit.name} <span>({visit.username})</span>
+                            </>
+                          ) : (
+                            '비회원'
+                          )}
                         </p>
-                        <p>{visit.loginProviderLabel}</p>
                         <p>
-                          최초 {isSingleDay ? formatVisitTime(visit.firstVisitAt) : formatVisitDateTime(visit.firstVisitAt)}
+                          {visit.visitorTypeLabel} · {visit.loginProviderLabel}
+                        </p>
+                        <p>
+                          최초{' '}
+                          {isSingleDay
+                            ? formatVisitTime(visit.firstVisitAt)
+                            : formatVisitDateTime(visit.firstVisitAt)}
                           {' · '}
-                          마지막 {isSingleDay ? formatVisitTime(visit.lastVisitAt) : formatVisitDateTime(visit.lastVisitAt)}
+                          마지막{' '}
+                          {isSingleDay
+                            ? formatVisitTime(visit.lastVisitAt)
+                            : formatVisitDateTime(visit.lastVisitAt)}
                         </p>
                         <p>
                           유입 {visit.referralSourceLabel}
@@ -358,29 +438,37 @@ function VisitorStatsPage() {
                           <td>{row.guestCount}</td>
                         </tr>
                       ))}
+                      <tr className="visitor-stats-page__referral-total">
+                        <td>합계</td>
+                        <td>{referralTotals.total}</td>
+                        <td>{referralTotals.member}</td>
+                        <td>{referralTotals.guest}</td>
+                      </tr>
                     </tbody>
                   </table>
                 </div>
               )}
             </section>
 
-            <section className="visitor-stats-page__section" aria-labelledby="recent-member-visits">
-              <h2 id="recent-member-visits" className="visitor-stats-page__section-title">
-                최근 회원 접속 기록
+            <section className="visitor-stats-page__section" aria-labelledby="recent-visits">
+              <h2 id="recent-visits" className="visitor-stats-page__section-title">
+                최근 방문 기록
               </h2>
               {recentVisits.length === 0 ? (
-                <p className="member-management-page__empty">최근 접속 기록이 없습니다.</p>
+                <p className="member-management-page__empty">최근 방문 기록이 없습니다.</p>
               ) : (
                 <ul className="visitor-stats-page__recent-list">
                   {recentVisits.slice(0, 50).map((visit) => (
-                    <li key={`recent-${visit.userId}-${visit.visitDate}-${visit.lastVisitAt}`}>
+                    <li key={`recent-${visit.id || `${visit.visitorKey}-${visit.lastVisitAt}`}`}>
                       <span className="visitor-stats-page__recent-time">
                         {isSingleDay
                           ? formatVisitTime(visit.lastVisitAt)
                           : formatVisitDateTime(visit.lastVisitAt)}
                       </span>
-                      <span className="visitor-stats-page__recent-name">{visit.name}</span>
-                      <span>{visit.loginProviderLabel}</span>
+                      <span className="visitor-stats-page__recent-name">
+                        {visit.isMember ? visit.name : '비회원'}
+                      </span>
+                      <span>{visit.visitorTypeLabel}</span>
                       <span>{visit.referralSourceLabel}</span>
                     </li>
                   ))}

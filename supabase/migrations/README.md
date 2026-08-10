@@ -38,6 +38,7 @@ Migration 파일을 **번호 순서대로** Supabase SQL Editor에서 실행하�
 | 30 | `034_senior_pastor_full_board_ops.sql` | 담임목사: 전 게시판 글쓰기 + 게시글/댓글 전체 운영 |
 | 31 | `035_member_visits_and_referrals.sql` | 회원 일별 접속·유입 경로 테이블/RPC (기존 TODAY/TOTAL 유지) |
 | 32 | `036_fix_member_visit_tracking.sql` | 회원 접속: 대표 계정 정규화 + 관리자 목록 JOIN 보강 |
+| 33 | `037_unify_site_visit_records.sql` | 전체 방문 기록(회원/비회원) 단일 소스 + 관리자 목록 RPC |
 
 > `003`은 `profiles.role`을 RLS에서 참조하므로 **`004`를 먼저** 실행해야 합니다.
 

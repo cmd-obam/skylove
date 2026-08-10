@@ -28,7 +28,8 @@ export function getReferralSourceLabel(source) {
 }
 
 export function getLoginMethodLabel(provider) {
-  const key = String(provider || 'email').toLowerCase()
+  const key = String(provider || 'guest').toLowerCase()
+  if (key === 'guest' || key === 'anonymous' || key === 'none') return '비로그인'
   if (key === 'email') return '일반 로그인'
   if (key === 'kakao') return '카카오 로그인'
   return key
