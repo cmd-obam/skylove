@@ -25,15 +25,15 @@
 
 .serving-people-group__rule {
   display: block;
-  width: 2.75rem;
-  height: 2px;
+  width: 3.25rem;
+  height: 3px;
   margin: 0 0 0.75rem;
   background-color: var(--color-primary);
 }
 
 .serving-people-group__title {
   margin: 0;
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   font-weight: 700;
   line-height: 1.4;
   color: var(--color-primary);
@@ -112,7 +112,7 @@
 
 .serving-praise-card__team {
   margin: 0 0 0.875rem;
-  font-size: 0.9375rem;
+  font-size: 1.0625rem;
   font-weight: 600;
   line-height: 1.4;
   color: #1a1a1a;
@@ -192,7 +192,7 @@
 
 .serving-person-card__name {
   margin: 0.875rem 0 0;
-  font-size: 1.0625rem;
+  font-size: 1.1875rem;
   font-weight: 700;
   line-height: 1.4;
   color: #1a1a1a;
@@ -201,7 +201,7 @@
 
 .serving-person-card__role {
   margin: 0.35rem 0 0;
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 500;
   line-height: 1.45;
   color: #7a8794;
@@ -283,15 +283,15 @@
   }
 
   .serving-person-card__name {
-    font-size: 1rem;
+    font-size: 1.125rem;
   }
 
   .serving-person-card__role {
-    font-size: 0.8125rem;
+    font-size: 0.9375rem;
   }
 
   .serving-praise-card__team {
-    font-size: 0.875rem;
+    font-size: 1rem;
   }
 }
 
@@ -332,26 +332,26 @@
   }
 
   .serving-person-card__name {
-    font-size: 0.9375rem;
+    font-size: 1.0625rem;
   }
 
   .serving-person-card__role {
-    font-size: 0.75rem;
+    font-size: 0.875rem;
   }
 
   .serving-praise-card__team {
-    font-size: 0.8125rem;
-  }
-
-  .serving-people-grid--multi .serving-person-card__name {
     font-size: 0.9375rem;
   }
 
+  .serving-people-grid--multi .serving-person-card__name {
+    font-size: 1.0625rem;
+  }
+
   .serving-people-grid--multi .serving-person-card__role {
-    font-size: 0.75rem;
+    font-size: 0.875rem;
   }
 
   .serving-people-grid--multi .serving-praise-card__team {
-    font-size: 0.8125rem;
+    font-size: 0.9375rem;
   }
 }
