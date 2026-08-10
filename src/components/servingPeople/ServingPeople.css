@@ -96,6 +96,10 @@
   margin: 0 auto;
 }
 
+.serving-people-grid--pair .serving-people-pair-item:nth-child(2) {
+  grid-column: 3;
+}
+
 .serving-person-card {
   display: flex;
   flex-direction: column;
@@ -239,6 +243,10 @@
   .serving-people-grid--pair {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+
+  .serving-people-grid--pair .serving-people-pair-item:nth-child(2) {
+    grid-column: 3;
+  }
 }
 
 @media (max-width: 768px) {
@@ -249,6 +257,10 @@
   .serving-people-grid--pair {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.5rem 1rem;
+  }
+
+  .serving-people-grid--pair .serving-people-pair-item:nth-child(2) {
+    grid-column: 2;
   }
 
   .serving-people-rights {
@@ -308,6 +320,10 @@
 
   .serving-people-grid--pair {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .serving-people-grid--pair .serving-people-pair-item:nth-child(2) {
+    grid-column: 2;
   }
 
   .serving-people-grid--multi .serving-people-grid__item {
