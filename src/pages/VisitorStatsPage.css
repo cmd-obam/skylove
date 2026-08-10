@@ -13,6 +13,12 @@
   color: #1f3a5f;
 }
 
+.visitor-stats-page__section-count {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #5a7189;
+}
+
 .visitor-stats-page__hint {
   margin: 0.75rem 0 0;
   font-size: 0.8125rem;

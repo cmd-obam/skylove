@@ -62,6 +62,7 @@ import {
   FacilityVr,
 } from '@/pages/PlaceholderPage'
 import ScrollToTop from '@/components/common/ScrollToTop'
+import VisitTracker from '@/components/analytics/VisitTracker'
 import { PASTOR_STORY_POST_TYPE } from '@/services/auth/roles'
 import '@/App.css'
 import { AuthProvider } from '@/contexts/AuthContext'
@@ -95,6 +96,7 @@ function App() {
     <BrowserRouter basename={basename || undefined}>
       <ScrollToTop />
       <AuthProvider>
+        <VisitTracker />
         <ImageProtection />
         <Routes>
           <Route

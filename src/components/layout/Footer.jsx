@@ -6,14 +6,13 @@ import SitemapModal from '@/components/layout/SitemapModal'
 import { FOOTER_MODALS, FOOTER_LEGAL_LINKS } from '@/data/footerPolicies'
 import { useAuth } from '@/contexts/AuthContext'
 import { formatVisitorCount, loadVisitorStats } from '@/services/analytics/visitorStats'
-import { trackSiteVisitExtensions } from '@/services/analytics/visitTracking'
 import './Footer.css'
 
 function Footer() {
   const [activeModal, setActiveModal] = useState(null)
   const [visitorStats, setVisitorStats] = useState({ todayCount: null, totalCount: null })
   const location = useLocation()
-  const { loading: authLoading, user } = useAuth()
+  const { loading: authLoading } = useAuth()
 
   const openModal = (modalId) => {
     setActiveModal(modalId)
@@ -54,13 +53,11 @@ function Footer() {
     }
 
     void loadStats()
-    // 기존 TODAY/TOTAL 집계와 별도로 회원 접속·유입 경로만 추가 기록
-    void trackSiteVisitExtensions({ user })
 
     return () => {
       cancelled = true
     }
-  }, [authLoading, user, location.pathname])
+  }, [authLoading])
 
   const modal = activeModal && activeModal !== 'sitemap' ? FOOTER_MODALS[activeModal] : null
   const todayLabel =

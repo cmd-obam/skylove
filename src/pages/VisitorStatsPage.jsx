@@ -121,13 +121,26 @@ function VisitorStatsPage() {
       ? `${range.from} ~ ${range.to}`
       : PERIOD_OPTIONS.find((item) => item.id === period)?.label || '오늘'
 
+  const referralTotals = useMemo(() => {
+    return referralStats.reduce(
+      (acc, row) => {
+        acc.total += row.totalCount
+        acc.member += row.memberCount
+        acc.guest += row.guestCount
+        return acc
+      },
+      { total: 0, member: 0, guest: 0 },
+    )
+  }, [referralStats])
+
   return (
     <MemberMypageLayout>
       <div className="member-management-page visitor-stats-page">
         <header className="member-management-page__header">
           <h1 className="member-management-page__title">방문자통계</h1>
           <p className="member-management-page__subtitle">
-            사이트 하단과 동일한 TODAY / TOTAL과 함께, 회원 접속·유입 경로를 확인합니다.
+            TODAY / TOTAL은 로그인 여부와 무관한 전체 방문자 수입니다. 회원 접속은 로그인한
+            회원만 별도로 기록합니다.
           </p>
         </header>
 
@@ -167,7 +180,8 @@ function VisitorStatsPage() {
               </table>
             </div>
             <p className="visitor-stats-page__hint">
-              TODAY / TOTAL은 기존 방문자 수 집계이며, 아래 기간 필터와 무관합니다.
+              TODAY / TOTAL은 기존 방문자 수 집계이며, 아래 기간 필터·회원 접속 목록과 무관합니다.
+              비로그인 방문도 TODAY에 포함됩니다.
             </p>
           </section>
         )}
@@ -215,6 +229,14 @@ function VisitorStatsPage() {
               </div>
             ) : null}
             <p className="visitor-stats-page__hint">현재 조회: {periodLabel}</p>
+            {!detailLoading ? (
+              <p className="visitor-stats-page__hint">
+                이 기간 회원 접속 {memberVisits.length}명
+                {referralTotals.total > 0
+                  ? ` · 유입 이벤트 ${referralTotals.total}건 (회원 ${referralTotals.member} / 비회원 ${referralTotals.guest})`
+                  : ''}
+              </p>
+            ) : null}
           </div>
         </section>
 
@@ -231,7 +253,15 @@ function VisitorStatsPage() {
             <section className="visitor-stats-page__section" aria-labelledby="member-visits-today">
               <h2 id="member-visits-today" className="visitor-stats-page__section-title">
                 {isSingleDay ? '회원 접속' : '기간 회원 접속'}
+                <span className="visitor-stats-page__section-count">
+                  {' '}
+                  ({memberVisits.length}명)
+                </span>
               </h2>
+              <p className="visitor-stats-page__hint">
+                로그인한 회원만 표시됩니다. TODAY 숫자와 다를 수 있으며, 비로그인 방문은 포함되지
+                않습니다.
+              </p>
               {memberVisits.length === 0 ? (
                 <p className="member-management-page__empty">해당 기간의 회원 접속 기록이 없습니다.</p>
               ) : (

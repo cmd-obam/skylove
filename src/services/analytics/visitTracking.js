@@ -6,10 +6,15 @@ import {
   getOrCreateTrafficVisitorKey,
 } from '@/utils/visitReferral'
 
+/** userId → last successful upsert ms (동일 회원 과도한 갱신 방지) */
+const lastMemberVisitAtByUser = new Map()
+/** userId → in-flight promise */
+const memberVisitInFlightByUser = new Map()
+
 let trafficRecordedForKey = ''
 let trafficRecordedAsMember = false
-let memberVisitInFlight = null
-let lastMemberVisitAtMs = 0
+
+const MEMBER_VISIT_MIN_INTERVAL_MS = 20_000
 
 function detectLoginProviderFromUser(user) {
   const metaProvider = String(user?.app_metadata?.provider || '').toLowerCase()
@@ -46,6 +51,30 @@ function buildReferralPayload(extra = {}) {
   }
 }
 
+/** React state 대신 Supabase 세션을 직접 읽어 누락을 줄입니다. */
+export async function resolveAuthenticatedUser(preferredUser = null) {
+  if (preferredUser?.id) {
+    return preferredUser
+  }
+
+  try {
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.getSession()
+
+    if (error) {
+      console.warn('[VisitTracking] getSession failed', error)
+      return null
+    }
+
+    return session?.user ?? null
+  } catch (error) {
+    console.warn('[VisitTracking] getSession threw', error)
+    return null
+  }
+}
+
 /** 익명 포함 유입 이벤트 (visitor_key + 날짜 1회, 로그인 시 회원 플래그 업그레이드) */
 export async function recordTrafficEventIfNeeded({ isMember = false } = {}) {
   if (typeof window === 'undefined') {
@@ -67,7 +96,6 @@ export async function recordTrafficEventIfNeeded({ isMember = false } = {}) {
     // ignore
   }
 
-  // 비회원으로 이미 기록한 뒤 같은 날 로그인하면 회원 플래그 갱신을 위해 1회 더 호출
   if ((alreadyRecorded || sessionMarked) && (!isMember || trafficRecordedAsMember)) {
     trafficRecordedForKey = dayKey
     return { recorded: false }
@@ -101,24 +129,29 @@ export async function recordTrafficEventIfNeeded({ isMember = false } = {}) {
   return { recorded: true }
 }
 
-/** 로그인 회원 일별 접속 upsert (first 유지, last 갱신) */
+/** 로그인 회원 일별 접속 upsert (first 유지, last 갱신) — 회원별로 독립 */
 export async function upsertMemberDailyVisit(user) {
-  if (!user?.id) {
-    return { success: false }
+  const authUser = await resolveAuthenticatedUser(user)
+  if (!authUser?.id) {
+    return { success: false, reason: 'no_user' }
   }
 
+  const userId = authUser.id
   const now = Date.now()
-  if (now - lastMemberVisitAtMs < 30_000 && memberVisitInFlight == null) {
+  const lastAt = lastMemberVisitAtByUser.get(userId) || 0
+
+  if (now - lastAt < MEMBER_VISIT_MIN_INTERVAL_MS && !memberVisitInFlightByUser.has(userId)) {
     return { success: true, skipped: true }
   }
 
-  if (memberVisitInFlight) {
-    return memberVisitInFlight
+  const existing = memberVisitInFlightByUser.get(userId)
+  if (existing) {
+    return existing
   }
 
-  memberVisitInFlight = (async () => {
+  const task = (async () => {
     const payload = {
-      login_provider: detectLoginProviderFromUser(user),
+      login_provider: detectLoginProviderFromUser(authUser),
       ...buildReferralPayload(),
     }
 
@@ -127,26 +160,42 @@ export async function upsertMemberDailyVisit(user) {
     })
 
     if (error) {
-      console.warn('[VisitTracking] member visit failed', error)
+      console.warn('[VisitTracking] member visit failed', {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+        userId,
+      })
       return { success: false, error }
     }
 
-    lastMemberVisitAtMs = Date.now()
+    lastMemberVisitAtByUser.set(userId, Date.now())
     return { success: true }
   })()
 
+  memberVisitInFlightByUser.set(userId, task)
+
   try {
-    return await memberVisitInFlight
+    return await task
   } finally {
-    memberVisitInFlight = null
+    memberVisitInFlightByUser.delete(userId)
   }
 }
 
+/**
+ * 기존 TODAY/TOTAL(record_site_visit)과 무관하게
+ * 유입 이벤트 + (로그인 시) 회원 일별 접속만 기록합니다.
+ */
 export async function trackSiteVisitExtensions({ user = null } = {}) {
   captureFirstTouchReferral()
-  await recordTrafficEventIfNeeded({ isMember: Boolean(user) })
 
-  if (user) {
-    await upsertMemberDailyVisit(user)
+  const authUser = await resolveAuthenticatedUser(user)
+  await recordTrafficEventIfNeeded({ isMember: Boolean(authUser) })
+
+  if (authUser) {
+    await upsertMemberDailyVisit(authUser)
   }
+
+  return { userId: authUser?.id ?? null }
 }
