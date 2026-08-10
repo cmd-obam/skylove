@@ -39,6 +39,18 @@ function ServingPraiseRow({ subgroups, pairLayout = false }) {
           return null
         }
 
+        if (pairLayout) {
+          return (
+            <li key={subgroup.id} className="serving-people-grid__item serving-people-pair-item">
+              <header className="serving-people-group__header">
+                <span className="serving-people-group__rule" aria-hidden="true" />
+                <h2 className="serving-people-group__title">{subgroup.title}</h2>
+              </header>
+              <ServingPersonCard person={person} />
+            </li>
+          )
+        }
+
         return (
           <li key={subgroup.id} className="serving-people-grid__item">
             <ServingPraiseCard teamTitle={subgroup.title} person={person} />

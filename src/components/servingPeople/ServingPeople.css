@@ -67,28 +67,31 @@
   min-width: 0;
 }
 
+/* 담임목사 | 사모님: 다른 카테고리와 같은 4열 그리드 기준, 왼쪽 정렬 헤더 */
 .serving-people-grid--pair {
-  grid-template-columns: repeat(2, minmax(0, 11.5rem));
-  justify-content: start;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  justify-content: stretch;
   gap: 2rem 1.5rem;
 }
 
-.serving-people-grid--pair .serving-praise-card__team {
-  margin: 0 0 1rem;
-  font-size: 1.125rem;
-  font-weight: 700;
-  line-height: 1.4;
-  color: var(--color-primary);
-  letter-spacing: -0.01em;
+.serving-people-pair-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
-.serving-people-grid--pair .serving-praise-card__team::before {
-  content: '';
-  display: block;
-  width: 2.75rem;
-  height: 2px;
-  margin: 0 auto 0.75rem;
-  background-color: var(--color-primary);
+.serving-people-pair-item .serving-people-group__header {
+  width: 100%;
+}
+
+.serving-people-pair-item .serving-person-card {
+  width: 100%;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.serving-people-pair-item .serving-person-card__photo {
+  margin: 0;
 }
 
 .serving-person-card {
