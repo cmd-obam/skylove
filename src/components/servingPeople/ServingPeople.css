@@ -233,6 +233,10 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1.75rem 1.25rem;
   }
+
+  .serving-people-grid--pair {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 768px) {
