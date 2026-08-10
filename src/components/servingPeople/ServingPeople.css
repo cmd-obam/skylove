@@ -300,15 +300,16 @@
     gap: 2.25rem;
   }
 
-  /* 1명 그룹(원로권사·간사 등): 세로 1열 유지 */
+  /* 1명 그룹도 2열 그리드 기준으로 왼쪽 칸만 사용해 동일 이미지 크기 유지 */
   .serving-people-grid:not(.serving-people-grid--multi) {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 1.75rem;
-    justify-items: center;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem 0.75rem;
+    justify-items: stretch;
   }
 
   .serving-people-grid:not(.serving-people-grid--multi) .serving-people-grid__item {
-    width: min(100%, 14rem);
+    width: auto;
+    max-width: none;
   }
 
   /* 여러 명 그룹(권사·집사·찬양사역자·사역담당 등): 2열 유지 */
@@ -331,7 +332,15 @@
   }
 
   .serving-person-card__name {
-    font-size: 1.0625rem;
+    font-size: 0.9375rem;
+  }
+
+  .serving-person-card__role {
+    font-size: 0.75rem;
+  }
+
+  .serving-praise-card__team {
+    font-size: 0.8125rem;
   }
 
   .serving-people-grid--multi .serving-person-card__name {
