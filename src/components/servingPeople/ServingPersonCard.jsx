@@ -1,7 +1,8 @@
 import './ServingPeople.css'
 
-function preventPhotoContextMenu(event) {
+function preventPhotoInteraction(event) {
   event.preventDefault()
+  event.stopPropagation()
 }
 
 function ServingPersonPhoto({ person, alt }) {
@@ -9,21 +10,21 @@ function ServingPersonPhoto({ person, alt }) {
 
   if (hasPhoto) {
     return (
-      <div className="serving-person-card__photo-protect">
+      <div
+        className="serving-person-card__photo-protect"
+        onContextMenu={preventPhotoInteraction}
+        onDragStart={preventPhotoInteraction}
+        onClick={preventPhotoInteraction}
+        onDoubleClick={preventPhotoInteraction}
+      >
         <img
           src={person.photoUrl}
           alt={alt}
           className="serving-person-card__image"
           loading="lazy"
           draggable="false"
-          onContextMenu={preventPhotoContextMenu}
-          onDragStart={preventPhotoContextMenu}
         />
-        <span
-          className="serving-person-card__photo-shield"
-          aria-hidden="true"
-          onContextMenu={preventPhotoContextMenu}
-        />
+        <span className="serving-person-card__photo-shield" aria-hidden="true" />
       </div>
     )
   }
