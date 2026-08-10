@@ -177,7 +177,7 @@ export const MINISTER_GROUPS = [
       },
       {
         id: 'minister-el-sim-minseop',
-        name: '신민섭',
+        name: '심민섭',
         role: '단원',
         photoUrl: null,
         sortOrder: 3,
