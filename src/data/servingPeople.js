@@ -26,37 +26,44 @@ export const SERVING_PEOPLE_PAGE_INTRO = {
 /** @type {ServingGroup[]} */
 export const CLERGY_GROUPS = [
   {
-    id: 'senior-pastor',
-    title: '담임목사',
+    id: 'pastor-pair',
+    title: '',
+    hideHeader: true,
     sortOrder: 1,
-    people: [
+    layout: 'praise-row',
+    subgroups: [
       {
-        id: 'clergy-choi-seokrim',
-        name: '최석림',
-        role: '담임목사',
-        photoUrl: null,
-        sortOrder: 1,
+        id: 'senior-pastor',
+        title: '담임목사',
+        people: [
+          {
+            id: 'clergy-choi-seokrim',
+            name: '최석림',
+            role: '',
+            photoUrl: null,
+            sortOrder: 1,
+          },
+        ],
       },
-    ],
-  },
-  {
-    id: 'pastor-wife',
-    title: '사모님',
-    sortOrder: 2,
-    people: [
       {
-        id: 'clergy-kim-yeongae',
-        name: '김영애',
-        role: '사모님',
-        photoUrl: null,
-        sortOrder: 1,
+        id: 'pastor-wife',
+        title: '사모님',
+        people: [
+          {
+            id: 'clergy-kim-yeongae',
+            name: '김영애',
+            role: '',
+            photoUrl: null,
+            sortOrder: 1,
+          },
+        ],
       },
     ],
   },
   {
     id: 'elder-deaconess',
     title: '원로권사',
-    sortOrder: 3,
+    sortOrder: 2,
     people: [
       {
         id: 'clergy-kim-jinsun',
@@ -70,7 +77,7 @@ export const CLERGY_GROUPS = [
   {
     id: 'deaconess',
     title: '권사',
-    sortOrder: 4,
+    sortOrder: 3,
     people: [
       {
         id: 'clergy-jo-changgyeong',
@@ -105,7 +112,7 @@ export const CLERGY_GROUPS = [
   {
     id: 'deacon',
     title: '집사',
-    sortOrder: 5,
+    sortOrder: 4,
     people: [
       {
         id: 'clergy-jeong-jieun',

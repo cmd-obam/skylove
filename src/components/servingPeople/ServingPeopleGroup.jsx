@@ -26,9 +26,13 @@ function ServingPeopleGrid({ people }) {
   )
 }
 
-function ServingPraiseRow({ subgroups }) {
+function ServingPraiseRow({ subgroups, pairLayout = false }) {
   return (
-    <ul className="serving-people-grid serving-people-grid--multi">
+    <ul
+      className={`serving-people-grid serving-people-grid--multi${
+        pairLayout ? ' serving-people-grid--pair' : ''
+      }`}
+    >
       {subgroups.map((subgroup) => {
         const person = sortByOrder(subgroup.people)[0]
         if (!person) {
@@ -48,18 +52,25 @@ function ServingPraiseRow({ subgroups }) {
 function ServingPeopleGroup({ group }) {
   const hasSubgroups = Array.isArray(group.subgroups) && group.subgroups.length > 0
   const isPraiseRow = group.layout === 'praise-row' && hasSubgroups
+  const showHeader = Boolean(group.title) && !group.hideHeader
 
   return (
-    <section className="serving-people-group" aria-labelledby={`serving-group-${group.id}`}>
-      <header className="serving-people-group__header">
-        <span className="serving-people-group__rule" aria-hidden="true" />
-        <h2 className="serving-people-group__title" id={`serving-group-${group.id}`}>
-          {group.title}
-        </h2>
-      </header>
+    <section
+      className="serving-people-group"
+      aria-labelledby={showHeader ? `serving-group-${group.id}` : undefined}
+      aria-label={!showHeader && isPraiseRow ? '담임목사와 사모님' : undefined}
+    >
+      {showHeader ? (
+        <header className="serving-people-group__header">
+          <span className="serving-people-group__rule" aria-hidden="true" />
+          <h2 className="serving-people-group__title" id={`serving-group-${group.id}`}>
+            {group.title}
+          </h2>
+        </header>
+      ) : null}
 
       {isPraiseRow ? (
-        <ServingPraiseRow subgroups={group.subgroups} />
+        <ServingPraiseRow subgroups={group.subgroups} pairLayout={group.id === 'pastor-pair'} />
       ) : hasSubgroups ? (
         <div className="serving-people-group__subgroups">
           {group.subgroups.map((subgroup) => (

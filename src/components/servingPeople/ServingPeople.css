@@ -67,6 +67,30 @@
   min-width: 0;
 }
 
+.serving-people-grid--pair {
+  grid-template-columns: repeat(2, minmax(0, 11.5rem));
+  justify-content: start;
+  gap: 2rem 1.5rem;
+}
+
+.serving-people-grid--pair .serving-praise-card__team {
+  margin: 0 0 1rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--color-primary);
+  letter-spacing: -0.01em;
+}
+
+.serving-people-grid--pair .serving-praise-card__team::before {
+  content: '';
+  display: block;
+  width: 2.75rem;
+  height: 2px;
+  margin: 0 auto 0.75rem;
+  background-color: var(--color-primary);
+}
+
 .serving-person-card {
   display: flex;
   flex-direction: column;
@@ -213,6 +237,11 @@
     gap: 2.75rem;
   }
 
+  .serving-people-grid--pair {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem 1rem;
+  }
+
   .serving-people-rights {
     padding-top: 1.5rem;
   }
@@ -266,6 +295,10 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.25rem 0.75rem;
     justify-items: stretch;
+  }
+
+  .serving-people-grid--pair {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .serving-people-grid--multi .serving-people-grid__item {

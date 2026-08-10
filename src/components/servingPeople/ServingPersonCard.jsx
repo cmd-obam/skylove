@@ -52,10 +52,13 @@ function ServingPersonCard({ person }) {
   return (
     <article className="serving-person-card">
       <div className="serving-person-card__photo">
-        <ServingPersonPhoto person={person} alt={`${person.name} ${person.role}`} />
+        <ServingPersonPhoto
+          person={person}
+          alt={`${person.name}${person.role ? ` ${person.role}` : ''}`}
+        />
       </div>
       <h3 className="serving-person-card__name">{person.name}</h3>
-      <p className="serving-person-card__role">{person.role}</p>
+      {person.role ? <p className="serving-person-card__role">{person.role}</p> : null}
     </article>
   )
 }
@@ -72,7 +75,7 @@ function ServingPraiseCard({ teamTitle, person }) {
         <ServingPersonPhoto person={person} alt={displayName} />
       </div>
       <h3 className="serving-person-card__name">{displayName}</h3>
-      <p className="serving-person-card__role">{person.role}</p>
+      {person.role ? <p className="serving-person-card__role">{person.role}</p> : null}
     </article>
   )
 }
