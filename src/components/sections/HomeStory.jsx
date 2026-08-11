@@ -112,22 +112,23 @@ function StoryBadge({ sourceId, label, tone = 'solid' }) {
 function FeaturedStoryCard({ card }) {
   if (card.empty) {
     return (
-      <article className="home-story__card home-story__card--featured home-story__card--empty">
+      <Link
+        to={card.listPath}
+        className="home-story__card home-story__card--featured home-story__card--empty home-story__card--link"
+      >
         <div className="home-story__featured-media">
           <StoryBadge sourceId={card.id} label={card.badgeLabel} tone="solid" />
           <div className="home-story__featured-placeholder">
             <p>등록된 게시글이 없습니다.</p>
-            <Link to={card.listPath} className="home-story__more-link">
-              게시판 보기 →
-            </Link>
+            <span className="home-story__more-link">게시판 보기 →</span>
           </div>
         </div>
-      </article>
+      </Link>
     )
   }
 
   return (
-    <article className="home-story__card home-story__card--featured">
+    <Link to={card.href} className="home-story__card home-story__card--featured home-story__card--link">
       <div className="home-story__featured-media">
         {card.imageSrc ? (
           <img src={card.imageSrc} alt="" className="home-story__featured-image" />
@@ -143,34 +144,30 @@ function FeaturedStoryCard({ card }) {
         </div>
       </div>
       <div className="home-story__card-footer">
-        <Link to={card.href} className="home-story__more-link">
-          자세히 보기 →
-        </Link>
+        <span className="home-story__more-link">자세히 보기 →</span>
       </div>
-    </article>
+    </Link>
   )
 }
 
 function StoryCard({ card }) {
   if (card.empty) {
     return (
-      <article className="home-story__card home-story__card--empty">
+      <Link to={card.listPath} className="home-story__card home-story__card--empty home-story__card--link">
         <div className="home-story__card-media">
           <StoryBadge sourceId={card.id} label={card.badgeLabel} tone="soft" />
           <div className="home-story__media-fallback home-story__media-fallback--muted" />
         </div>
         <div className="home-story__card-body">
           <h3 className="home-story__card-title">등록된 게시글이 없습니다.</h3>
-          <Link to={card.listPath} className="home-story__more-link">
-            게시판 보기 →
-          </Link>
+          <span className="home-story__more-link">게시판 보기 →</span>
         </div>
-      </article>
+      </Link>
     )
   }
 
   return (
-    <article className="home-story__card">
+    <Link to={card.href} className="home-story__card home-story__card--link">
       <div className="home-story__card-media">
         {card.imageSrc ? (
           <img src={card.imageSrc} alt="" className="home-story__card-image" />
@@ -183,11 +180,9 @@ function StoryCard({ card }) {
         {card.dateLabel ? <p className="home-story__card-date">{card.dateLabel}</p> : null}
         <h3 className="home-story__card-title">{card.title}</h3>
         {card.excerpt ? <p className="home-story__card-description">{card.excerpt}</p> : null}
-        <Link to={card.href} className="home-story__more-link">
-          자세히 보기 →
-        </Link>
+        <span className="home-story__more-link">자세히 보기 →</span>
       </div>
-    </article>
+    </Link>
   )
 }
 
