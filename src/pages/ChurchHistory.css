@@ -50,6 +50,18 @@
   overflow: hidden;
 }
 
+.church-history-accordion__item--sky {
+  border-color: #c5dff3;
+}
+
+.church-history-accordion__item--green {
+  border-color: #c9dfc4;
+}
+
+.church-history-accordion__item--violet {
+  border-color: #d7cce8;
+}
+
 .church-history-accordion__heading {
   margin: 0;
 }
@@ -57,37 +69,101 @@
 .church-history-accordion__trigger {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   gap: 0.75rem;
   width: 100%;
   margin: 0;
-  padding: 1.125rem 1.25rem;
+  padding: 0.95rem 1.15rem;
   border: none;
-  background-color: transparent;
+  background-color: #f5f9fc;
   font-family: inherit;
   color: var(--color-text);
   cursor: pointer;
   transition: background-color var(--transition);
 }
 
+.church-history-accordion__item--sky .church-history-accordion__trigger {
+  background-color: #eef6fd;
+}
+
+.church-history-accordion__item--green .church-history-accordion__trigger {
+  background-color: #f3f8f1;
+}
+
+.church-history-accordion__item--violet .church-history-accordion__trigger {
+  background-color: #f6f3fa;
+}
+
 .church-history-accordion__trigger:hover,
 .church-history-accordion__trigger:focus-visible {
-  background-color: #f5f9fc;
+  filter: brightness(0.985);
+}
+
+.church-history-accordion__lead {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.church-history-accordion__symbol {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.85);
+}
+
+.church-history-accordion__symbol-icon {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+.church-history-accordion__item--sky .church-history-accordion__symbol {
+  color: #4da6ff;
+  box-shadow: inset 0 0 0 1px #d4e8f8;
+}
+
+.church-history-accordion__item--green .church-history-accordion__symbol {
+  color: #6b9a6a;
+  box-shadow: inset 0 0 0 1px #d6e8d4;
+}
+
+.church-history-accordion__item--violet .church-history-accordion__symbol {
+  color: #8b74ad;
+  box-shadow: inset 0 0 0 1px #e2d8ef;
 }
 
 .church-history-accordion__period {
   font-size: 1.125rem;
   font-weight: 700;
   line-height: 1.4;
-  color: var(--color-primary);
   letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.church-history-accordion__item--sky .church-history-accordion__period,
+.church-history-accordion__item--sky .church-history-accordion__icon {
+  color: #3d7fbf;
+}
+
+.church-history-accordion__item--green .church-history-accordion__period,
+.church-history-accordion__item--green .church-history-accordion__icon {
+  color: #5b835c;
+}
+
+.church-history-accordion__item--violet .church-history-accordion__period,
+.church-history-accordion__item--violet .church-history-accordion__icon {
+  color: #6f5b8f;
 }
 
 .church-history-accordion__icon {
   flex-shrink: 0;
   width: 1.25rem;
   height: 1.25rem;
-  color: var(--color-primary);
 }
 
 .church-history-accordion__panel {
@@ -112,7 +188,8 @@
 }
 
 .church-history-accordion__item--open .church-history-accordion__panel-inner {
-  padding: 0.25rem 1.25rem 1.5rem;
+  padding: 0.85rem 1.25rem 1.5rem;
+  border-top: 1px solid rgba(215, 227, 239, 0.7);
 }
 
 .church-history-table-wrap {
@@ -265,7 +342,22 @@
   }
 
   .church-history-accordion__trigger {
-    padding: 1rem 1rem;
+    padding: 0.85rem 0.95rem;
+    gap: 0.5rem;
+  }
+
+  .church-history-accordion__lead {
+    gap: 0.625rem;
+  }
+
+  .church-history-accordion__symbol {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
+  .church-history-accordion__symbol-icon {
+    width: 0.85rem;
+    height: 0.85rem;
   }
 
   .church-history-accordion__period {
@@ -278,7 +370,7 @@
   }
 
   .church-history-accordion__item--open .church-history-accordion__panel-inner {
-    padding: 0.15rem 1rem 1.25rem;
+    padding: 0.75rem 1rem 1.25rem;
   }
 
   .church-history-photos__grid {

@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
-import { FiChevronDown, FiChevronUp } from 'react-icons/fi'
+import { FaChurch, FaSeedling } from 'react-icons/fa'
+import { FiChevronDown, FiChevronUp, FiHeart } from 'react-icons/fi'
 import churchHistoryIcon from '@/assets/images/about/church-history-icon.png'
 import useIsMobile from '@/hooks/useIsMobile'
 import MobileImageLightbox from '@/components/common/MobileImageLightbox'
@@ -15,6 +16,16 @@ const DEFAULT_OPEN_PERIOD_ID =
 
 function formatPeriodLabel(period) {
   return String(period || '').replace(/~/g, ' ~ ')
+}
+
+const PERIOD_THEMES = {
+  '2009-2011': { theme: 'sky', Icon: FaChurch, label: '교회 설립' },
+  '2012-2015': { theme: 'green', Icon: FaSeedling, label: '교회 성장' },
+  '2016-present': { theme: 'violet', Icon: FiHeart, label: '현재 사역' },
+}
+
+function getPeriodTheme(periodId) {
+  return PERIOD_THEMES[periodId] ?? PERIOD_THEMES['2009-2011']
 }
 
 function ChurchHistoryIntro() {
@@ -131,11 +142,12 @@ function ChurchHistoryAccordionItem({ period, isOpen, onToggle }) {
   const headingId = `history-period-heading-${period.id}`
   const panelId = `history-period-panel-${period.id}`
   const ChevronIcon = isOpen ? FiChevronUp : FiChevronDown
+  const { theme, Icon, label } = getPeriodTheme(period.id)
 
   return (
     <section
       id={`history-period-${period.id}`}
-      className={`church-history-accordion__item${
+      className={`church-history-accordion__item church-history-accordion__item--${theme}${
         isOpen ? ' church-history-accordion__item--open' : ''
       }`}
       aria-labelledby={headingId}
@@ -146,10 +158,16 @@ function ChurchHistoryAccordionItem({ period, isOpen, onToggle }) {
           className="church-history-accordion__trigger"
           aria-expanded={isOpen}
           aria-controls={panelId}
+          aria-label={`${formatPeriodLabel(period.period)} ${label}`}
           onClick={() => onToggle(period.id)}
         >
-          <span className="church-history-accordion__period">
-            {formatPeriodLabel(period.period)}
+          <span className="church-history-accordion__lead">
+            <span className="church-history-accordion__symbol" aria-hidden="true">
+              <Icon className="church-history-accordion__symbol-icon" />
+            </span>
+            <span className="church-history-accordion__period">
+              {formatPeriodLabel(period.period)}
+            </span>
           </span>
           <ChevronIcon className="church-history-accordion__icon" aria-hidden="true" />
         </button>
