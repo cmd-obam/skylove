@@ -209,9 +209,11 @@
 
 .worship-word-detail__content--html img {
   display: block;
-  max-width: 100%;
+  max-width: min(600px, 100%);
+  width: auto;
   height: auto;
   margin: 0.85rem auto;
+  object-fit: contain;
   border-radius: 8px;
 }
 
