@@ -16,6 +16,7 @@ import hanJaeseokPhoto from '@/assets/images/serving-people/han-jaeseok.jpg'
 import choiSeokrimPhoto from '@/assets/images/serving-people/choi-seokrim.jpg'
 import kimYeongaePhoto from '@/assets/images/serving-people/kim-yeongae.jpg'
 import kimHyegyeongPhoto from '@/assets/images/serving-people/kim-hyegyeong.jpg'
+import jeongJiyePhoto from '@/assets/images/serving-people/jeong-jiye.png'
 
 export const SERVING_PEOPLE_PAGE_INTRO = {
   title: '섬기는 사람들',
@@ -229,7 +230,7 @@ export const MINISTER_GROUPS = [
         id: 'minister-el-jeong-jiye',
         name: '정지예',
         role: '단원',
-        photoUrl: null,
+        photoUrl: jeongJiyePhoto,
         sortOrder: 4,
       },
       {
