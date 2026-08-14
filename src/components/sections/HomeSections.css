@@ -446,8 +446,7 @@
 /* Story */
 .home-story {
   position: relative;
-  overflow-x: visible;
-  overflow-y: hidden;
+  overflow: hidden;
   background:
     linear-gradient(180deg, rgba(232, 243, 255, 0.95) 0%, rgba(255, 255, 255, 0.92) 38%, #ffffff 100%);
 }
@@ -490,7 +489,7 @@
 
 .home-story__slider {
   position: relative;
-  padding: 0 5.5rem;
+  padding: 0 3.25rem;
 }
 
 .home-story__viewport {
@@ -505,8 +504,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 7.5rem;
-  height: 7.5rem;
+  width: 3.25rem;
+  height: 3.25rem;
   padding: 0;
   border: 1px solid #d7e3ef;
   border-radius: 999px;
@@ -523,16 +522,16 @@
 }
 
 .home-story__nav svg {
-  width: 3.75rem;
-  height: 3.75rem;
+  width: 1.75rem;
+  height: 1.75rem;
 }
 
 .home-story__nav--prev {
-  left: -0.75rem;
+  left: 0;
 }
 
 .home-story__nav--next {
-  right: -0.75rem;
+  right: 0;
 }
 
 .home-story__nav:hover:not(:disabled),
