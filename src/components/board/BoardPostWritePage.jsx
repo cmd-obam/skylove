@@ -383,7 +383,6 @@ function BoardPostWritePage({
       const payload = {
         title: trimmedTitle,
         content: sanitizedContent,
-        writer,
         attachmentUrl: firstAttachment?.url ?? null,
         attachmentName: firstAttachment?.name ?? null,
         attachments: attachmentsPayload,
@@ -406,6 +405,7 @@ function BoardPostWritePage({
         : await createBoardPost({
             postType,
             id: targetPostId,
+            writer,
             ...payload,
           })
 

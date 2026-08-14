@@ -392,7 +392,7 @@ export async function updateBoardPost(postType, postId, payload) {
     .update({
       title: payload.title,
       content: payload.content,
-      writer: payload.writer,
+      // 작성자(writer / author_id)는 최초 작성 시 고정 — 수정 시 변경하지 않음
       attachment_url: payload.attachmentUrl ?? null,
       attachment_name: payload.attachmentName ?? null,
       attachments: payload.attachments ?? [],
