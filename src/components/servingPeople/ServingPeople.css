@@ -67,7 +67,7 @@
   min-width: 0;
 }
 
-/* 담임목사 | 사모님: 다른 카테고리와 같은 4열 그리드, 제목은 왼쪽 / 카드는 중앙 */
+/* 담임목사 | 사모: 다른 카테고리와 같은 4열 그리드, 제목은 왼쪽 / 카드는 중앙 */
 .serving-people-grid--pair {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   justify-content: stretch;

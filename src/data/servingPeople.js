@@ -51,12 +51,12 @@ export const CLERGY_GROUPS = [
       },
       {
         id: 'pastor-wife',
-        title: '사모님',
+        title: '사모',
         people: [
           {
             id: 'clergy-kim-yeongae',
             name: '김영애',
-            role: '사모님',
+            role: '사모',
             photoUrl: kimYeongaePhoto,
             sortOrder: 1,
           },

@@ -70,7 +70,7 @@ function ServingPeopleGroup({ group }) {
     <section
       className="serving-people-group"
       aria-labelledby={showHeader ? `serving-group-${group.id}` : undefined}
-      aria-label={!showHeader && isPraiseRow ? '담임목사와 사모님' : undefined}
+      aria-label={!showHeader && isPraiseRow ? '담임목사와 사모' : undefined}
     >
       {showHeader ? (
         <header className="serving-people-group__header">
