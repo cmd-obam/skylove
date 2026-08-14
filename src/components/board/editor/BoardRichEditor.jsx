@@ -1,7 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { EditorContent, useEditor } from '@tiptap/react'
 import BoardEditorToolbar from '@/components/board/editor/BoardEditorToolbar'
 import { createBoardEditorExtensions } from '@/components/board/editor/boardEditorExtensions'
+import {
+  BoardThumbnailSelectContext,
+} from '@/components/board/editor/BoardImageNodeView'
 import { validateBoardImageFile } from '@/utils/boardFileValidation'
 import './BoardRichEditor.css'
 
@@ -9,6 +12,8 @@ function BoardRichEditor({
   value = '',
   onChange,
   onUploadImage,
+  thumbnailSrc = null,
+  onSelectThumbnail,
   placeholder = '내용을 입력해 주세요.',
   disabled = false,
 }) {
@@ -18,6 +23,14 @@ function BoardRichEditor({
   const [error, setError] = useState('')
   const onChangeRef = useRef(onChange)
   onChangeRef.current = onChange
+
+  const thumbnailContextValue = useMemo(
+    () => ({
+      thumbnailSrc,
+      onSelectThumbnail: onSelectThumbnail ?? null,
+    }),
+    [thumbnailSrc, onSelectThumbnail],
+  )
 
   const uploadAndInsert = useCallback(
     async (editorInstance, file) => {
@@ -145,23 +158,25 @@ function BoardRichEditor({
   }
 
   return (
-    <div className={`board-editor${disabled ? ' board-editor--disabled' : ''}`}>
-      <BoardEditorToolbar
-        editor={editor}
-        onInsertImage={handleInsertImageClick}
-        uploading={uploading}
-      />
-      <EditorContent editor={editor} />
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/jpeg,image/png,image/webp,image/gif"
-        className="board-editor__file-input"
-        onChange={handleFileChange}
-      />
-      {uploading ? <p className="board-editor__status">이미지 업로드 중…</p> : null}
-      {error ? <p className="board-editor__error">{error}</p> : null}
-    </div>
+    <BoardThumbnailSelectContext.Provider value={thumbnailContextValue}>
+      <div className={`board-editor${disabled ? ' board-editor--disabled' : ''}`}>
+        <BoardEditorToolbar
+          editor={editor}
+          onInsertImage={handleInsertImageClick}
+          uploading={uploading}
+        />
+        <EditorContent editor={editor} />
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          className="board-editor__file-input"
+          onChange={handleFileChange}
+        />
+        {uploading ? <p className="board-editor__status">이미지 업로드 중…</p> : null}
+        {error ? <p className="board-editor__error">{error}</p> : null}
+      </div>
+    </BoardThumbnailSelectContext.Provider>
   )
 }
 

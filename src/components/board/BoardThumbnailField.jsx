@@ -30,6 +30,7 @@ function BoardThumbnailField({ value, onChange, disabled = false }) {
       previewUrl: URL.createObjectURL(file),
       existingUrl: null,
       existingPath: null,
+      fromContent: false,
     })
   }
 
@@ -49,7 +50,8 @@ function BoardThumbnailField({ value, onChange, disabled = false }) {
       <div className="board-thumb-field__header">
         <p className="board-thumb-field__label">대표이미지</p>
         <p className="board-thumb-field__hint">
-          미지정 시 본문 첫 이미지가 사용됩니다. 목록·메인 카드 썸네일로 쓰입니다.
+          본문 이미지 우상단 &quot;대표&quot; 체크 또는 직접 업로드. 미지정 시 본문 첫 이미지가
+          사용됩니다.
         </p>
       </div>
 

@@ -173,11 +173,15 @@ function BoardPostWritePage({
       setLegacyImages(post.images ?? [])
 
       if (post.thumbnail) {
+        const contentHasThumb = (post.content || '').includes(post.thumbnail)
         setThumbnailState({
           file: null,
           previewUrl: null,
           existingUrl: post.thumbnail,
-          existingPath: extractStoragePathFromPublicUrl(post.thumbnail),
+          existingPath: contentHasThumb
+            ? null
+            : extractStoragePathFromPublicUrl(post.thumbnail),
+          fromContent: contentHasThumb,
         })
       }
 
@@ -221,7 +225,8 @@ function BoardPostWritePage({
   }, [isEdit, postId, postType, profile, currentUserId])
 
   const handleThumbnailChange = (next) => {
-    if (thumbnailState?.existingPath) {
+    // 별도 업로드한 대표이미지만 삭제 대상. 본문 이미지를 대표로 고른 경우는 파일 삭제하지 않음.
+    if (thumbnailState?.existingPath && !thumbnailState?.fromContent) {
       setRemovedPaths((current) => [...current, thumbnailState.existingPath])
     }
 
@@ -230,6 +235,29 @@ function BoardPostWritePage({
     }
 
     setThumbnailState(next)
+  }
+
+  const handleSelectContentThumbnail = (imageSrc) => {
+    if (!imageSrc) {
+      handleThumbnailChange(null)
+      return
+    }
+
+    if (thumbnailState?.previewUrl?.startsWith('blob:')) {
+      URL.revokeObjectURL(thumbnailState.previewUrl)
+    }
+
+    if (thumbnailState?.existingPath && !thumbnailState?.fromContent) {
+      setRemovedPaths((current) => [...current, thumbnailState.existingPath])
+    }
+
+    setThumbnailState({
+      file: null,
+      previewUrl: imageSrc,
+      existingUrl: imageSrc,
+      existingPath: null,
+      fromContent: true,
+    })
   }
 
   const handleAttachmentsChange = (next) => {
@@ -273,7 +301,7 @@ function BoardPostWritePage({
     }
 
     if (!isVideoWrite && isBoardHtmlEmpty(sanitizedContent)) {
-      setError('내용을 입력해 주세요.')
+      setError('내용 또는 이미지를 입력해 주세요.')
       return
     }
 
@@ -496,9 +524,13 @@ function BoardPostWritePage({
             value={content}
             onChange={setContent}
             onUploadImage={handleUploadEditorImage}
+            thumbnailSrc={thumbnailState?.existingUrl || thumbnailState?.previewUrl || null}
+            onSelectThumbnail={handleSelectContentThumbnail}
             disabled={submitting}
             placeholder={
-              isVideoWrite ? '영상 설명을 입력해 주세요. (선택)' : '내용을 입력해 주세요.'
+              isVideoWrite
+                ? '영상 설명을 입력해 주세요. (선택)'
+                : '내용을 입력하거나 이미지를 첨부해 주세요.'
             }
           />
         </div>

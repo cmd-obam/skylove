@@ -10,6 +10,8 @@ import Image from '@tiptap/extension-image'
 import TaskList from '@tiptap/extension-task-list'
 import TaskItem from '@tiptap/extension-task-item'
 import HorizontalRule from '@tiptap/extension-horizontal-rule'
+import { ReactNodeViewRenderer } from '@tiptap/react'
+import BoardImageNodeView from '@/components/board/editor/BoardImageNodeView'
 
 const FontSize = TextStyle.extend({
   addAttributes() {
@@ -65,6 +67,10 @@ const ResizableImage = Image.extend({
         }),
       },
     }
+  },
+
+  addNodeView() {
+    return ReactNodeViewRenderer(BoardImageNodeView)
   },
 })
 

@@ -83,7 +83,14 @@ export function isBoardHtmlEmpty(html) {
     return true
   }
 
-  const text = String(html)
+  const value = String(html)
+
+  // 본문에 이미지만 있어도 내용이 있는 것으로 봅니다.
+  if (/<img\b/i.test(value)) {
+    return false
+  }
+
+  const text = value
     .replace(/<br\s*\/?>/gi, '')
     .replace(/&nbsp;/gi, ' ')
     .replace(/<[^>]+>/g, '')

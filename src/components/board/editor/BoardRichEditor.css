@@ -203,6 +203,79 @@
   border-radius: 8px;
 }
 
+.board-editor-image {
+  margin: 0.75rem 0;
+}
+
+.board-editor-image[data-align='left'] .board-editor-image__frame {
+  margin-right: auto;
+}
+
+.board-editor-image[data-align='right'] .board-editor-image__frame {
+  margin-left: auto;
+}
+
+.board-editor-image[data-align='center'] .board-editor-image__frame,
+.board-editor-image:not([data-align]) .board-editor-image__frame {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.board-editor-image__frame {
+  position: relative;
+  display: inline-block;
+  max-width: min(600px, 100%);
+  vertical-align: top;
+}
+
+.board-editor-image__img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  object-fit: contain;
+}
+
+.board-editor-image.is-selected .board-editor-image__frame {
+  outline: 2px solid #4da6ff;
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+.board-editor-image__thumb-toggle {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid #d7e3ef;
+  box-shadow: 0 4px 12px rgba(31, 58, 95, 0.12);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #1f3a5f;
+  cursor: pointer;
+  user-select: none;
+}
+
+.board-editor-image__thumb-toggle input {
+  width: 0.9rem;
+  height: 0.9rem;
+  margin: 0;
+  accent-color: #4da6ff;
+  cursor: pointer;
+}
+
+.board-editor-image.is-thumbnail .board-editor-image__thumb-toggle {
+  border-color: #4da6ff;
+  background: #eaf4ff;
+  color: #2f6fad;
+}
+
 .board-editor .tiptap a {
   color: #2f7fd6;
   text-decoration: underline;
