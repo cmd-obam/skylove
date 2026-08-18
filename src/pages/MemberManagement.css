@@ -111,7 +111,7 @@
 }
 
 .member-management-page__col-actions {
-  width: 200px;
+  width: 110px;
 }
 
 .member-management-page__table thead th {
@@ -139,6 +139,13 @@
 .member-management-page__table tbody td:nth-child(3) {
   text-align: left;
   word-break: break-all;
+}
+
+.member-management-page__table tbody td:last-child {
+  height: auto;
+  min-height: 60px;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
 }
 
 .member-management-page__pii-cell {
@@ -282,7 +289,9 @@
 
 .member-management-page__actions {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: center;
   justify-content: center;
   gap: 0.375rem;
 }
