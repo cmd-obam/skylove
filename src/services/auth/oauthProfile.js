@@ -9,6 +9,7 @@ import { normalizeAnswer } from '@/services/auth/normalizeAnswer'
 import {
   checkDuplicateId,
   formatPhoneNumber,
+  isUsernameLikeDisplayName,
   resolveBirthDateForDatabase,
   validatePassword,
   validateSignupEmail,
@@ -23,6 +24,35 @@ const STUB_PROFILE_BIRTH_DATE = '1900-01-01'
 export function getOAuthHomeUrl() {
   const base = String(import.meta.env.BASE_URL || '/').replace(/\/$/, '')
   return `${base}/`
+}
+
+/**
+ * 카카오 닉네임이 아이디/이메일 로컬과 같으면 이름 칸을 비웁니다.
+ * 한글 실명처럼 보이는 값만 미리 채웁니다.
+ */
+export function getOAuthPrefillName(user) {
+  const email = user?.email || ''
+  const candidates = [
+    user?.user_metadata?.name,
+    user?.user_metadata?.full_name,
+    user?.user_metadata?.nickname,
+  ]
+
+  for (const candidate of candidates) {
+    const name = String(candidate ?? '').trim()
+
+    if (!name) {
+      continue
+    }
+
+    if (isUsernameLikeDisplayName(name, { email })) {
+      continue
+    }
+
+    return name
+  }
+
+  return ''
 }
 
 /**

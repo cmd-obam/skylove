@@ -391,6 +391,7 @@ function MemberManagement() {
             <colgroup>
               <col className="member-management-page__col-name" />
               <col className="member-management-page__col-email" />
+              <col className="member-management-page__col-username" />
               <col className="member-management-page__col-phone" />
               <col className="member-management-page__col-role" />
               <col className="member-management-page__col-date" />
@@ -400,6 +401,7 @@ function MemberManagement() {
               <tr>
                 <th scope="col">이름</th>
                 <th scope="col">이메일</th>
+                <th scope="col">아이디</th>
                 <th scope="col">휴대폰</th>
                 <th scope="col">권한</th>
                 <th scope="col">가입일</th>
@@ -409,13 +411,13 @@ function MemberManagement() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="member-management-page__empty">
+                  <td colSpan={7} className="member-management-page__empty">
                     불러오는 중...
                   </td>
                 </tr>
               ) : members.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="member-management-page__empty">
+                  <td colSpan={7} className="member-management-page__empty">
                     <div className="member-management-page__empty-inner">
                       <FiUsers className="member-management-page__empty-icon" aria-hidden="true" />
                       <span>검색 결과가 없습니다.</span>
@@ -452,6 +454,7 @@ function MemberManagement() {
                           </button>
                         </div>
                       </td>
+                      <td>{member.username}</td>
                       <td className="member-management-page__pii-cell">
                         <MaskedPiiField
                           field={PII_FIELD.PHONE}

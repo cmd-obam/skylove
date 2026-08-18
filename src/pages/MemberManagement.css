@@ -94,6 +94,10 @@
   width: 200px;
 }
 
+.member-management-page__col-username {
+  width: 120px;
+}
+
 .member-management-page__col-phone {
   width: 170px;
 }

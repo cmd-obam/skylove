@@ -1,51 +1,18 @@
 -- ============================================================
--- 028: auth.users ↔ profiles 동기화 + 고아 회원 백필
+-- 039: 회원 표시 이름(profiles.name)이 username/이메일 로컬과
+--      섞이지 않도록 보정합니다.
 --
--- 문제: 이메일 OTP로 auth.users만 생성되고 profiles 저장이 실패하면
---       회원관리(list_profiles_for_super_admin)에 표시되지 않음.
+-- 원인:
+--   auth.users INSERT 트리거가 raw_user_meta_data.name 이 없으면
+--   이메일 @ 앞부분을 profiles.name 에 넣고 있었습니다.
+--   아이디를 이메일 로컬과 같게 정한 회원은 이름=아이디로 저장됩니다.
 --
--- 해결:
--- 1) auth.users INSERT 시 stub profiles 자동 생성
--- 2) 기존 고아 auth.users 백필
--- 3) 최고관리자용 동기화 RPC
+-- 이 스크립트는
+--   1) 트리거 폴백을 '회원'으로 바꿉니다. (아이디/이메일을 이름으로 쓰지 않음)
+--   2) 이미 이름=아이디(또는 이메일 로컬)인 행만, metadata에
+--      서로 다른 실명이 있을 때 복구합니다.
+--   한글 이름이 이미 있는 회원은 변경하지 않습니다.
 -- ============================================================
-
-CREATE OR REPLACE FUNCTION public.generate_unique_profile_username(p_seed text, p_user_id uuid)
-RETURNS text
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public
-AS $$
-DECLARE
-  base_username text;
-  next_username text;
-  suffix integer := 0;
-BEGIN
-  base_username := lower(regexp_replace(coalesce(nullif(trim(p_seed), ''), ''), '[^a-z0-9_]', '', 'g'));
-
-  IF base_username IS NULL OR length(base_username) < 4 THEN
-    base_username := 'user_' || substr(replace(p_user_id::text, '-', ''), 1, 12);
-  END IF;
-
-  IF length(base_username) > 20 THEN
-    base_username := left(base_username, 20);
-  END IF;
-
-  next_username := base_username;
-
-  WHILE EXISTS (
-    SELECT 1
-    FROM public.profiles
-    WHERE username = next_username
-      AND user_id IS DISTINCT FROM p_user_id
-  ) LOOP
-    suffix := suffix + 1;
-    next_username := left(base_username, greatest(1, 20 - length('_' || suffix::text))) || '_' || suffix::text;
-  END LOOP;
-
-  RETURN next_username;
-END;
-$$;
 
 CREATE OR REPLACE FUNCTION public.handle_new_auth_user()
 RETURNS trigger
@@ -57,6 +24,7 @@ DECLARE
   next_username text;
   next_name text;
   next_birth date;
+  email_local text;
 BEGIN
   IF NEW.email IS NULL OR trim(NEW.email) = '' THEN
     RETURN NEW;
@@ -66,8 +34,10 @@ BEGIN
     RETURN NEW;
   END IF;
 
+  email_local := split_part(NEW.email, '@', 1);
+
   next_username := public.generate_unique_profile_username(
-    coalesce(NEW.raw_user_meta_data->>'username', split_part(NEW.email, '@', 1)),
+    coalesce(NEW.raw_user_meta_data->>'username', email_local),
     NEW.id
   );
 
@@ -77,9 +47,10 @@ BEGIN
     NEW.raw_user_meta_data->>'nickname',
     ''
   )), '');
+
   IF next_name IS NULL
      OR lower(next_name) = lower(next_username)
-     OR lower(next_name) = lower(split_part(NEW.email, '@', 1)) THEN
+     OR lower(next_name) = lower(email_local) THEN
     next_name := '회원';
   END IF;
 
@@ -120,7 +91,6 @@ BEGIN
   RETURN NEW;
 EXCEPTION
   WHEN unique_violation THEN
-    -- 동시성으로 이미 생긴 경우 무시
     RETURN NEW;
   WHEN others THEN
     RAISE WARNING '[handle_new_auth_user] failed for %: %', NEW.id, SQLERRM;
@@ -128,13 +98,6 @@ EXCEPTION
 END;
 $$;
 
-DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW
-  EXECUTE FUNCTION public.handle_new_auth_user();
-
--- 기존 고아 auth.users → profiles 백필
 CREATE OR REPLACE FUNCTION public.backfill_orphan_profiles_from_auth_users()
 RETURNS integer
 LANGUAGE plpgsql
@@ -147,6 +110,7 @@ DECLARE
   next_username text;
   next_name text;
   next_birth date;
+  email_local text;
 BEGIN
   FOR auth_row IN
     SELECT a.id, a.email, a.raw_user_meta_data
@@ -157,8 +121,10 @@ BEGIN
       AND trim(a.email) <> ''
     ORDER BY a.created_at ASC
   LOOP
+    email_local := split_part(auth_row.email, '@', 1);
+
     next_username := public.generate_unique_profile_username(
-      coalesce(auth_row.raw_user_meta_data->>'username', split_part(auth_row.email, '@', 1)),
+      coalesce(auth_row.raw_user_meta_data->>'username', email_local),
       auth_row.id
     );
 
@@ -168,9 +134,10 @@ BEGIN
       auth_row.raw_user_meta_data->>'nickname',
       ''
     )), '');
+
     IF next_name IS NULL
        OR lower(next_name) = lower(next_username)
-       OR lower(next_name) = lower(split_part(auth_row.email, '@', 1)) THEN
+       OR lower(next_name) = lower(email_local) THEN
       next_name := '회원';
     END IF;
 
@@ -221,33 +188,27 @@ BEGIN
 END;
 $$;
 
-REVOKE ALL ON FUNCTION public.backfill_orphan_profiles_from_auth_users() FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION public.backfill_orphan_profiles_from_auth_users() TO service_role;
-
--- 최고관리자가 회원관리 진입 시 고아 동기화 가능
-CREATE OR REPLACE FUNCTION public.sync_orphan_profiles_for_super_admin()
-RETURNS jsonb
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public
-AS $$
-DECLARE
-  inserted_count integer;
-BEGIN
-  IF NOT public.is_super_admin() THEN
-    RAISE EXCEPTION '접근 권한이 없습니다.';
-  END IF;
-
-  inserted_count := public.backfill_orphan_profiles_from_auth_users();
-
-  RETURN jsonb_build_object(
-    'success', true,
-    'inserted_count', inserted_count
-  );
-END;
-$$;
-
-GRANT EXECUTE ON FUNCTION public.sync_orphan_profiles_for_super_admin() TO authenticated;
-
--- 즉시 1회 백필 (SQL Editor 실행 시 기존 누락 회원 복구)
-SELECT public.backfill_orphan_profiles_from_auth_users() AS orphan_profiles_inserted;
+-- 이름=아이디(또는 이메일 로컬)인 행만, metadata에 다른 실명이 있으면 복구
+UPDATE public.profiles AS p
+SET name = recovered.meta_name
+FROM (
+  SELECT
+    pr.user_id,
+    nullif(trim(coalesce(
+      u.raw_user_meta_data->>'name',
+      u.raw_user_meta_data->>'full_name',
+      u.raw_user_meta_data->>'nickname',
+      ''
+    )), '') AS meta_name
+  FROM public.profiles AS pr
+  JOIN auth.users AS u ON u.id = pr.user_id
+) AS recovered
+WHERE p.user_id = recovered.user_id
+  AND recovered.meta_name IS NOT NULL
+  AND (
+    p.name = p.username
+    OR p.name = split_part(p.email, '@', 1)
+  )
+  AND lower(recovered.meta_name) <> lower(p.username)
+  AND lower(recovered.meta_name) <> lower(split_part(p.email, '@', 1))
+  AND recovered.meta_name <> p.name;

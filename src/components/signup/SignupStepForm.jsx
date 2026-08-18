@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { SIGNUP_FIELD_AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 import { PASSWORD_PLACEHOLDER, PASSWORD_REQUIREMENT_HINT } from '@/services/auth/signup'
 import {
   isCustomSecurityQuestionSelected,
@@ -89,7 +90,7 @@ function SignupStepForm({
             placeholder="이름을 입력하세요."
             value={form.name}
             onChange={(event) => updateField('name', event.target.value)}
-            autoComplete="off"
+            autoComplete={SIGNUP_FIELD_AUTOCOMPLETE_OFF}
           />
         </SignupFormRow>
 

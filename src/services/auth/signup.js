@@ -70,6 +70,28 @@ export function normalizeBirthDate(value) {
   return `${year}-${month}-${day}`
 }
 
+export function isUsernameLikeDisplayName(name, { username = '', email = '' } = {}) {
+  const trimmed = String(name ?? '').trim()
+
+  if (!trimmed) {
+    return false
+  }
+
+  const loginId = String(username ?? '').trim()
+  const emailLocal = String(email ?? '').trim().split('@')[0]
+  const lower = trimmed.toLowerCase()
+
+  if (loginId && lower === loginId.toLowerCase()) {
+    return true
+  }
+
+  if (emailLocal && lower === emailLocal.toLowerCase()) {
+    return true
+  }
+
+  return false
+}
+
 export function resolveBirthDateForDatabase(value) {
   const normalized = normalizeBirthDate(value)
 
@@ -201,6 +223,8 @@ export function validateSignupProfileFields(form, { isIdChecked = false } = {}) 
 
   if (!trimmedName) {
     errors.name = name ? '이름에 공백만 입력할 수 없습니다.' : '이름을 입력해주세요.'
+  } else if (isUsernameLikeDisplayName(trimmedName, { username: loginId, email: form.email })) {
+    errors.name = '이름은 아이디·이메일과 같을 수 없습니다. 실명을 입력해주세요.'
   }
 
   if (!form.birthDate) {
@@ -831,7 +855,7 @@ export async function sendEmailVerification(email, { source = 'signup-email-veri
 async function fetchProfileByUserId(userId) {
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, username, email')
+    .select('id, username, email, name')
     .eq('user_id', userId)
     .maybeSingle()
 
@@ -852,11 +876,13 @@ async function verifySignupCompleted(userId, formData) {
 
   const formEmail = formData.email.trim().toLowerCase()
   const username = formData.loginId.trim()
+  const formName = formData.name.trim()
   const emailMatches = profile.email?.toLowerCase() === formEmail
   const usernameMatches = profile.username === username
+  const nameMatches = profile.name === formName
 
   return {
-    completed: emailMatches && usernameMatches,
+    completed: emailMatches && usernameMatches && nameMatches,
     profile,
   }
 }

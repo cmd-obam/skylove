@@ -18,6 +18,7 @@ import {
   createOAuthProfile,
   formatPhoneNumber,
   getOAuthHomeUrl,
+  getOAuthPrefillName,
   isSignupCompletedProfile,
   validateOAuthProfileForm,
 } from '@/services/auth/oauthProfile'
@@ -31,7 +32,7 @@ import {
   PASSWORD_REQUIREMENT_HINT,
 } from '@/services/auth/signup'
 import { fetchProfileByUserId } from '@/services/auth/profile'
-import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
+import { AUTOCOMPLETE_OFF, SIGNUP_FIELD_AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 import '@/components/layout/CategoryLayout.css'
 import '@/components/layout/SubLayout.css'
 import '@/pages/Signup.css'
@@ -98,7 +99,7 @@ function OAuthProfileComplete() {
 
       setForm((prev) => ({
         ...prev,
-        name: prev.name || user.user_metadata?.name || user.user_metadata?.full_name || '',
+        name: prev.name || getOAuthPrefillName(user),
         email: user.email || '',
       }))
       setSessionReady(true)
@@ -409,7 +410,7 @@ function OAuthProfileComplete() {
                   placeholder="이름을 입력하세요."
                   value={form.name}
                   onChange={(event) => updateField('name', event.target.value)}
-                  autoComplete={AUTOCOMPLETE_OFF}
+                  autoComplete={SIGNUP_FIELD_AUTOCOMPLETE_OFF}
                 />
               </SignupFormRow>
 
