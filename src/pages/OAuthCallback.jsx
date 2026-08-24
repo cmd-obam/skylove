@@ -5,6 +5,12 @@ import {
   isSignupCompletedProfile,
   OAUTH_PROFILE_COMPLETE_PATH,
 } from '@/services/auth/oauthProfile'
+import {
+  clearPendingOAuthLink,
+  getPendingOAuthLink,
+  setOAuthLinkResult,
+} from '@/services/auth/oauthLogin'
+import { getAccountLoginMethods } from '@/services/auth/unlinkKakao'
 import { supabase } from '@/lib/supabase'
 import './OAuthCallback.css'
 
@@ -51,6 +57,62 @@ function clearOAuthParamsFromUrl() {
   }
 }
 
+async function handlePendingOAuthLink({ navigate, user, url }) {
+  const pendingLink = getPendingOAuthLink()
+
+  if (!pendingLink) {
+    return false
+  }
+
+  const oauthError = url.searchParams.get('error')
+  const oauthErrorDescription = url.searchParams.get('error_description')
+
+  if (oauthError || oauthErrorDescription) {
+    setOAuthLinkResult({
+      type: 'error',
+      message: '카카오 로그인 인증에 실패했습니다.',
+    })
+    clearPendingOAuthLink()
+    navigate(pendingLink.returnTo || '/member/edit', { replace: true })
+    return true
+  }
+
+  if (!user) {
+    setOAuthLinkResult({
+      type: 'error',
+      message: '카카오 로그인 인증에 실패했습니다.',
+    })
+    clearPendingOAuthLink()
+    navigate(pendingLink.returnTo || '/member/edit', { replace: true })
+    return true
+  }
+
+  if (pendingLink.expectedUserId && user.id !== pendingLink.expectedUserId) {
+    await supabase.auth.signOut()
+    setOAuthLinkResult({
+      type: 'error',
+      message: '이 카카오 계정은 이미 다른 회원에게 연결되어 있습니다.',
+    })
+    clearPendingOAuthLink()
+    navigate('/login', { replace: true })
+    return true
+  }
+
+  const loginMethods = await getAccountLoginMethods()
+  const hasKakao = Boolean(loginMethods.success && loginMethods.hasKakao)
+
+  setOAuthLinkResult({
+    type: hasKakao ? 'success' : 'error',
+    message: hasKakao
+      ? '카카오 계정이 연결되었습니다.'
+      : '카카오 계정 연동에 실패했습니다. 잠시 후 다시 시도해주세요.',
+  })
+
+  clearPendingOAuthLink()
+  navigate(pendingLink.returnTo || '/member/edit', { replace: true })
+  return true
+}
+
 /**
  * OAuth 전용 콜백.
  * 기존 /auth/callback(이메일 인증)과 분리되어 있으며 AuthCallback 파일을 수정하지 않습니다.
@@ -71,6 +133,7 @@ function OAuthCallback() {
       try {
         const url = new URL(window.location.href)
         const code = url.searchParams.get('code')
+        const pendingLink = getPendingOAuthLink()
         let user = null
 
         if (code) {
@@ -99,12 +162,29 @@ function OAuthCallback() {
         }
 
         if (!user) {
+          if (pendingLink) {
+            finishedRef.current = true
+            setOAuthLinkResult({
+              type: 'error',
+              message: '카카오 로그인 인증에 실패했습니다.',
+            })
+            clearPendingOAuthLink()
+            navigate(pendingLink.returnTo || '/member/edit', { replace: true })
+            return
+          }
+
           setErrorMessage('간편 로그인 세션을 확인하지 못했습니다. 다시 시도해주세요.')
           return
         }
 
         // 성공 경로에서는 이전 경합으로 찍힌 실패 문구를 지우지 않도록, 에러 UI 전에 완료합니다.
         setErrorMessage('')
+
+        if (pendingLink) {
+          finishedRef.current = true
+          await handlePendingOAuthLink({ navigate, user, url })
+          return
+        }
 
         const existingProfile = await fetchProfileByUserId(user.id)
 
@@ -136,6 +216,18 @@ function OAuthCallback() {
 
         if (user) {
           setErrorMessage('')
+          const pendingLink = getPendingOAuthLink()
+
+          if (pendingLink) {
+            finishedRef.current = true
+            await handlePendingOAuthLink({
+              navigate,
+              user,
+              url: new URL(window.location.href),
+            })
+            return
+          }
+
           finishedRef.current = true
           const existingProfile = await fetchProfileByUserId(user.id)
 
@@ -145,6 +237,19 @@ function OAuthCallback() {
           }
 
           navigate(OAUTH_PROFILE_COMPLETE_PATH, { replace: true })
+          return
+        }
+
+        const pendingLink = getPendingOAuthLink()
+
+        if (pendingLink) {
+          finishedRef.current = true
+          setOAuthLinkResult({
+            type: 'error',
+            message: '카카오 로그인 인증에 실패했습니다.',
+          })
+          clearPendingOAuthLink()
+          navigate(pendingLink.returnTo || '/member/edit', { replace: true })
           return
         }
 

@@ -9,10 +9,13 @@ import RegisterGeneralLoginPromptModal from '@/components/auth/RegisterGeneralLo
 import UnlinkKakaoModal from '@/components/auth/UnlinkKakaoModal'
 import SignupCongregantField from '@/components/signup/SignupCongregantField'
 import '@/components/auth/DeleteAccountModal.css'
+import {
+  consumeOAuthLinkResult,
+  startKakaoIdentityLink,
+} from '@/services/auth/oauthLogin'
 import { deleteAccount } from '@/services/auth/deleteAccount'
 import { fetchCurrentUserProfile } from '@/services/auth/profile'
 import { canDeleteAccount, getSelfDeleteBlockMessage } from '@/services/auth/roles'
-import { getSimplifiedLoginMethodLabel } from '@/services/auth/convertToEmailLogin'
 import {
   getAccountLoginMethods,
   unlinkKakaoIdentity,
@@ -82,11 +85,10 @@ function MemberEdit() {
   const [unlinkError, setUnlinkError] = useState(null)
   const [accountFeedback, setAccountFeedback] = useState(null)
   const [authUserId, setAuthUserId] = useState('')
+  const [isLinkingKakao, setIsLinkingKakao] = useState(false)
 
   const applyLoginMethods = (loginMethods) => {
-    setLoginStatusLabel(
-      getSimplifiedLoginMethodLabel({ hasKakao: Boolean(loginMethods.hasKakao) }),
-    )
+    setLoginStatusLabel(loginMethods.loginStatusLabel || loginMethods.primaryLabel || '알 수 없음')
     setHasKakaoIdentity(Boolean(loginMethods.hasKakao))
     setHasGeneralLogin(Boolean(loginMethods.hasGeneralLogin))
   }
@@ -127,6 +129,7 @@ function MemberEdit() {
       setAuthUserId(session.user.id)
       setAuthSession(result.profile)
       applyLoginMethods(loginMethods)
+      setAccountFeedback(consumeOAuthLinkResult())
       setIsLoading(false)
     }
 
@@ -195,6 +198,30 @@ function MemberEdit() {
       }
       navigate('/login', { replace: true })
     }, 1500)
+  }
+
+  const handleLinkKakao = async () => {
+    setAccountFeedback(null)
+    setIsLinkingKakao(true)
+
+    try {
+      const result = await startKakaoIdentityLink(authUserId)
+
+      if (!result.success) {
+        setAccountFeedback({
+          type: 'error',
+          message: result.message || '카카오 계정 연동에 실패했습니다. 잠시 후 다시 시도해주세요.',
+        })
+        setIsLinkingKakao(false)
+        return
+      }
+    } catch (error) {
+      setAccountFeedback({
+        type: 'error',
+        message: error?.message || '카카오 계정 연동에 실패했습니다. 잠시 후 다시 시도해주세요.',
+      })
+      setIsLinkingKakao(false)
+    }
   }
 
   const handleKakaoUnlinkClick = () => {
@@ -617,7 +644,7 @@ function MemberEdit() {
 
                     setIsConvertModalOpen(true)
                   }}
-                  disabled={isSubmitting || isDeletingAccount || isUnlinkingKakao}
+                  disabled={isSubmitting || isDeletingAccount || isUnlinkingKakao || isLinkingKakao}
                 >
                   이메일 로그인으로 전환
                 </button>
@@ -627,7 +654,7 @@ function MemberEdit() {
                       type="button"
                       className="signup-btn signup-btn--danger"
                       onClick={handleKakaoUnlinkClick}
-                      disabled={isSubmitting || isDeletingAccount || isUnlinkingKakao}
+                      disabled={isSubmitting || isDeletingAccount || isUnlinkingKakao || isLinkingKakao}
                     >
                       카카오 계정 연동 해제
                     </button>
@@ -644,7 +671,19 @@ function MemberEdit() {
                 )}
               </div>
             ) : (
-              <p className="member-account-section__hint">연동된 카카오 계정이 없습니다.</p>
+              <div className="member-account-section__actions">
+                <button
+                  type="button"
+                  className="signup-btn signup-btn--primary"
+                  onClick={handleLinkKakao}
+                  disabled={isSubmitting || isDeletingAccount || isUnlinkingKakao || isLinkingKakao}
+                >
+                  {isLinkingKakao ? '카카오 연결 중...' : '카카오 로그인 연동'}
+                </button>
+                <p className="member-account-section__hint">
+                  현재 계정의 user_id를 유지한 채 카카오 로그인을 추가로 연결합니다.
+                </p>
+              </div>
             )}
           </section>
         </section>
