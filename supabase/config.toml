@@ -27,6 +27,9 @@ verify_jwt = true
 [functions.purge-content-trash]
 verify_jwt = false
 
+[functions.convert-kakao-to-email-login]
+verify_jwt = true
+
 # Local Auth email templates only. Hosted project: paste the same content in
 # Dashboard → Authentication → Email Templates → Magic Link
 # (signup uses signInWithOtp → Magic Link template)

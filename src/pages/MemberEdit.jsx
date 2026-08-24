@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { FiUser, FiLock, FiCalendar, FiMail, FiSmartphone } from 'react-icons/fi'
 import { supabase } from '@/lib/supabase'
+import ConvertToEmailLoginModal from '@/components/auth/ConvertToEmailLoginModal'
 import DeleteAccountModal from '@/components/auth/DeleteAccountModal'
 import RegisterGeneralLoginModal from '@/components/auth/RegisterGeneralLoginModal'
 import RegisterGeneralLoginPromptModal from '@/components/auth/RegisterGeneralLoginPromptModal'
@@ -11,6 +12,7 @@ import '@/components/auth/DeleteAccountModal.css'
 import { deleteAccount } from '@/services/auth/deleteAccount'
 import { fetchCurrentUserProfile } from '@/services/auth/profile'
 import { canDeleteAccount, getSelfDeleteBlockMessage } from '@/services/auth/roles'
+import { getSimplifiedLoginMethodLabel } from '@/services/auth/convertToEmailLogin'
 import {
   getAccountLoginMethods,
   unlinkKakaoIdentity,
@@ -72,15 +74,18 @@ function MemberEdit() {
   const [loginStatusLabel, setLoginStatusLabel] = useState('확인 중...')
   const [hasKakaoIdentity, setHasKakaoIdentity] = useState(false)
   const [hasGeneralLogin, setHasGeneralLogin] = useState(false)
+  const [isConvertModalOpen, setIsConvertModalOpen] = useState(false)
   const [isUnlinkModalOpen, setIsUnlinkModalOpen] = useState(false)
   const [isRegisterPromptOpen, setIsRegisterPromptOpen] = useState(false)
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false)
   const [isUnlinkingKakao, setIsUnlinkingKakao] = useState(false)
   const [unlinkError, setUnlinkError] = useState(null)
-  const [accountFeedback, setAccountFeedback] = useState(null)
+  const [authUserId, setAuthUserId] = useState('')
 
   const applyLoginMethods = (loginMethods) => {
-    setLoginStatusLabel(loginMethods.loginStatusLabel || loginMethods.primaryLabel || '알 수 없음')
+    setLoginStatusLabel(
+      getSimplifiedLoginMethodLabel({ hasKakao: Boolean(loginMethods.hasKakao) }),
+    )
     setHasKakaoIdentity(Boolean(loginMethods.hasKakao))
     setHasGeneralLogin(Boolean(loginMethods.hasGeneralLogin))
   }
@@ -118,6 +123,7 @@ function MemberEdit() {
 
       setCurrentProfile(result.profile)
       setForm(createInitialProfileForm(result.profile))
+      setAuthUserId(session.user.id)
       setAuthSession(result.profile)
       applyLoginMethods(loginMethods)
       setIsLoading(false)
@@ -160,6 +166,34 @@ function MemberEdit() {
     setIsDeleteModalOpen(false)
     setDeleteComplete(true)
     setIsDeletingAccount(false)
+  }
+
+  const handleConvertCompleted = async (result) => {
+    setIsConvertModalOpen(false)
+
+    if (result?.methods) {
+      applyLoginMethods(result.methods)
+    } else {
+      setHasKakaoIdentity(false)
+      setHasGeneralLogin(true)
+      setLoginStatusLabel('이메일 로그인')
+    }
+
+    setAccountFeedback({
+      type: 'success',
+      message:
+        result?.message ||
+        '이메일 로그인으로 전환이 완료되었습니다.\n이후부터는 아이디 + 비밀번호로 로그인할 수 있습니다.',
+    })
+
+    window.setTimeout(async () => {
+      try {
+        await signOut()
+      } catch {
+        // ignore
+      }
+      navigate('/login', { replace: true })
+    }, 1500)
   }
 
   const handleKakaoUnlinkClick = () => {
@@ -346,6 +380,16 @@ function MemberEdit() {
           }
         }}
         onConfirm={handleDeleteAccount}
+      />
+
+      <ConvertToEmailLoginModal
+        isOpen={isConvertModalOpen}
+        currentUserId={authUserId}
+        currentUsername={currentProfile?.username || ''}
+        defaultEmail={form.email || currentProfile?.email || ''}
+        hasGeneralLogin={hasGeneralLogin}
+        onCancel={() => setIsConvertModalOpen(false)}
+        onCompleted={handleConvertCompleted}
       />
 
       <UnlinkKakaoModal
@@ -561,21 +605,40 @@ function MemberEdit() {
               <div className="member-account-section__actions">
                 <button
                   type="button"
-                  className="signup-btn signup-btn--danger"
-                  onClick={handleKakaoUnlinkClick}
+                  className="signup-btn signup-btn--primary"
+                  onClick={() => {
+                    setAccountFeedback(null)
+
+                    if (!hasGeneralLogin) {
+                      setIsRegisterPromptOpen(true)
+                      return
+                    }
+
+                    setIsConvertModalOpen(true)
+                  }}
                   disabled={isSubmitting || isDeletingAccount || isUnlinkingKakao}
                 >
-                  카카오 계정 연동 해제
+                  이메일 로그인으로 전환
                 </button>
                 {hasGeneralLogin ? (
-                  <p className="member-account-section__hint">
-                    연동 해제 후에도 회원 정보는 유지됩니다. 이후에는 아이디 + 비밀번호 또는 이메일 +
-                    비밀번호로 로그인할 수 있습니다.
-                  </p>
+                  <>
+                    <button
+                      type="button"
+                      className="signup-btn signup-btn--danger"
+                      onClick={handleKakaoUnlinkClick}
+                      disabled={isSubmitting || isDeletingAccount || isUnlinkingKakao}
+                    >
+                      카카오 계정 연동 해제
+                    </button>
+                    <p className="member-account-section__hint">
+                      이메일 로그인으로 전환하면 카카오 로그인 없이 아이디 + 비밀번호로만 로그인할
+                      수 있습니다. 연동 해제만 진행할 경우에도 회원 정보는 유지됩니다.
+                    </p>
+                  </>
                 ) : (
                   <p className="member-account-section__hint" role="status">
-                    카카오 로그인 전용 계정입니다. 연동 해제를 누르시면 일반 로그인 등록을 먼저
-                    진행합니다.
+                    카카오 로그인 전용 계정입니다. 이메일 로그인으로 전환하려면 먼저 일반 로그인
+                    계정(아이디·비밀번호)을 등록해야 합니다.
                   </p>
                 )}
               </div>

@@ -42,6 +42,11 @@
   padding-top: 0.25rem;
 }
 
+.member-account-section__actions .signup-btn--primary {
+  width: 100%;
+  max-width: 280px;
+}
+
 .member-account-section__actions .signup-btn--danger {
   width: 100%;
   max-width: 280px;
