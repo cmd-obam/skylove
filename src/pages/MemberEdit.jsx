@@ -80,6 +80,7 @@ function MemberEdit() {
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false)
   const [isUnlinkingKakao, setIsUnlinkingKakao] = useState(false)
   const [unlinkError, setUnlinkError] = useState(null)
+  const [accountFeedback, setAccountFeedback] = useState(null)
   const [authUserId, setAuthUserId] = useState('')
 
   const applyLoginMethods = (loginMethods) => {
