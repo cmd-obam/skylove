@@ -1838,12 +1838,63 @@
   border-top: 1px solid #edf1f5;
 }
 
+.board-write-form__actions-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .board-write-form__cancel {
   text-decoration: none;
 }
 
+.board-write-form__schedule {
+  text-decoration: none;
+  white-space: nowrap;
+}
+
 .board-write-form__submit {
   min-width: 120px;
+}
+
+.board-write-schedule {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #edf1f5;
+}
+
+.board-write-schedule__title {
+  margin: 0 0 1rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.board-write-schedule__fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.board-write-schedule .board-write-form__actions {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+}
+
+@media (max-width: 640px) {
+  .board-write-schedule__fields {
+    grid-template-columns: 1fr;
+  }
+
+  .board-write-form__actions {
+    flex-wrap: wrap;
+  }
+
+  .board-write-form__actions-right {
+    width: 100%;
+  }
 }
 
 .board-access-denied {
@@ -1873,6 +1924,13 @@
 .church-news-detail__header-button--danger:focus-visible {
   color: #b91c1c;
   border-color: #f87171;
+}
+
+.church-news-detail__header-button--schedule {
+  pointer-events: none;
+  color: #c2410c;
+  border-color: #fed7aa;
+  background: #fff7ed;
 }
 
 .board-delete-modal__message {

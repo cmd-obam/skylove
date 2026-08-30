@@ -26,6 +26,7 @@ const POST_STATUS_OPTIONS = [
   { value: 'all', label: '전체' },
   { value: 'notice', label: '공지' },
   { value: 'public', label: '공개' },
+  { value: 'scheduled', label: '예약' },
   { value: 'private', label: '비공개' },
   { value: 'deleted', label: '삭제됨' },
 ]
@@ -140,6 +141,10 @@ function NoteModal({ isOpen, title, value, isSubmitting, onChange, onCancel, onS
 function getPostStatusLabel(post) {
   if (post.deleted_at) {
     return '삭제됨'
+  }
+
+  if (post.status === 'scheduled') {
+    return '예약'
   }
 
   if (post.is_notice) {
@@ -683,9 +688,16 @@ function ContentManagement() {
                         <td>{post.comments_count}</td>
                         <td>{post.likes_count}</td>
                         <td>
-                          <span className={`content-cms-status content-cms-status--${getPostStatusLabel(post)}`}>
-                            {getPostStatusLabel(post)}
-                          </span>
+                          <div className="content-cms-status-cell">
+                            <span className={`content-cms-status content-cms-status--${getPostStatusLabel(post)}`}>
+                              {getPostStatusLabel(post)}
+                            </span>
+                            {post.status === 'scheduled' && post.scheduled_at ? (
+                              <span className="content-cms-schedule-time">
+                                {formatDateTime(post.scheduled_at)}
+                              </span>
+                            ) : null}
+                          </div>
                         </td>
                         <td>
                           <div className="member-management-page__actions">

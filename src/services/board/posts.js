@@ -104,6 +104,7 @@ export function mapBoardPostRow(row, meta) {
     attachmentUrl: row.attachment_url,
     attachmentName: row.attachment_name,
     status: row.status ?? 'public',
+    scheduledAt: row.scheduled_at ?? null,
     isNotice: Boolean(row.is_notice),
     deletedAt: row.deleted_at ?? null,
   }
@@ -151,7 +152,17 @@ async function fetchPostsMetaMap(postType, postIds) {
   return Object.fromEntries((data ?? []).map((row) => [row.post_id, row]))
 }
 
+async function publishDueBoardPostsQuietly() {
+  try {
+    await supabase.rpc('publish_due_board_posts')
+  } catch (error) {
+    console.warn('[Board] publish_due_board_posts failed', error)
+  }
+}
+
 export async function fetchBoardPosts(postType) {
+  await publishDueBoardPostsQuietly()
+
   const { data, error } = await supabase
     .from('board_post_list')
     .select('id, post_type, title, writer, thumbnail, created_at, has_image')
@@ -174,6 +185,8 @@ export async function fetchBoardPosts(postType) {
 }
 
 export async function fetchBoardPost(postType, postId) {
+  await publishDueBoardPostsQuietly()
+
   const { data, error } = await supabase
     .from('board_posts')
     .select('*')
@@ -199,6 +212,8 @@ export async function fetchBoardPost(postType, postId) {
 }
 
 export async function fetchBoardPostById(postId) {
+  await publishDueBoardPostsQuietly()
+
   const { data, error } = await supabase
     .from('board_posts')
     .select('*')
@@ -234,6 +249,8 @@ export async function fetchRelatedBoardPosts(postType, postId, limit = 5) {
 
 /** postType별 최신 게시글 N건 */
 export async function fetchLatestBoardPosts(postType, limit = 4) {
+  await publishDueBoardPostsQuietly()
+
   const safeLimit = Math.max(1, Number(limit) || 4)
 
   const { data, error } = await supabase
@@ -257,10 +274,12 @@ export async function fetchLatestBoardPosts(postType, limit = 4) {
  * board_post_list에는 content/images가 없어 board_posts를 조회합니다.
  */
 export async function fetchLatestBoardPost(postType) {
+  await publishDueBoardPostsQuietly()
+
   const { data, error } = await supabase
     .from('board_posts')
     .select(
-      'id, post_type, title, writer, content, thumbnail, images, youtube_url, created_at, updated_at, attachment_url, attachment_name, has_image, attachments, author_id, status, deleted_at',
+      'id, post_type, title, writer, content, thumbnail, images, youtube_url, created_at, updated_at, attachment_url, attachment_name, has_image, attachments, author_id, status, scheduled_at, deleted_at',
     )
     .eq('post_type', postType)
     .is('deleted_at', null)
@@ -334,6 +353,8 @@ export async function createBoardPost({
   thumbnail = null,
   hasImage = false,
   youtubeUrl = null,
+  status = 'public',
+  scheduledAt = null,
 }) {
   const auth = await assertBoardWriter(postType)
 
@@ -342,6 +363,8 @@ export async function createBoardPost({
   }
 
   const postId = id ?? crypto.randomUUID()
+  const nextStatus = status === 'scheduled' ? 'scheduled' : status === 'private' ? 'private' : 'public'
+  const nextScheduledAt = nextStatus === 'scheduled' ? scheduledAt : null
 
   const { data, error } = await supabase
     .from('board_posts')
@@ -359,7 +382,8 @@ export async function createBoardPost({
       thumbnail,
       has_image: hasImage,
       youtube_url: youtubeUrl,
-      status: 'public',
+      status: nextStatus,
+      scheduled_at: nextScheduledAt,
     })
     .select()
     .single()
@@ -387,20 +411,44 @@ export async function updateBoardPost(postType, postId, payload) {
     return auth
   }
 
+  const updateFields = {
+    title: payload.title,
+    content: payload.content,
+    // 작성자(writer / author_id)는 최초 작성 시 고정 — 수정 시 변경하지 않음
+    attachment_url: payload.attachmentUrl ?? null,
+    attachment_name: payload.attachmentName ?? null,
+    attachments: payload.attachments ?? [],
+    images: payload.images ?? [],
+    thumbnail: payload.thumbnail ?? null,
+    has_image: Boolean(payload.hasImage),
+    youtube_url: payload.youtubeUrl ?? null,
+  }
+
+  if (payload.status != null) {
+    updateFields.status =
+      payload.status === 'scheduled'
+        ? 'scheduled'
+        : payload.status === 'private'
+          ? 'private'
+          : 'public'
+  }
+
+  if (Object.prototype.hasOwnProperty.call(payload, 'scheduledAt')) {
+    updateFields.scheduled_at =
+      updateFields.status === 'scheduled' || payload.status === 'scheduled'
+        ? payload.scheduledAt
+        : null
+  }
+
+  if (updateFields.status === 'public' || updateFields.status === 'private') {
+    if (!Object.prototype.hasOwnProperty.call(payload, 'scheduledAt')) {
+      updateFields.scheduled_at = null
+    }
+  }
+
   const { data, error } = await supabase
     .from('board_posts')
-    .update({
-      title: payload.title,
-      content: payload.content,
-      // 작성자(writer / author_id)는 최초 작성 시 고정 — 수정 시 변경하지 않음
-      attachment_url: payload.attachmentUrl ?? null,
-      attachment_name: payload.attachmentName ?? null,
-      attachments: payload.attachments ?? [],
-      images: payload.images ?? [],
-      thumbnail: payload.thumbnail ?? null,
-      has_image: Boolean(payload.hasImage),
-      youtube_url: payload.youtubeUrl ?? null,
-    })
+    .update(updateFields)
     .eq('post_type', postType)
     .eq('id', postId)
     .select()
@@ -431,6 +479,7 @@ export async function setBoardPostHidden(postType, postId, isHidden) {
     .from('board_posts')
     .update({
       status: isHidden ? 'private' : 'public',
+      scheduled_at: null,
     })
     .eq('post_type', postType)
     .eq('id', postId)
@@ -448,6 +497,44 @@ export async function setBoardPostHidden(postType, postId, isHidden) {
   return {
     success: true,
     message: isHidden ? '게시글이 숨김 처리되었습니다.' : '게시글 숨김이 해제되었습니다.',
+    post: mapBoardPostRow(data),
+  }
+}
+
+export async function publishScheduledBoardPostNow(postType, postId) {
+  const auth = await assertCanMutatePost(postType, postId, canEditPost)
+
+  if (!auth.success) {
+    return auth
+  }
+
+  const { data, error } = await supabase
+    .from('board_posts')
+    .update({
+      status: 'public',
+      scheduled_at: null,
+    })
+    .eq('post_type', postType)
+    .eq('id', postId)
+    .eq('status', 'scheduled')
+    .select()
+    .single()
+
+  if (error) {
+    if (error.code === '42501') {
+      return { success: false, message: PERMISSION_DENIED }
+    }
+
+    if (error.code === 'PGRST116') {
+      return { success: false, message: '예약 게시글이 아니거나 이미 게시되었습니다.' }
+    }
+
+    return { success: false, message: error.message }
+  }
+
+  return {
+    success: true,
+    message: '게시글이 즉시 게시되었습니다.',
     post: mapBoardPostRow(data),
   }
 }

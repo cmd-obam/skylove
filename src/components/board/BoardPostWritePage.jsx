@@ -31,8 +31,15 @@ import {
   parseSundayBulletinWeekly,
   serializeSundayBulletinWeekly,
 } from '@/utils/sundayBulletin'
-import { resolveYouTubeMedia } from '@/utils/youtube'
 import { getPublicDisplayName } from '@/utils/getPublicDisplayName'
+import {
+  formatKoreaScheduleMessage,
+  getKoreaDateString,
+  isScheduleInFuture,
+  isoToKoreaDateTimeParts,
+  koreaDateTimeToIso,
+} from '@/utils/koreaDateTime'
+import { resolveYouTubeMedia } from '@/utils/youtube'
 import '@/pages/ChurchNews.css'
 import '@/pages/MemberManagement.css'
 import '@/components/churchNews/SundayBulletinForm.css'
@@ -94,6 +101,10 @@ function BoardPostWritePage({
   const [loadingPost, setLoadingPost] = useState(isEdit)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [schedulePanelOpen, setSchedulePanelOpen] = useState(false)
+  const [scheduleDate, setScheduleDate] = useState(() => getKoreaDateString())
+  const [scheduleTime, setScheduleTime] = useState('11:00')
+  const [scheduleError, setScheduleError] = useState('')
   const [initialSnapshot, setInitialSnapshot] = useState(
     JSON.stringify({
       title: '',
@@ -192,6 +203,16 @@ function BoardPostWritePage({
       setBulletinMode(Boolean(parsedBulletin))
       setWeekly(parsedBulletin || createEmptySundayBulletinWeekly())
       setLegacyImages(post.images ?? [])
+
+      if (post.status === 'scheduled' && post.scheduledAt) {
+        const parts = isoToKoreaDateTimeParts(post.scheduledAt)
+        if (parts.date) {
+          setScheduleDate(parts.date)
+        }
+        if (parts.time) {
+          setScheduleTime(parts.time)
+        }
+      }
 
       if (post.thumbnail) {
         const contentHasThumb = (post.content || '').includes(post.thumbnail)
@@ -354,9 +375,9 @@ function BoardPostWritePage({
     return result
   }
 
-  const handleSubmit = async (event) => {
-    event.preventDefault()
+  const savePost = async ({ status = 'public', scheduledAt = null } = {}) => {
     setError('')
+    setScheduleError('')
 
     const trimmedTitle = title.trim()
     const trimmedYoutubeUrl = youtubeUrl.trim()
@@ -389,6 +410,14 @@ function BoardPostWritePage({
 
       if (!youtubeMedia) {
         setError('올바른 유튜브 링크를 입력해 주세요.')
+        return
+      }
+    }
+
+    const isScheduled = status === 'scheduled'
+    if (isScheduled) {
+      if (!scheduledAt || !isScheduleInFuture(scheduledAt)) {
+        setScheduleError('현재 시간 이후의 날짜와 시간을 선택해주세요.')
         return
       }
     }
@@ -500,6 +529,8 @@ function BoardPostWritePage({
         thumbnail: thumbnailUrl,
         hasImage,
         youtubeUrl: isVideoWrite ? youtubeMedia.youtubeUrl : null,
+        status: isScheduled ? 'scheduled' : 'public',
+        scheduledAt: isScheduled ? scheduledAt : null,
       }
 
       // Keep thumbnail path for delete cleanup tracking (unused var ok via void)
@@ -530,6 +561,13 @@ function BoardPostWritePage({
 
       draftUploadedPathsRef.current = []
       allowNavigation()
+
+      if (isScheduled) {
+        window.alert(formatKoreaScheduleMessage(scheduledAt))
+        navigate(listPath)
+        return
+      }
+
       window.alert(isEdit ? '게시글이 수정되었습니다.' : '게시글이 등록되었습니다.')
       navigate(`${detailPathPrefix}/${targetPostId}`)
     } catch (submitError) {
@@ -540,6 +578,39 @@ function BoardPostWritePage({
       setError(submitError.message || '게시글 저장 중 오류가 발생했습니다.')
       setSubmitting(false)
     }
+  }
+
+  const handleSubmit = (event) => {
+    event.preventDefault()
+
+    if (schedulePanelOpen) {
+      handleConfirmSchedule()
+      return
+    }
+
+    void savePost({ status: 'public', scheduledAt: null })
+  }
+
+  const handleOpenSchedulePanel = () => {
+    setError('')
+    setScheduleError('')
+    setSchedulePanelOpen(true)
+  }
+
+  const handleCancelSchedulePanel = () => {
+    setScheduleError('')
+    setSchedulePanelOpen(false)
+  }
+
+  const handleConfirmSchedule = () => {
+    const iso = koreaDateTimeToIso(scheduleDate, scheduleTime)
+
+    if (!iso || !isScheduleInFuture(iso)) {
+      setScheduleError('현재 시간 이후의 날짜와 시간을 선택해주세요.')
+      return
+    }
+
+    void savePost({ status: 'scheduled', scheduledAt: iso })
   }
 
   if (loadingPost) {
@@ -671,23 +742,95 @@ function BoardPostWritePage({
           </p>
         )}
 
-        <div className="board-write-form__actions">
-          <button
-            type="button"
-            className="church-news-detail__list-button board-write-form__cancel"
-            onClick={() => requestNavigation(listPath)}
-            disabled={submitting}
-          >
-            취소
-          </button>
-          <button
-            type="submit"
-            className="church-news-board__search-button board-write-form__submit"
-            disabled={submitting}
-          >
-            {isEdit ? '수정' : '등록'}
-          </button>
-        </div>
+        {schedulePanelOpen ? (
+          <div className="board-write-schedule" aria-label="예약 게시 설정">
+            <h3 className="board-write-schedule__title">예약 게시</h3>
+
+            <div className="board-write-schedule__fields">
+              <div className="board-write-form__field">
+                <label htmlFor="board-schedule-date" className="board-write-form__label">
+                  게시 날짜
+                </label>
+                <input
+                  id="board-schedule-date"
+                  type="date"
+                  className="board-write-form__input"
+                  value={scheduleDate}
+                  onChange={(event) => setScheduleDate(event.target.value)}
+                  disabled={submitting}
+                  min={getKoreaDateString()}
+                />
+              </div>
+
+              <div className="board-write-form__field">
+                <label htmlFor="board-schedule-time" className="board-write-form__label">
+                  게시 시간
+                </label>
+                <input
+                  id="board-schedule-time"
+                  type="time"
+                  className="board-write-form__input"
+                  value={scheduleTime}
+                  onChange={(event) => setScheduleTime(event.target.value)}
+                  disabled={submitting}
+                />
+              </div>
+            </div>
+
+            {scheduleError ? (
+              <p className="board-write-form__error" role="alert">
+                {scheduleError}
+              </p>
+            ) : null}
+
+            <div className="board-write-form__actions">
+              <button
+                type="button"
+                className="church-news-detail__list-button board-write-form__cancel"
+                onClick={handleCancelSchedulePanel}
+                disabled={submitting}
+              >
+                예약 취소
+              </button>
+              <button
+                type="button"
+                className="church-news-board__search-button board-write-form__submit"
+                onClick={handleConfirmSchedule}
+                disabled={submitting}
+              >
+                예약 등록
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="board-write-form__actions">
+            <button
+              type="button"
+              className="church-news-detail__list-button board-write-form__cancel"
+              onClick={() => requestNavigation(listPath)}
+              disabled={submitting}
+            >
+              취소
+            </button>
+            <div className="board-write-form__actions-right">
+              <button
+                type="button"
+                className="church-news-detail__list-button board-write-form__schedule"
+                onClick={handleOpenSchedulePanel}
+                disabled={submitting}
+              >
+                예약 글쓰기
+              </button>
+              <button
+                type="submit"
+                className="church-news-board__search-button board-write-form__submit"
+                disabled={submitting}
+              >
+                {isEdit ? '수정' : '등록'}
+              </button>
+            </div>
+          </div>
+        )}
       </form>
 
       {isLeaveModalOpen ? (

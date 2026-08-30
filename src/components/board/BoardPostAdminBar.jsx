@@ -7,8 +7,13 @@ import {
   canEditPost,
   canHidePost,
 } from '@/services/auth/roles'
-import { deleteBoardPost, setBoardPostHidden } from '@/services/board/posts'
+import {
+  deleteBoardPost,
+  publishScheduledBoardPostNow,
+  setBoardPostHidden,
+} from '@/services/board/posts'
 import { getBoardEditPath } from '@/utils/boardPaths'
+import { isoToKoreaDateTimeParts } from '@/utils/koreaDateTime'
 
 function getEditPath(postType, postId) {
   return getBoardEditPath(postType, postId)
@@ -20,6 +25,7 @@ function BoardPostAdminBar({ postType, postId, listPath, post = null }) {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [hiding, setHiding] = useState(false)
+  const [publishing, setPublishing] = useState(false)
   const [postStatus, setPostStatus] = useState(post?.status ?? 'public')
 
   const currentUserId = effectiveUserId ?? user?.id ?? null
@@ -36,6 +42,12 @@ function BoardPostAdminBar({ postType, postId, listPath, post = null }) {
 
   const editPath = getEditPath(postType, postId)
   const isHidden = postStatus === 'private'
+  const isScheduled = postStatus === 'scheduled'
+  const scheduleParts = isoToKoreaDateTimeParts(post?.scheduledAt)
+  const scheduleLabel =
+    isScheduled && scheduleParts.date
+      ? `${scheduleParts.date} ${scheduleParts.time}`
+      : null
 
   const handleDelete = async () => {
     setDeleting(true)
@@ -68,15 +80,49 @@ function BoardPostAdminBar({ postType, postId, listPath, post = null }) {
     setHiding(false)
   }
 
+  const handlePublishNow = async () => {
+    if (!window.confirm('예약 게시글을 지금 즉시 게시하시겠습니까?')) {
+      return
+    }
+
+    setPublishing(true)
+    const result = await publishScheduledBoardPostNow(postType, postId)
+
+    if (!result.success) {
+      window.alert(result.message)
+      setPublishing(false)
+      return
+    }
+
+    setPostStatus('public')
+    setPublishing(false)
+    window.alert(result.message)
+  }
+
   return (
     <>
       <div className="board-post-admin-bar">
+        {isScheduled ? (
+          <span className="church-news-detail__header-button church-news-detail__header-button--schedule" aria-live="polite">
+            예약{scheduleLabel ? ` ${scheduleLabel}` : ''}
+          </span>
+        ) : null}
         {canEdit && (
           <Link to={editPath} className="church-news-detail__header-button">
             수정
           </Link>
         )}
-        {canHide && (
+        {canEdit && isScheduled ? (
+          <button
+            type="button"
+            className="church-news-detail__header-button"
+            onClick={handlePublishNow}
+            disabled={publishing}
+          >
+            즉시 게시
+          </button>
+        ) : null}
+        {canHide && !isScheduled && (
           <button
             type="button"
             className="church-news-detail__header-button"
