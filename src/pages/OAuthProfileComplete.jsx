@@ -15,6 +15,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import {
   checkDuplicateId,
+  checkDuplicateNickname,
   createOAuthProfile,
   formatPhoneNumber,
   getOAuthHomeUrl,
@@ -45,6 +46,7 @@ const INITIAL_FORM = {
   password: '',
   passwordConfirm: '',
   name: '',
+  nickname: '',
   birthDate: '',
   phone: '',
   email: '',
@@ -63,8 +65,11 @@ function OAuthProfileComplete() {
   const [errors, setErrors] = useState({})
   const [feedback, setFeedback] = useState(null)
   const [isIdChecked, setIsIdChecked] = useState(false)
+  const [isNicknameChecked, setIsNicknameChecked] = useState(false)
   const [idCheckMessage, setIdCheckMessage] = useState('')
+  const [nicknameCheckMessage, setNicknameCheckMessage] = useState('')
   const [isCheckingId, setIsCheckingId] = useState(false)
+  const [isCheckingNickname, setIsCheckingNickname] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [sessionReady, setSessionReady] = useState(false)
   const [passwordConfirmTouched, setPasswordConfirmTouched] = useState(false)
@@ -131,6 +136,11 @@ function OAuthProfileComplete() {
       setIsIdChecked(false)
       setIdCheckMessage('')
     }
+
+    if (name === 'nickname') {
+      setIsNicknameChecked(false)
+      setNicknameCheckMessage('')
+    }
   }
 
   const handleDuplicateCheck = async () => {
@@ -163,11 +173,58 @@ function OAuthProfileComplete() {
     }
   }
 
+  const handleNicknameDuplicateCheck = async () => {
+    const nickname = form.nickname.trim()
+
+    if (!nickname) {
+      setIsNicknameChecked(false)
+      setNicknameCheckMessage('')
+      setErrors((prev) => ({ ...prev, nickname: undefined }))
+      return
+    }
+
+    if (nickname.length < 2 || nickname.length > 20) {
+      setErrors((prev) => ({ ...prev, nickname: '닉네임은 2~20자로 입력해주세요.' }))
+      return
+    }
+
+    setIsCheckingNickname(true)
+    setNicknameCheckMessage('')
+
+    try {
+      const {
+        data: { session: currentSession },
+      } = await supabase.auth.getSession()
+      const userId = currentSession?.user?.id ?? session?.user?.id ?? null
+      const result = await checkDuplicateNickname(nickname, { excludeUserId: userId })
+      setIsNicknameChecked(result.available)
+      setNicknameCheckMessage(result.message)
+      setErrors((prev) => ({
+        ...prev,
+        nickname: result.available ? undefined : result.message,
+      }))
+    } catch (error) {
+      console.error('[OAuthProfileComplete] checkDuplicateNickname failed', error)
+      setErrors((prev) => ({
+        ...prev,
+        nickname:
+          error instanceof Error
+            ? error.message
+            : '닉네임 중복확인에 실패했습니다. 다시 시도해주세요.',
+      }))
+    } finally {
+      setIsCheckingNickname(false)
+    }
+  }
+
   const handleSubmit = async (event) => {
     event.preventDefault()
     setFeedback(null)
 
-    const validation = validateOAuthProfileForm(form, { isIdChecked })
+    const validation = validateOAuthProfileForm(form, {
+      isIdChecked,
+      isNicknameChecked,
+    })
     setErrors(validation.errors)
 
     if (!validation.valid) {
@@ -412,6 +469,43 @@ function OAuthProfileComplete() {
                   onChange={(event) => updateField('name', event.target.value)}
                   autoComplete={SIGNUP_FIELD_AUTOCOMPLETE_OFF}
                 />
+              </SignupFormRow>
+
+              <SignupFormRow
+                label="닉네임"
+                htmlFor="oauth-nickname"
+                hint="닉네임은 선택사항입니다. 입력하지 않으면 이름으로 표시됩니다."
+                error={errors.nickname}
+                success={!errors.nickname ? nicknameCheckMessage : undefined}
+              >
+                <div className="signup-info-form__inline">
+                  <input
+                    id="oauth-nickname"
+                    name="nickname"
+                    type="text"
+                    className="signup-info-form__input"
+                    placeholder="닉네임을 입력하세요. (선택)"
+                    value={form.nickname}
+                    onChange={(event) => updateField('nickname', event.target.value)}
+                    autoComplete={SIGNUP_FIELD_AUTOCOMPLETE_OFF}
+                  />
+                  <button
+                    type="button"
+                    className={`signup-btn signup-btn--gray${
+                      isNicknameChecked ? ' signup-btn--gray-verified' : ''
+                    }`}
+                    onClick={handleNicknameDuplicateCheck}
+                    disabled={
+                      isCheckingNickname || isSubmitting || !String(form.nickname || '').trim()
+                    }
+                  >
+                    {isCheckingNickname
+                      ? '확인 중...'
+                      : isNicknameChecked
+                        ? '확인완료'
+                        : '중복확인'}
+                  </button>
+                </div>
               </SignupFormRow>
 
               <SignupFormRow

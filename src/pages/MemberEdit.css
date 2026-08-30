@@ -1,3 +1,48 @@
+.member-edit-nickname-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.member-edit-nickname-row .signup-field-card__input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.member-edit-nickname-check {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.member-edit-nickname-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  color: #374151;
+  cursor: pointer;
+}
+
+.member-edit-nickname-toggle input {
+  width: 1rem;
+  height: 1rem;
+}
+
+.member-edit-nickname-toggle-hint {
+  margin: 0.35rem 0 0;
+  font-size: 0.8rem;
+  color: #6b7280;
+  line-height: 1.45;
+  word-break: keep-all;
+}
+
+@media (max-width: 767px) {
+  .member-edit-nickname-row {
+    flex-direction: column;
+  }
+}
+
 .member-account-section {
   margin-top: 2.5rem;
   padding-top: 2rem;

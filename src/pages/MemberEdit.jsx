@@ -15,12 +15,18 @@ import {
 } from '@/services/auth/oauthLogin'
 import { deleteAccount } from '@/services/auth/deleteAccount'
 import { fetchCurrentUserProfile } from '@/services/auth/profile'
+import {
+  NAME_LOCKED_HINT,
+  NICKNAME_HINT,
+  NICKNAME_USE_HINT,
+} from '@/services/auth/profileSchema'
 import { canDeleteAccount, getSelfDeleteBlockMessage } from '@/services/auth/roles'
 import {
   getAccountLoginMethods,
   unlinkKakaoIdentity,
 } from '@/services/auth/unlinkKakao'
 import {
+  checkDuplicateNickname,
   PASSWORD_PLACEHOLDER,
   PASSWORD_REQUIREMENT_HINT,
 } from '@/services/auth/signup'
@@ -70,6 +76,9 @@ function MemberEdit() {
   const [formFeedback, setFormFeedback] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isNicknameChecked, setIsNicknameChecked] = useState(true)
+  const [nicknameCheckMessage, setNicknameCheckMessage] = useState('')
+  const [isCheckingNickname, setIsCheckingNickname] = useState(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [isDeletingAccount, setIsDeletingAccount] = useState(false)
   const [deleteComplete, setDeleteComplete] = useState(false)
@@ -126,6 +135,10 @@ function MemberEdit() {
 
       setCurrentProfile(result.profile)
       setForm(createInitialProfileForm(result.profile))
+      setIsNicknameChecked(true)
+      setNicknameCheckMessage(
+        result.profile?.nickname?.trim() ? '현재 사용 중인 닉네임입니다.' : '',
+      )
       setAuthUserId(session.user.id)
       setAuthSession(result.profile)
       applyLoginMethods(loginMethods)
@@ -316,6 +329,10 @@ function MemberEdit() {
         return { ...prev, congregantType: value, attendingChurch: '' }
       }
 
+      if (name === 'nicknameEnabled') {
+        return { ...prev, nicknameEnabled: Boolean(value) }
+      }
+
       return { ...prev, [name]: value }
     })
     setErrors((prev) => ({
@@ -324,6 +341,59 @@ function MemberEdit() {
       ...(name === 'congregantType' ? { attendingChurch: undefined } : {}),
     }))
     setFormFeedback(null)
+
+    if (name === 'nickname') {
+      const original = String(currentProfile?.nickname ?? '').trim().toLowerCase()
+      const next = String(value ?? '').trim().toLowerCase()
+      if (next && next === original) {
+        setIsNicknameChecked(true)
+        setNicknameCheckMessage('현재 사용 중인 닉네임입니다.')
+      } else if (!next) {
+        setIsNicknameChecked(true)
+        setNicknameCheckMessage('')
+      } else {
+        setIsNicknameChecked(false)
+        setNicknameCheckMessage('')
+      }
+    }
+  }
+
+  const handleNicknameDuplicateCheck = async () => {
+    const nickname = String(form.nickname ?? '').trim()
+
+    if (!nickname) {
+      setIsNicknameChecked(true)
+      setNicknameCheckMessage('')
+      setErrors((prev) => ({ ...prev, nickname: undefined }))
+      return
+    }
+
+    if (nickname.length < 2 || nickname.length > 20) {
+      setErrors((prev) => ({ ...prev, nickname: '닉네임은 2~20자로 입력해주세요.' }))
+      return
+    }
+
+    setIsCheckingNickname(true)
+    setNicknameCheckMessage('')
+
+    try {
+      const result = await checkDuplicateNickname(nickname, {
+        excludeUserId: currentProfile?.effectiveUserId || authUserId || null,
+      })
+      setIsNicknameChecked(result.available)
+      setNicknameCheckMessage(result.message)
+      setErrors((prev) => ({
+        ...prev,
+        nickname: result.available ? undefined : result.message,
+      }))
+    } catch (error) {
+      console.error('[MemberEdit] checkDuplicateNickname failed', error)
+      const message =
+        error instanceof Error ? error.message : '닉네임 중복확인에 실패했습니다. 다시 시도해주세요.'
+      setErrors((prev) => ({ ...prev, nickname: message }))
+    } finally {
+      setIsCheckingNickname(false)
+    }
   }
 
   const onSubmit = async (event) => {
@@ -337,7 +407,9 @@ function MemberEdit() {
     setFormFeedback(null)
 
     try {
-      const result = await handleProfileUpdate(form, currentProfile)
+      const result = await handleProfileUpdate(form, currentProfile, {
+        isNicknameChecked,
+      })
 
       if (result.errors) {
         setErrors(result.errors)
@@ -347,6 +419,10 @@ function MemberEdit() {
         if (result.profile) {
           setCurrentProfile(result.profile)
           setForm(createInitialProfileForm(result.profile))
+          setIsNicknameChecked(true)
+          setNicknameCheckMessage(
+            result.profile?.nickname?.trim() ? '현재 사용 중인 닉네임입니다.' : '',
+          )
         }
 
         setFormFeedback({
@@ -514,17 +590,73 @@ function MemberEdit() {
                 />
               </ProfileFieldCard>
 
-              <ProfileFieldCard icon={FiUser} label="이름" error={errors.name}>
+              <ProfileFieldCard
+                icon={FiUser}
+                label="이름"
+                hint={NAME_LOCKED_HINT}
+                hintId="member-edit-name-hint"
+              >
                 <input
                   id="member-edit-name"
                   name="name"
                   type="text"
                   className="signup-field-card__input signup-field-card__input--full"
-                  placeholder="이름을 입력하세요."
                   value={form.name}
-                  onChange={(event) => updateField('name', event.target.value)}
+                  readOnly
+                  disabled
+                  aria-describedby="member-edit-name-hint"
                   autoComplete={AUTOCOMPLETE_OFF}
                 />
+              </ProfileFieldCard>
+
+              <ProfileFieldCard
+                icon={FiUser}
+                label="닉네임"
+                optional
+                error={errors.nickname}
+                hint={errors.nickname ? undefined : nicknameCheckMessage || NICKNAME_HINT}
+                hintId="member-edit-nickname-hint"
+              >
+                <div className="member-edit-nickname-row">
+                  <input
+                    id="member-edit-nickname"
+                    name="nickname"
+                    type="text"
+                    className="signup-field-card__input"
+                    placeholder="닉네임을 입력하세요. (선택)"
+                    value={form.nickname}
+                    onChange={(event) => updateField('nickname', event.target.value)}
+                    aria-describedby="member-edit-nickname-hint"
+                    autoComplete={AUTOCOMPLETE_OFF}
+                    disabled={isSubmitting}
+                  />
+                  <button
+                    type="button"
+                    className="signup-btn signup-btn--gray member-edit-nickname-check"
+                    onClick={handleNicknameDuplicateCheck}
+                    disabled={
+                      isCheckingNickname ||
+                      isSubmitting ||
+                      !String(form.nickname || '').trim()
+                    }
+                  >
+                    {isCheckingNickname
+                      ? '확인 중...'
+                      : isNicknameChecked
+                        ? '확인완료'
+                        : '중복확인'}
+                  </button>
+                </div>
+                <label className="member-edit-nickname-toggle">
+                  <input
+                    type="checkbox"
+                    checked={Boolean(form.nicknameEnabled)}
+                    onChange={(event) => updateField('nicknameEnabled', event.target.checked)}
+                    disabled={isSubmitting || !String(form.nickname || '').trim()}
+                  />
+                  <span>게시글 및 댓글에 닉네임 사용</span>
+                </label>
+                <p className="member-edit-nickname-toggle-hint">{NICKNAME_USE_HINT}</p>
               </ProfileFieldCard>
 
               <ProfileFieldCard icon={FiCalendar} label="생년월일" error={errors.birthday}>

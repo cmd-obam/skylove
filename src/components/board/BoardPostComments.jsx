@@ -10,6 +10,7 @@ import {
   canModerateComments,
 } from '@/services/auth/roles'
 import { formatCommentDateTime } from '@/utils/formatBoardDate'
+import { getPublicDisplayName } from '@/utils/getPublicDisplayName'
 import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 
 function CommentActions({
@@ -242,7 +243,7 @@ function BoardPostComments({ postType, postId, onCommentsCountChange }) {
     }
 
     const result = await submitComment({
-      authorName: profile?.name || '회원',
+      authorName: getPublicDisplayName(profile, { fallback: '회원' }),
       body: comment,
     })
 

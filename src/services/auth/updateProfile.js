@@ -6,6 +6,7 @@ import {
 } from '@/services/auth/profileUpdateErrors'
 import {
   BIRTH_DATE_PATTERN,
+  checkDuplicateNickname,
   formatPhoneNumber,
   normalizeBirthDate,
   validatePassword,
@@ -30,6 +31,8 @@ export function createInitialProfileForm(profile) {
     password: '',
     passwordConfirm: '',
     name: profile?.name ?? '',
+    nickname: profile?.nickname ?? '',
+    nicknameEnabled: Boolean(profile?.nicknameEnabled),
     birthday: profile?.birthday ?? '',
     phone: profile?.phone ?? '',
     congregantType: profile?.congregantType ?? '',
@@ -37,12 +40,9 @@ export function createInitialProfileForm(profile) {
   }
 }
 
-export function validateProfileUpdateForm(form) {
+export function validateProfileUpdateForm(form, { isNicknameChecked = false } = {}) {
   const errors = {}
-
-  if (!form.name.trim()) {
-    errors.name = '이름을 입력해주세요.'
-  }
+  const nickname = String(form.nickname ?? '').trim()
 
   if (!form.birthday) {
     errors.birthday = '생년월일을 선택해주세요.'
@@ -69,6 +69,14 @@ export function validateProfileUpdateForm(form) {
     errors.congregantType = '출석 교회를 입력해주세요.'
   }
 
+  if (nickname) {
+    if (nickname.length < 2 || nickname.length > 20) {
+      errors.nickname = '닉네임은 2~20자로 입력해주세요.'
+    } else if (!isNicknameChecked) {
+      errors.nickname = '닉네임 중복확인을 해주세요.'
+    }
+  }
+
   const isChangingPassword = Boolean(form.password || form.passwordConfirm)
 
   if (isChangingPassword) {
@@ -90,14 +98,37 @@ export function validateProfileUpdateForm(form) {
   }
 }
 
-export async function handleProfileUpdate(form, currentProfile) {
-  const validation = validateProfileUpdateForm(form)
+export async function handleProfileUpdate(form, currentProfile, { isNicknameChecked = false } = {}) {
+  const nickname = String(form.nickname ?? '').trim()
+  const originalNickname = String(currentProfile?.nickname ?? '').trim()
+  const nicknameUnchanged = nickname.toLowerCase() === originalNickname.toLowerCase()
+
+  // 본인 닉네임을 그대로 두면 중복확인 생략
+  const nicknameCheckOk = !nickname || nicknameUnchanged || isNicknameChecked
+
+  const validation = validateProfileUpdateForm(form, {
+    isNicknameChecked: nicknameCheckOk,
+  })
 
   if (!validation.valid) {
     return {
       success: false,
       errors: validation.errors,
       message: '입력 정보를 확인해주세요.',
+    }
+  }
+
+  if (nickname && !nicknameUnchanged) {
+    const dup = await checkDuplicateNickname(nickname, {
+      excludeUserId: currentProfile?.effectiveUserId || null,
+    })
+
+    if (!dup.available) {
+      return {
+        success: false,
+        errors: { nickname: dup.message },
+        message: dup.message,
+      }
     }
   }
 
@@ -148,21 +179,64 @@ export async function handleProfileUpdate(form, currentProfile) {
     form.attendingChurch,
   )
   const { congregantType, attendingChurch } = churchInformation
-  const { data: savedProfile, error: profileError } = await supabase
+  const nicknameEnabled = Boolean(nickname && form.nicknameEnabled)
+
+  const updatePayload = {
+    // name은 가입 후 변경 불가 — 의도적으로 제외
+    birth_date: normalizeBirthDate(form.birthday),
+    phone: phone || null,
+    email: trimmedEmail,
+    congregant_type: congregantType,
+    attending_church: attendingChurch,
+    nickname: nickname || null,
+    nickname_enabled: nicknameEnabled,
+  }
+
+  let { data: savedProfile, error: profileError } = await supabase
     .from('profiles')
-    .update({
-      name: form.name.trim(),
-      birth_date: normalizeBirthDate(form.birthday),
-      phone: phone || null,
-      email: trimmedEmail,
-      congregant_type: congregantType,
-      attending_church: attendingChurch,
-    })
+    .update(updatePayload)
     .eq('user_id', user.id)
-    .select('congregant_type,attending_church')
+    .select('congregant_type,attending_church,nickname,nickname_enabled')
     .single()
 
+  if (profileError && /nickname|42703|PGRST204|schema cache/i.test(
+    `${profileError.code || ''} ${profileError.message || ''}`,
+  )) {
+    const {
+      nickname: _n,
+      nickname_enabled: _e,
+      ...withoutNickname
+    } = updatePayload
+
+    ;({ data: savedProfile, error: profileError } = await supabase
+      .from('profiles')
+      .update(withoutNickname)
+      .eq('user_id', user.id)
+      .select('congregant_type,attending_church')
+      .single())
+  }
+
   if (profileError) {
+    if (
+      profileError.code === '23505' ||
+      /nickname|unique|duplicate/i.test(profileError.message || '')
+    ) {
+      return {
+        success: false,
+        errors: {
+          nickname: '이미 사용 중인 닉네임입니다. 다른 닉네임을 입력해주세요.',
+        },
+        message: '이미 사용 중인 닉네임입니다. 다른 닉네임을 입력해주세요.',
+      }
+    }
+
+    if (/이름은 가입 후 변경할 수 없습니다/i.test(profileError.message || '')) {
+      return {
+        success: false,
+        message: '이름은 가입 후 변경할 수 없습니다.',
+      }
+    }
+
     return {
       success: false,
       message: mapProfileUpdateError(profileError),

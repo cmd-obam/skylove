@@ -32,6 +32,7 @@ import {
   serializeSundayBulletinWeekly,
 } from '@/utils/sundayBulletin'
 import { resolveYouTubeMedia } from '@/utils/youtube'
+import { getPublicDisplayName } from '@/utils/getPublicDisplayName'
 import '@/pages/ChurchNews.css'
 import '@/pages/MemberManagement.css'
 import '@/components/churchNews/SundayBulletinForm.css'
@@ -394,7 +395,7 @@ function BoardPostWritePage({
 
     setSubmitting(true)
 
-    const writer = profile?.name?.trim() || '관리자'
+    const writer = getPublicDisplayName(profile, { fallback: '관리자' })
     const targetPostId = isEdit ? postId : draftPostIdRef.current
     const uploadedPaths = []
 

@@ -167,6 +167,7 @@ export const INITIAL_SIGNUP_FORM = {
   congregantType: '',
   attendingChurch: '',
   name: '',
+  nickname: '',
   birthDate: '',
   email: '',
   phone: '',
@@ -179,13 +180,17 @@ export const INITIAL_SIGNUP_FORM = {
  * 이메일 회원가입·카카오 추가정보 입력에서 공통으로 쓰는 프로필 필드 검증.
  * 비밀번호 / 이메일 인증 / 약관 동의는 포함하지 않습니다.
  */
-export function validateSignupProfileFields(form, { isIdChecked = false } = {}) {
+export function validateSignupProfileFields(
+  form,
+  { isIdChecked = false, isNicknameChecked = false } = {},
+) {
   const errors = {}
   const loginId = String(form.loginId ?? '').trim()
   const securityCustomQuestion = String(form.securityCustomQuestion ?? '')
   const securityAnswer = String(form.securityAnswer ?? '')
   const attendingChurch = String(form.attendingChurch ?? '')
   const name = String(form.name ?? '')
+  const nickname = String(form.nickname ?? '').trim()
   const phone = String(form.phone ?? '')
 
   if (!loginId) {
@@ -227,6 +232,14 @@ export function validateSignupProfileFields(form, { isIdChecked = false } = {}) 
     errors.name = '이름은 아이디·이메일과 같을 수 없습니다. 실명을 입력해주세요.'
   }
 
+  if (nickname) {
+    if (nickname.length < 2 || nickname.length > 20) {
+      errors.nickname = '닉네임은 2~20자로 입력해주세요.'
+    } else if (!isNicknameChecked) {
+      errors.nickname = '닉네임 중복확인을 해주세요.'
+    }
+  }
+
   if (!form.birthDate) {
     errors.birthDate = '생년월일을 선택해주세요.'
   } else if (!BIRTH_DATE_PATTERN.test(form.birthDate)) {
@@ -243,8 +256,11 @@ export function validateSignupProfileFields(form, { isIdChecked = false } = {}) 
   }
 }
 
-export function validateForm(form, { isIdChecked = false, isEmailVerified = false } = {}) {
-  const { errors } = validateSignupProfileFields(form, { isIdChecked })
+export function validateForm(
+  form,
+  { isIdChecked = false, isEmailVerified = false, isNicknameChecked = false } = {},
+) {
+  const { errors } = validateSignupProfileFields(form, { isIdChecked, isNicknameChecked })
 
   const passwordError = validatePassword(form.password)
   if (!form.password) {
@@ -541,6 +557,120 @@ export async function checkDuplicateId(loginId) {
   }
 
   return checkDuplicateIdViaTable(loginId)
+}
+
+async function checkDuplicateNicknameViaTable(nickname, excludeUserId = null) {
+  const normalized = String(nickname ?? '').trim()
+
+  if (!normalized) {
+    return {
+      available: true,
+      message: '닉네임을 입력하지 않으면 이름으로 표시됩니다.',
+      source: 'empty',
+    }
+  }
+
+  let query = supabase
+    .from('profiles')
+    .select('user_id,nickname')
+    .not('nickname', 'is', null)
+
+  const { data, error } = await query
+
+  if (error) {
+    console.error('[Signup] profiles.nickname 직접 조회 실패', formatAuthError(error), error)
+
+    if (
+      error.code === '42703' ||
+      error.code === 'PGRST204' ||
+      /nickname|does not exist|schema cache/i.test(error.message || '')
+    ) {
+      throw new Error(
+        '닉네임 기능이 아직 DB에 적용되지 않았습니다. supabase/migrations/042_profile_nickname.sql 을 실행해주세요.',
+      )
+    }
+
+    throw error
+  }
+
+  const lower = normalized.toLowerCase()
+  const conflict = (data || []).find((row) => {
+    const rowNickname = String(row.nickname ?? '').trim()
+    if (!rowNickname || rowNickname.toLowerCase() !== lower) {
+      return false
+    }
+    if (excludeUserId && row.user_id === excludeUserId) {
+      return false
+    }
+    return true
+  })
+
+  const available = !conflict
+
+  return {
+    available,
+    message: available
+      ? '사용 가능한 닉네임입니다.'
+      : '이미 사용 중인 닉네임입니다. 다른 닉네임을 입력해주세요.',
+    source: 'profiles_table',
+  }
+}
+
+/**
+ * 닉네임 중복확인.
+ * @param {string} nickname
+ * @param {{ excludeUserId?: string | null }} [options]
+ */
+export async function checkDuplicateNickname(nickname, { excludeUserId = null } = {}) {
+  const normalized = String(nickname ?? '').trim()
+
+  if (!normalized) {
+    return {
+      available: true,
+      message: '닉네임을 입력하지 않으면 이름으로 표시됩니다.',
+      source: 'empty',
+    }
+  }
+
+  const { data, error } = await supabase.rpc('is_nickname_available', {
+    check_nickname: normalized,
+    exclude_user_id: excludeUserId,
+  })
+
+  if (!error) {
+    const available = data === true
+    return {
+      available,
+      message: available
+        ? '사용 가능한 닉네임입니다.'
+        : '이미 사용 중인 닉네임입니다. 다른 닉네임을 입력해주세요.',
+      source: 'is_nickname_available',
+    }
+  }
+
+  if (isMissingRpcFunction(error) || isMissingColumnErrorLike(error)) {
+    console.info(
+      '[Signup] nickname RPC/컬럼 없음 — profiles 테이블로 중복확인합니다.',
+      formatAuthError(error),
+    )
+    return checkDuplicateNicknameViaTable(normalized, excludeUserId)
+  }
+
+  console.error('[Signup] 닉네임 중복확인 RPC 실패', formatAuthError(error), error)
+  return checkDuplicateNicknameViaTable(normalized, excludeUserId)
+}
+
+function isMissingColumnErrorLike(error) {
+  const code = String(error?.code ?? '')
+  const message = String(error?.message ?? '').toLowerCase()
+
+  return (
+    code === '42703' ||
+    code === 'PGRST204' ||
+    message.includes('nickname') ||
+    message.includes('does not exist') ||
+    message.includes('schema cache')
+  )
 }
 
 /** 이메일 본문의 6자리 인증번호로 인증 (매직링크/PKCE 없이 동작) */
@@ -1297,6 +1427,8 @@ export async function handleSignup(formData) {
 export const handleProfileRegistration = handleSignup
 
 function buildBaseProfilePayload(userId, formData, birthDate) {
+  const nickname = String(formData.nickname ?? '').trim()
+
   return {
     user_id: userId,
     username: formData.loginId.trim(),
@@ -1305,6 +1437,8 @@ function buildBaseProfilePayload(userId, formData, birthDate) {
     email: formData.email.trim().toLowerCase(),
     phone: formData.phone.trim() || null,
     role: DEFAULT_MEMBER_ROLE,
+    nickname: nickname || null,
+    nickname_enabled: false,
   }
 }
 
@@ -1340,18 +1474,30 @@ async function upsertProfileForSignup(userId, formData, { mode = 'insert' } = {}
   }
 
   if (mode === 'update') {
-    const { error: updateError } = await supabase
+    const updatePayload = {
+      username: profilePayload.username,
+      name: profilePayload.name,
+      birth_date: profilePayload.birth_date,
+      email: profilePayload.email,
+      phone: profilePayload.phone,
+      congregant_type: profilePayload.congregant_type,
+      attending_church: profilePayload.attending_church,
+      nickname: profilePayload.nickname,
+      nickname_enabled: profilePayload.nickname_enabled,
+    }
+
+    let { error: updateError } = await supabase
       .from('profiles')
-      .update({
-        username: profilePayload.username,
-        name: profilePayload.name,
-        birth_date: profilePayload.birth_date,
-        email: profilePayload.email,
-        phone: profilePayload.phone,
-        congregant_type: profilePayload.congregant_type,
-        attending_church: profilePayload.attending_church,
-      })
+      .update(updatePayload)
       .eq('user_id', userId)
+
+    if (updateError && isMissingColumnErrorLike(updateError)) {
+      const { nickname: _n, nickname_enabled: _e, ...withoutNickname } = updatePayload
+      ;({ error: updateError } = await supabase
+        .from('profiles')
+        .update(withoutNickname)
+        .eq('user_id', userId))
+    }
 
     if (updateError) {
       console.warn('[Signup] profiles UPDATE failed', {
@@ -1381,7 +1527,12 @@ async function upsertProfileForSignup(userId, formData, { mode = 'insert' } = {}
     return null
   }
 
-  const { error: insertError } = await supabase.from('profiles').insert(profilePayload)
+  let { error: insertError } = await supabase.from('profiles').insert(profilePayload)
+
+  if (insertError && isMissingColumnErrorLike(insertError)) {
+    const { nickname: _n, nickname_enabled: _e, ...withoutNickname } = profilePayload
+    ;({ error: insertError } = await supabase.from('profiles').insert(withoutNickname))
+  }
 
   if (insertError) {
     console.warn('[Signup] profiles INSERT failed', {
@@ -1442,6 +1593,15 @@ async function upsertProfileForSignup(userId, formData, { mode = 'insert' } = {}
   const { error: rpcError } = await supabase.rpc('create_profile_after_signup', rpcParams)
 
   if (!rpcError) {
+    if (basePayload.nickname) {
+      await supabase
+        .from('profiles')
+        .update({
+          nickname: basePayload.nickname,
+          nickname_enabled: false,
+        })
+        .eq('user_id', userId)
+    }
     return null
   }
 

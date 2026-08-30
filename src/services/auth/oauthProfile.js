@@ -8,6 +8,7 @@ import { fetchProfileByUserId } from '@/services/auth/profile'
 import { normalizeAnswer } from '@/services/auth/normalizeAnswer'
 import {
   checkDuplicateId,
+  checkDuplicateNickname,
   formatPhoneNumber,
   isUsernameLikeDisplayName,
   resolveBirthDateForDatabase,
@@ -15,6 +16,8 @@ import {
   validateSignupEmail,
   validateSignupProfileFields,
 } from '@/services/auth/signup'
+
+export { checkDuplicateId, checkDuplicateNickname, formatPhoneNumber } from '@/services/auth/signup'
 
 export const OAUTH_PROFILE_COMPLETE_PATH = '/oauth/complete'
 
@@ -72,8 +75,14 @@ export function isSignupCompletedProfile(profile) {
  * 아이디·비밀번호·비밀번호 확인·이메일 및 공통 프로필 필드를 검사합니다.
  * 이메일은 카카오 계정 값을 그대로 쓰므로 형식만 확인합니다.
  */
-export function validateOAuthProfileForm(form, { isIdChecked = false } = {}) {
-  const { errors } = validateSignupProfileFields(form, { isIdChecked })
+export function validateOAuthProfileForm(
+  form,
+  { isIdChecked = false, isNicknameChecked = false } = {},
+) {
+  const { errors } = validateSignupProfileFields(form, {
+    isIdChecked,
+    isNicknameChecked,
+  })
 
   const passwordError = validatePassword(form.password)
   if (!form.password) {
@@ -126,6 +135,8 @@ function buildOAuthProfilePayload(userId, formData, birthDate) {
     email: String(formData.email || '').trim().toLowerCase() || null,
     phone: String(formData.phone || '').trim() || null,
     role: DEFAULT_MEMBER_ROLE,
+    nickname: String(formData.nickname || '').trim() || null,
+    nickname_enabled: false,
   }
 
   return {
@@ -202,7 +213,12 @@ async function finalizeOAuthProfile(userId, formData) {
 }
 
 async function updateOAuthProfileRow(userId, formData, fullPayload) {
-  const { error } = await supabase.from('profiles').update(fullPayload).eq('user_id', userId)
+  let { error } = await supabase.from('profiles').update(fullPayload).eq('user_id', userId)
+
+  if (error && /nickname|42703|PGRST204|schema cache/i.test(`${error.code || ''} ${error.message || ''}`)) {
+    const { nickname: _n, nickname_enabled: _e, ...withoutNickname } = fullPayload
+    ;({ error } = await supabase.from('profiles').update(withoutNickname).eq('user_id', userId))
+  }
 
   if (error) {
     console.error('[OAuthProfile] profiles UPDATE failed', {
@@ -261,6 +277,21 @@ export async function createOAuthProfile(userId, formData) {
     }
   }
 
+  const requestedNickname = String(formData.nickname ?? '').trim()
+  if (requestedNickname) {
+    const nicknameDup = await checkDuplicateNickname(requestedNickname, {
+      excludeUserId: userId,
+    })
+
+    if (!nicknameDup.available) {
+      return {
+        success: false,
+        message: nicknameDup.message,
+        errors: { nickname: nicknameDup.message },
+      }
+    }
+  }
+
   // 프로필보다 비밀번호를 먼저 반영해, 실패 시 같은 화면에서 재시도할 수 있게 합니다.
   const passwordResult = await saveAuthPassword(formData)
 
@@ -276,20 +307,31 @@ export async function createOAuthProfile(userId, formData) {
 
   const { error: insertError } = await supabase.from('profiles').insert(fullPayload)
 
-  if (insertError) {
+  let resolvedInsertError = insertError
+
+  if (
+    insertError &&
+    /nickname|42703|PGRST204|schema cache/i.test(`${insertError.code || ''} ${insertError.message || ''}`)
+  ) {
+    const { nickname: _n, nickname_enabled: _e, ...withoutNickname } = fullPayload
+    const retry = await supabase.from('profiles').insert(withoutNickname)
+    resolvedInsertError = retry.error
+  }
+
+  if (resolvedInsertError) {
     console.warn('[OAuthProfile] profiles INSERT failed', {
-      code: insertError.code,
-      message: insertError.message,
-      details: insertError.details,
+      code: resolvedInsertError.code,
+      message: resolvedInsertError.message,
+      details: resolvedInsertError.details,
       payloadKeys: Object.keys(fullPayload),
     })
   }
 
-  if (!insertError) {
+  if (!resolvedInsertError) {
     return finalizeOAuthProfile(userId, formData)
   }
 
-  if (isProfileAlreadyExistsError(insertError)) {
+  if (isProfileAlreadyExistsError(resolvedInsertError)) {
     // 동시성으로 stub 이 생긴 경우 UPDATE 로 재시도합니다.
     const updated = await updateOAuthProfileRow(userId, formData, fullPayload)
 
@@ -314,6 +356,16 @@ export async function createOAuthProfile(userId, formData) {
   const { error: rpcError } = await supabase.rpc('create_profile_after_signup', rpcParams)
 
   if (!rpcError) {
+    if (fullPayload.nickname) {
+      await supabase
+        .from('profiles')
+        .update({
+          nickname: fullPayload.nickname,
+          nickname_enabled: false,
+        })
+        .eq('user_id', userId)
+    }
+
     const saved = await fetchProfileByUserId(userId)
     return { success: true, profile: saved.profile ?? null }
   }
@@ -326,5 +378,3 @@ export async function createOAuthProfile(userId, formData) {
     error: rpcError,
   }
 }
-
-export { checkDuplicateId, formatPhoneNumber }

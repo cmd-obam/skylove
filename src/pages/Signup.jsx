@@ -7,6 +7,7 @@ import { useSignupLeaveGuard } from '@/hooks/useSignupLeaveGuard'
 import {
   INITIAL_SIGNUP_FORM,
   checkDuplicateId,
+  checkDuplicateNickname,
   checkEmailVerificationStatus,
   formatPhoneNumber,
   getPasswordConfirmLiveError,
@@ -119,14 +120,17 @@ function Signup() {
   const [form, setForm] = useState(INITIAL_SIGNUP_FORM)
   const [errors, setErrors] = useState({})
   const [isIdChecked, setIsIdChecked] = useState(false)
+  const [isNicknameChecked, setIsNicknameChecked] = useState(false)
   const [isEmailVerified, setIsEmailVerified] = useState(false)
   const [idCheckMessage, setIdCheckMessage] = useState('')
+  const [nicknameCheckMessage, setNicknameCheckMessage] = useState('')
   const [emailSent, setEmailSent] = useState(false)
   const [emailStatusMessage, setEmailStatusMessage] = useState('')
   const [resendAvailableAt, setResendAvailableAt] = useState(null)
   const [resendCooldown, setResendCooldown] = useState(0)
   const [formFeedback, setFormFeedback] = useState(null)
   const [isCheckingId, setIsCheckingId] = useState(false)
+  const [isCheckingNickname, setIsCheckingNickname] = useState(false)
   const [isSendingEmail, setIsSendingEmail] = useState(false)
   const [isCheckingEmail, setIsCheckingEmail] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -262,8 +266,10 @@ function Signup() {
     setForm(INITIAL_SIGNUP_FORM)
     setErrors({})
     setIsIdChecked(false)
+    setIsNicknameChecked(false)
     setIsEmailVerified(false)
     setIdCheckMessage('')
+    setNicknameCheckMessage('')
     setEmailSent(false)
     setEmailStatusMessage('')
     setResendAvailableAt(null)
@@ -341,7 +347,11 @@ function Signup() {
     setIsSubmitting(true)
     clearFeedback()
 
-    const validation = validateForm(form, { isIdChecked, isEmailVerified: true })
+    const validation = validateForm(form, {
+      isIdChecked,
+      isEmailVerified: true,
+      isNicknameChecked,
+    })
 
     if (!validation.valid) {
       setErrors(validation.errors)
@@ -396,7 +406,7 @@ function Signup() {
     releaseSignupLock('signup')
     setIsSubmitting(false)
     return true
-  }, [allowNavigationAndLeave, clearFeedback, form, isEmailVerified, isIdChecked, resetSignupForm, showFeedback])
+  }, [allowNavigationAndLeave, clearFeedback, form, isEmailVerified, isIdChecked, isNicknameChecked, resetSignupForm, showFeedback])
 
   useEffect(() => {
     if (isCompleteEntry) {
@@ -555,6 +565,11 @@ function Signup() {
       setIdCheckMessage('')
     }
 
+    if (name === 'nickname') {
+      setIsNicknameChecked(false)
+      setNicknameCheckMessage('')
+    }
+
     if (name === 'email') {
       setIsEmailVerified(false)
       clearEmailVerifiedBeacon()
@@ -610,6 +625,47 @@ function Signup() {
       showFeedback('error', message)
     } finally {
       setIsCheckingId(false)
+    }
+  }
+
+  const handleNicknameDuplicateCheck = async () => {
+    const nickname = form.nickname.trim()
+
+    if (!nickname) {
+      setIsNicknameChecked(false)
+      setNicknameCheckMessage('')
+      setErrors((prev) => ({ ...prev, nickname: undefined }))
+      return
+    }
+
+    if (nickname.length < 2 || nickname.length > 20) {
+      setErrors((prev) => ({ ...prev, nickname: '닉네임은 2~20자로 입력해주세요.' }))
+      return
+    }
+
+    setIsCheckingNickname(true)
+    setNicknameCheckMessage('')
+
+    try {
+      const result = await checkDuplicateNickname(nickname)
+      setIsNicknameChecked(result.available)
+      setNicknameCheckMessage(result.message)
+      setErrors((prev) => ({
+        ...prev,
+        nickname: result.available ? undefined : result.message,
+      }))
+
+      if (!result.available) {
+        showFeedback('error', result.message)
+      }
+    } catch (error) {
+      console.error('[Signup] checkDuplicateNickname 예외', error)
+      const message =
+        error instanceof Error ? error.message : '닉네임 중복확인에 실패했습니다. 다시 시도해주세요.'
+      setErrors((prev) => ({ ...prev, nickname: message }))
+      showFeedback('error', message)
+    } finally {
+      setIsCheckingNickname(false)
     }
   }
 
@@ -760,7 +816,11 @@ function Signup() {
       return
     }
 
-    const validation = validateForm(form, { isIdChecked, isEmailVerified: verified })
+    const validation = validateForm(form, {
+      isIdChecked,
+      isEmailVerified: verified,
+      isNicknameChecked,
+    })
     setErrors(validation.errors)
 
     if (!validation.valid) {
@@ -824,9 +884,12 @@ function Signup() {
               displayedPasswordConfirmSuccess={displayedPasswordConfirmSuccess}
               isPasswordReady={isPasswordReady}
               idCheckMessage={idCheckMessage}
+              nicknameCheckMessage={nicknameCheckMessage}
               emailFieldSuccess={emailFieldSuccess}
               isIdChecked={isIdChecked}
+              isNicknameChecked={isNicknameChecked}
               isCheckingId={isCheckingId}
+              isCheckingNickname={isCheckingNickname}
               isSendingEmail={isSendingEmail}
               isCheckingEmail={isCheckingEmail}
               isEmailVerified={isEmailVerified}
@@ -840,6 +903,7 @@ function Signup() {
               updateField={updateField}
               setPasswordConfirmTouched={setPasswordConfirmTouched}
               handleDuplicateCheck={handleDuplicateCheck}
+              handleNicknameDuplicateCheck={handleNicknameDuplicateCheck}
               handleEmailVerify={handleEmailVerify}
               handleCheckEmailVerification={handleCheckEmailVerification}
               handleResendEmail={handleResendEmail}

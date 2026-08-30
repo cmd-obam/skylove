@@ -23,9 +23,12 @@ function SignupStepForm({
   displayedPasswordConfirmSuccess,
   isPasswordReady,
   idCheckMessage,
+  nicknameCheckMessage,
   emailFieldSuccess,
   isIdChecked,
+  isNicknameChecked,
   isCheckingId,
+  isCheckingNickname,
   isSendingEmail,
   isCheckingEmail,
   isEmailVerified,
@@ -39,6 +42,7 @@ function SignupStepForm({
   updateField,
   setPasswordConfirmTouched,
   handleDuplicateCheck,
+  handleNicknameDuplicateCheck,
   handleEmailVerify,
   handleCheckEmailVerification,
   handleResendEmail,
@@ -92,6 +96,37 @@ function SignupStepForm({
             onChange={(event) => updateField('name', event.target.value)}
             autoComplete={SIGNUP_FIELD_AUTOCOMPLETE_OFF}
           />
+        </SignupFormRow>
+
+        <SignupFormRow
+          label="닉네임"
+          htmlFor="signup-nickname"
+          hint="닉네임은 선택사항입니다. 입력하지 않으면 이름으로 표시됩니다."
+          error={errors.nickname}
+          success={!errors.nickname ? nicknameCheckMessage : undefined}
+        >
+          <div className="signup-info-form__inline">
+            <input
+              id="signup-nickname"
+              name="nickname"
+              type="text"
+              className="signup-info-form__input"
+              placeholder="닉네임을 입력하세요. (선택)"
+              value={form.nickname}
+              onChange={(event) => updateField('nickname', event.target.value)}
+              autoComplete={SIGNUP_FIELD_AUTOCOMPLETE_OFF}
+            />
+            <button
+              type="button"
+              className={`signup-btn signup-btn--gray${
+                isNicknameChecked ? ' signup-btn--gray-verified' : ''
+              }`}
+              onClick={handleNicknameDuplicateCheck}
+              disabled={isCheckingNickname || isSubmitting || !String(form.nickname || '').trim()}
+            >
+              {isCheckingNickname ? '확인 중...' : isNicknameChecked ? '확인완료' : '중복확인'}
+            </button>
+          </div>
         </SignupFormRow>
 
         <SignupFormRow

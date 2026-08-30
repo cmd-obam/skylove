@@ -10,6 +10,7 @@ import {
   PROFILE_SELECT,
   PROFILE_SELECT_BASE,
   PROFILE_SELECT_EXTENDED,
+  PROFILE_SELECT_WITH_NICKNAME,
 } from '@/services/auth/profileSchema'
 import { normalizeRole } from '@/services/auth/roles'
 import { logFetchProfileRoleDebug } from '@/utils/authRoleDebug'
@@ -50,7 +51,16 @@ async function selectProfileRow(userId, select) {
 }
 
 async function fetchProfileRowWithRole(userId) {
-  let { data, error } = await selectProfileRow(userId, PROFILE_SELECT_EXTENDED)
+  let { data, error } = await selectProfileRow(userId, PROFILE_SELECT_WITH_NICKNAME)
+
+  // migration 042(nickname) 미적용 환경 폴백.
+  if (error && isMissingColumnError(error)) {
+    console.warn(
+      '[Profile] nickname select failed — retrying with extended select',
+      { code: error.code, message: error.message },
+    )
+    ;({ data, error } = await selectProfileRow(userId, PROFILE_SELECT_EXTENDED))
+  }
 
   // migration 015(congregant_type/attending_church) 미적용 환경 폴백.
   if (error && isMissingColumnError(error)) {
@@ -178,6 +188,8 @@ export async function fetchProfileByUserId(userId) {
     username: data.username,
     congregantType: data.congregant_type,
     attendingChurch: data.attending_church,
+    nickname: data.nickname ?? '',
+    nicknameEnabled: Boolean(data.nickname_enabled),
     effectiveUserId,
   }
 
