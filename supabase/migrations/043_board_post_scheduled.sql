@@ -95,8 +95,12 @@ $$;
 
 GRANT EXECUTE ON FUNCTION public.publish_due_board_posts_for_admin() TO authenticated;
 
--- CMS list: include scheduled filter + scheduled_at column.
-CREATE OR REPLACE FUNCTION public.list_content_posts_for_super_admin(p_payload jsonb DEFAULT '{}'::jsonb)
+-- CMS list: keep every existing OUT column, then add scheduled_at before total_count.
+-- Postgres cannot change RETURNS TABLE via CREATE OR REPLACE — drop first, then recreate.
+-- Dependents: frontend RPC only (src/services/admin/contentManagement.js). No other SQL functions call this.
+DROP FUNCTION IF EXISTS public.list_content_posts_for_super_admin(jsonb);
+
+CREATE FUNCTION public.list_content_posts_for_super_admin(p_payload jsonb DEFAULT '{}'::jsonb)
 RETURNS TABLE (
   id uuid,
   post_type text,
