@@ -66,10 +66,8 @@
 }
 
 .sunday-bulletin__sidebar {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 1.5rem;
+  position: relative;
+  display: block;
   padding: 1.1rem 0.65rem 1rem;
   border-right: 1px solid var(--sb-border);
   text-align: center;
@@ -86,6 +84,15 @@
 
 .sunday-bulletin__season-line {
   display: block;
+}
+
+/* 예배순서 12행 중 봉헌찬양(7번째) 라인부터 시작 */
+.sunday-bulletin__mission {
+  position: absolute;
+  left: 0.65rem;
+  right: 0.65rem;
+  top: 48%;
+  transform: translateY(-0.15rem);
 }
 
 .sunday-bulletin__mission-title {
@@ -348,6 +355,9 @@
   }
 
   .sunday-bulletin__sidebar {
+    position: static;
+    display: flex;
+    flex-direction: column;
     gap: 1rem;
     padding: 0.9rem 0.85rem;
     border-right: none;
@@ -359,6 +369,11 @@
   }
 
   .sunday-bulletin__mission {
+    position: static;
+    left: auto;
+    right: auto;
+    top: auto;
+    transform: none;
     text-align: center;
   }
 
