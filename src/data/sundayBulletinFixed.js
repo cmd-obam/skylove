@@ -19,6 +19,7 @@ export const SUNDAY_BULLETIN_FIXED = {
     doxology: '[635장] 하늘에 계신 우리 아버지',
     offeringPraise: '나의 주 나의 하나님이여',
     offeringPrayer: '담임목사 축복기도(드려진헌금위해)',
+    benediction: '담임목사',
   },
   servingPeople: [
     { role: '사역자', name: '모든 성도' },
@@ -89,6 +90,12 @@ export const SUNDAY_BULLETIN_WEEKLY_FIELDS = [
     key: 'sermon',
     label: '임재의말씀',
     placeholder: '설교 제목을 입력해 주세요.',
+    multiline: false,
+  },
+  {
+    key: 'closingPraise',
+    label: '결단의찬양',
+    placeholder: '예: [545장] 이 세상 끝날까지',
     multiline: false,
   },
   {

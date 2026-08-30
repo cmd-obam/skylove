@@ -86,12 +86,12 @@
   display: block;
 }
 
-/* 예배순서 12행 중 봉헌찬양(7번째) 라인부터 시작 */
+/* 예배순서 14행 중 봉헌찬양(7번째) 라인부터 시작 */
 .sunday-bulletin__mission {
   position: absolute;
   left: 0.65rem;
   right: 0.65rem;
-  top: 48%;
+  top: 42%;
   transform: translateY(-0.15rem);
 }
 

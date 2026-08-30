@@ -91,6 +91,10 @@ function SundayBulletin({ weekly }) {
                 {data.scripture || '\u00a0'}
               </OrderRow>
               <OrderRow label="임재의말씀">{data.sermon || '\u00a0'}</OrderRow>
+              <OrderRow label="결단의찬양">{data.closingPraise || '\u00a0'}</OrderRow>
+              <OrderRow label="축도" spaced>
+                {fixed.orderFixed.benediction}
+              </OrderRow>
             </tbody>
           </table>
         </div>

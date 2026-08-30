@@ -11,6 +11,7 @@ export const EMPTY_SUNDAY_BULLETIN_WEEKLY = {
   fellowship: '',
   scripture: '',
   sermon: '',
+  closingPraise: '',
   churchNews: '',
 }
 
@@ -56,6 +57,7 @@ export function parseSundayBulletinWeekly(content) {
       fellowship: parsed.fellowship ?? '',
       scripture: parsed.scripture ?? '',
       sermon: parsed.sermon ?? '',
+      closingPraise: parsed.closingPraise ?? '',
       churchNews: parsed.churchNews ?? '',
     })
   } catch {
