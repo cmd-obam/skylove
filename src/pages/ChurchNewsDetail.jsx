@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import BoardPostDetail from '@/components/board/BoardPostDetail'
+import SundayBulletin from '@/components/churchNews/SundayBulletin'
 import { fetchRelatedBoardPosts } from '@/services/board/posts'
 import { useBoardPost } from '@/hooks/useBoardPost'
+import { parseSundayBulletinWeekly } from '@/utils/sundayBulletin'
 
 const LIST_PATH = '/church-news'
 
@@ -10,6 +12,11 @@ function ChurchNewsDetail() {
   const { postId } = useParams()
   const { post, loading } = useBoardPost('church_news', postId)
   const [relatedPosts, setRelatedPosts] = useState([])
+
+  const bulletinWeekly = useMemo(
+    () => parseSundayBulletinWeekly(post?.content),
+    [post?.content],
+  )
 
   useEffect(() => {
     if (!postId) {
@@ -47,6 +54,7 @@ function ChurchNewsDetail() {
       relatedPosts={relatedPosts}
       ariaLabel="교회소식 상세"
       listButtonLabel="목록"
+      customBody={bulletinWeekly ? <SundayBulletin weekly={bulletinWeekly} /> : null}
     />
   )
 }

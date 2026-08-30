@@ -1,0 +1,416 @@
+.sunday-bulletin {
+  --sb-blue: #0055aa;
+  --sb-border: #c8c8c8;
+  --sb-row-border: #d8d8d8;
+  --sb-label-bg: #f2f2f2;
+  --sb-stripe: #f7f7f7;
+  --sb-news-min-height: 14rem;
+
+  width: 100%;
+  max-width: 52rem;
+  margin: 0 auto;
+  color: #111;
+  background: #fff;
+  font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  border: 1px solid var(--sb-blue);
+}
+
+.sunday-bulletin__header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 1rem;
+  background: var(--sb-blue);
+  color: #fff;
+}
+
+.sunday-bulletin__service-title {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.35em;
+  line-height: 1.2;
+}
+
+.sunday-bulletin__service-time {
+  margin: 0;
+  flex-shrink: 0;
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+}
+
+.sunday-bulletin__moderator {
+  display: flex;
+  justify-content: flex-end;
+  align-items: baseline;
+  gap: 2.5rem;
+  margin: 0;
+  padding: 0.45rem 0.85rem 0.55rem;
+  border-bottom: 1px solid var(--sb-border);
+  font-size: 0.95rem;
+}
+
+.sunday-bulletin__moderator-label {
+  letter-spacing: 0.12em;
+}
+
+.sunday-bulletin__upper {
+  display: grid;
+  grid-template-columns: minmax(7.5rem, 22%) 1fr;
+  align-items: stretch;
+  min-height: 0;
+}
+
+.sunday-bulletin__sidebar {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.1rem 0.65rem 1rem;
+  border-right: 1px solid var(--sb-border);
+  text-align: center;
+}
+
+.sunday-bulletin__season {
+  margin: 0;
+  padding-top: 0.35rem;
+  font-size: 0.92rem;
+  font-weight: 500;
+  line-height: 1.55;
+  word-break: keep-all;
+  white-space: pre-wrap;
+}
+
+.sunday-bulletin__mission-title {
+  margin: 0 0 0.55rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.sunday-bulletin__mission-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  margin: 0;
+}
+
+.sunday-bulletin__mission-line {
+  display: block;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.sunday-bulletin__order-wrap {
+  min-width: 0;
+}
+
+.sunday-bulletin__order {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.sunday-bulletin__order-label {
+  width: 6.8rem;
+  padding: 0.48rem 0.45rem;
+  border-bottom: 1px solid var(--sb-row-border);
+  border-right: 1px solid var(--sb-row-border);
+  background: var(--sb-label-bg);
+  font-weight: 600;
+  font-size: 0.86rem;
+  text-align: center;
+  vertical-align: middle;
+  word-break: keep-all;
+}
+
+.sunday-bulletin__order-label--spaced {
+  letter-spacing: 0.28em;
+  padding-right: 0.2rem;
+}
+
+.sunday-bulletin__order-value {
+  padding: 0.48rem 0.7rem;
+  border-bottom: 1px solid var(--sb-row-border);
+  font-weight: 400;
+  font-size: 0.9rem;
+  text-align: left;
+  vertical-align: middle;
+  word-break: keep-all;
+}
+
+.sunday-bulletin__order-row:nth-child(even) .sunday-bulletin__order-value {
+  background: var(--sb-stripe);
+}
+
+.sunday-bulletin__order-row:last-child .sunday-bulletin__order-label,
+.sunday-bulletin__order-row:last-child .sunday-bulletin__order-value {
+  border-bottom: none;
+}
+
+.sunday-bulletin__grace {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.sunday-bulletin__grace-song {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.sunday-bulletin__grace-choir {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  font-size: 0.88rem;
+}
+
+.sunday-bulletin__news {
+  border-top: 1px solid var(--sb-blue);
+}
+
+.sunday-bulletin__section-bar {
+  margin: 0;
+  padding: 0.38rem 0.85rem;
+  background: var(--sb-blue);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.sunday-bulletin__news-body {
+  min-height: var(--sb-news-min-height);
+  padding: 0.85rem 1rem;
+  border-top: 1px solid var(--sb-blue);
+}
+
+.sunday-bulletin__news-text {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: keep-all;
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+
+.sunday-bulletin__news-placeholder {
+  min-height: calc(var(--sb-news-min-height) - 1.7rem);
+}
+
+.sunday-bulletin__footer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: stretch;
+  border-top: 1px solid var(--sb-blue);
+}
+
+.sunday-bulletin__footer-col {
+  display: flex;
+  flex-direction: column;
+  min-height: 13.5rem;
+  border-right: 1px solid var(--sb-blue);
+}
+
+.sunday-bulletin__footer-col:last-child {
+  border-right: none;
+}
+
+.sunday-bulletin__footer-col .sunday-bulletin__section-bar {
+  align-self: flex-start;
+  min-width: 7.5rem;
+  width: auto;
+  padding-right: 1.1rem;
+}
+
+.sunday-bulletin__serving-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0.9rem 1rem 1rem;
+  list-style: none;
+}
+
+.sunday-bulletin__serving-item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.45rem;
+  font-size: 0.88rem;
+}
+
+.sunday-bulletin__serving-role {
+  flex: 0 1 auto;
+}
+
+.sunday-bulletin__serving-sep {
+  flex: 0 0 auto;
+}
+
+.sunday-bulletin__serving-name {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.sunday-bulletin__missions-inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.75rem;
+  padding: 0.9rem 1rem 1rem;
+}
+
+.sunday-bulletin__missions-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.sunday-bulletin__missions-text p {
+  margin: 0;
+  font-size: 0.9rem;
+  word-break: keep-all;
+}
+
+.sunday-bulletin__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: auto;
+}
+
+.sunday-bulletin__logo {
+  width: 3.6rem;
+  height: 3.6rem;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.sunday-bulletin__brand-text {
+  min-width: 0;
+}
+
+.sunday-bulletin__denomination {
+  margin: 0 0 0.15rem;
+  font-size: 0.78rem;
+  line-height: 1.3;
+}
+
+.sunday-bulletin__church-name {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+@media (max-width: 767px) {
+  .sunday-bulletin {
+    --sb-news-min-height: 10rem;
+    font-size: 0.9rem;
+    border-left: none;
+    border-right: none;
+  }
+
+  .sunday-bulletin__header-bar {
+    padding: 0.65rem 0.75rem;
+  }
+
+  .sunday-bulletin__service-title {
+    font-size: 1.05rem;
+    letter-spacing: 0.22em;
+  }
+
+  .sunday-bulletin__service-time {
+    font-size: 0.88rem;
+  }
+
+  .sunday-bulletin__moderator {
+    gap: 1.25rem;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.88rem;
+  }
+
+  .sunday-bulletin__upper {
+    grid-template-columns: 1fr;
+  }
+
+  .sunday-bulletin__sidebar {
+    gap: 1rem;
+    padding: 0.9rem 0.85rem;
+    border-right: none;
+    border-bottom: 1px solid var(--sb-border);
+  }
+
+  .sunday-bulletin__season {
+    padding-top: 0;
+  }
+
+  .sunday-bulletin__mission {
+    text-align: center;
+  }
+
+  .sunday-bulletin__order-label {
+    width: 5.6rem;
+    padding: 0.55rem 0.35rem;
+    font-size: 0.8rem;
+  }
+
+  .sunday-bulletin__order-label--spaced {
+    letter-spacing: 0.12em;
+  }
+
+  .sunday-bulletin__order-value {
+    padding: 0.55rem 0.65rem;
+    font-size: 0.84rem;
+  }
+
+  .sunday-bulletin__grace {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 0.25rem 0.75rem;
+  }
+
+  .sunday-bulletin__grace-choir {
+    margin-left: auto;
+  }
+
+  .sunday-bulletin__news-body {
+    padding: 0.75rem;
+  }
+
+  .sunday-bulletin__footer {
+    grid-template-columns: 1fr;
+  }
+
+  .sunday-bulletin__footer-col {
+    min-height: 0;
+    border-right: none;
+  }
+
+  .sunday-bulletin__footer-col--serving {
+    border-bottom: 1px solid var(--sb-blue);
+  }
+
+  .sunday-bulletin__missions-inner {
+    gap: 1.4rem;
+  }
+
+  .sunday-bulletin__logo {
+    width: 3.2rem;
+    height: 3.2rem;
+  }
+
+  .sunday-bulletin__church-name {
+    font-size: 1.1rem;
+  }
+}

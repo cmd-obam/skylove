@@ -764,6 +764,16 @@
   white-space: normal;
 }
 
+.church-news-detail__body--custom {
+  white-space: normal;
+  color: inherit;
+  line-height: inherit;
+}
+
+.church-news-detail__body--custom .sunday-bulletin {
+  margin-top: 0.25rem;
+}
+
 .church-news-detail__body--html p {
   margin: 0 0 0.85rem;
 }

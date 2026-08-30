@@ -1,11 +1,10 @@
-import BoardPostWritePage from '@/components/board/BoardPostWritePage'
+import SundayBulletinWritePage from '@/components/churchNews/SundayBulletinWritePage'
 
 function ChurchNewsWrite() {
   return (
-    <BoardPostWritePage
-      postType="church_news"
+    <SundayBulletinWritePage
       pageTitle="교회소식"
-      formTitle="교회소식 글쓰기"
+      formTitle="주일예배 주보 작성"
       listPath="/church-news"
       detailPathPrefix="/church-news"
       mode="create"

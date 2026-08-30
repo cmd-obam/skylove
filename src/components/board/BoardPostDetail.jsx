@@ -28,6 +28,7 @@ function BoardPostDetail({
   ariaLabel = '게시글 상세',
   detailVariant = 'default',
   afterBody = null,
+  customBody = null,
   children,
 }) {
   const { isLoggedIn, user, effectiveUserId } = useAuth()
@@ -81,7 +82,8 @@ function BoardPostDetail({
   }
 
   const hasImages = Boolean(post?.images?.length)
-  const bodyHtml = post?.content ? sanitizeBoardHtml(post.content) : ''
+  const bodyHtml =
+    customBody || !post?.content ? '' : sanitizeBoardHtml(post.content)
 
   if (!post) {
     return (
@@ -189,6 +191,10 @@ function BoardPostDetail({
         </header>
 
         {children}
+
+        {customBody ? (
+          <div className="church-news-detail__body church-news-detail__body--custom">{customBody}</div>
+        ) : null}
 
         {bodyHtml ? (
           <div
