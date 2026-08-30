@@ -4,6 +4,7 @@ import BoardPageHeader from '@/components/board/BoardPageHeader'
 import BoardRichEditor from '@/components/board/editor/BoardRichEditor'
 import BoardThumbnailField from '@/components/board/BoardThumbnailField'
 import BoardAttachmentField from '@/components/board/BoardAttachmentField'
+import SundayBulletinEditor from '@/components/churchNews/SundayBulletinEditor'
 import { useAuth } from '@/contexts/AuthContext'
 import { useUnsavedLeaveGuard } from '@/hooks/useUnsavedLeaveGuard'
 import { canEditPost } from '@/services/auth/roles'
@@ -25,9 +26,15 @@ import {
 } from '@/utils/boardContentImages'
 import { resizeImageFile, resizeThumbnailFile } from '@/utils/resizeImageFile'
 import { isBoardHtmlEmpty, sanitizeBoardHtml } from '@/utils/sanitizeBoardHtml'
+import {
+  createEmptySundayBulletinWeekly,
+  parseSundayBulletinWeekly,
+  serializeSundayBulletinWeekly,
+} from '@/utils/sundayBulletin'
 import { resolveYouTubeMedia } from '@/utils/youtube'
 import '@/pages/ChurchNews.css'
 import '@/pages/MemberManagement.css'
+import '@/components/churchNews/SundayBulletinForm.css'
 
 function mapBoardWriteErrorMessage(message) {
   if (!message) {
@@ -65,16 +72,20 @@ function BoardPostWritePage({
   mode = 'create',
   postId = null,
   writeVariant = 'default',
+  enableBulletinTemplate = false,
 }) {
   const navigate = useNavigate()
   const { profile, user, effectiveUserId } = useAuth()
   const currentUserId = effectiveUserId ?? user?.id
   const isEdit = mode === 'edit'
   const isVideoWrite = writeVariant === 'video'
+  const canUseBulletin = enableBulletinTemplate && !isVideoWrite
 
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [youtubeUrl, setYoutubeUrl] = useState('')
+  const [bulletinMode, setBulletinMode] = useState(false)
+  const [weekly, setWeekly] = useState(() => createEmptySundayBulletinWeekly())
   const [thumbnailState, setThumbnailState] = useState(null)
   const [attachments, setAttachments] = useState([])
   const [removedPaths, setRemovedPaths] = useState([])
@@ -87,6 +98,8 @@ function BoardPostWritePage({
       title: '',
       content: '',
       youtubeUrl: '',
+      bulletinMode: false,
+      weekly: createEmptySundayBulletinWeekly(),
       thumbnail: null,
       attachments: [],
     }),
@@ -100,6 +113,8 @@ function BoardPostWritePage({
         title,
         content,
         youtubeUrl,
+        bulletinMode,
+        weekly,
         thumbnail: thumbnailState
           ? {
               existingUrl: thumbnailState.existingUrl ?? null,
@@ -113,7 +128,7 @@ function BoardPostWritePage({
           hasFile: Boolean(item.file),
         })),
       }),
-    [attachments, content, thumbnailState, title, youtubeUrl],
+    [attachments, bulletinMode, content, thumbnailState, title, weekly, youtubeUrl],
   )
 
   const isDirty = !loadingPost && currentSnapshot !== initialSnapshot
@@ -167,9 +182,14 @@ function BoardPostWritePage({
       }
 
       const post = result.post
+      const parsedBulletin =
+        canUseBulletin ? parseSundayBulletinWeekly(post.content) : null
+
       setTitle(post.title)
       setContent(post.content || '')
       setYoutubeUrl(post.youtubeUrl || '')
+      setBulletinMode(Boolean(parsedBulletin))
+      setWeekly(parsedBulletin || createEmptySundayBulletinWeekly())
       setLegacyImages(post.images ?? [])
 
       if (post.thumbnail) {
@@ -202,6 +222,8 @@ function BoardPostWritePage({
           title: post.title || '',
           content: post.content || '',
           youtubeUrl: post.youtubeUrl || '',
+          bulletinMode: Boolean(parsedBulletin),
+          weekly: parsedBulletin || createEmptySundayBulletinWeekly(),
           thumbnail: post.thumbnail
             ? { existingUrl: post.thumbnail, hasFile: false }
             : null,
@@ -222,7 +244,51 @@ function BoardPostWritePage({
     return () => {
       isMounted = false
     }
-  }, [isEdit, postId, postType, profile, currentUserId])
+  }, [canUseBulletin, isEdit, postId, postType, profile, currentUserId])
+
+  const handleLoadBulletinTemplate = () => {
+    if (!canUseBulletin) {
+      return
+    }
+
+    const hasExistingContent =
+      bulletinMode ||
+      Boolean(content && !isBoardHtmlEmpty(sanitizeBoardHtml(content)))
+
+    if (hasExistingContent) {
+      const confirmed = window.confirm(
+        '주보 서식을 불러오면 현재 작성 중인 내용이 주보 템플릿으로 바뀝니다. 계속할까요?',
+      )
+      if (!confirmed) {
+        return
+      }
+    }
+
+    const nextWeekly = createEmptySundayBulletinWeekly()
+    setWeekly(nextWeekly)
+    setBulletinMode(true)
+    setContent(serializeSundayBulletinWeekly(nextWeekly))
+    setError('')
+  }
+
+  const handleClearBulletinTemplate = () => {
+    const confirmed = window.confirm(
+      '주보 서식을 닫고 일반 글쓰기 내용으로 전환할까요? 입력한 주보 내용은 사라집니다.',
+    )
+    if (!confirmed) {
+      return
+    }
+
+    setBulletinMode(false)
+    setWeekly(createEmptySundayBulletinWeekly())
+    setContent('')
+    setError('')
+  }
+
+  const handleWeeklyChange = (nextWeekly) => {
+    setWeekly(nextWeekly)
+    setContent(serializeSundayBulletinWeekly(nextWeekly))
+  }
 
   const handleThumbnailChange = (next) => {
     // 별도 업로드한 대표이미지만 삭제 대상. 본문 이미지를 대표로 고른 경우는 파일 삭제하지 않음.
@@ -292,15 +358,25 @@ function BoardPostWritePage({
     setError('')
 
     const trimmedTitle = title.trim()
-    const sanitizedContent = sanitizeBoardHtml(content)
     const trimmedYoutubeUrl = youtubeUrl.trim()
+    const bulletinContent = bulletinMode
+      ? serializeSundayBulletinWeekly(weekly)
+      : null
+    const sanitizedContent = bulletinMode
+      ? bulletinContent
+      : sanitizeBoardHtml(content)
 
     if (!trimmedTitle) {
       setError('제목을 입력해 주세요.')
       return
     }
 
-    if (!isVideoWrite && isBoardHtmlEmpty(sanitizedContent)) {
+    if (bulletinMode) {
+      if (!String(weekly.seasonWeek ?? '').trim()) {
+        setError('성령강림절 후 제 ○○주를 입력해 주세요.')
+        return
+      }
+    } else if (!isVideoWrite && isBoardHtmlEmpty(sanitizedContent)) {
       setError('내용 또는 이미지를 입력해 주세요.')
       return
     }
@@ -341,7 +417,7 @@ function BoardPostWritePage({
         uploadedPaths.push(uploadResult.path)
       }
 
-      if (!thumbnailUrl && !isVideoWrite) {
+      if (!thumbnailUrl && !isVideoWrite && !bulletinMode) {
         thumbnailUrl = getFirstContentImageSrc(sanitizedContent)
       }
 
@@ -401,7 +477,7 @@ function BoardPostWritePage({
       }
 
       const hasImage = computeHasImage({
-        contentHtml: sanitizedContent,
+        contentHtml: bulletinMode ? '' : sanitizedContent,
         thumbnail: thumbnailUrl,
         images: legacyImages,
       })
@@ -520,20 +596,57 @@ function BoardPostWritePage({
 
         <div className="board-write-form__field">
           <span className="board-write-form__label">내용{isVideoWrite ? ' (선택)' : ''}</span>
-          <BoardRichEditor
-            value={content}
-            onChange={setContent}
-            onUploadImage={handleUploadEditorImage}
-            thumbnailSrc={thumbnailState?.existingUrl || thumbnailState?.previewUrl || null}
-            onSelectThumbnail={handleSelectContentThumbnail}
-            disabled={submitting}
-            placeholder={
-              isVideoWrite
-                ? '영상 설명을 입력해 주세요. (선택)'
-                : '내용을 입력하거나 이미지를 첨부해 주세요.'
-            }
-          />
+          {bulletinMode ? (
+            <SundayBulletinEditor
+              weekly={weekly}
+              onChange={handleWeeklyChange}
+              disabled={submitting}
+            />
+          ) : (
+            <BoardRichEditor
+              value={content}
+              onChange={setContent}
+              onUploadImage={handleUploadEditorImage}
+              thumbnailSrc={thumbnailState?.existingUrl || thumbnailState?.previewUrl || null}
+              onSelectThumbnail={handleSelectContentThumbnail}
+              disabled={submitting}
+              placeholder={
+                isVideoWrite
+                  ? '영상 설명을 입력해 주세요. (선택)'
+                  : '내용을 입력하거나 이미지를 첨부해 주세요.'
+              }
+            />
+          )}
         </div>
+
+        {canUseBulletin ? (
+          <div className="board-write-form__field board-write-form__field--bulletin-actions">
+            {bulletinMode ? (
+              <button
+                type="button"
+                className="church-news-detail__list-button board-write-form__bulletin-button"
+                onClick={handleClearBulletinTemplate}
+                disabled={submitting}
+              >
+                일반 글쓰기로 전환
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="church-news-board__search-button board-write-form__bulletin-button"
+                onClick={handleLoadBulletinTemplate}
+                disabled={submitting}
+              >
+                주보 서식 불러오기
+              </button>
+            )}
+            <p className="board-write-form__bulletin-help">
+              {bulletinMode
+                ? '주보 내용을 수정한 뒤 등록하면 교회소식 게시글로 저장됩니다.'
+                : '일반 글은 제목과 내용만 작성하면 됩니다. 주일 주보가 필요할 때만 서식을 불러오세요.'}
+            </p>
+          </div>
+        ) : null}
 
         <div className="board-write-form__field">
           <BoardThumbnailField
