@@ -10,10 +10,12 @@ import { fetchHomeStoryPosts } from '@/services/board/posts'
 import { getAlbumThumbnailSrc } from '@/utils/albumThumbnail'
 import { getFirstContentImageSrc } from '@/utils/boardContentImages'
 import { formatPostRegistrationDate } from '@/utils/formatBoardDate'
+import { isSundayBulletinContent } from '@/utils/sundayBulletin'
 import { resolveYouTubeMedia } from '@/utils/youtube'
 import './HomeSections.css'
 
 const VISIBLE_CARD_COUNT = 4
+const BULLETIN_PREVIEW_TEXT = '클릭해서 주보 내용을 확인하세요.'
 
 const BADGE_ICONS = {
   sunday_sermon: FaChurch,
@@ -26,6 +28,10 @@ const BADGE_ICONS = {
 function getPostExcerpt(content, maxLength = 72) {
   if (!content) {
     return ''
+  }
+
+  if (isSundayBulletinContent(content)) {
+    return BULLETIN_PREVIEW_TEXT
   }
 
   const text = String(content)
