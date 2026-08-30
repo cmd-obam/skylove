@@ -63,7 +63,7 @@ function SundayBulletin({ weekly }) {
           <table className="sunday-bulletin__order">
             <tbody>
               <OrderRow label="경배와찬양">{fixed.orderFixed.worshipPraise}</OrderRow>
-              <OrderRow label="예배의부름">{data.callToWorship || '\u00a0'}</OrderRow>
+              <OrderRow label="예배의부름">{fixed.orderFixed.callToWorship}</OrderRow>
               <OrderRow label="오늘의기도">{data.prayer || '\u00a0'}</OrderRow>
               <OrderRow label="송영" spaced>
                 {fixed.orderFixed.doxology}
@@ -86,7 +86,7 @@ function SundayBulletin({ weekly }) {
                   <span className="sunday-bulletin__grace-choir">{fixed.graceChoir}</span>
                 </div>
               </OrderRow>
-              <OrderRow label="교제와소식">{data.fellowship || '\u00a0'}</OrderRow>
+              <OrderRow label="교제와소식">{fixed.orderFixed.fellowship}</OrderRow>
               <OrderRow label="성경봉독" spaced>
                 {data.scripture || '\u00a0'}
               </OrderRow>

@@ -1,14 +1,14 @@
+import { SUNDAY_BULLETIN_FIXED } from '@/data/sundayBulletinFixed'
+
 export const SUNDAY_BULLETIN_TYPE = 'sunday_bulletin'
 export const SUNDAY_BULLETIN_VERSION = 1
 
 export const EMPTY_SUNDAY_BULLETIN_WEEKLY = {
   seasonWeek: '',
-  callToWorship: '',
   prayer: '',
   praise: '',
   responsiveReading: '',
   graceSong: '',
-  fellowship: '',
   scripture: '',
   sermon: '',
   closingPraise: '',
@@ -40,6 +40,26 @@ export function isSundayBulletinContent(content) {
   }
 }
 
+/** 주차 숫자만 추출 (예: "14", "성령강림절 후 제 14 주" → "14") */
+export function extractSeasonWeekNumber(seasonWeek) {
+  const text = String(seasonWeek ?? '').trim()
+  if (!text) {
+    return ''
+  }
+
+  if (/^\d+$/.test(text)) {
+    return text
+  }
+
+  const weekMatch = text.match(/제\s*(\d+)\s*주/)
+  if (weekMatch?.[1]) {
+    return weekMatch[1]
+  }
+
+  const digits = text.match(/(\d+)/)
+  return digits?.[1] ?? ''
+}
+
 export function parseSundayBulletinWeekly(content) {
   if (!isSundayBulletinContent(content)) {
     return null
@@ -48,13 +68,11 @@ export function parseSundayBulletinWeekly(content) {
   try {
     const parsed = JSON.parse(content.trim())
     return createEmptySundayBulletinWeekly({
-      seasonWeek: parsed.seasonWeek ?? '',
-      callToWorship: parsed.callToWorship ?? '',
+      seasonWeek: extractSeasonWeekNumber(parsed.seasonWeek ?? ''),
       prayer: parsed.prayer ?? '',
       praise: parsed.praise ?? '',
       responsiveReading: parsed.responsiveReading ?? '',
       graceSong: parsed.graceSong ?? '',
-      fellowship: parsed.fellowship ?? '',
       scripture: parsed.scripture ?? '',
       sermon: parsed.sermon ?? '',
       closingPraise: parsed.closingPraise ?? '',
@@ -67,11 +85,16 @@ export function parseSundayBulletinWeekly(content) {
 
 export function serializeSundayBulletinWeekly(weekly) {
   const data = createEmptySundayBulletinWeekly(weekly)
+  const weekNumber = extractSeasonWeekNumber(data.seasonWeek)
 
   return JSON.stringify({
     __type: SUNDAY_BULLETIN_TYPE,
     version: SUNDAY_BULLETIN_VERSION,
     ...data,
+    seasonWeek: weekNumber,
+    // 고정 문구도 JSON에 함께 저장해 데이터 일관성을 유지합니다.
+    callToWorship: SUNDAY_BULLETIN_FIXED.orderFixed.callToWorship,
+    fellowship: SUNDAY_BULLETIN_FIXED.orderFixed.fellowship,
   })
 }
 
@@ -87,9 +110,14 @@ export function isSundayBulletinWeeklyEmpty(weekly) {
 
 /**
  * 주보 좌측 절기 표기를 두 줄로 나눕니다.
- * 예: "성령강림절 후 제 14 주" → ["성령강림절 후", "제 14 주"]
+ * 주차 숫자만 있어도 "성령강림절 후" / "제 N 주"로 표시합니다.
  */
 export function formatSeasonWeekLines(seasonWeek) {
+  const weekNumber = extractSeasonWeekNumber(seasonWeek)
+  if (weekNumber) {
+    return [SUNDAY_BULLETIN_FIXED.seasonPrefix, `제 ${weekNumber} 주`]
+  }
+
   const text = String(seasonWeek ?? '').trim()
   if (!text) {
     return []
@@ -100,16 +128,6 @@ export function formatSeasonWeekLines(seasonWeek) {
       .split(/\r?\n/)
       .map((line) => line.trim())
       .filter(Boolean)
-  }
-
-  const afterMatch = text.match(/^(.+?후)\s+(제\s*.+)$/)
-  if (afterMatch) {
-    return [afterMatch[1].trim(), afterMatch[2].trim()]
-  }
-
-  const weekMatch = text.match(/^(.*?)\s+(제\s*\d+\s*주)$/)
-  if (weekMatch?.[1]) {
-    return [weekMatch[1].trim(), weekMatch[2].trim()]
   }
 
   return [text]

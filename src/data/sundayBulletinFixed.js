@@ -5,6 +5,7 @@ export const SUNDAY_BULLETIN_FIXED = {
   serviceTitle: '주일축복예배',
   serviceTime: '오전 11시',
   moderator: '최석림목사',
+  seasonPrefix: '성령강림절 후',
   missionTitle: '사명선언문',
   missionLines: [
     '예수그리스도의',
@@ -16,9 +17,11 @@ export const SUNDAY_BULLETIN_FIXED = {
   graceChoir: '엘샤다이중창단',
   orderFixed: {
     worshipPraise: '이헤븐 찬양단',
+    callToWorship: '나의 믿음 주께 있네',
     doxology: '[635장] 하늘에 계신 우리 아버지',
     offeringPraise: '나의 주 나의 하나님이여',
     offeringPrayer: '담임목사 축복기도(드려진헌금위해)',
+    fellowship: '당신은 하나님의 언약 안에 있는',
     benediction: '담임목사',
   },
   servingPeople: [
@@ -39,14 +42,9 @@ export const SUNDAY_BULLETIN_WEEKLY_FIELDS = [
   {
     key: 'seasonWeek',
     label: '성령강림절 후 제 ○○주',
-    placeholder: '예: 성령강림절 후 제 14 주',
-    hint: '주보에는 “성령강림절 후” / “제 14 주” 두 줄로 표시됩니다.',
-    multiline: false,
-  },
-  {
-    key: 'callToWorship',
-    label: '예배의 부름',
-    placeholder: '예배의 부름 내용을 입력해 주세요.',
+    placeholder: '예: 14',
+    hint: '주차 숫자만 입력하세요. 주보에는 “성령강림절 후” / “제 ○○ 주”로 표시됩니다.',
+    type: 'seasonWeekNumber',
     multiline: false,
   },
   {
@@ -73,12 +71,6 @@ export const SUNDAY_BULLETIN_WEEKLY_FIELDS = [
     placeholder: '예: “손 잡고 함께 가세”',
     multiline: false,
     hint: '오른쪽 “엘샤다이중창단”은 고정입니다.',
-  },
-  {
-    key: 'fellowship',
-    label: '교제와소식',
-    placeholder: '교제와소식 내용을 입력해 주세요.',
-    multiline: false,
   },
   {
     key: 'scripture',

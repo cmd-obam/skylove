@@ -395,7 +395,7 @@ function BoardPostWritePage({
 
     if (bulletinMode) {
       if (!String(weekly.seasonWeek ?? '').trim()) {
-        setError('성령강림절 후 제 ○○주를 입력해 주세요.')
+        setError('성령강림절 후 제 ○○주(주차 숫자)를 입력해 주세요.')
         return
       }
     } else if (!isVideoWrite && isBoardHtmlEmpty(sanitizedContent)) {

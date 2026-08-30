@@ -12,6 +12,26 @@
   font-size: 0.82rem;
 }
 
+.sunday-bulletin-form__season-week {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.55rem;
+}
+
+.sunday-bulletin-form__season-fixed {
+  color: #374151;
+  font-size: 0.95rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.sunday-bulletin-form__season-input {
+  width: 5.5rem;
+  max-width: 100%;
+  text-align: center;
+}
+
 .sunday-bulletin-form__textarea {
   min-height: 12rem;
   resize: vertical;
