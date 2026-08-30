@@ -1,6 +1,9 @@
 import churchLogo from '@/assets/images/church-logo.png'
 import { SUNDAY_BULLETIN_FIXED } from '@/data/sundayBulletinFixed'
-import { createEmptySundayBulletinWeekly } from '@/utils/sundayBulletin'
+import {
+  createEmptySundayBulletinWeekly,
+  formatSeasonWeekLines,
+} from '@/utils/sundayBulletin'
 import './SundayBulletin.css'
 
 function OrderRow({ label, spaced, children, className = '' }) {
@@ -18,6 +21,7 @@ function SundayBulletin({ weekly }) {
   const data = createEmptySundayBulletinWeekly(weekly)
   const fixed = SUNDAY_BULLETIN_FIXED
   const newsText = String(data.churchNews ?? '').trim()
+  const seasonLines = formatSeasonWeekLines(data.seasonWeek)
 
   return (
     <div className="sunday-bulletin" aria-label="주일축복예배 주보">
@@ -34,7 +38,15 @@ function SundayBulletin({ weekly }) {
 
       <section className="sunday-bulletin__upper">
         <aside className="sunday-bulletin__sidebar">
-          <p className="sunday-bulletin__season">{data.seasonWeek || '\u00a0'}</p>
+          <p className="sunday-bulletin__season">
+            {seasonLines.length > 0
+              ? seasonLines.map((line) => (
+                  <span key={line} className="sunday-bulletin__season-line">
+                    {line}
+                  </span>
+                ))
+              : '\u00a0'}
+          </p>
           <div className="sunday-bulletin__mission">
             <h3 className="sunday-bulletin__mission-title">{fixed.missionTitle}</h3>
             <p className="sunday-bulletin__mission-body">

@@ -39,6 +39,7 @@ export const SUNDAY_BULLETIN_WEEKLY_FIELDS = [
     key: 'seasonWeek',
     label: '성령강림절 후 제 ○○주',
     placeholder: '예: 성령강림절 후 제 14 주',
+    hint: '주보에는 “성령강림절 후” / “제 14 주” 두 줄로 표시됩니다.',
     multiline: false,
   },
   {

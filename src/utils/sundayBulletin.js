@@ -82,3 +82,33 @@ export function isSundayBulletinWeeklyEmpty(weekly) {
     (value) => !String(value ?? '').trim(),
   )
 }
+
+/**
+ * 주보 좌측 절기 표기를 두 줄로 나눕니다.
+ * 예: "성령강림절 후 제 14 주" → ["성령강림절 후", "제 14 주"]
+ */
+export function formatSeasonWeekLines(seasonWeek) {
+  const text = String(seasonWeek ?? '').trim()
+  if (!text) {
+    return []
+  }
+
+  if (text.includes('\n')) {
+    return text
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(Boolean)
+  }
+
+  const afterMatch = text.match(/^(.+?후)\s+(제\s*.+)$/)
+  if (afterMatch) {
+    return [afterMatch[1].trim(), afterMatch[2].trim()]
+  }
+
+  const weekMatch = text.match(/^(.*?)\s+(제\s*\d+\s*주)$/)
+  if (weekMatch?.[1]) {
+    return [weekMatch[1].trim(), weekMatch[2].trim()]
+  }
+
+  return [text]
+}

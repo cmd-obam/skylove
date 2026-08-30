@@ -82,7 +82,10 @@
   font-weight: 500;
   line-height: 1.55;
   word-break: keep-all;
-  white-space: pre-wrap;
+}
+
+.sunday-bulletin__season-line {
+  display: block;
 }
 
 .sunday-bulletin__mission-title {
