@@ -447,8 +447,14 @@
 .home-story {
   position: relative;
   overflow: hidden;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
   background:
     linear-gradient(180deg, rgba(232, 243, 255, 0.95) 0%, rgba(255, 255, 255, 0.92) 38%, #ffffff 100%);
+}
+
+.home-story .home-section__header {
+  margin-bottom: 1.75rem;
 }
 
 .home-story__decor {
@@ -527,7 +533,7 @@
 .home-story__featured-media {
   position: relative;
   flex: 1;
-  min-height: 320px;
+  min-height: 260px;
   overflow: hidden;
   background: linear-gradient(145deg, #6aa9e8, #3d7ec4);
 }
@@ -587,12 +593,12 @@
 .home-story__featured-excerpt {
   margin: 0;
   font-size: 0.8125rem;
-  line-height: 1.55;
+  line-height: 1.5;
   opacity: 0.9;
   display: -webkit-box;
   overflow: hidden;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
 }
 
 .home-story__featured-placeholder {
@@ -612,15 +618,15 @@
 .home-story__card-footer {
   display: flex;
   align-items: center;
-  min-height: 3.25rem;
-  padding: 0.85rem 1.25rem;
+  min-height: 2.75rem;
+  padding: 0.65rem 1.1rem;
   background-color: var(--color-white);
 }
 
 .home-story__card-media {
   position: relative;
   overflow: hidden;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 3 / 2;
   background: linear-gradient(145deg, #d9ebff, #b7d7f7);
 }
 
@@ -681,7 +687,7 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  padding: 1rem 1.05rem 1.15rem;
+  padding: 0.85rem 1rem 1rem;
 }
 
 .home-story__card-date {
@@ -731,7 +737,7 @@
 
 .home-story__card--skeleton .home-story__skeleton-block {
   flex: 1;
-  min-height: 280px;
+  min-height: 240px;
   background: linear-gradient(90deg, #eef4fb 25%, #f7fbff 50%, #eef4fb 75%);
   background-size: 200% 100%;
   animation: home-story-shimmer 1.2s ease-in-out infinite;
@@ -822,7 +828,7 @@
   }
 
   .home-story__featured-media {
-    min-height: 280px;
+    min-height: 240px;
   }
 
   .home-story__featured-copy {
@@ -920,7 +926,7 @@
   }
 
   .home-story__featured-media {
-    min-height: 240px;
+    min-height: 220px;
   }
 
   .home-story__featured-copy {
