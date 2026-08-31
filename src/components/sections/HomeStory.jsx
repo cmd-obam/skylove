@@ -14,7 +14,7 @@ import { isSundayBulletinContent } from '@/utils/sundayBulletin'
 import { resolveYouTubeMedia } from '@/utils/youtube'
 import './HomeSections.css'
 
-const VISIBLE_CARD_COUNT = 4
+const VISIBLE_CARD_COUNT = 3
 const BULLETIN_PREVIEW_TEXT = '클릭해서 주보 내용을 확인하세요.'
 
 const BADGE_ICONS = {
@@ -260,6 +260,7 @@ function HomeStory() {
   const maxStartIndex = Math.max(0, cards.length - VISIBLE_CARD_COUNT)
   const canSlidePrev = startIndex > 0
   const canSlideNext = startIndex < maxStartIndex
+  const showSliderNav = maxStartIndex > 0
 
   useLayoutEffect(() => {
     function updateSlideOffset() {
@@ -298,16 +299,18 @@ function HomeStory() {
           subtitle={HOME_STORY.subtitle}
         />
 
-        <div className="home-story__slider">
-          <button
-            type="button"
-            className="home-story__nav home-story__nav--prev"
-            aria-label="이전 이야기 보기"
-            disabled={!canSlidePrev}
-            onClick={() => setStartIndex((current) => Math.max(0, current - 1))}
-          >
-            <FiChevronLeft aria-hidden="true" />
-          </button>
+        <div className={`home-story__slider${showSliderNav ? '' : ' home-story__slider--static'}`}>
+          {showSliderNav ? (
+            <button
+              type="button"
+              className="home-story__nav home-story__nav--prev"
+              aria-label="이전 이야기 보기"
+              disabled={!canSlidePrev}
+              onClick={() => setStartIndex((current) => Math.max(0, current - 1))}
+            >
+              <FiChevronLeft aria-hidden="true" />
+            </button>
+          ) : null}
 
           <div className="home-story__viewport">
             <ul
@@ -339,15 +342,17 @@ function HomeStory() {
             </ul>
           </div>
 
-          <button
-            type="button"
-            className="home-story__nav home-story__nav--next"
-            aria-label="다음 이야기 보기"
-            disabled={!canSlideNext}
-            onClick={() => setStartIndex((current) => Math.min(maxStartIndex, current + 1))}
-          >
-            <FiChevronRight aria-hidden="true" />
-          </button>
+          {showSliderNav ? (
+            <button
+              type="button"
+              className="home-story__nav home-story__nav--next"
+              aria-label="다음 이야기 보기"
+              disabled={!canSlideNext}
+              onClick={() => setStartIndex((current) => Math.min(maxStartIndex, current + 1))}
+            >
+              <FiChevronRight aria-hidden="true" />
+            </button>
+          ) : null}
         </div>
       </div>
     </section>
