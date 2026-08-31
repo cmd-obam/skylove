@@ -1,7 +1,7 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FaChurch } from 'react-icons/fa'
-import { FiBookOpen, FiChevronLeft, FiChevronRight } from 'react-icons/fi'
+import { FiBookOpen } from 'react-icons/fi'
 import { HiOutlineSpeakerphone } from 'react-icons/hi'
 import { HOME_STORY, HOME_STORY_SOURCES } from '@/data/home'
 import HomeSectionHeader from '@/components/sections/HomeSectionHeader'
@@ -14,7 +14,6 @@ import { isSundayBulletinContent } from '@/utils/sundayBulletin'
 import { resolveYouTubeMedia } from '@/utils/youtube'
 import './HomeSections.css'
 
-const VISIBLE_CARD_COUNT = 3
 const BULLETIN_PREVIEW_TEXT = '클릭해서 주보 내용을 확인하세요.'
 
 const BADGE_ICONS = {
@@ -209,9 +208,6 @@ function StoryCardSkeleton({ featured = false }) {
 function HomeStory() {
   const [postsBySource, setPostsBySource] = useState({})
   const [loading, setLoading] = useState(true)
-  const [startIndex, setStartIndex] = useState(0)
-  const [slideOffsetPx, setSlideOffsetPx] = useState(0)
-  const trackRef = useRef(null)
   const { loading: authLoading } = useAuth()
 
   useEffect(() => {
@@ -257,36 +253,6 @@ function HomeStory() {
   const cards = HOME_STORY_SOURCES.map((source) =>
     mapStoryCard(source, postsBySource[source.id] ?? null),
   )
-  const maxStartIndex = Math.max(0, cards.length - VISIBLE_CARD_COUNT)
-  const canSlidePrev = startIndex > 0
-  const canSlideNext = startIndex < maxStartIndex
-  const showSliderNav = maxStartIndex > 0
-
-  useLayoutEffect(() => {
-    function updateSlideOffset() {
-      const track = trackRef.current
-      if (!track || startIndex <= 0) {
-        setSlideOffsetPx(0)
-        return
-      }
-
-      const firstItem = track.children[0]
-      if (!firstItem) {
-        setSlideOffsetPx(0)
-        return
-      }
-
-      const styles = window.getComputedStyle(track)
-      const gap = Number.parseFloat(styles.columnGap || styles.gap || '0') || 0
-      setSlideOffsetPx(firstItem.getBoundingClientRect().width + gap)
-    }
-
-    updateSlideOffset()
-    window.addEventListener('resize', updateSlideOffset)
-    return () => {
-      window.removeEventListener('resize', updateSlideOffset)
-    }
-  }, [startIndex, loading, cards.length])
 
   return (
     <section className="home-section home-story" aria-label="교회 이야기">
@@ -299,61 +265,29 @@ function HomeStory() {
           subtitle={HOME_STORY.subtitle}
         />
 
-        <div className={`home-story__slider${showSliderNav ? '' : ' home-story__slider--static'}`}>
-          {showSliderNav ? (
-            <button
-              type="button"
-              className="home-story__nav home-story__nav--prev"
-              aria-label="이전 이야기 보기"
-              disabled={!canSlidePrev}
-              onClick={() => setStartIndex((current) => Math.max(0, current - 1))}
-            >
-              <FiChevronLeft aria-hidden="true" />
-            </button>
-          ) : null}
-
-          <div className="home-story__viewport">
-            <ul
-              ref={trackRef}
-              className="home-story__layout"
-              style={{ transform: `translateX(-${slideOffsetPx}px)` }}
-            >
-              {loading
-                ? HOME_STORY_SOURCES.map((source) => (
-                    <li
-                      key={source.id}
-                      className={`home-story__layout-item${
-                        source.featured ? ' home-story__layout-item--featured' : ''
-                      }`}
-                    >
-                      <StoryCardSkeleton featured={source.featured} />
-                    </li>
-                  ))
-                : cards.map((card) => (
-                    <li
-                      key={card.id}
-                      className={`home-story__layout-item${
-                        card.featured ? ' home-story__layout-item--featured' : ''
-                      }`}
-                    >
-                      {card.featured ? <FeaturedStoryCard card={card} /> : <StoryCard card={card} />}
-                    </li>
-                  ))}
-            </ul>
-          </div>
-
-          {showSliderNav ? (
-            <button
-              type="button"
-              className="home-story__nav home-story__nav--next"
-              aria-label="다음 이야기 보기"
-              disabled={!canSlideNext}
-              onClick={() => setStartIndex((current) => Math.min(maxStartIndex, current + 1))}
-            >
-              <FiChevronRight aria-hidden="true" />
-            </button>
-          ) : null}
-        </div>
+        <ul className="home-story__layout">
+          {loading
+            ? HOME_STORY_SOURCES.map((source) => (
+                <li
+                  key={source.id}
+                  className={`home-story__layout-item${
+                    source.featured ? ' home-story__layout-item--featured' : ''
+                  }`}
+                >
+                  <StoryCardSkeleton featured={source.featured} />
+                </li>
+              ))
+            : cards.map((card) => (
+                <li
+                  key={card.id}
+                  className={`home-story__layout-item${
+                    card.featured ? ' home-story__layout-item--featured' : ''
+                  }`}
+                >
+                  {card.featured ? <FeaturedStoryCard card={card} /> : <StoryCard card={card} />}
+                </li>
+              ))}
+        </ul>
       </div>
     </section>
   )
