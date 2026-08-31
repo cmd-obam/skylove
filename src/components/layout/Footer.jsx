@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
+import churchLogo from '@/assets/images/church-logo.png'
 import { LOCATION_DATA } from '@/data/location'
 import Modal from '@/components/common/Modal'
 import SitemapModal from '@/components/layout/SitemapModal'
@@ -70,8 +71,11 @@ function Footer() {
       <div className="footer-container">
         <div className="footer__left">
           <div className="footer__brand">
-            <p className="footer__title">하늘사랑교회</p>
-            <p className="footer__subtitle">Heavenly Love Church</p>
+            <img src={churchLogo} alt="" className="footer__brand-logo" width={52} height={52} />
+            <div className="footer__brand-text">
+              <p className="footer__title">하늘사랑교회</p>
+              <p className="footer__subtitle">Heavenly Love Church</p>
+            </div>
           </div>
 
           <div className="footer__info">
