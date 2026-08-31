@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
+import PurgedPostsModal from '@/components/admin/PurgedPostsModal'
 import MemberMypageLayout from '@/components/auth/MemberMypageLayout'
+import { useSuperAdmin } from '@/hooks/useSuperAdmin'
 import {
   bulkUpdateCommentsForSuperAdmin,
   bulkUpdatePostsForSuperAdmin,
@@ -182,6 +184,7 @@ function formatDateTime(value) {
 }
 
 function ContentManagement() {
+  const { isSuperAdmin } = useSuperAdmin()
   const [tab, setTab] = useState('posts')
   const [rows, setRows] = useState([])
   const [totalCount, setTotalCount] = useState(0)
@@ -207,6 +210,7 @@ function ContentManagement() {
     sort: 'newest',
   })
   const [appliedFilters, setAppliedFilters] = useState(draftFilters)
+  const [purgedModalOpen, setPurgedModalOpen] = useState(false)
 
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize))
 
@@ -295,7 +299,7 @@ function ContentManagement() {
         action: 'purge',
         title: '영구삭제 확인',
         confirmLabel: '영구삭제',
-        message: `선택한 ${tab === 'posts' ? '게시글' : '댓글'} ${selectedIds.length}개를 영구삭제하시겠습니까?\n휴지통을 거치지 않고 즉시 완전히 삭제되며 복구할 수 없습니다.`,
+        message: `선택한 ${tab === 'posts' ? '게시글' : '댓글'} ${selectedIds.length}개를 영구삭제하시겠습니까?\n삭제목록으로 이동되며 일반 목록에서는 보이지 않습니다. 최고관리자만 삭제목록에서 복원할 수 있습니다.`,
       })
       return
     }
@@ -595,14 +599,26 @@ function ContentManagement() {
             >
               선택삭제
             </button>
-            <button
-              type="button"
-              className="is-danger"
-              onClick={() => runBulkAction('purge')}
-              disabled={isSubmitting}
-            >
-              영구삭제
-            </button>
+            {isSuperAdmin && tab === 'posts' ? (
+              <>
+                <button
+                  type="button"
+                  className="is-danger"
+                  onClick={() => runBulkAction('purge')}
+                  disabled={isSubmitting}
+                >
+                  영구삭제
+                </button>
+                <button
+                  type="button"
+                  className="content-cms-toolbar__purge-list"
+                  onClick={() => setPurgedModalOpen(true)}
+                  disabled={isSubmitting}
+                >
+                  삭제목록
+                </button>
+              </>
+            ) : null}
           </div>
           <div className="content-cms-toolbar__right">
             <span>{pageLabel}</span>
@@ -972,6 +988,13 @@ function ContentManagement() {
             }
           }}
           onSave={saveNote}
+        />
+
+        <PurgedPostsModal
+          isOpen={purgedModalOpen}
+          onClose={() => setPurgedModalOpen(false)}
+          onFeedback={setFeedback}
+          onChanged={loadRows}
         />
       </div>
     </MemberMypageLayout>

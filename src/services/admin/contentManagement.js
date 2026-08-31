@@ -112,6 +112,65 @@ export async function bulkUpdateCommentsForSuperAdmin(ids, action) {
   return { success: true, affected: data?.affected ?? 0 }
 }
 
+export async function fetchPurgedPostsForSuperAdmin(filters = {}) {
+  const payload = {
+    search: filters.search || '',
+    post_type: filters.postType || '',
+    limit: filters.limit ?? 20,
+    offset: filters.offset ?? 0,
+  }
+
+  const { data, error } = await supabase.rpc('list_purged_posts_for_super_admin', {
+    p_payload: payload,
+  })
+
+  if (error) {
+    return {
+      success: false,
+      message: mapRpcError(error, '영구삭제 게시글 목록을 불러오지 못했습니다.'),
+      posts: [],
+      totalCount: 0,
+    }
+  }
+
+  const rows = data ?? []
+  return {
+    success: true,
+    posts: rows,
+    totalCount: Number(rows[0]?.total_count ?? 0),
+  }
+}
+
+export async function restorePurgedPostsForSuperAdmin(ids) {
+  const { data, error } = await supabase.rpc('restore_purged_posts_for_super_admin', {
+    p_payload: { ids },
+  })
+
+  if (error) {
+    return { success: false, message: mapRpcError(error, '게시글 복원에 실패했습니다.') }
+  }
+
+  return { success: true, affected: data?.affected ?? 0 }
+}
+
+export async function updatePurgedPostForSuperAdmin({ id, title, content, status, restore = false }) {
+  const { data, error } = await supabase.rpc('update_purged_post_for_super_admin', {
+    p_payload: {
+      id,
+      title,
+      content,
+      status,
+      restore: restore ? 'true' : 'false',
+    },
+  })
+
+  if (error) {
+    return { success: false, message: mapRpcError(error, '게시글 저장에 실패했습니다.') }
+  }
+
+  return { success: true, restored: Boolean(data?.restored) }
+}
+
 export async function fetchAdminContentNote(targetType, targetId) {
   const { data, error } = await supabase.rpc('get_admin_content_note_for_super_admin', {
     p_target_type: targetType,

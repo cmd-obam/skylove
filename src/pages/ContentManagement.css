@@ -241,3 +241,124 @@
     font-size: 0.8125rem;
   }
 }
+
+.content-cms-toolbar__purge-list {
+  border-color: #93c5fd;
+  color: #1d4ed8;
+}
+
+.content-cms-purged-modal .member-management-modal__dialog {
+  width: min(96vw, 920px);
+  max-height: 90vh;
+  overflow: auto;
+}
+
+.content-cms-purged-modal__overlay .member-management-modal__dialog {
+  width: min(96vw, 640px);
+}
+
+.content-cms-purged-modal__intro {
+  margin: 0 0 1rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.content-cms-purged-modal__search {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+}
+
+.content-cms-purged-modal__input,
+.content-cms-purged-modal__textarea {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 0.9rem;
+}
+
+.content-cms-purged-modal__textarea {
+  resize: vertical;
+  min-height: 12rem;
+  line-height: 1.55;
+}
+
+.content-cms-purged-modal__search-button {
+  flex-shrink: 0;
+  padding: 0.55rem 1rem;
+  border: none;
+  border-radius: 8px;
+  background: #1f3a5f;
+  color: #fff;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.content-cms-purged-modal__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.content-cms-purged-modal__toolbar button {
+  padding: 0.35rem 0.7rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #fff;
+  color: #374151;
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.content-cms-purged-modal__count {
+  margin-left: auto;
+  color: #6b7280;
+  font-size: 0.8125rem;
+}
+
+.content-cms-purged-modal__table-wrap {
+  max-height: 50vh;
+  overflow: auto;
+  margin-bottom: 1rem;
+}
+
+.content-cms-purged-modal__empty {
+  margin: 2rem 0;
+  text-align: center;
+  color: #6b7280;
+}
+
+.content-cms-purged-modal__error {
+  margin: 0 0 0.75rem;
+  color: #b91c1c;
+  font-size: 0.875rem;
+}
+
+.content-cms-purged-modal__field {
+  margin-bottom: 0.85rem;
+}
+
+.content-cms-purged-modal__label {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: #374151;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.content-cms-purged-modal__meta {
+  margin: 0 0 1rem;
+  color: #6b7280;
+  font-size: 0.8125rem;
+}
+
+.content-cms-purged-modal__actions {
+  justify-content: flex-end;
+}
