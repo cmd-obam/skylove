@@ -27,30 +27,56 @@ import { PII_FIELD } from '@/utils/maskPii'
 import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 import './MemberManagement.css'
 
-function MemberNameCell({ name, nickname, username, showNickname, onToggle }) {
+function MemberNameCell({ name, nickname, username }) {
+  const [mode, setMode] = useState('name')
+  const nameText = String(name ?? '').trim() || '-'
+  const usernameText = String(username ?? '').trim() || '-'
   const nicknameText = String(nickname ?? '').trim()
-  const usernameText = String(username ?? '').trim()
-  const alternateName = nicknameText || usernameText
-  const hasAlternate = Boolean(alternateName) && alternateName !== String(name ?? '').trim()
-  const displayName = showNickname && hasAlternate ? alternateName : name
-  const toggleLabel = showNickname ? '이름' : nicknameText ? '닉네임' : '아이디'
+
+  const displayText =
+    mode === 'username'
+      ? usernameText
+      : mode === 'nickname'
+        ? nicknameText || '닉네임 미설정'
+        : nameText
+
+  const isUnsetNickname = mode === 'nickname' && !nicknameText
 
   return (
     <div className="member-management-page__name-cell">
-      <span className="member-management-page__name-text" title={displayName || undefined}>
-        {displayName || '-'}
+      <span
+        className={`member-management-page__name-text${
+          isUnsetNickname ? ' member-management-page__name-text--muted' : ''
+        }`}
+        title={displayText}
+      >
+        {displayText}
       </span>
-      {hasAlternate ? (
+      <div className="member-management-page__name-toggles" role="group" aria-label="이름 표시 전환">
         <button
           type="button"
-          className="member-management-page__name-toggle"
-          onClick={onToggle}
-          aria-pressed={showNickname}
-          title={showNickname ? '이름 보기' : `${toggleLabel} 보기`}
+          className={`member-management-page__name-toggle${
+            mode === 'username' ? ' is-active' : ''
+          }`}
+          onClick={() => setMode((current) => (current === 'username' ? 'name' : 'username'))}
+          aria-pressed={mode === 'username'}
         >
-          {toggleLabel}
+          {mode === 'username' ? '이름' : '아이디'}
         </button>
-      ) : null}
+        <span className="member-management-page__name-toggle-sep" aria-hidden="true">
+          /
+        </span>
+        <button
+          type="button"
+          className={`member-management-page__name-toggle${
+            mode === 'nickname' ? ' is-active' : ''
+          }`}
+          onClick={() => setMode((current) => (current === 'nickname' ? 'name' : 'nickname'))}
+          aria-pressed={mode === 'nickname'}
+        >
+          {mode === 'nickname' ? '이름' : '닉네임'}
+        </button>
+      </div>
     </div>
   )
 }
@@ -191,14 +217,6 @@ function MemberManagement() {
   const [unlinkingUserId, setUnlinkingUserId] = useState('')
   const [linkModalMember, setLinkModalMember] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [nicknameVisibleByUserId, setNicknameVisibleByUserId] = useState({})
-
-  const toggleNameNickname = (userId) => {
-    setNicknameVisibleByUserId((current) => ({
-      ...current,
-      [userId]: !current[userId],
-    }))
-  }
 
   const loadLinkedAccounts = useCallback(async (userId) => {
     if (!userId) {
@@ -473,8 +491,6 @@ function MemberManagement() {
                           name={member.name}
                           nickname={member.nickname}
                           username={member.username}
-                          showNickname={Boolean(nicknameVisibleByUserId[member.user_id])}
-                          onToggle={() => toggleNameNickname(member.user_id)}
                         />
                       </td>
                       <td className="member-management-page__pii-cell">
