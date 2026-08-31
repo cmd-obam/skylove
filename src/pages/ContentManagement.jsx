@@ -283,7 +283,19 @@ function ContentManagement() {
     if (action === 'delete' || action === 'trash') {
       setConfirmState({
         action: 'trash',
+        title: '삭제 확인',
+        confirmLabel: '삭제',
         message: `선택한 ${tab === 'posts' ? '게시글' : '댓글'} ${selectedIds.length}개를 삭제하시겠습니까?\n휴지통으로 이동되며 15일 후 자동 영구삭제됩니다.`,
+      })
+      return
+    }
+
+    if (action === 'purge' || action === 'hard_delete' || action === 'permanent_delete') {
+      setConfirmState({
+        action: 'purge',
+        title: '영구삭제 확인',
+        confirmLabel: '영구삭제',
+        message: `선택한 ${tab === 'posts' ? '게시글' : '댓글'} ${selectedIds.length}개를 영구삭제하시겠습니까?\n휴지통을 거치지 않고 즉시 완전히 삭제되며 복구할 수 없습니다.`,
       })
       return
     }
@@ -306,11 +318,12 @@ function ContentManagement() {
   }
 
   const confirmBulkDelete = async () => {
+    const action = confirmState?.action === 'purge' ? 'purge' : 'trash'
     setIsSubmitting(true)
     const result =
       tab === 'posts'
-        ? await bulkUpdatePostsForSuperAdmin(selectedIds, 'trash')
-        : await bulkUpdateCommentsForSuperAdmin(selectedIds, 'trash')
+        ? await bulkUpdatePostsForSuperAdmin(selectedIds, action)
+        : await bulkUpdateCommentsForSuperAdmin(selectedIds, action)
 
     setIsSubmitting(false)
     setConfirmState(null)
@@ -320,7 +333,10 @@ function ContentManagement() {
       return
     }
 
-    setFeedback({ type: 'success', message: '휴지통으로 이동했습니다.' })
+    setFeedback({
+      type: 'success',
+      message: action === 'purge' ? '영구삭제되었습니다.' : '휴지통으로 이동했습니다.',
+    })
     await loadRows()
   }
 
@@ -578,6 +594,14 @@ function ContentManagement() {
               disabled={isSubmitting}
             >
               선택삭제
+            </button>
+            <button
+              type="button"
+              className="is-danger"
+              onClick={() => runBulkAction('purge')}
+              disabled={isSubmitting}
+            >
+              영구삭제
             </button>
           </div>
           <div className="content-cms-toolbar__right">
@@ -924,9 +948,9 @@ function ContentManagement() {
 
         <ConfirmModal
           isOpen={Boolean(confirmState)}
-          title="삭제 확인"
+          title={confirmState?.title ?? '삭제 확인'}
           message={confirmState?.message ?? ''}
-          confirmLabel="삭제"
+          confirmLabel={confirmState?.confirmLabel ?? '삭제'}
           isSubmitting={isSubmitting}
           onCancel={() => {
             if (!isSubmitting) {
