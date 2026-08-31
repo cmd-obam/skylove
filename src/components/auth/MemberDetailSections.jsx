@@ -161,6 +161,7 @@ export function MemberDetailSections({
         rows={[
           { label: '이름', value: displayValue(member.name) },
           { label: '아이디', value: displayValue(member.username) },
+          { label: '닉네임', value: displayValue(member.nickname) },
           {
             label: '이메일',
             value: (
