@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { FiChevronDown, FiPlus, FiSearch } from 'react-icons/fi'
 import PurgedPostsModal from '@/components/admin/PurgedPostsModal'
 import MemberMypageLayout from '@/components/auth/MemberMypageLayout'
 import { useSuperAdmin } from '@/hooks/useSuperAdmin'
@@ -17,6 +18,7 @@ import {
   getCommentDeepLink,
   getMemberDetailPath,
   getBoardDetailPath,
+  getBoardWritePath,
 } from '@/utils/boardPaths'
 import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 import '@/pages/MemberManagement.css'
@@ -211,6 +213,9 @@ function ContentManagement() {
   })
   const [appliedFilters, setAppliedFilters] = useState(draftFilters)
   const [purgedModalOpen, setPurgedModalOpen] = useState(false)
+  const [advancedSearchOpen, setAdvancedSearchOpen] = useState(false)
+  const [writeMenuOpen, setWriteMenuOpen] = useState(false)
+  const writeMenuRef = useRef(null)
 
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize))
 
@@ -249,6 +254,21 @@ function ContentManagement() {
   useEffect(() => {
     loadRows()
   }, [loadRows])
+
+  useEffect(() => {
+    if (!writeMenuOpen) {
+      return undefined
+    }
+
+    const handlePointerDown = (event) => {
+      if (writeMenuRef.current && !writeMenuRef.current.contains(event.target)) {
+        setWriteMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handlePointerDown)
+    return () => document.removeEventListener('mousedown', handlePointerDown)
+  }, [writeMenuOpen])
 
   const allSelected = rows.length > 0 && selectedIds.length === rows.length
 
@@ -386,21 +406,48 @@ function ContentManagement() {
   const statusOptions = tab === 'posts' ? POST_STATUS_OPTIONS : COMMENT_STATUS_OPTIONS
 
   const pageLabel = useMemo(
-    () => `${totalCount.toLocaleString()}건 · ${page}/${totalPages}페이지`,
+    () => `총 ${totalCount.toLocaleString()}건 | ${page}/${totalPages} 페이지`,
     [page, totalCount, totalPages],
   )
 
   return (
     <MemberMypageLayout>
       <div className="member-management-page content-cms-page">
-        <header className="member-management-page__header">
-          <h1 className="member-management-page__title">게시글 & 댓글 관리</h1>
-          <p className="member-management-page__subtitle">
-            최고관리자 전용 CMS입니다. 검색·필터·정렬·대량 작업은 서버에서 처리됩니다.
-          </p>
-        </header>
+        <div className="content-cms-topbar">
+          <h1 className="content-cms-topbar__title">게시글 & 댓글 관리</h1>
+          {tab === 'posts' ? (
+            <div className="content-cms-topbar__write" ref={writeMenuRef}>
+              <button
+                type="button"
+                className="content-cms-topbar__write-button"
+                onClick={() => setWriteMenuOpen((current) => !current)}
+                aria-expanded={writeMenuOpen}
+                aria-haspopup="menu"
+              >
+                <FiPlus aria-hidden="true" />
+                새 게시글 작성
+                <FiChevronDown className="content-cms-topbar__write-chevron" aria-hidden="true" />
+              </button>
+              {writeMenuOpen ? (
+                <div className="content-cms-topbar__write-menu" role="menu">
+                  {BOARD_POST_TYPES.map((board) => (
+                    <Link
+                      key={board.id}
+                      to={getBoardWritePath(board.id)}
+                      className="content-cms-topbar__write-item"
+                      role="menuitem"
+                      onClick={() => setWriteMenuOpen(false)}
+                    >
+                      {board.label}
+                    </Link>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
 
-        <div className="content-cms-tabs" role="tablist" aria-label="콘텐츠 관리 탭">
+        <div className="content-cms-tabs content-cms-tabs--pill" role="tablist" aria-label="콘텐츠 관리 탭">
           <button
             type="button"
             role="tab"
@@ -429,85 +476,38 @@ function ContentManagement() {
           </button>
         </div>
 
-        <form className="content-cms-filters" onSubmit={applySearch} autoComplete="off">
-          <div className="content-cms-filters__row">
-            <select
-              value={draftFilters.searchField}
-              onChange={(event) =>
-                setDraftFilters((current) => ({ ...current, searchField: event.target.value }))
-              }
-              aria-label="검색 조건"
+        <form className="content-cms-search" onSubmit={applySearch} autoComplete="off">
+          <div className="content-cms-search__main">
+            <label className="content-cms-search__input-wrap">
+              <FiSearch className="content-cms-search__icon" aria-hidden="true" />
+              <input
+                type="search"
+                className="content-cms-search__input"
+                placeholder="검색어 입력"
+                value={draftFilters.search}
+                onChange={(event) =>
+                  setDraftFilters((current) => ({ ...current, search: event.target.value }))
+                }
+                autoComplete={AUTOCOMPLETE_OFF}
+              />
+            </label>
+
+            <button
+              type="button"
+              className={`content-cms-search__advanced${advancedSearchOpen ? ' is-open' : ''}`}
+              onClick={() => setAdvancedSearchOpen((current) => !current)}
+              aria-expanded={advancedSearchOpen}
             >
-              {SEARCH_FIELDS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-            <input
-              type="search"
-              className="member-management-page__search-input"
-              placeholder="검색어"
-              value={draftFilters.search}
-              onChange={(event) =>
-                setDraftFilters((current) => ({ ...current, search: event.target.value }))
-              }
-              autoComplete={AUTOCOMPLETE_OFF}
-            />
-            <button type="submit" className="member-management-page__search-button">
+              상세 검색
+              <FiChevronDown className="content-cms-search__advanced-icon" aria-hidden="true" />
+            </button>
+
+            <button type="submit" className="content-cms-search__submit">
               검색
             </button>
-          </div>
-
-          <div className="content-cms-filters__row content-cms-filters__row--wrap">
-            <select
-              value={draftFilters.postType}
-              onChange={(event) =>
-                setDraftFilters((current) => ({ ...current, postType: event.target.value }))
-              }
-              aria-label="게시판"
-            >
-              <option value="">게시판 전체</option>
-              {BOARD_POST_TYPES.map((board) => (
-                <option key={board.id} value={board.id}>
-                  {board.label}
-                </option>
-              ))}
-            </select>
 
             <select
-              value={draftFilters.status}
-              onChange={(event) =>
-                setDraftFilters((current) => ({ ...current, status: event.target.value }))
-              }
-              aria-label="상태"
-            >
-              {statusOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-
-            <select
-              value={draftFilters.sort}
-              onChange={(event) =>
-                setDraftFilters((current) => ({ ...current, sort: event.target.value }))
-              }
-              aria-label="정렬"
-            >
-              {SORT_OPTIONS.filter((option) =>
-                tab === 'comments'
-                  ? !['views', 'comments', 'likes'].includes(option.value)
-                  : true,
-              ).map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-
-            <select
+              className="content-cms-search__select"
               value={draftFilters.period}
               onChange={(event) =>
                 setDraftFilters((current) => ({ ...current, period: event.target.value }))
@@ -553,29 +553,98 @@ function ContentManagement() {
             ) : null}
           </div>
 
-          {draftFilters.period === 'custom' ? (
-            <div className="content-cms-filters__row">
-              <input
-                type="date"
-                value={draftFilters.dateFrom}
+          {advancedSearchOpen ? (
+            <div className="content-cms-search__panel">
+              <select
+                value={draftFilters.searchField}
                 onChange={(event) =>
-                  setDraftFilters((current) => ({ ...current, dateFrom: event.target.value }))
+                  setDraftFilters((current) => ({ ...current, searchField: event.target.value }))
                 }
-              />
-              <span>~</span>
-              <input
-                type="date"
-                value={draftFilters.dateTo}
+                aria-label="검색 조건"
+              >
+                {SEARCH_FIELDS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+
+              {tab === 'posts' ? (
+                <select
+                  value={draftFilters.postType}
+                  onChange={(event) =>
+                    setDraftFilters((current) => ({ ...current, postType: event.target.value }))
+                  }
+                  aria-label="게시판"
+                >
+                  <option value="">게시판 전체</option>
+                  {BOARD_POST_TYPES.map((board) => (
+                    <option key={board.id} value={board.id}>
+                      {board.label}
+                    </option>
+                  ))}
+                </select>
+              ) : null}
+
+              <select
+                value={draftFilters.status}
                 onChange={(event) =>
-                  setDraftFilters((current) => ({ ...current, dateTo: event.target.value }))
+                  setDraftFilters((current) => ({ ...current, status: event.target.value }))
                 }
-              />
+                aria-label="상태"
+              >
+                {statusOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={draftFilters.sort}
+                onChange={(event) =>
+                  setDraftFilters((current) => ({ ...current, sort: event.target.value }))
+                }
+                aria-label="정렬"
+              >
+                {SORT_OPTIONS.filter((option) =>
+                  tab === 'comments'
+                    ? !['views', 'comments', 'likes'].includes(option.value)
+                    : true,
+                ).map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+
+              {draftFilters.period === 'custom' ? (
+                <div className="content-cms-search__dates">
+                  <input
+                    type="date"
+                    value={draftFilters.dateFrom}
+                    onChange={(event) =>
+                      setDraftFilters((current) => ({ ...current, dateFrom: event.target.value }))
+                    }
+                    aria-label="시작일"
+                  />
+                  <span>~</span>
+                  <input
+                    type="date"
+                    value={draftFilters.dateTo}
+                    onChange={(event) =>
+                      setDraftFilters((current) => ({ ...current, dateTo: event.target.value }))
+                    }
+                    aria-label="종료일"
+                  />
+                </div>
+              ) : null}
             </div>
           ) : null}
         </form>
 
-        <div className="content-cms-toolbar">
-          <div className="content-cms-toolbar__left">
+        <div className="content-cms-actions">
+          <div className="content-cms-actions__bulk">
             <button type="button" onClick={toggleSelectAll}>
               {allSelected ? '전체해제' : '전체선택'}
             </button>
@@ -591,14 +660,6 @@ function ContentManagement() {
             <button type="button" onClick={() => runBulkAction('restore')} disabled={isSubmitting}>
               선택복구
             </button>
-            <button
-              type="button"
-              className="is-danger"
-              onClick={() => runBulkAction('trash')}
-              disabled={isSubmitting}
-            >
-              선택삭제
-            </button>
             {isSuperAdmin && tab === 'posts' ? (
               <>
                 <button
@@ -611,7 +672,7 @@ function ContentManagement() {
                 </button>
                 <button
                   type="button"
-                  className="content-cms-toolbar__purge-list"
+                  className="content-cms-actions__purge-list"
                   onClick={() => setPurgedModalOpen(true)}
                   disabled={isSubmitting}
                 >
@@ -620,9 +681,43 @@ function ContentManagement() {
               </>
             ) : null}
           </div>
-          <div className="content-cms-toolbar__right">
-            <span>{pageLabel}</span>
+
+          <div className="content-cms-actions__meta">
+            <button
+              type="button"
+              className="content-cms-actions__delete"
+              onClick={() => runBulkAction('trash')}
+              disabled={isSubmitting}
+            >
+              선택 삭제
+            </button>
+
+            <div className="content-cms-actions__pager" aria-label="페이지 이동">
+              <button
+                type="button"
+                className="content-cms-actions__pager-button"
+                disabled={page <= 1}
+                onClick={() => setPage((current) => current - 1)}
+                aria-label="이전 페이지"
+              >
+                ‹
+              </button>
+              <span className="content-cms-actions__pager-current">{page}</span>
+              <button
+                type="button"
+                className="content-cms-actions__pager-button"
+                disabled={page >= totalPages}
+                onClick={() => setPage((current) => current + 1)}
+                aria-label="다음 페이지"
+              >
+                ›
+              </button>
+            </div>
+
+            <span className="content-cms-actions__count">{pageLabel}</span>
+
             <select
+              className="content-cms-actions__page-size"
               value={pageSize}
               onChange={(event) => {
                 setPageSize(Number(event.target.value))
@@ -944,22 +1039,6 @@ function ContentManagement() {
               </article>
             ))
           )}
-        </div>
-
-        <div className="content-cms-pagination">
-          <button type="button" disabled={page <= 1} onClick={() => setPage((current) => current - 1)}>
-            이전
-          </button>
-          <span>
-            {page} / {totalPages}
-          </span>
-          <button
-            type="button"
-            disabled={page >= totalPages}
-            onClick={() => setPage((current) => current + 1)}
-          >
-            다음
-          </button>
         </div>
 
         <ConfirmModal

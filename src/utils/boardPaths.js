@@ -66,6 +66,22 @@ export function getMemberDetailPath(userId) {
   return `/member/management/${userId}`
 }
 
+export function getBoardWritePath(postType) {
+  switch (postType) {
+    case 'album':
+      return '/album/write'
+    case 'pastor_story':
+      return '/pastor-story/write'
+    case 'sunday_sermon':
+      return '/worship-word/sunday/write'
+    case 'el_shaddai_choir':
+      return '/worship-word/el-shaddai/write'
+    case 'church_news':
+    default:
+      return '/news/write'
+  }
+}
+
 /** Map write/edit aliases onto public list paths for category sidebar matching */
 export function resolveMenuAliasPath(pathname) {
   if (pathname === '/news/write' || pathname.startsWith('/news/edit/')) {
