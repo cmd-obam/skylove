@@ -27,6 +27,34 @@ import { PII_FIELD } from '@/utils/maskPii'
 import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 import './MemberManagement.css'
 
+function MemberNameCell({ name, nickname, username, showNickname, onToggle }) {
+  const nicknameText = String(nickname ?? '').trim()
+  const usernameText = String(username ?? '').trim()
+  const alternateName = nicknameText || usernameText
+  const hasAlternate = Boolean(alternateName) && alternateName !== String(name ?? '').trim()
+  const displayName = showNickname && hasAlternate ? alternateName : name
+  const toggleLabel = showNickname ? '이름' : nicknameText ? '닉네임' : '아이디'
+
+  return (
+    <div className="member-management-page__name-cell">
+      <span className="member-management-page__name-text" title={displayName || undefined}>
+        {displayName || '-'}
+      </span>
+      {hasAlternate ? (
+        <button
+          type="button"
+          className="member-management-page__name-toggle"
+          onClick={onToggle}
+          aria-pressed={showNickname}
+          title={showNickname ? '이름 보기' : `${toggleLabel} 보기`}
+        >
+          {toggleLabel}
+        </button>
+      ) : null}
+    </div>
+  )
+}
+
 function ConfirmModal({
   isOpen,
   title,
@@ -163,6 +191,14 @@ function MemberManagement() {
   const [unlinkingUserId, setUnlinkingUserId] = useState('')
   const [linkModalMember, setLinkModalMember] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [nicknameVisibleByUserId, setNicknameVisibleByUserId] = useState({})
+
+  const toggleNameNickname = (userId) => {
+    setNicknameVisibleByUserId((current) => ({
+      ...current,
+      [userId]: !current[userId],
+    }))
+  }
 
   const loadLinkedAccounts = useCallback(async (userId) => {
     if (!userId) {
@@ -432,7 +468,15 @@ function MemberManagement() {
 
                   return (
                     <tr key={member.user_id}>
-                      <td>{member.name}</td>
+                      <td>
+                        <MemberNameCell
+                          name={member.name}
+                          nickname={member.nickname}
+                          username={member.username}
+                          showNickname={Boolean(nicknameVisibleByUserId[member.user_id])}
+                          onToggle={() => toggleNameNickname(member.user_id)}
+                        />
+                      </td>
                       <td className="member-management-page__pii-cell">
                         <div className="member-management-page__email-actions">
                           <MaskedPiiField
