@@ -95,7 +95,10 @@ export async function recordTrafficEventIfNeeded({ user = null } = {}) {
 
   const authUser = user
   const isMember = Boolean(authUser?.id)
-  const dayKey = `${visitorKey}_${getKoreaDayString()}`
+  const dayString = getKoreaDayString()
+  const dayKey = isMember
+    ? `member_${authUser.id}_${dayString}`
+    : `${visitorKey}_${dayString}`
   const shouldUpgradeToMember = isMember && !trafficRecordedAsMemberByDayKey.has(dayKey)
   const lastTouch = lastTrafficTouchAtByDayKey.get(dayKey) || 0
   const recentlyTouched = Date.now() - lastTouch < TRAFFIC_TOUCH_MIN_INTERVAL_MS
