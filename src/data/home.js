@@ -78,7 +78,7 @@ export const HOME_STORY = {
 
 /**
  * 홈 교회 이야기 카드 (왼쪽부터)
- * 1. 예배말씀 최신 / 2. 엘샤다이 찬양단 최신 / 3. 교회소식 최신 / 4. 교회앨범 최신 / 5. 담임목사 이야기 최신
+ * 1. 예배말씀 최신 / 2. 교회소식 최신 / 3. 담임목사 이야기 최신
  */
 export const HOME_STORY_SOURCES = [
   {
@@ -91,28 +91,12 @@ export const HOME_STORY_SOURCES = [
     detailPath: (postId) => `/worship-word/sunday/${postId}`,
   },
   {
-    id: 'el_shaddai_choir',
-    postType: 'el_shaddai_choir',
-    badgeLabel: '엘샤다이 찬양단',
-    featured: false,
-    listPath: '/worship-word/el-shaddai',
-    detailPath: (postId) => `/worship-word/el-shaddai/${postId}`,
-  },
-  {
     id: 'church_news',
     postType: 'church_news',
     badgeLabel: '교회소식',
     featured: false,
     listPath: '/church-news',
     detailPath: (postId) => `/church-news/${postId}`,
-  },
-  {
-    id: 'album',
-    postType: 'album',
-    badgeLabel: '교회앨범',
-    featured: false,
-    listPath: '/church-news/album',
-    detailPath: (postId) => `/church-news/album/${postId}`,
   },
   {
     id: 'pastor_story',

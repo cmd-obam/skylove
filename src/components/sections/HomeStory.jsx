@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FaChurch } from 'react-icons/fa'
-import { FiBookOpen, FiChevronLeft, FiChevronRight, FiImage, FiMusic } from 'react-icons/fi'
+import { FiBookOpen, FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 import { HiOutlineSpeakerphone } from 'react-icons/hi'
 import { HOME_STORY, HOME_STORY_SOURCES } from '@/data/home'
 import HomeSectionHeader from '@/components/sections/HomeSectionHeader'
@@ -19,9 +19,7 @@ const BULLETIN_PREVIEW_TEXT = '클릭해서 주보 내용을 확인하세요.'
 
 const BADGE_ICONS = {
   sunday_sermon: FaChurch,
-  el_shaddai_choir: FiMusic,
   church_news: HiOutlineSpeakerphone,
-  album: FiImage,
   pastor_story: FiBookOpen,
 }
 
