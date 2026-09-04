@@ -81,7 +81,7 @@
 .about-page__quote-open,
 .about-page__quote-close {
   position: absolute;
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: clamp(2rem, 4vw, 3.25rem);
   font-weight: 600;
   line-height: 1;

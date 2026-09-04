@@ -85,7 +85,7 @@
   flex-shrink: 1;
   width: 100%;
   margin: 0;
-  font-family: 'Nanum Myeongjo', 'Noto Serif KR', serif;
+  font-family: 'Nanum Myeongjo', serif;
   font-size: clamp(1.0625rem, 7.8cqi, 2.125rem);
   font-weight: 800;
   font-synthesis: none;

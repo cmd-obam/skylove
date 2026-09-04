@@ -218,7 +218,7 @@
 .worship-template__intro--banner .worship-template__intro-title,
 .worship-template__intro--banner .worship-template__description,
 .worship-template__intro--banner .worship-template__description--rich {
-  font-family: 'Nanum Myeongjo', 'Noto Serif KR', serif;
+  font-family: 'Nanum Myeongjo', serif;
   font-synthesis: none;
   overflow-wrap: normal;
   word-break: keep-all;
@@ -311,7 +311,7 @@
 }
 
 .worship-template__intro--typography-classic .worship-template__headline {
-  font-family: 'Nanum Myeongjo', 'Noto Serif KR', serif;
+  font-family: 'Nanum Myeongjo', serif;
   font-size: clamp(2rem, 4vw, 2.5rem);
   font-weight: 800;
   line-height: 1.35;

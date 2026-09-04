@@ -161,7 +161,7 @@
 
 .home-welcome .home-section__title {
   margin-left: 0;
-  font-family: 'Nanum Myeongjo', 'Noto Serif KR', serif;
+  font-family: 'Nanum Myeongjo', serif;
   font-size: clamp(2.05rem, 3.5vw, 3rem);
   font-weight: 700;
   line-height: 1.42;
