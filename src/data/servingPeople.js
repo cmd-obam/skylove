@@ -8,15 +8,21 @@
 
 import kimHyemiPhoto from '@/assets/images/serving-people/kim-hyemi.jpg'
 import hanChanwooPhoto from '@/assets/images/serving-people/han-chanwoo.jpg'
-import kimNamyeonPhoto from '@/assets/images/serving-people/kim-namyeon.jpg'
-import kimYeongseongPhoto from '@/assets/images/serving-people/kim-yeongseong.jpg'
+import kimNamyeonPhoto from '@/assets/images/serving-people/kim-namyeon.png'
+import kimYeongseongPhoto from '@/assets/images/serving-people/kim-yeongseong.png'
 import simMinseopPhoto from '@/assets/images/serving-people/sim-minseop.jpg'
 import choiSeongminPhoto from '@/assets/images/serving-people/choi-seongmin.jpg'
 import hanJaeseokPhoto from '@/assets/images/serving-people/han-jaeseok.jpg'
 import choiSeokrimPhoto from '@/assets/images/serving-people/choi-seokrim.jpg'
 import kimYeongaePhoto from '@/assets/images/serving-people/kim-yeongae.jpg'
-import kimHyegyeongPhoto from '@/assets/images/serving-people/kim-hyegyeong.jpg'
+import kimHyegyeongPhoto from '@/assets/images/serving-people/kim-hyegyeong.png'
 import jeongJiyePhoto from '@/assets/images/serving-people/jeong-jiye.png'
+import kangJunguPhoto from '@/assets/images/serving-people/kang-jungu.png'
+import kimJinsunPhoto from '@/assets/images/serving-people/kim-jinsun.png'
+import leeJaeyeonPhoto from '@/assets/images/serving-people/lee-jaeyeon.png'
+import kimHyejuPhoto from '@/assets/images/serving-people/kim-hyeju.png'
+import kimJinmoPhoto from '@/assets/images/serving-people/kim-jinmo.png'
+import joChanggyeongPhoto from '@/assets/images/serving-people/jo-changgyeong.png'
 
 export const SERVING_PEOPLE_PAGE_INTRO = {
   title: '섬기는 사람들',
@@ -73,7 +79,7 @@ export const CLERGY_GROUPS = [
         id: 'clergy-kim-jinsun',
         name: '김진순',
         role: '원로권사',
-        photoUrl: null,
+        photoUrl: kimJinsunPhoto,
         sortOrder: 1,
       },
     ],
@@ -87,7 +93,7 @@ export const CLERGY_GROUPS = [
         id: 'clergy-jo-changgyeong',
         name: '조창경',
         role: '권사',
-        photoUrl: null,
+        photoUrl: joChanggyeongPhoto,
         sortOrder: 1,
       },
       {
@@ -101,7 +107,7 @@ export const CLERGY_GROUPS = [
         id: 'clergy-kang-jungu',
         name: '강준구',
         role: '권사',
-        photoUrl: null,
+        photoUrl: kangJunguPhoto,
         sortOrder: 3,
       },
       {
@@ -136,7 +142,7 @@ export const CLERGY_GROUPS = [
         id: 'clergy-lee-jaeyeon',
         name: '이재연',
         role: '집사',
-        photoUrl: null,
+        photoUrl: leeJaeyeonPhoto,
         sortOrder: 3,
       },
       {
@@ -161,7 +167,7 @@ export const MINISTER_GROUPS = [
         id: 'minister-lee-jaeyeon',
         name: '이재연',
         role: '간사',
-        photoUrl: null,
+        photoUrl: leeJaeyeonPhoto,
         sortOrder: 1,
       },
     ],
@@ -209,14 +215,14 @@ export const MINISTER_GROUPS = [
         id: 'minister-lee-jaeyeon-choir',
         name: '이재연',
         role: '단장/집사',
-        photoUrl: null,
+        photoUrl: leeJaeyeonPhoto,
         sortOrder: 1,
       },
       {
         id: 'minister-el-kim-hyeju',
         name: '김혜주',
         role: '단원',
-        photoUrl: null,
+        photoUrl: kimHyejuPhoto,
         sortOrder: 2,
       },
       {
@@ -248,10 +254,10 @@ export const MINISTER_GROUPS = [
         sortOrder: 6,
       },
       {
-        id: 'minister-el-kang-jinmo',
-        name: '강진모',
+        id: 'minister-el-kim-jinmo',
+        name: '김진모',
         role: '드럼',
-        photoUrl: null,
+        photoUrl: kimJinmoPhoto,
         sortOrder: 7,
       },
     ],
