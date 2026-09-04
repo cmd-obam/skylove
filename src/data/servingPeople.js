@@ -6,15 +6,15 @@
  * - groups[].people / subgroups[].people 순서는 sortOrder 기준
  */
 
-import kimHyemiPhoto from '@/assets/images/serving-people/kim-hyemi.jpg'
-import hanChanwooPhoto from '@/assets/images/serving-people/han-chanwoo.jpg'
+import kimHyemiPhoto from '@/assets/images/serving-people/kim-hyemi.png'
+import hanChanwooPhoto from '@/assets/images/serving-people/han-chanwoo.png'
 import kimNamyeonPhoto from '@/assets/images/serving-people/kim-namyeon.png'
 import kimYeongseongPhoto from '@/assets/images/serving-people/kim-yeongseong.png'
-import simMinseopPhoto from '@/assets/images/serving-people/sim-minseop.jpg'
-import choiSeongminPhoto from '@/assets/images/serving-people/choi-seongmin.jpg'
-import hanJaeseokPhoto from '@/assets/images/serving-people/han-jaeseok.jpg'
-import choiSeokrimPhoto from '@/assets/images/serving-people/choi-seokrim.jpg'
-import kimYeongaePhoto from '@/assets/images/serving-people/kim-yeongae.jpg'
+import simMinseopPhoto from '@/assets/images/serving-people/sim-minseop.png'
+import choiSeongminPhoto from '@/assets/images/serving-people/choi-seongmin.png'
+import hanJaeseokPhoto from '@/assets/images/serving-people/han-jaeseok.png'
+import choiSeokrimPhoto from '@/assets/images/serving-people/choi-seokrim.png'
+import kimYeongaePhoto from '@/assets/images/serving-people/kim-yeongae.png'
 import kimHyegyeongPhoto from '@/assets/images/serving-people/kim-hyegyeong.png'
 import jeongJiyePhoto from '@/assets/images/serving-people/jeong-jiye.png'
 import kangJunguPhoto from '@/assets/images/serving-people/kang-jungu.png'
