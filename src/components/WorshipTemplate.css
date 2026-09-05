@@ -45,11 +45,11 @@
 
 .worship-template__title {
   margin: 0;
-  font-size: clamp(1.75rem, 4vw, 2.25rem);
-  font-weight: 700;
-  line-height: 1.3;
+  font-size: var(--fs-page-title);
+  font-weight: var(--fw-page-title);
+  line-height: var(--lh-page-title);
   color: #1f2d3d;
-  letter-spacing: -0.02em;
+  letter-spacing: var(--ls-page-title);
 }
 
 .worship-template__subtitle {
@@ -228,9 +228,10 @@
   flex-shrink: 1;
   width: 100%;
   margin: 0;
-  font-size: clamp(1.0625rem, 7.8cqi, 2.125rem);
-  font-weight: 800;
-  line-height: 1.34;
+  font-size: var(--fs-section-title);
+  font-weight: var(--fw-section-title);
+  line-height: var(--lh-section-title);
+  letter-spacing: var(--ls-section-title);
   color: #1f2d3d;
   text-align: center;
 }
@@ -312,9 +313,10 @@
 
 .worship-template__intro--typography-classic .worship-template__headline {
   font-family: 'Nanum Myeongjo', serif;
-  font-size: clamp(2rem, 4vw, 2.5rem);
-  font-weight: 800;
-  line-height: 1.35;
+  font-size: var(--fs-section-title);
+  font-weight: var(--fw-section-title);
+  line-height: var(--lh-section-title);
+  letter-spacing: var(--ls-section-title);
   color: #1f2d3d;
   font-synthesis: none;
   overflow-wrap: normal;
@@ -327,8 +329,9 @@
 
 .worship-template__intro--banner.worship-template__intro--typography-classic .worship-template__headline,
 .worship-template__intro--banner.worship-template__intro--typography-classic .worship-template__headline-line {
-  font-size: clamp(1.0625rem, 7.8cqi, 2.125rem);
-  line-height: 1.34;
+  font-size: var(--fs-section-title);
+  font-weight: var(--fw-section-title);
+  line-height: var(--lh-section-title);
   color: #2f6fad;
 }
 
@@ -767,8 +770,8 @@
     .worship-template__headline,
   .mobile-banner-expand.worship-template__intro--banner.worship-template__intro--typography-classic
     .worship-template__headline-line {
-    font-size: clamp(1.0625rem, 7.8cqi, 2.125rem);
-    font-weight: 800;
-    line-height: 1.34;
+    font-size: var(--fs-section-title);
+    font-weight: var(--fw-section-title);
+    line-height: var(--lh-section-title);
   }
 }

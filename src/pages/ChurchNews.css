@@ -171,9 +171,9 @@
 .event-photos-card__title {
   margin: 0;
   overflow: hidden;
-  font-size: 1rem;
-  font-weight: 600;
-  line-height: 1.45;
+  font-size: var(--fs-card-title);
+  font-weight: var(--fw-card-title);
+  line-height: var(--lh-card-title);
   color: #1f3a5f;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -710,9 +710,9 @@
   margin: 0;
   flex: 1;
   min-width: 0;
-  font-size: 1.125rem;
-  font-weight: 700;
-  line-height: 1.45;
+  font-size: var(--fs-card-title);
+  font-weight: var(--fw-card-title);
+  line-height: var(--lh-card-title);
   color: #1f2d3d;
   word-break: keep-all;
 }

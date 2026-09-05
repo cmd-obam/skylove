@@ -59,8 +59,8 @@
 .navigation__link {
   display: block;
   padding: 1.125rem 0.75rem;
-  font-size: 17px;
-  font-weight: 500;
+  font-size: var(--fs-nav);
+  font-weight: var(--fw-nav);
   color: var(--color-white);
   text-decoration: none;
   letter-spacing: 0.01em;

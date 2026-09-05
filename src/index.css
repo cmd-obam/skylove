@@ -16,8 +16,10 @@ html {
 body {
   margin: 0;
   font-family: var(--font-family);
-  font-size: clamp(16px, 1.05vw, 18px);
-  line-height: 1.6;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-body);
+  line-height: var(--lh-body);
+  letter-spacing: var(--ls-body);
   color: var(--color-text);
   background-color: var(--color-bg);
   -webkit-font-smoothing: antialiased;

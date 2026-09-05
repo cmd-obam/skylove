@@ -75,11 +75,11 @@
 
 .nf-hero__main-line {
   font-family: 'Nanum Myeongjo', serif;
-  font-size: clamp(1.25rem, 10.2cqi, 2.75rem);
-  font-weight: 800;
-  line-height: 1.3;
+  font-size: var(--fs-hero-title);
+  font-weight: var(--fw-hero-title);
+  line-height: var(--lh-hero-title);
+  letter-spacing: var(--ls-hero-title);
   color: #1e3a5f;
-  letter-spacing: -0.03em;
   word-break: keep-all;
 }
 
@@ -104,11 +104,11 @@
 .nf-hero__subcopy-line {
   display: block;
   font-family: 'Noto Sans KR', var(--font-family-brand), sans-serif;
-  font-size: clamp(0.8125rem, 4.5cqi, 1.0625rem);
-  font-weight: 400;
-  line-height: 1.7;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-body);
+  line-height: var(--lh-body);
   color: #3d4a5c;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--ls-body);
   word-break: keep-all;
 }
 

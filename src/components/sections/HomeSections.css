@@ -26,18 +26,19 @@
 .home-section__eyebrow {
   margin: 0 0 0.75rem;
   font-family: var(--font-family-en);
-  font-size: 0.875rem;
-  font-weight: 500;
-  letter-spacing: 0.2em;
+  font-size: var(--fs-eyebrow);
+  font-weight: var(--fw-eyebrow);
+  letter-spacing: var(--ls-eyebrow);
   color: var(--color-text-muted);
   text-transform: uppercase;
 }
 
 .home-section__title {
   margin: 0;
-  font-size: 2rem;
-  font-weight: 700;
-  line-height: 1.35;
+  font-size: var(--fs-section-title);
+  font-weight: var(--fw-section-title);
+  line-height: var(--lh-section-title);
+  letter-spacing: var(--ls-section-title);
   color: var(--color-text);
 }
 
@@ -150,8 +151,8 @@
 
 .home-welcome .home-section__eyebrow {
   margin-bottom: 0.9rem;
-  font-size: 1rem;
-  letter-spacing: 0.16em;
+  font-size: var(--fs-eyebrow);
+  letter-spacing: var(--ls-eyebrow);
   color: #7d937c;
 }
 
@@ -162,10 +163,10 @@
 .home-welcome .home-section__title {
   margin-left: 0;
   font-family: 'Nanum Myeongjo', serif;
-  font-size: clamp(2.05rem, 3.5vw, 3rem);
-  font-weight: 700;
-  line-height: 1.42;
-  letter-spacing: -0.03em;
+  font-size: var(--fs-section-title);
+  font-weight: var(--fw-section-title);
+  line-height: var(--lh-section-title);
+  letter-spacing: var(--ls-section-title);
 }
 
 .home-welcome .home-section__title-line {
@@ -181,8 +182,10 @@
 .home-welcome__description {
   margin: 1.8rem 0 2.25rem;
   padding-left: 1rem;
-  font-size: 1.25rem;
-  line-height: 1.95;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-body);
+  line-height: var(--lh-body);
+  letter-spacing: var(--ls-body);
   color: #4e5550;
 }
 
@@ -297,7 +300,7 @@
 
 .home-story .home-section__eyebrow {
   color: var(--color-primary);
-  letter-spacing: 0.18em;
+  letter-spacing: var(--ls-eyebrow);
 }
 
 .home-story .home-section__title::after {
@@ -949,11 +952,11 @@
   }
 
   .home-section__title {
-    font-size: 1.625rem;
+    font-size: var(--fs-section-title);
   }
 
   .home-welcome .home-section__eyebrow {
-    font-size: 0.9375rem;
+    font-size: var(--fs-eyebrow);
     margin-bottom: 0.5rem;
   }
 
@@ -962,10 +965,10 @@
   .home-worship .home-section__title {
     margin-left: 0;
     font-family: var(--font-family);
-    font-size: 1.625rem;
-    font-weight: 700;
-    line-height: 1.35;
-    letter-spacing: normal;
+    font-size: var(--fs-section-title);
+    font-weight: var(--fw-section-title);
+    line-height: var(--lh-section-title);
+    letter-spacing: var(--ls-section-title);
   }
 
   .home-welcome .home-section__title-line {
@@ -1007,8 +1010,8 @@
   .home-welcome__description {
     margin: 0.85rem 0 1.15rem;
     padding-left: 1rem;
-    font-size: 0.9375rem;
-    line-height: 1.6;
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
   }
 
   .home-welcome__links {

@@ -104,8 +104,8 @@
 .site-header__link {
   display: block;
   padding: 0.5rem 0.5rem;
-  font-size: 20px;
-  font-weight: 600;
+  font-size: var(--fs-nav);
+  font-weight: var(--fw-nav);
   color: #2a2a2a;
   text-decoration: none;
   white-space: nowrap;
@@ -450,7 +450,7 @@
 
   .site-header__link {
     padding: 0.5rem 0.25rem;
-    font-size: 18px;
+    font-size: var(--fs-nav);
   }
 
   .site-header__title {
@@ -469,7 +469,7 @@
 @media (max-width: 1100px) {
   .site-header__link {
     padding: 0.5rem 0.125rem;
-    font-size: 17px;
+    font-size: var(--fs-nav);
   }
 
   .site-header__title {

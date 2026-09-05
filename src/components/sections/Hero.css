@@ -120,10 +120,10 @@
   margin: 0 0 1.25rem;
   max-width: 32rem;
   font-family: 'Nanum Myeongjo', serif;
-  font-size: clamp(2rem, 4.6vw, 3rem);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.28;
+  font-size: var(--fs-hero-title);
+  font-weight: var(--fw-hero-title);
+  letter-spacing: var(--ls-hero-title);
+  line-height: var(--lh-hero-title);
   color: var(--color-white);
   text-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);
 }
@@ -139,9 +139,10 @@
 .hero__subtitle {
   margin: 0 0 2.5rem;
   max-width: 40rem;
-  font-size: 1.25rem;
-  font-weight: 400;
-  line-height: 1.7;
+  font-size: var(--fs-hero-subtitle);
+  font-weight: var(--fw-hero-subtitle);
+  line-height: var(--lh-hero-subtitle);
+  letter-spacing: var(--ls-hero-subtitle);
   color: rgba(255, 255, 255, 0.92);
 }
 
@@ -170,8 +171,8 @@
   justify-content: center;
   min-width: 0;
   padding: 16px clamp(1.5rem, 4vw, 48px);
-  font-size: 1rem;
-  font-weight: 500;
+  font-size: var(--fs-hero-btn);
+  font-weight: var(--fw-hero-btn);
   text-decoration: none;
   border-radius: 50px;
   transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
@@ -233,7 +234,6 @@
 
 @media (max-width: 992px) {
   .hero__title {
-    font-size: clamp(1.75rem, 5.8vw, 2.5rem);
     max-width: none;
   }
 }
@@ -281,9 +281,6 @@
     max-width: 100%;
     margin-bottom: 0.4rem;
     gap: 0;
-    font-size: clamp(0.95rem, 4.2vw, 1.25rem);
-    line-height: 1.2;
-    letter-spacing: -0.03em;
   }
 
   .hero__title-line {
@@ -301,8 +298,6 @@
   .hero__subtitle {
     max-width: 100%;
     margin-bottom: 0.7rem;
-    font-size: 0.75rem;
-    line-height: 1.4;
   }
 
   .hero__subtitle-line--spaced {
@@ -323,7 +318,6 @@
     /* ~12% smaller than previous mobile padding */
     padding: 7px 0.8rem;
     border: 1.5px solid transparent;
-    font-size: 0.7rem;
     line-height: 1.2;
     white-space: nowrap;
   }
@@ -359,36 +353,22 @@
     max-width: min(100%, 17.25rem);
   }
 
-  .hero__title {
-    font-size: clamp(0.9rem, 4vw, 1.15rem);
-    line-height: 1.18;
-  }
-
-  .hero__subtitle {
-    font-size: 0.7rem;
-    line-height: 1.35;
-  }
-
   .hero__btn {
     padding: 6px 0.7rem;
-    font-size: 0.66rem;
   }
 }
 
 @media (max-width: 390px) {
   .hero__title {
-    font-size: clamp(0.875rem, 3.9vw, 1.05rem);
     margin-bottom: 0.35rem;
   }
 
   .hero__subtitle {
-    font-size: 0.68rem;
     margin-bottom: 0.6rem;
   }
 
   .hero__btn {
     padding: 6px 0.65rem;
-    font-size: 0.64rem;
   }
 }
 
@@ -405,13 +385,11 @@
 
   .hero__btn {
     padding: 5px 0.6rem;
-    font-size: 0.62rem;
   }
 }
 
 @media (max-width: 320px) {
   .hero__btn {
     padding: 5px 0.55rem;
-    font-size: 0.6rem;
   }
 }

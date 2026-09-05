@@ -20,9 +20,9 @@
 .gallery__title {
   margin: 0;
   font-family: var(--font-family-en);
-  font-size: 1.75rem;
-  font-weight: 600;
-  letter-spacing: 0.2em;
+  font-size: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+  font-weight: var(--fw-eyebrow);
+  letter-spacing: var(--ls-eyebrow);
   text-align: center;
   color: var(--color-text);
 }

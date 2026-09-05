@@ -33,10 +33,11 @@
 
 .sub-layout__title {
   margin: 0 0 0.75rem;
-  font-size: clamp(1.75rem, 4.5vw, 2.5rem);
-  font-weight: 700;
+  font-size: var(--fs-page-title);
+  font-weight: var(--fw-page-title);
+  line-height: var(--lh-page-title);
   color: var(--color-text);
-  letter-spacing: -0.02em;
+  letter-spacing: var(--ls-page-title);
   word-break: keep-all;
   overflow-wrap: normal;
 }
@@ -76,8 +77,8 @@
 
   .sub-layout__title {
     white-space: nowrap;
-    font-size: clamp(1.125rem, 4.6vw, 1.5rem);
-    letter-spacing: -0.03em;
+    font-size: var(--fs-page-title);
+    letter-spacing: var(--ls-page-title);
   }
 
   .sub-layout__header > .breadcrumb {

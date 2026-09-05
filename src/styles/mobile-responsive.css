@@ -2,11 +2,13 @@
 
 @media (max-width: 767px) {
   body {
-    font-size: 0.9375rem;
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+    letter-spacing: var(--ls-body);
   }
 
   .sub-layout__title {
-    font-size: clamp(1.125rem, 4.6vw, 1.5rem);
+    font-size: var(--fs-page-title);
     white-space: nowrap;
     overflow-wrap: normal;
     word-break: keep-all;
@@ -14,8 +16,8 @@
 
   .sub-layout__subtitle,
   .category-layout__description {
-    font-size: 0.875rem;
-    line-height: 1.65;
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
   }
 
   .main,
@@ -34,21 +36,24 @@
 
   .worship-table__title,
   .facilities__section-title {
-    font-size: clamp(1.125rem, 4.8vw, 1.375rem);
+    font-size: var(--fs-section-title);
+    font-weight: var(--fw-section-title);
+    line-height: var(--lh-section-title);
+    letter-spacing: var(--ls-section-title);
   }
 
-  /* Keep home section titles (환영 / 예배안내 / 교회이야기 / GALLERY) aligned at 1.625rem */
+  /* Keep home section titles aligned via shared tokens */
   .home-section__title,
   .gallery__title {
-    font-size: 1.625rem;
+    font-size: var(--fs-section-title);
   }
 
   .home-welcome__description,
   .home-worship__description,
   .nf-hero__subcopy-line,
   .church-history-intro__text {
-    font-size: 0.875rem;
-    line-height: 1.65;
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
   }
 
   .auth-page__footer-link,
@@ -377,8 +382,6 @@
 
   .hero__title {
     max-width: 100%;
-    font-size: clamp(0.95rem, 4.2vw, 1.25rem);
-    line-height: 1.2;
   }
 
   .hero__subtitle-desktop {
@@ -391,13 +394,10 @@
 
   .hero__subtitle {
     max-width: 100%;
-    font-size: 0.75rem;
-    line-height: 1.4;
     margin-bottom: 0.7rem;
   }
 
   .hero__btn {
-    font-size: 0.7rem;
     padding: 7px 0.8rem;
   }
 

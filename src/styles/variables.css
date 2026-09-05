@@ -15,6 +15,49 @@
   --font-family-brand-en: 'Montserrat', 'Arial', sans-serif;
   --font-family-en: 'Cormorant Garamond', 'Times New Roman', serif;
 
+  /* Responsive typography roles (size / weight / line-height / tracking only) */
+  --fs-hero-title: clamp(1.875rem, 1.1rem + 3vw, 3.5rem);
+  --fw-hero-title: 400;
+  --lh-hero-title: 1.15;
+  --ls-hero-title: -0.025em;
+
+  --fs-hero-subtitle: clamp(0.9375rem, 0.85rem + 0.45vw, 1.25rem);
+  --fw-hero-subtitle: 400;
+  --lh-hero-subtitle: 1.65;
+  --ls-hero-subtitle: -0.01em;
+
+  --fs-hero-btn: clamp(0.875rem, 0.8rem + 0.35vw, 1.0625rem);
+  --fw-hero-btn: 500;
+
+  --fs-section-title: clamp(1.75rem, 1.35rem + 1.35vw, 2.625rem);
+  --fw-section-title: 400;
+  --lh-section-title: 1.3;
+  --ls-section-title: -0.025em;
+
+  --fs-eyebrow: clamp(0.875rem, 0.8rem + 0.25vw, 1rem);
+  --fw-eyebrow: 400;
+  --ls-eyebrow: 0.14em;
+
+  --fs-body: clamp(0.875rem, 0.82rem + 0.35vw, 1.125rem);
+  --fw-body: 400;
+  --lh-body: 1.7;
+  --ls-body: -0.005em;
+
+  --fs-nav: clamp(0.9375rem, 0.88rem + 0.3vw, 1.125rem);
+  --fw-nav: 500;
+
+  --fs-page-title: clamp(1.5rem, 1.2rem + 1.2vw, 2.5rem);
+  --fw-page-title: 600;
+  --lh-page-title: 1.25;
+  --ls-page-title: -0.025em;
+
+  --fs-card-title: clamp(1rem, 0.92rem + 0.35vw, 1.25rem);
+  --fw-card-title: 500;
+  --lh-card-title: 1.35;
+
+  --fs-meta: clamp(0.75rem, 0.72rem + 0.2vw, 0.875rem);
+  --fw-meta: 400;
+
   --topbar-height: 35px;
   --topbar-font-size: 13px;
   --header-height: 110px;
@@ -28,4 +71,18 @@
   /* Match 주일 축복 예배 main hero (sunday-blessing-hero.png = 1024×446). */
   --category-hero-ratio: 1024 / 446;
   --category-hero-letterbox: #faf6ef;
+}
+
+@media (max-width: 767px) {
+  :root {
+    --lh-hero-title: 1.18;
+    --ls-hero-title: -0.02em;
+    --lh-hero-subtitle: 1.6;
+  }
+}
+
+@media (max-width: 599px) {
+  :root {
+    --lh-hero-title: 1.2;
+  }
 }
