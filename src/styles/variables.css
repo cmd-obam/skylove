@@ -15,19 +15,19 @@
   --font-family-brand-en: 'Montserrat', 'Arial', sans-serif;
   --font-family-en: 'Cormorant Garamond', 'Times New Roman', serif;
 
-  /* Responsive typography roles (size / weight / line-height / tracking only) */
-  --fs-hero-title: clamp(1.875rem, 1.1rem + 3vw, 3.5rem);
+  /* Hero typography — fluid across desktop / tablet / mobile */
+  --fs-hero-title: clamp(1.75rem, 0.85rem + 3.1vw, 3.5rem);
   --fw-hero-title: 400;
-  --lh-hero-title: 1.15;
-  --ls-hero-title: -0.025em;
+  --lh-hero-title: 1.2;
+  --ls-hero-title: -0.02em;
 
-  --fs-hero-subtitle: clamp(0.9375rem, 0.85rem + 0.45vw, 1.25rem);
+  --fs-hero-subtitle: clamp(0.875rem, 0.75rem + 0.5vw, 1.25rem);
   --fw-hero-subtitle: 400;
-  --lh-hero-subtitle: 1.65;
+  --lh-hero-subtitle: 1.6;
   --ls-hero-subtitle: -0.01em;
 
-  --fs-hero-btn: clamp(0.875rem, 0.8rem + 0.35vw, 1.0625rem);
-  --fw-hero-btn: 500;
+  --fs-hero-btn: clamp(0.875rem, 0.8rem + 0.4vw, 1.125rem);
+  --fw-hero-btn: 600;
 
   --fs-section-title: clamp(1.75rem, 1.35rem + 1.35vw, 2.625rem);
   --fw-section-title: 400;
@@ -73,16 +73,16 @@
   --category-hero-letterbox: #faf6ef;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 991px) {
   :root {
     --lh-hero-title: 1.18;
-    --ls-hero-title: -0.02em;
-    --lh-hero-subtitle: 1.6;
+    --lh-hero-subtitle: 1.55;
   }
 }
 
 @media (max-width: 599px) {
   :root {
-    --lh-hero-title: 1.2;
+    --lh-hero-title: 1.22;
+    --lh-hero-subtitle: 1.5;
   }
 }

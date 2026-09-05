@@ -349,12 +349,12 @@
 }
 
 @media (max-width: 767px) {
-  /* Align with Hero.css: panoramic slides readable on mobile, cover kept. */
+  /* Align with Hero.css: grow with content, keep cover crop. */
   .hero {
     aspect-ratio: auto;
-    height: clamp(200px, 48vw, 280px);
-    min-height: 200px;
-    max-height: 280px;
+    height: auto;
+    min-height: max(15.5rem, calc(100vw * 406 / 1024));
+    max-height: none;
   }
 
   .hero__slide,
@@ -370,14 +370,8 @@
     object-position: 38% 28%;
   }
 
-  .hero {
-    height: clamp(230px, 56vw, 300px);
-    min-height: 230px;
-    max-height: 300px;
-  }
-
   .hero__content {
-    max-width: min(100%, 18.5rem);
+    max-width: min(100%, 22rem);
   }
 
   .hero__title {
@@ -394,11 +388,6 @@
 
   .hero__subtitle {
     max-width: 100%;
-    margin-bottom: 0.7rem;
-  }
-
-  .hero__btn {
-    padding: 7px 0.8rem;
   }
 
   .worship-first-visit {
