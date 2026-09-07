@@ -38,6 +38,78 @@
   line-height: 1.55;
 }
 
+.sunday-bulletin-form__fixed-field .sunday-bulletin-form__textarea {
+  min-height: 6.5rem;
+}
+
+.sunday-bulletin-form__fixed-section {
+  margin-top: 1.5rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid #ddd;
+}
+
+.sunday-bulletin-form__fixed-title {
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1f2d3d;
+}
+
+.sunday-bulletin-form__fixed-help {
+  margin: 0 0 1rem;
+  color: #666;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  word-break: keep-all;
+}
+
+.sunday-bulletin-form__fixed-field {
+  margin-bottom: 1rem;
+}
+
+.sunday-bulletin-form__fixed-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.35rem;
+}
+
+.sunday-bulletin-form__fixed-header .board-write-form__label {
+  margin-bottom: 0;
+}
+
+.sunday-bulletin-form__lock {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+  cursor: pointer;
+  user-select: none;
+  color: #374151;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.sunday-bulletin-form__lock-input {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  accent-color: #3f6285;
+  cursor: pointer;
+}
+
+.sunday-bulletin-form__lock-text {
+  white-space: nowrap;
+}
+
+.sunday-bulletin-form__fixed-field .board-write-form__input:disabled,
+.sunday-bulletin-form__fixed-field .board-write-form__input[readonly] {
+  background-color: #f3f4f6;
+  color: #4b5563;
+  cursor: not-allowed;
+}
+
 .sunday-bulletin-form__preview {
   margin-top: 1.25rem;
   padding-top: 1.1rem;
@@ -76,5 +148,9 @@
 @media (max-width: 767px) {
   .sunday-bulletin-form__intro {
     font-size: 0.88rem;
+  }
+
+  .sunday-bulletin-form__fixed-header {
+    align-items: flex-start;
   }
 }

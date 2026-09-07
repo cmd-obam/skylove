@@ -70,7 +70,7 @@ export const SUNDAY_BULLETIN_WEEKLY_FIELDS = [
     label: '은혜의통로 (찬송 제목)',
     placeholder: '예: “손 잡고 함께 가세”',
     multiline: false,
-    hint: '오른쪽 “엘샤다이중창단”은 고정입니다.',
+    hint: '오른쪽 “엘샤다이중창단”은 아래에서 고정/수정할 수 있습니다.',
   },
   {
     key: 'scripture',
@@ -97,3 +97,128 @@ export const SUNDAY_BULLETIN_WEEKLY_FIELDS = [
     multiline: true,
   },
 ]
+
+/** 기본은 고정(체크됨). 체크 해제 시 직접 수정 가능. */
+export const SUNDAY_BULLETIN_LOCKABLE_FIELDS = [
+  {
+    key: 'serviceTitle',
+    label: '예배 제목',
+    multiline: false,
+    getDefault: () => SUNDAY_BULLETIN_FIXED.serviceTitle,
+  },
+  {
+    key: 'serviceTime',
+    label: '예배 시간',
+    multiline: false,
+    getDefault: () => SUNDAY_BULLETIN_FIXED.serviceTime,
+  },
+  {
+    key: 'moderator',
+    label: '사회',
+    multiline: false,
+    getDefault: () => SUNDAY_BULLETIN_FIXED.moderator,
+  },
+  {
+    key: 'seasonPrefix',
+    label: '절기 문구 (성령강림절 후)',
+    multiline: false,
+    getDefault: () => SUNDAY_BULLETIN_FIXED.seasonPrefix,
+  },
+  {
+    key: 'worshipPraise',
+    label: '경배와찬양',
+    multiline: false,
+    getDefault: () => SUNDAY_BULLETIN_FIXED.orderFixed.worshipPraise,
+  },
+  {
+    key: 'callToWorship',
+    label: '예배의부름',
+    multiline: false,
+    getDefault: () => SUNDAY_BULLETIN_FIXED.orderFixed.callToWorship,
+  },
+  {
+    key: 'doxology',
+    label: '송영',
+    multiline: false,
+    getDefault: () => SUNDAY_BULLETIN_FIXED.orderFixed.doxology,
+  },
+  {
+    key: 'offeringPraise',
+    label: '봉헌찬양',
+    multiline: false,
+    getDefault: () => SUNDAY_BULLETIN_FIXED.orderFixed.offeringPraise,
+  },
+  {
+    key: 'offeringPrayer',
+    label: '봉헌기도',
+    multiline: false,
+    getDefault: () => SUNDAY_BULLETIN_FIXED.orderFixed.offeringPrayer,
+  },
+  {
+    key: 'fellowship',
+    label: '교제와소식',
+    multiline: false,
+    getDefault: () => SUNDAY_BULLETIN_FIXED.orderFixed.fellowship,
+  },
+  {
+    key: 'graceChoir',
+    label: '엘샤다이중창단',
+    multiline: false,
+    getDefault: () => SUNDAY_BULLETIN_FIXED.graceChoir,
+  },
+  {
+    key: 'benediction',
+    label: '축도',
+    multiline: false,
+    getDefault: () => SUNDAY_BULLETIN_FIXED.orderFixed.benediction,
+  },
+  {
+    key: 'missionTitle',
+    label: '사명선언문 제목',
+    multiline: false,
+    getDefault: () => SUNDAY_BULLETIN_FIXED.missionTitle,
+  },
+  {
+    key: 'missionLines',
+    label: '사명선언문',
+    multiline: true,
+    rows: 5,
+    hint: '한 줄에 한 문장씩 입력하세요.',
+    getDefault: () => SUNDAY_BULLETIN_FIXED.missionLines.join('\n'),
+  },
+  {
+    key: 'servingPeople',
+    label: '섬기는사람',
+    multiline: true,
+    rows: 6,
+    hint: '한 줄에 “역할: 이름” 형식으로 입력하세요.',
+    getDefault: () =>
+      SUNDAY_BULLETIN_FIXED.servingPeople
+        .map((item) => `${item.role}: ${item.name}`)
+        .join('\n'),
+  },
+  {
+    key: 'missionsLines',
+    label: '선교및후원 (본문)',
+    multiline: true,
+    rows: 3,
+    hint: '한 줄에 한 항목씩 입력하세요.',
+    getDefault: () => SUNDAY_BULLETIN_FIXED.missions.lines.join('\n'),
+  },
+  {
+    key: 'missionsDenomination',
+    label: '교단명',
+    multiline: false,
+    getDefault: () => SUNDAY_BULLETIN_FIXED.missions.denomination,
+  },
+  {
+    key: 'missionsChurchName',
+    label: '교회명',
+    multiline: false,
+    getDefault: () => SUNDAY_BULLETIN_FIXED.missions.churchName,
+  },
+]
+
+export const SUNDAY_BULLETIN_LOCKABLE_KEYS = SUNDAY_BULLETIN_LOCKABLE_FIELDS.map(
+  (field) => field.key,
+)

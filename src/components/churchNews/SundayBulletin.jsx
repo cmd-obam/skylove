@@ -1,8 +1,7 @@
 import churchLogo from '@/assets/images/church-logo.png'
-import { SUNDAY_BULLETIN_FIXED } from '@/data/sundayBulletinFixed'
 import {
-  createEmptySundayBulletinWeekly,
   formatSeasonWeekLines,
+  resolveSundayBulletinDisplay,
 } from '@/utils/sundayBulletin'
 import './SundayBulletin.css'
 
@@ -18,21 +17,21 @@ function OrderRow({ label, spaced, children, className = '' }) {
 }
 
 function SundayBulletin({ weekly }) {
-  const data = createEmptySundayBulletinWeekly(weekly)
-  const fixed = SUNDAY_BULLETIN_FIXED
+  const display = resolveSundayBulletinDisplay(weekly)
+  const data = display.weekly
   const newsText = String(data.churchNews ?? '').trim()
-  const seasonLines = formatSeasonWeekLines(data.seasonWeek)
+  const seasonLines = formatSeasonWeekLines(data.seasonWeek, display.seasonPrefix)
 
   return (
     <div className="sunday-bulletin" aria-label="주일축복예배 주보">
       <header className="sunday-bulletin__header">
         <div className="sunday-bulletin__header-bar">
-          <h2 className="sunday-bulletin__service-title">{fixed.serviceTitle}</h2>
-          <p className="sunday-bulletin__service-time">{fixed.serviceTime}</p>
+          <h2 className="sunday-bulletin__service-title">{display.serviceTitle}</h2>
+          <p className="sunday-bulletin__service-time">{display.serviceTime}</p>
         </div>
         <p className="sunday-bulletin__moderator">
           <span className="sunday-bulletin__moderator-label">사회</span>
-          <span className="sunday-bulletin__moderator-name">{fixed.moderator}</span>
+          <span className="sunday-bulletin__moderator-name">{display.moderator}</span>
         </p>
       </header>
 
@@ -48,9 +47,9 @@ function SundayBulletin({ weekly }) {
               : '\u00a0'}
           </p>
           <div className="sunday-bulletin__mission">
-            <h3 className="sunday-bulletin__mission-title">{fixed.missionTitle}</h3>
+            <h3 className="sunday-bulletin__mission-title">{display.missionTitle}</h3>
             <p className="sunday-bulletin__mission-body">
-              {fixed.missionLines.map((line) => (
+              {display.missionLines.map((line) => (
                 <span key={line} className="sunday-bulletin__mission-line">
                   {line}
                 </span>
@@ -62,11 +61,11 @@ function SundayBulletin({ weekly }) {
         <div className="sunday-bulletin__order-wrap">
           <table className="sunday-bulletin__order">
             <tbody>
-              <OrderRow label="경배와찬양">{fixed.orderFixed.worshipPraise}</OrderRow>
-              <OrderRow label="예배의부름">{fixed.orderFixed.callToWorship}</OrderRow>
+              <OrderRow label="경배와찬양">{display.orderFixed.worshipPraise}</OrderRow>
+              <OrderRow label="예배의부름">{display.orderFixed.callToWorship}</OrderRow>
               <OrderRow label="오늘의기도">{data.prayer || '\u00a0'}</OrderRow>
               <OrderRow label="송영" spaced>
-                {fixed.orderFixed.doxology}
+                {display.orderFixed.doxology}
               </OrderRow>
               <OrderRow label="찬양" spaced>
                 {data.praise || '\u00a0'}
@@ -75,25 +74,25 @@ function SundayBulletin({ weekly }) {
                 {data.responsiveReading || '\u00a0'}
               </OrderRow>
               <OrderRow label="봉헌찬양" spaced>
-                {fixed.orderFixed.offeringPraise}
+                {display.orderFixed.offeringPraise}
               </OrderRow>
               <OrderRow label="봉헌기도" spaced>
-                {fixed.orderFixed.offeringPrayer}
+                {display.orderFixed.offeringPrayer}
               </OrderRow>
               <OrderRow label="은혜의통로" className="sunday-bulletin__order-row--grace">
                 <div className="sunday-bulletin__grace">
                   <span className="sunday-bulletin__grace-song">{data.graceSong || '\u00a0'}</span>
-                  <span className="sunday-bulletin__grace-choir">{fixed.graceChoir}</span>
+                  <span className="sunday-bulletin__grace-choir">{display.graceChoir}</span>
                 </div>
               </OrderRow>
-              <OrderRow label="교제와소식">{fixed.orderFixed.fellowship}</OrderRow>
+              <OrderRow label="교제와소식">{display.orderFixed.fellowship}</OrderRow>
               <OrderRow label="성경봉독" spaced>
                 {data.scripture || '\u00a0'}
               </OrderRow>
               <OrderRow label="임재의말씀">{data.sermon || '\u00a0'}</OrderRow>
               <OrderRow label="결단의찬양">{data.closingPraise || '\u00a0'}</OrderRow>
               <OrderRow label="축도" spaced>
-                {fixed.orderFixed.benediction}
+                {display.orderFixed.benediction}
               </OrderRow>
             </tbody>
           </table>
@@ -115,8 +114,8 @@ function SundayBulletin({ weekly }) {
         <div className="sunday-bulletin__footer-col sunday-bulletin__footer-col--serving">
           <h3 className="sunday-bulletin__section-bar">섬기는사람</h3>
           <ul className="sunday-bulletin__serving-list">
-            {fixed.servingPeople.map((item) => (
-              <li key={item.role} className="sunday-bulletin__serving-item">
+            {display.servingPeople.map((item) => (
+              <li key={`${item.role}-${item.name}`} className="sunday-bulletin__serving-item">
                 <span className="sunday-bulletin__serving-role">{item.role}</span>
                 <span className="sunday-bulletin__serving-sep" aria-hidden="true">
                   :
@@ -131,7 +130,7 @@ function SundayBulletin({ weekly }) {
           <h3 className="sunday-bulletin__section-bar">선교및후원</h3>
           <div className="sunday-bulletin__missions-inner">
             <div className="sunday-bulletin__missions-text">
-              {fixed.missions.lines.map((line) => (
+              {display.missions.lines.map((line) => (
                 <p key={line}>{line}</p>
               ))}
             </div>
@@ -142,8 +141,8 @@ function SundayBulletin({ weekly }) {
                 className="sunday-bulletin__logo"
               />
               <div className="sunday-bulletin__brand-text">
-                <p className="sunday-bulletin__denomination">{fixed.missions.denomination}</p>
-                <p className="sunday-bulletin__church-name">{fixed.missions.churchName}</p>
+                <p className="sunday-bulletin__denomination">{display.missions.denomination}</p>
+                <p className="sunday-bulletin__church-name">{display.missions.churchName}</p>
               </div>
             </div>
           </div>
