@@ -6,8 +6,15 @@ import {
   fetchSiteVisitsForAdmin,
   formatVisitDateTime,
   formatVisitTime,
-  resolveVisitorStatsRange,
 } from '@/services/analytics/visitorStatsAdmin'
+import {
+  fetchSiteAnalyticsDashboard,
+  formatDurationMs,
+  getHourBucketLabel,
+  getReferralAnalyticsLabel,
+  getWeekdayLabel,
+  resolveAnalyticsRange,
+} from '@/services/analytics/siteAnalyticsAdmin'
 import { getKoreaDateString } from '@/utils/visitorDate'
 import '@/pages/MemberManagement.css'
 import './VisitorStatsPage.css'
@@ -17,6 +24,7 @@ const PERIOD_OPTIONS = [
   { id: 'yesterday', label: '어제' },
   { id: '7d', label: '최근 7일' },
   { id: '30d', label: '최근 30일' },
+  { id: '90d', label: '최근 90일' },
   { id: 'custom', label: '직접 선택' },
 ]
 
@@ -25,6 +33,50 @@ const VISIT_FILTERS = [
   { id: 'member', label: '회원' },
   { id: 'guest', label: '비회원' },
 ]
+
+function StatCards({ items }) {
+  return (
+    <div className="visitor-stats-page__summary visitor-stats-page__summary--wide">
+      {items.map((item) => (
+        <div key={item.label} className="visitor-stats-page__summary-item">
+          <span className="visitor-stats-page__summary-label">{item.label}</span>
+          <strong>{item.value}</strong>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function SimpleTable({ columns, rows, emptyText }) {
+  if (!rows?.length) {
+    return <p className="member-management-page__empty">{emptyText}</p>
+  }
+
+  return (
+    <div className="member-management-page__table-wrap">
+      <table className="member-management-page__table visitor-stats-page__data-table">
+        <thead>
+          <tr>
+            {columns.map((column) => (
+              <th key={column.key} scope="col">
+                {column.label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, index) => (
+            <tr key={row.id || row.key || index}>
+              {columns.map((column) => (
+                <td key={column.key}>{column.render ? column.render(row) : row[column.key]}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
 
 function VisitorStatsPage() {
   const today = getKoreaDateString()
@@ -40,9 +92,11 @@ function VisitorStatsPage() {
   const [detailError, setDetailError] = useState('')
   const [visits, setVisits] = useState([])
   const [referralStats, setReferralStats] = useState([])
+  const [analytics, setAnalytics] = useState(null)
+  const [analyticsError, setAnalyticsError] = useState('')
 
   const range = useMemo(
-    () => resolveVisitorStatsRange(period, customFrom, customTo),
+    () => resolveAnalyticsRange(period, customFrom, customTo),
     [period, customFrom, customTo],
   )
 
@@ -78,10 +132,12 @@ function VisitorStatsPage() {
     async function loadDetails() {
       setDetailLoading(true)
       setDetailError('')
+      setAnalyticsError('')
 
-      const [visitsResult, referralResult] = await Promise.all([
+      const [visitsResult, referralResult, analyticsResult] = await Promise.all([
         fetchSiteVisitsForAdmin(range.from, range.to),
         fetchReferralStatsForAdmin(range.from, range.to),
+        fetchSiteAnalyticsDashboard(range.from, range.to),
       ])
 
       if (cancelled) {
@@ -101,6 +157,13 @@ function VisitorStatsPage() {
         setReferralStats([])
       } else {
         setReferralStats(referralResult.stats)
+      }
+
+      if (!analyticsResult.success) {
+        setAnalyticsError(analyticsResult.message)
+        setAnalytics(null)
+      } else {
+        setAnalytics(analyticsResult.dashboard)
       }
 
       setDetailError(errors.filter(Boolean).join(' '))
@@ -156,13 +219,20 @@ function VisitorStatsPage() {
     )
   }, [referralStats])
 
+  const summary = analytics?.summary
+  const cumulative = analytics?.cumulative
+  const returningRate =
+    summary && summary.sessions > 0
+      ? Math.round((summary.returning_visitors / summary.sessions) * 1000) / 10
+      : 0
+
   return (
     <MemberMypageLayout>
       <div className="member-management-page visitor-stats-page">
         <header className="member-management-page__header">
           <h1 className="member-management-page__title">방문자통계</h1>
           <p className="member-management-page__subtitle">
-            TODAY / TOTAL은 기존 집계를 유지합니다. 아래 방문 기록에서 회원/비회원을 구분합니다.
+            푸터 TODAY / TOTAL은 기존 집계를 유지합니다. 아래 상세 분석은 별도 시스템입니다.
           </p>
         </header>
 
@@ -175,7 +245,7 @@ function VisitorStatsPage() {
         ) : (
           <section className="visitor-stats-page__section" aria-labelledby="visitor-core-stats">
             <h2 id="visitor-core-stats" className="visitor-stats-page__section-title">
-              오늘 / 누적 방문자
+              푸터 집계 (TODAY / TOTAL)
             </h2>
             <div className="member-management-page__table-wrap">
               <table className="member-management-page__table visitor-stats-page__core-table">
@@ -202,8 +272,7 @@ function VisitorStatsPage() {
               </table>
             </div>
             <p className="visitor-stats-page__hint">
-              TODAY / TOTAL 계산 로직은 변경하지 않았습니다. 상세 회원/비회원 구분은 아래 방문
-              기록을 사용합니다.
+              이 숫자는 홈페이지 푸터와 동일한 기존 집계입니다. 변경하지 않습니다.
             </p>
           </section>
         )}
@@ -250,7 +319,7 @@ function VisitorStatsPage() {
                 </label>
               </div>
             ) : null}
-            <p className="visitor-stats-page__hint">현재 조회: {periodLabel}</p>
+            <p className="visitor-stats-page__hint">현재 조회: {periodLabel} (Asia/Seoul)</p>
           </div>
         </section>
 
@@ -264,9 +333,319 @@ function VisitorStatsPage() {
           <p className="member-management-page__empty">상세 통계를 불러오는 중...</p>
         ) : (
           <>
+            <section className="visitor-stats-page__section" aria-labelledby="analytics-today">
+              <h2 id="analytics-today" className="visitor-stats-page__section-title">
+                상세 분석 요약
+              </h2>
+              {analyticsError ? (
+                <p className="member-management-page__feedback member-management-page__feedback--error">
+                  {analyticsError}
+                  <span className="visitor-stats-page__hint">
+                    {' '}
+                    (Supabase에 050_site_analytics 마이그레이션 적용이 필요할 수 있습니다.)
+                  </span>
+                </p>
+              ) : (
+                <>
+                  <StatCards
+                    items={[
+                      { label: '고유 방문자', value: summary?.visitors ?? 0 },
+                      { label: '세션', value: summary?.sessions ?? 0 },
+                      { label: '페이지뷰', value: summary?.pageviews ?? 0 },
+                      {
+                        label: '평균 체류시간',
+                        value: formatDurationMs(summary?.avg_session_ms),
+                      },
+                      {
+                        label: '중앙값 체류시간',
+                        value: formatDurationMs(summary?.median_session_ms),
+                      },
+                      {
+                        label: '재방문율',
+                        value: `${returningRate}%`,
+                      },
+                    ]}
+                  />
+                  <div className="visitor-stats-page__summary visitor-stats-page__summary--wide visitor-stats-page__summary--spaced">
+                    <div className="visitor-stats-page__summary-item">
+                      <span className="visitor-stats-page__summary-label">누적 고유 방문자</span>
+                      <strong>{cumulative?.visitors ?? 0}</strong>
+                    </div>
+                    <div className="visitor-stats-page__summary-item">
+                      <span className="visitor-stats-page__summary-label">누적 세션</span>
+                      <strong>{cumulative?.sessions ?? 0}</strong>
+                    </div>
+                    <div className="visitor-stats-page__summary-item">
+                      <span className="visitor-stats-page__summary-label">누적 페이지뷰</span>
+                      <strong>{cumulative?.pageviews ?? 0}</strong>
+                    </div>
+                    <div className="visitor-stats-page__summary-item">
+                      <span className="visitor-stats-page__summary-label">신규 세션</span>
+                      <strong>{summary?.new_visitors ?? 0}</strong>
+                    </div>
+                    <div className="visitor-stats-page__summary-item">
+                      <span className="visitor-stats-page__summary-label">재방문 세션</span>
+                      <strong>{summary?.returning_visitors ?? 0}</strong>
+                    </div>
+                  </div>
+                </>
+              )}
+            </section>
+
+            {!analyticsError && analytics ? (
+              <>
+                <section className="visitor-stats-page__section">
+                  <h2 className="visitor-stats-page__section-title">일일 방문 통계</h2>
+                  <SimpleTable
+                    emptyText="일일 통계가 없습니다."
+                    columns={[
+                      { key: 'day', label: '날짜' },
+                      { key: 'visitors', label: '고유 방문자' },
+                      { key: 'sessions', label: '세션' },
+                      { key: 'pageviews', label: '페이지뷰' },
+                    ]}
+                    rows={analytics.daily}
+                  />
+                </section>
+
+                <section className="visitor-stats-page__section">
+                  <h2 className="visitor-stats-page__section-title">유입경로 (상세)</h2>
+                  <SimpleTable
+                    emptyText="유입경로 데이터가 없습니다."
+                    columns={[
+                      {
+                        key: 'source',
+                        label: '유입경로',
+                        render: (row) => getReferralAnalyticsLabel(row.source),
+                      },
+                      { key: 'visitors', label: '방문자' },
+                      { key: 'sessions', label: '세션' },
+                      {
+                        key: 'avg_ms',
+                        label: '평균 체류',
+                        render: (row) => formatDurationMs(row.avg_ms),
+                      },
+                    ]}
+                    rows={analytics.referrers}
+                  />
+                </section>
+
+                <section className="visitor-stats-page__section">
+                  <h2 className="visitor-stats-page__section-title">인기 페이지</h2>
+                  <SimpleTable
+                    emptyText="페이지 데이터가 없습니다."
+                    columns={[
+                      { key: 'path', label: '경로' },
+                      { key: 'pageviews', label: '조회수' },
+                      { key: 'visitors', label: '고유 방문자' },
+                      { key: 'sessions', label: '세션' },
+                      {
+                        key: 'avg_ms',
+                        label: '평균 체류',
+                        render: (row) => formatDurationMs(row.avg_ms),
+                      },
+                    ]}
+                    rows={analytics.pages}
+                  />
+                </section>
+
+                <section className="visitor-stats-page__section">
+                  <h2 className="visitor-stats-page__section-title">인기 예배말씀 콘텐츠</h2>
+                  <SimpleTable
+                    emptyText="예배말씀 분석 데이터가 없습니다."
+                    columns={[
+                      { key: 'title', label: '제목', render: (row) => row.title || row.post_id },
+                      { key: 'post_type', label: '게시판' },
+                      { key: 'pageviews', label: '조회수' },
+                      { key: 'visitors', label: '고유 방문자' },
+                      {
+                        key: 'avg_ms',
+                        label: '평균 체류',
+                        render: (row) => formatDurationMs(row.avg_ms),
+                      },
+                    ]}
+                    rows={analytics.worship}
+                  />
+                </section>
+
+                <section className="visitor-stats-page__section">
+                  <h2 className="visitor-stats-page__section-title">체류시간 구간</h2>
+                  <SimpleTable
+                    emptyText="체류시간 데이터가 없습니다."
+                    columns={[
+                      { key: 'bucket', label: '구간' },
+                      { key: 'sessions', label: '세션' },
+                    ]}
+                    rows={analytics.duration_buckets}
+                  />
+                </section>
+
+                <section className="visitor-stats-page__section">
+                  <h2 className="visitor-stats-page__section-title">신규 / 재방문</h2>
+                  <StatCards
+                    items={[
+                      { label: '신규 세션', value: summary?.new_visitors ?? 0 },
+                      { label: '재방문 세션', value: summary?.returning_visitors ?? 0 },
+                      { label: '재방문율', value: `${returningRate}%` },
+                    ]}
+                  />
+                  <SimpleTable
+                    emptyText="방문 빈도 데이터가 없습니다."
+                    columns={[
+                      { key: 'bucket', label: '방문 빈도' },
+                      { key: 'visitors', label: '방문자' },
+                    ]}
+                    rows={analytics.visit_freq}
+                  />
+                </section>
+
+                <section className="visitor-stats-page__section">
+                  <h2 className="visitor-stats-page__section-title">시간대별 방문</h2>
+                  <SimpleTable
+                    emptyText="시간대 데이터가 없습니다."
+                    columns={[
+                      {
+                        key: 'hour_start',
+                        label: '시간대',
+                        render: (row) => getHourBucketLabel(row.hour_start),
+                      },
+                      { key: 'visitors', label: '방문자' },
+                      { key: 'sessions', label: '세션' },
+                    ]}
+                    rows={analytics.hourly}
+                  />
+                </section>
+
+                <section className="visitor-stats-page__section">
+                  <h2 className="visitor-stats-page__section-title">요일별 방문</h2>
+                  <SimpleTable
+                    emptyText="요일 데이터가 없습니다."
+                    columns={[
+                      {
+                        key: 'dow',
+                        label: '요일',
+                        render: (row) => getWeekdayLabel(row.dow),
+                      },
+                      { key: 'visitors', label: '방문자' },
+                      { key: 'sessions', label: '세션' },
+                    ]}
+                    rows={analytics.weekday}
+                  />
+                </section>
+
+                <section className="visitor-stats-page__section">
+                  <h2 className="visitor-stats-page__section-title">기기 / 브라우저 / OS</h2>
+                  <div className="visitor-stats-page__split">
+                    <SimpleTable
+                      emptyText="기기 데이터가 없습니다."
+                      columns={[
+                        { key: 'name', label: '기기' },
+                        { key: 'sessions', label: '세션' },
+                      ]}
+                      rows={analytics.devices}
+                    />
+                    <SimpleTable
+                      emptyText="브라우저 데이터가 없습니다."
+                      columns={[
+                        { key: 'name', label: '브라우저' },
+                        { key: 'sessions', label: '세션' },
+                      ]}
+                      rows={analytics.browsers}
+                    />
+                    <SimpleTable
+                      emptyText="OS 데이터가 없습니다."
+                      columns={[
+                        { key: 'name', label: 'OS' },
+                        { key: 'sessions', label: '세션' },
+                      ]}
+                      rows={analytics.os}
+                    />
+                  </div>
+                </section>
+
+                <section className="visitor-stats-page__section">
+                  <h2 className="visitor-stats-page__section-title">화면 크기</h2>
+                  <SimpleTable
+                    emptyText="화면 크기 데이터가 없습니다."
+                    columns={[
+                      { key: 'bucket', label: '가로 해상도' },
+                      { key: 'sessions', label: '세션' },
+                    ]}
+                    rows={analytics.viewports}
+                  />
+                </section>
+
+                <section className="visitor-stats-page__section">
+                  <h2 className="visitor-stats-page__section-title">첫 방문 / 종료 페이지</h2>
+                  <div className="visitor-stats-page__split">
+                    <div>
+                      <h3 className="visitor-stats-page__subheading">진입 페이지</h3>
+                      <SimpleTable
+                        emptyText="진입 페이지 데이터가 없습니다."
+                        columns={[
+                          { key: 'path', label: '경로' },
+                          { key: 'sessions', label: '세션' },
+                        ]}
+                        rows={analytics.landings}
+                      />
+                    </div>
+                    <div>
+                      <h3 className="visitor-stats-page__subheading">종료 페이지</h3>
+                      <SimpleTable
+                        emptyText="종료 페이지 데이터가 없습니다."
+                        columns={[
+                          { key: 'path', label: '경로' },
+                          { key: 'sessions', label: '세션' },
+                        ]}
+                        rows={analytics.exits}
+                      />
+                    </div>
+                  </div>
+                </section>
+
+                <section className="visitor-stats-page__section">
+                  <h2 className="visitor-stats-page__section-title">스크롤 깊이</h2>
+                  <StatCards
+                    items={[
+                      { label: '25%+', value: analytics.scroll?.d25 ?? 0 },
+                      { label: '50%+', value: analytics.scroll?.d50 ?? 0 },
+                      { label: '75%+', value: analytics.scroll?.d75 ?? 0 },
+                      { label: '90%+', value: analytics.scroll?.d90 ?? 0 },
+                      { label: '100%', value: analytics.scroll?.d100 ?? 0 },
+                      { label: '페이지뷰', value: analytics.scroll?.total ?? 0 },
+                    ]}
+                  />
+                </section>
+
+                <section className="visitor-stats-page__section">
+                  <h2 className="visitor-stats-page__section-title">CTA / 클릭</h2>
+                  <SimpleTable
+                    emptyText="클릭 데이터가 없습니다."
+                    columns={[
+                      { key: 'label', label: '항목' },
+                      { key: 'clicks', label: '클릭' },
+                    ]}
+                    rows={analytics.cta}
+                  />
+                </section>
+
+                <section className="visitor-stats-page__section">
+                  <h2 className="visitor-stats-page__section-title">외부 링크 클릭</h2>
+                  <SimpleTable
+                    emptyText="외부 링크 클릭 데이터가 없습니다."
+                    columns={[
+                      { key: 'href', label: '링크' },
+                      { key: 'clicks', label: '클릭' },
+                    ]}
+                    rows={analytics.external_links}
+                  />
+                </section>
+              </>
+            ) : null}
+
             <section className="visitor-stats-page__section" aria-labelledby="visit-summary">
               <h2 id="visit-summary" className="visitor-stats-page__section-title">
-                {isSingleDay ? '오늘 방문자' : '기간 방문자'}
+                {isSingleDay ? '기존 방문 기록 요약' : '기간 방문 기록 요약'}
               </h2>
               <div className="visitor-stats-page__summary">
                 <div className="visitor-stats-page__summary-item">
@@ -282,6 +661,9 @@ function VisitorStatsPage() {
                   <strong>{visitCounts.guest}명</strong>
                 </div>
               </div>
+              <p className="visitor-stats-page__hint">
+                기존 site_traffic_events 기반 회원/비회원 방문 기록입니다.
+              </p>
             </section>
 
             <section className="visitor-stats-page__section" aria-labelledby="visit-records">
@@ -414,7 +796,7 @@ function VisitorStatsPage() {
 
             <section className="visitor-stats-page__section" aria-labelledby="referral-stats">
               <h2 id="referral-stats" className="visitor-stats-page__section-title">
-                유입 경로
+                유입 경로 (기존)
               </h2>
               {referralStats.length === 0 ? (
                 <p className="member-management-page__empty">해당 기간의 유입 경로 기록이 없습니다.</p>

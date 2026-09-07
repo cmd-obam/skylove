@@ -63,6 +63,7 @@ import {
 } from '@/pages/PlaceholderPage'
 import ScrollToTop from '@/components/common/ScrollToTop'
 import VisitTracker from '@/components/analytics/VisitTracker'
+import AnalyticsTracker from '@/components/analytics/AnalyticsTracker'
 import { PASTOR_STORY_POST_TYPE } from '@/services/auth/roles'
 import '@/App.css'
 import { AuthProvider } from '@/contexts/AuthContext'
@@ -97,6 +98,7 @@ function App() {
       <ScrollToTop />
       <AuthProvider>
         <VisitTracker />
+        <AnalyticsTracker />
         <ImageProtection />
         <Routes>
           <Route
