@@ -1,8 +1,5 @@
 import SundayBulletin from '@/components/churchNews/SundayBulletin'
-import {
-  SUNDAY_BULLETIN_LOCKABLE_FIELDS,
-  SUNDAY_BULLETIN_WEEKLY_FIELDS,
-} from '@/data/sundayBulletinFixed'
+import { SUNDAY_BULLETIN_FORM_FIELDS } from '@/data/sundayBulletinFixed'
 import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 import {
   createEmptySundayBulletinWeekly,
@@ -38,7 +35,6 @@ function SundayBulletinEditor({ weekly, onChange, disabled = false, showPreview 
     }
     const nextOverrides = { ...data.fixedOverrides }
 
-    // 해제 시 현재 기본값을 채워 바로 수정할 수 있게 함
     if (!checked) {
       const current = String(nextOverrides[key] ?? '').trim()
       if (!current) {
@@ -64,24 +60,53 @@ function SundayBulletinEditor({ weekly, onChange, disabled = false, showPreview 
   return (
     <div className="sunday-bulletin-editor">
       <p className="sunday-bulletin-form__intro">
-        주일예배 주보 서식이 불러와졌습니다. 매주 변경되는 항목을 수정하고, 아래 고정 항목은 오른쪽
-        체크박스로 잠금/수정을 선택할 수 있습니다. 체크되어 있으면 기본 고정값으로 표시되고, 체크를
-        해제하면 직접 수정할 수 있습니다.
+        주일예배 주보 서식입니다. 매주 입력 항목은 바로 수정하고, 오른쪽에 체크박스가 있는 항목은
+        체크되어 있으면 고정(기본값), 체크를 해제하면 직접 수정할 수 있습니다.
       </p>
 
-      {SUNDAY_BULLETIN_WEEKLY_FIELDS.map((field) => {
-        const fieldId = `bulletin-embed-${field.key}`
-        const value = data?.[field.key] ?? ''
+      {SUNDAY_BULLETIN_FORM_FIELDS.map((field) => {
+        const fieldId = `bulletin-field-${field.key}`
+        const lockId = `${fieldId}-lock`
+        const isLockable = Boolean(field.lockable)
+        const locked = isLockable ? isBulletinFieldLocked(data, field.key) : false
+        const value = isLockable
+          ? locked
+            ? getBulletinFieldDefault(field.key)
+            : (data.fixedOverrides?.[field.key] ?? getBulletinFieldDefault(field.key))
+          : (data?.[field.key] ?? '')
+        const fieldDisabled = disabled || (isLockable && locked)
 
         return (
-          <div key={field.key} className="board-write-form__field">
-            <label htmlFor={fieldId} className="board-write-form__label">
-              {field.label}
-            </label>
+          <div
+            key={field.key}
+            className={`board-write-form__field${isLockable ? ' sunday-bulletin-form__fixed-field' : ''}`}
+          >
+            <div className="sunday-bulletin-form__field-header">
+              <label htmlFor={fieldId} className="board-write-form__label">
+                {field.label}
+              </label>
+              {isLockable ? (
+                <label htmlFor={lockId} className="sunday-bulletin-form__lock">
+                  <input
+                    id={lockId}
+                    type="checkbox"
+                    className="sunday-bulletin-form__lock-input"
+                    checked={locked}
+                    onChange={(event) => handleLockToggle(field.key, event.target.checked)}
+                    disabled={disabled}
+                  />
+                  <span className="sunday-bulletin-form__lock-text">
+                    {locked ? '고정' : '수정'}
+                  </span>
+                </label>
+              ) : null}
+            </div>
+
             {field.hint ? <p className="sunday-bulletin-form__hint">{field.hint}</p> : null}
+
             {field.type === 'seasonWeekNumber' ? (
               <div className="sunday-bulletin-form__season-week">
-                <span className="sunday-bulletin-form__season-fixed">성령강림절 후 제</span>
+                <span className="sunday-bulletin-form__season-fixed">제</span>
                 <input
                   id={fieldId}
                   type="text"
@@ -102,9 +127,14 @@ function SundayBulletinEditor({ weekly, onChange, disabled = false, showPreview 
                 id={fieldId}
                 className="board-write-form__input sunday-bulletin-form__textarea"
                 value={value}
-                onChange={(event) => handleFieldChange(field.key, event.target.value)}
-                disabled={disabled}
-                rows={10}
+                onChange={(event) =>
+                  isLockable
+                    ? handleOverrideChange(field.key, event.target.value)
+                    : handleFieldChange(field.key, event.target.value)
+                }
+                disabled={fieldDisabled}
+                readOnly={isLockable && locked}
+                rows={field.rows ?? (isLockable ? 5 : 10)}
                 placeholder={field.placeholder}
                 autoComplete={AUTOCOMPLETE_OFF}
               />
@@ -114,8 +144,13 @@ function SundayBulletinEditor({ weekly, onChange, disabled = false, showPreview 
                 type="text"
                 className="board-write-form__input"
                 value={value}
-                onChange={(event) => handleFieldChange(field.key, event.target.value)}
-                disabled={disabled}
+                onChange={(event) =>
+                  isLockable
+                    ? handleOverrideChange(field.key, event.target.value)
+                    : handleFieldChange(field.key, event.target.value)
+                }
+                disabled={fieldDisabled}
+                readOnly={isLockable && locked}
                 placeholder={field.placeholder}
                 autoComplete={AUTOCOMPLETE_OFF}
               />
@@ -123,69 +158,6 @@ function SundayBulletinEditor({ weekly, onChange, disabled = false, showPreview 
           </div>
         )
       })}
-
-      <section className="sunday-bulletin-form__fixed-section" aria-label="주보 고정 항목">
-        <h3 className="sunday-bulletin-form__fixed-title">고정 항목</h3>
-        <p className="sunday-bulletin-form__fixed-help">
-          체크됨 = 고정(기본값 사용) / 체크 해제 = 직접 수정
-        </p>
-
-        {SUNDAY_BULLETIN_LOCKABLE_FIELDS.map((field) => {
-          const fieldId = `bulletin-fixed-${field.key}`
-          const lockId = `${fieldId}-lock`
-          const locked = isBulletinFieldLocked(data, field.key)
-          const value = locked
-            ? getBulletinFieldDefault(field.key)
-            : (data.fixedOverrides?.[field.key] ?? getBulletinFieldDefault(field.key))
-
-          return (
-            <div key={field.key} className="board-write-form__field sunday-bulletin-form__fixed-field">
-              <div className="sunday-bulletin-form__fixed-header">
-                <label htmlFor={fieldId} className="board-write-form__label">
-                  {field.label}
-                </label>
-                <label htmlFor={lockId} className="sunday-bulletin-form__lock">
-                  <input
-                    id={lockId}
-                    type="checkbox"
-                    className="sunday-bulletin-form__lock-input"
-                    checked={locked}
-                    onChange={(event) => handleLockToggle(field.key, event.target.checked)}
-                    disabled={disabled}
-                  />
-                  <span className="sunday-bulletin-form__lock-text">
-                    {locked ? '고정' : '수정'}
-                  </span>
-                </label>
-              </div>
-              {field.hint ? <p className="sunday-bulletin-form__hint">{field.hint}</p> : null}
-              {field.multiline ? (
-                <textarea
-                  id={fieldId}
-                  className="board-write-form__input sunday-bulletin-form__textarea"
-                  value={value}
-                  onChange={(event) => handleOverrideChange(field.key, event.target.value)}
-                  disabled={disabled || locked}
-                  rows={field.rows ?? 5}
-                  autoComplete={AUTOCOMPLETE_OFF}
-                  readOnly={locked}
-                />
-              ) : (
-                <input
-                  id={fieldId}
-                  type="text"
-                  className="board-write-form__input"
-                  value={value}
-                  onChange={(event) => handleOverrideChange(field.key, event.target.value)}
-                  disabled={disabled || locked}
-                  autoComplete={AUTOCOMPLETE_OFF}
-                  readOnly={locked}
-                />
-              )}
-            </div>
-          )
-        })}
-      </section>
 
       {showPreview ? (
         <div className="sunday-bulletin-form__preview" aria-label="주보 미리보기">

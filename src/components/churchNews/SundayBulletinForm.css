@@ -79,6 +79,18 @@
   margin-bottom: 0;
 }
 
+.sunday-bulletin-form__field-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.35rem;
+}
+
+.sunday-bulletin-form__field-header .board-write-form__label {
+  margin-bottom: 0;
+}
+
 .sunday-bulletin-form__lock {
   display: inline-flex;
   align-items: center;
@@ -150,7 +162,8 @@
     font-size: 0.88rem;
   }
 
-  .sunday-bulletin-form__fixed-header {
+  .sunday-bulletin-form__fixed-header,
+  .sunday-bulletin-form__field-header {
     align-items: flex-start;
   }
 }
