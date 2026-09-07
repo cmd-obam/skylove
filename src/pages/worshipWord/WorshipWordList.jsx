@@ -8,6 +8,12 @@ import useIsMobile from '@/hooks/useIsMobile'
 import { getWorshipWordBoard } from '@/data/worshipWord'
 import { formatBoardDate } from '@/utils/formatBoardDate'
 import { getPostAuthor } from '@/utils/getPostAuthor'
+import {
+  extractYouTubeVideoId,
+  getYouTubeThumbnail,
+  getYouTubeThumbnailFallbackQualities,
+  upgradeYouTubeThumbnailUrl,
+} from '@/utils/youtube'
 import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 import '@/pages/ChurchNews.css'
 import './WorshipWord.css'
@@ -15,6 +21,28 @@ import './WorshipWord.css'
 const PAGE_SIZE_DESKTOP = 12
 const PAGE_SIZE_MOBILE = 5
 const PAGE_BUTTON_WINDOW = 5
+
+function handleYouTubeThumbError(event) {
+  const currentSrc = event.currentTarget.currentSrc
+  const videoId =
+    extractYouTubeVideoId(currentSrc) ||
+    currentSrc.match(/\/vi\/([A-Za-z0-9_-]{11})\//)?.[1]
+
+  if (!videoId) {
+    return
+  }
+
+  const fallbacks = getYouTubeThumbnailFallbackQualities(currentSrc)
+
+  for (const quality of fallbacks) {
+    const nextSrc = getYouTubeThumbnail(videoId, quality)
+
+    if (nextSrc && nextSrc !== currentSrc) {
+      event.currentTarget.src = nextSrc
+      return
+    }
+  }
+}
 
 function getVisiblePageNumbers(currentPage, totalPages, windowSize = PAGE_BUTTON_WINDOW) {
   if (totalPages <= windowSize) {
@@ -140,10 +168,11 @@ function WorshipWordList({ boardKey }) {
                   <div className="worship-word-card__image-wrap">
                     {post.thumbnail ? (
                       <img
-                        src={post.thumbnail}
+                        src={upgradeYouTubeThumbnailUrl(post.thumbnail)}
                         alt={`${post.title} 썸네일`}
                         className="worship-word-card__image"
                         loading="lazy"
+                        onError={handleYouTubeThumbError}
                       />
                     ) : (
                       <div className="worship-word-card__placeholder" aria-hidden="true">

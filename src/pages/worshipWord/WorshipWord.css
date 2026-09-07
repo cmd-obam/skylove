@@ -173,8 +173,12 @@
   margin: 0 auto;
   overflow: hidden;
   border-radius: 8px;
-  background: #111;
+  background: #f3f5f7;
   aspect-ratio: 16 / 9;
+}
+
+.worship-word-detail__video--playing {
+  background: #000;
 }
 
 .worship-word-detail__video iframe {
@@ -183,6 +187,57 @@
   width: 100%;
   height: 100%;
   border: 0;
+}
+
+.worship-word-detail__video-poster {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: #f3f5f7;
+  cursor: pointer;
+}
+
+.worship-word-detail__video-thumb {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+}
+
+.worship-word-detail__video-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 4.25rem;
+  height: 4.25rem;
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(204, 0, 0, 0.92);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.28);
+  transform: translate(-50%, -50%);
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.worship-word-detail__video-play svg {
+  width: 1.75rem;
+  height: 1.75rem;
+  margin-left: 0.15rem;
+}
+
+.worship-word-detail__video-poster:hover .worship-word-detail__video-play,
+.worship-word-detail__video-poster:focus-visible .worship-word-detail__video-play {
+  background: rgba(185, 0, 0, 0.96);
+  transform: translate(-50%, -50%) scale(1.05);
 }
 
 .worship-word-detail__video-placeholder {
@@ -345,24 +400,19 @@
     max-width: 100%;
   }
 
-  /* YouTube wrapper: fill content width and crop letterbox bars on mobile */
+  /* YouTube wrapper: full content width on mobile; no zoom crop */
   .worship-word-detail__video {
     width: 100%;
     max-width: 100%;
-    overflow: hidden;
-    background: #000;
   }
 
   .worship-word-detail__video iframe {
     position: absolute;
-    top: 50%;
-    left: 50%;
+    inset: 0;
     width: 100% !important;
     height: 100% !important;
     max-width: none !important;
     border: 0;
-    transform: translate(-50%, -50%) scale(1.22);
-    transform-origin: center center;
   }
 
   /* Apply only to rich-text media, not the YouTube embed iframe above */

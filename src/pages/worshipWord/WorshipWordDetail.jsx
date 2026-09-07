@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { FiChevronDown, FiHeart, FiUser } from 'react-icons/fi'
+import { FiChevronDown, FiHeart, FiPlay, FiUser } from 'react-icons/fi'
 import BoardPageHeader from '@/components/board/BoardPageHeader'
 import BoardPostAdminBar from '@/components/board/BoardPostAdminBar'
 import PostCopyright from '@/components/board/PostCopyright'
@@ -12,7 +12,13 @@ import { fetchAdjacentBoardPosts } from '@/services/board/posts'
 import { togglePostLike } from '@/services/board/postLikes'
 import { formatRelativeTime } from '@/utils/formatBoardDate'
 import { getPostAuthor } from '@/utils/getPostAuthor'
-import { extractYouTubeVideoId, getYouTubeEmbedUrl } from '@/utils/youtube'
+import {
+  extractYouTubeVideoId,
+  getYouTubeEmbedUrl,
+  getYouTubeThumbnail,
+  getYouTubeThumbnailFallbackQualities,
+  upgradeYouTubeThumbnailUrl,
+} from '@/utils/youtube'
 import { sanitizeBoardHtml } from '@/utils/sanitizeBoardHtml'
 import '@/pages/ChurchNews.css'
 import './WorshipWord.css'
@@ -23,6 +29,8 @@ function WorshipWordDetail({ boardKey }) {
   const { isLoggedIn, user, effectiveUserId } = useAuth()
   const { post, loading } = useBoardPost(board.postType, postId)
   const [adjacent, setAdjacent] = useState({ prev: null, next: null })
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [posterSrc, setPosterSrc] = useState(null)
   const currentUserId = effectiveUserId ?? user?.id
 
   const {
@@ -36,6 +44,14 @@ function WorshipWordDetail({ boardKey }) {
   useEffect(() => {
     refreshLikeState(currentUserId)
   }, [refreshLikeState, currentUserId])
+
+  useEffect(() => {
+    setIsPlaying(false)
+
+    const videoId = extractYouTubeVideoId(post?.youtubeUrl)
+    const fromStored = upgradeYouTubeThumbnailUrl(post?.thumbnail)
+    setPosterSrc(fromStored || getYouTubeThumbnail(videoId) || null)
+  }, [post?.id, post?.thumbnail, post?.youtubeUrl])
 
   useEffect(() => {
     if (!postId) {
@@ -88,12 +104,34 @@ function WorshipWordDetail({ boardKey }) {
     setLikedByMe,
   ])
 
+  const handlePosterError = useCallback(
+    (event) => {
+      const videoId = extractYouTubeVideoId(post?.youtubeUrl)
+
+      if (!videoId) {
+        return
+      }
+
+      const fallbacks = getYouTubeThumbnailFallbackQualities(event.currentTarget.currentSrc)
+
+      for (const quality of fallbacks) {
+        const nextSrc = getYouTubeThumbnail(videoId, quality)
+
+        if (nextSrc && nextSrc !== event.currentTarget.currentSrc) {
+          setPosterSrc(nextSrc)
+          return
+        }
+      }
+    },
+    [post?.youtubeUrl],
+  )
+
   if (loading) {
     return null
   }
 
   const videoId = extractYouTubeVideoId(post?.youtubeUrl)
-  const embedUrl = getYouTubeEmbedUrl(videoId)
+  const embedUrl = getYouTubeEmbedUrl(videoId, { autoplay: isPlaying })
 
   if (!post) {
     return (
@@ -146,14 +184,37 @@ function WorshipWordDetail({ boardKey }) {
         </header>
 
         <div className="worship-word-detail__body">
-          <div className="worship-word-detail__video">
-            {embedUrl ? (
+          <div
+            className={`worship-word-detail__video${
+              isPlaying ? ' worship-word-detail__video--playing' : ''
+            }`}
+          >
+            {embedUrl && isPlaying ? (
               <iframe
                 src={embedUrl}
                 title={post.title}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
               />
+            ) : embedUrl ? (
+              <button
+                type="button"
+                className="worship-word-detail__video-poster"
+                onClick={() => setIsPlaying(true)}
+                aria-label={`${post.title} 영상 재생`}
+              >
+                {posterSrc ? (
+                  <img
+                    src={posterSrc}
+                    alt=""
+                    className="worship-word-detail__video-thumb"
+                    onError={handlePosterError}
+                  />
+                ) : null}
+                <span className="worship-word-detail__video-play" aria-hidden="true">
+                  <FiPlay />
+                </span>
+              </button>
             ) : (
               <div className="worship-word-detail__video-placeholder">
                 유튜브 영상이 등록되지 않았습니다.
