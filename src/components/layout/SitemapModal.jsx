@@ -43,7 +43,7 @@ function SitemapModal({ isOpen, onClose }) {
               사이트맵
             </h2>
             <p className="sitemap-modal__description">
-              홈페이지에 오신것을 진심으로 환영합니다. 메뉴를 클릭하시면 해당페이지로
+              하늘사랑교회에 오신것을 진심으로 환영합니다. 메뉴를 클릭하시면 해당페이지로
               이동합니다.
             </p>
           </div>
