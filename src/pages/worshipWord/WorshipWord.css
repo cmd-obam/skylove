@@ -345,18 +345,24 @@
     max-width: 100%;
   }
 
-  /* YouTube wrapper: use full content width on mobile (PC rules unchanged) */
+  /* YouTube wrapper: fill content width and crop letterbox bars on mobile */
   .worship-word-detail__video {
     width: 100%;
     max-width: 100%;
+    overflow: hidden;
+    background: #000;
   }
 
   .worship-word-detail__video iframe {
     position: absolute;
-    inset: 0;
+    top: 50%;
+    left: 50%;
     width: 100% !important;
     height: 100% !important;
     max-width: none !important;
+    border: 0;
+    transform: translate(-50%, -50%) scale(1.22);
+    transform-origin: center center;
   }
 
   /* Apply only to rich-text media, not the YouTube embed iframe above */
