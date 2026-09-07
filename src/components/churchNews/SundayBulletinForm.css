@@ -91,6 +91,107 @@
   margin-bottom: 0;
 }
 
+.sunday-bulletin-form__accordion-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 0.85rem;
+}
+
+.sunday-bulletin-form__accordion-action {
+  padding: 0.35rem 0.7rem;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  color: #374151;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sunday-bulletin-form__accordion-action:hover,
+.sunday-bulletin-form__accordion-action:focus-visible {
+  border-color: #9ca3af;
+  background: #f9fafb;
+}
+
+.sunday-bulletin-form__accordion-action:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.sunday-bulletin-form__accordion {
+  margin-bottom: 0.55rem;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+}
+
+.sunday-bulletin-form__accordion-header {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+  padding: 0.55rem 0.7rem;
+  background: #f8fafc;
+}
+
+.sunday-bulletin-form__accordion-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sunday-bulletin-form__accordion-toggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.sunday-bulletin-form__accordion-chevron {
+  flex-shrink: 0;
+  width: 1rem;
+  color: #6b7280;
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.sunday-bulletin-form__accordion-label {
+  flex-shrink: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1f2d3d;
+}
+
+.sunday-bulletin-form__accordion-summary {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: #6b7280;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sunday-bulletin-form__accordion-panel {
+  padding: 0.15rem 0.7rem 0.75rem;
+  border-top: 1px solid #eef2f7;
+}
+
+.sunday-bulletin-form__accordion-panel .sunday-bulletin-form__hint {
+  margin: 0.55rem 0 0.45rem;
+}
+
+.sunday-bulletin-form__accordion .sunday-bulletin-form__lock {
+  margin-left: auto;
+}
+
 .sunday-bulletin-form__lock {
   display: inline-flex;
   align-items: center;
