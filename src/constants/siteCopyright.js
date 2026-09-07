@@ -1,6 +1,6 @@
 export const COPYRIGHT_NOTICE = {
   church: '하늘사랑교회',
-  english: 'Haneul Sarang Methodist Church',
+  english: 'Heavenly Love Church',
   year: '2026',
   lines: [
     '본 게시물(사진, 영상, 문서 및 기타 콘텐츠)의 저작권은 하늘사랑교회에 있습니다.',
