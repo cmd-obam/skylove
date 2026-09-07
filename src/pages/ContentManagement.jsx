@@ -754,13 +754,8 @@ function ContentManagement() {
                   <th scope="col">번호</th>
                   <th scope="col">게시판</th>
                   <th scope="col">제목</th>
-                  <th scope="col">이미지</th>
-                  <th scope="col">작성자</th>
+                  <th scope="col">이름</th>
                   <th scope="col">작성일</th>
-                  <th scope="col">수정일</th>
-                  <th scope="col">조회</th>
-                  <th scope="col">댓글</th>
-                  <th scope="col">추천</th>
                   <th scope="col">상태</th>
                   <th scope="col">관리</th>
                 </tr>
@@ -768,13 +763,13 @@ function ContentManagement() {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={13} className="member-management-page__empty">
+                    <td colSpan={8} className="member-management-page__empty">
                       불러오는 중...
                     </td>
                   </tr>
                 ) : rows.length === 0 ? (
                   <tr>
-                    <td colSpan={13} className="member-management-page__empty">
+                    <td colSpan={8} className="member-management-page__empty">
                       검색 결과가 없습니다.
                     </td>
                   </tr>
@@ -798,15 +793,6 @@ function ContentManagement() {
                           {post.has_admin_note ? <span className="content-cms-note-dot" title="관리자 메모" /> : null}
                         </td>
                         <td>
-                          {post.thumbnail ? (
-                            <img src={post.thumbnail} alt="" className="content-cms-thumb" />
-                          ) : post.has_image ? (
-                            <span aria-hidden="true">🖼</span>
-                          ) : (
-                            '-'
-                          )}
-                        </td>
-                        <td>
                           {post.author_id ? (
                             <Link to={getMemberDetailPath(post.author_id)}>{post.writer}</Link>
                           ) : (
@@ -814,14 +800,6 @@ function ContentManagement() {
                           )}
                         </td>
                         <td>{formatDateTime(post.created_at)}</td>
-                        <td>
-                          {post.updated_at && post.updated_at !== post.created_at
-                            ? formatDateTime(post.updated_at)
-                            : '-'}
-                        </td>
-                        <td>{post.views_count}</td>
-                        <td>{post.comments_count}</td>
-                        <td>{post.likes_count}</td>
                         <td>
                           <div className="content-cms-status-cell">
                             <span className={`content-cms-status content-cms-status--${getPostStatusLabel(post)}`}>
@@ -878,12 +856,11 @@ function ContentManagement() {
                     <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} aria-label="전체선택" />
                   </th>
                   <th scope="col">번호</th>
-                  <th scope="col">댓글 내용</th>
-                  <th scope="col">원본 게시글</th>
                   <th scope="col">게시판</th>
-                  <th scope="col">작성자</th>
+                  <th scope="col">제목</th>
+                  <th scope="col">댓글내용</th>
+                  <th scope="col">이름</th>
                   <th scope="col">작성일</th>
-                  <th scope="col">수정일</th>
                   <th scope="col">상태</th>
                   <th scope="col">관리</th>
                 </tr>
@@ -891,13 +868,13 @@ function ContentManagement() {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={10} className="member-management-page__empty">
+                    <td colSpan={9} className="member-management-page__empty">
                       불러오는 중...
                     </td>
                   </tr>
                 ) : rows.length === 0 ? (
                   <tr>
-                    <td colSpan={10} className="member-management-page__empty">
+                    <td colSpan={9} className="member-management-page__empty">
                       검색 결과가 없습니다.
                     </td>
                   </tr>
@@ -915,6 +892,12 @@ function ContentManagement() {
                           />
                         </td>
                         <td>{rowNumber}</td>
+                        <td>{comment.board_label}</td>
+                        <td>
+                          <Link to={getBoardDetailPath(comment.post_type, comment.post_id)}>
+                            {comment.post_title}
+                          </Link>
+                        </td>
                         <td className="content-cms-title-cell">
                           <Link to={getCommentDeepLink(comment.post_type, comment.post_id, comment.id)}>
                             {comment.body}
@@ -924,12 +907,6 @@ function ContentManagement() {
                           ) : null}
                         </td>
                         <td>
-                          <Link to={getBoardDetailPath(comment.post_type, comment.post_id)}>
-                            {comment.post_title}
-                          </Link>
-                        </td>
-                        <td>{comment.board_label}</td>
-                        <td>
                           {comment.user_id ? (
                             <Link to={getMemberDetailPath(comment.user_id)}>{comment.author_name}</Link>
                           ) : (
@@ -937,11 +914,6 @@ function ContentManagement() {
                           )}
                         </td>
                         <td>{formatDateTime(comment.created_at)}</td>
-                        <td>
-                          {comment.updated_at && comment.updated_at !== comment.created_at
-                            ? formatDateTime(comment.updated_at)
-                            : '-'}
-                        </td>
                         <td>
                           <span
                             className={`content-cms-status content-cms-status--${getCommentStatusLabel(comment)}`}
