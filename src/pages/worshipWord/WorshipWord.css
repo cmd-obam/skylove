@@ -345,9 +345,24 @@
     max-width: 100%;
   }
 
-  .worship-word-detail__body img,
-  .worship-word-detail__body video,
-  .worship-word-detail__body iframe {
+  /* YouTube wrapper: use full content width on mobile (PC rules unchanged) */
+  .worship-word-detail__video {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .worship-word-detail__video iframe {
+    position: absolute;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+  }
+
+  /* Apply only to rich-text media, not the YouTube embed iframe above */
+  .worship-word-detail__content img,
+  .worship-word-detail__content video,
+  .worship-word-detail__content iframe {
     display: block;
     float: none !important;
     max-width: 100% !important;
@@ -355,23 +370,23 @@
     height: auto !important;
   }
 
-  .worship-word-detail__body img[data-align='left'],
-  .worship-word-detail__body video[data-align='left'] {
+  .worship-word-detail__content img[data-align='left'],
+  .worship-word-detail__content video[data-align='left'] {
     margin-left: 0 !important;
     margin-right: auto !important;
   }
 
-  .worship-word-detail__body img[data-align='right'],
-  .worship-word-detail__body video[data-align='right'] {
+  .worship-word-detail__content img[data-align='right'],
+  .worship-word-detail__content video[data-align='right'] {
     margin-left: auto !important;
     margin-right: 0 !important;
   }
 
-  .worship-word-detail__body img[data-align='center'],
-  .worship-word-detail__body img:not([data-align]),
-  .worship-word-detail__body video[data-align='center'],
-  .worship-word-detail__body video:not([data-align]),
-  .worship-word-detail__body iframe {
+  .worship-word-detail__content img[data-align='center'],
+  .worship-word-detail__content img:not([data-align]),
+  .worship-word-detail__content video[data-align='center'],
+  .worship-word-detail__content video:not([data-align]),
+  .worship-word-detail__content iframe {
     margin-left: auto !important;
     margin-right: auto !important;
   }
