@@ -4,8 +4,18 @@ const YOUTUBE_ID_PATTERN =
 const YOUTUBE_THUMB_PATH_PATTERN =
   /^(https?:\/\/(?:i\d?\.ytimg\.com|img\.youtube\.com)\/vi\/)([A-Za-z0-9_-]{11})\/[A-Za-z0-9_]+\.jpg(?:\?.*)?$/i
 
-/** Prefer 16:9 thumbs without YouTube's hqdefault letterboxing. */
-const YOUTUBE_THUMB_QUALITY_FALLBACKS = ['maxresdefault', 'hq720', 'mqdefault', 'hqdefault']
+/**
+ * Prefer true 16:9 thumbs. Avoid hqdefault/sddefault first — those are 4:3 frames
+ * with YouTube-added letterboxing that looks like site-added black bars.
+ * Missing maxresdefault often returns a 120x90 placeholder (loads without error).
+ */
+export const YOUTUBE_THUMB_QUALITY_FALLBACKS = [
+  'maxresdefault',
+  'hq720',
+  'mqdefault',
+  'sddefault',
+  'hqdefault',
+]
 
 export function extractYouTubeVideoId(url) {
   if (typeof url !== 'string') {
@@ -31,6 +41,11 @@ export function extractYouTubeVideoId(url) {
     }
   } catch {
     // fall through to regex
+  }
+
+  const fromThumb = trimmed.match(YOUTUBE_THUMB_PATH_PATTERN)
+  if (fromThumb?.[2]) {
+    return fromThumb[2]
   }
 
   const match = trimmed.match(YOUTUBE_ID_PATTERN)
@@ -59,6 +74,15 @@ export function upgradeYouTubeThumbnailUrl(url) {
   return getYouTubeThumbnail(match[2], 'maxresdefault')
 }
 
+/** YouTube returns a tiny 120×90 image when maxresdefault does not exist. */
+export function isYouTubeThumbnailPlaceholder(width, height) {
+  if (!width || !height) {
+    return true
+  }
+
+  return width <= 120 || height <= 90
+}
+
 export function getYouTubeThumbnailFallbackQualities(currentSrc) {
   const currentQuality =
     typeof currentSrc === 'string'
@@ -68,6 +92,24 @@ export function getYouTubeThumbnailFallbackQualities(currentSrc) {
   const startIndex = YOUTUBE_THUMB_QUALITY_FALLBACKS.indexOf(currentQuality)
 
   return YOUTUBE_THUMB_QUALITY_FALLBACKS.slice(startIndex >= 0 ? startIndex + 1 : 1)
+}
+
+export function getNextYouTubeThumbnailUrl(currentSrc, videoIdHint = null) {
+  const videoId = videoIdHint || extractYouTubeVideoId(currentSrc)
+
+  if (!videoId) {
+    return null
+  }
+
+  for (const quality of getYouTubeThumbnailFallbackQualities(currentSrc)) {
+    const nextSrc = getYouTubeThumbnail(videoId, quality)
+
+    if (nextSrc && nextSrc !== currentSrc) {
+      return nextSrc
+    }
+  }
+
+  return null
 }
 
 export function getYouTubeEmbedUrl(videoId, { autoplay = false } = {}) {

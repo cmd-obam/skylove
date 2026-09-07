@@ -9,9 +9,8 @@ import { getWorshipWordBoard } from '@/data/worshipWord'
 import { formatBoardDate } from '@/utils/formatBoardDate'
 import { getPostAuthor } from '@/utils/getPostAuthor'
 import {
-  extractYouTubeVideoId,
-  getYouTubeThumbnail,
-  getYouTubeThumbnailFallbackQualities,
+  getNextYouTubeThumbnailUrl,
+  isYouTubeThumbnailPlaceholder,
   upgradeYouTubeThumbnailUrl,
 } from '@/utils/youtube'
 import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
@@ -22,25 +21,23 @@ const PAGE_SIZE_DESKTOP = 12
 const PAGE_SIZE_MOBILE = 5
 const PAGE_BUTTON_WINDOW = 5
 
-function handleYouTubeThumbError(event) {
-  const currentSrc = event.currentTarget.currentSrc
-  const videoId =
-    extractYouTubeVideoId(currentSrc) ||
-    currentSrc.match(/\/vi\/([A-Za-z0-9_-]{11})\//)?.[1]
+function advanceYouTubeThumb(img) {
+  const nextSrc = getNextYouTubeThumbnailUrl(img.currentSrc)
 
-  if (!videoId) {
-    return
+  if (nextSrc) {
+    img.src = nextSrc
   }
+}
 
-  const fallbacks = getYouTubeThumbnailFallbackQualities(currentSrc)
+function handleYouTubeThumbError(event) {
+  advanceYouTubeThumb(event.currentTarget)
+}
 
-  for (const quality of fallbacks) {
-    const nextSrc = getYouTubeThumbnail(videoId, quality)
+function handleYouTubeThumbLoad(event) {
+  const img = event.currentTarget
 
-    if (nextSrc && nextSrc !== currentSrc) {
-      event.currentTarget.src = nextSrc
-      return
-    }
+  if (isYouTubeThumbnailPlaceholder(img.naturalWidth, img.naturalHeight)) {
+    advanceYouTubeThumb(img)
   }
 }
 
@@ -172,6 +169,7 @@ function WorshipWordList({ boardKey }) {
                         alt={`${post.title} 썸네일`}
                         className="worship-word-card__image"
                         loading="lazy"
+                        onLoad={handleYouTubeThumbLoad}
                         onError={handleYouTubeThumbError}
                       />
                     ) : (

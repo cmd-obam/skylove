@@ -16,7 +16,8 @@ import {
   extractYouTubeVideoId,
   getYouTubeEmbedUrl,
   getYouTubeThumbnail,
-  getYouTubeThumbnailFallbackQualities,
+  getNextYouTubeThumbnailUrl,
+  isYouTubeThumbnailPlaceholder,
   upgradeYouTubeThumbnailUrl,
 } from '@/utils/youtube'
 import { sanitizeBoardHtml } from '@/utils/sanitizeBoardHtml'
@@ -31,6 +32,7 @@ function WorshipWordDetail({ boardKey }) {
   const [adjacent, setAdjacent] = useState({ prev: null, next: null })
   const [isPlaying, setIsPlaying] = useState(false)
   const [posterSrc, setPosterSrc] = useState(null)
+  const [mediaAspect, setMediaAspect] = useState(null)
   const currentUserId = effectiveUserId ?? user?.id
 
   const {
@@ -47,6 +49,7 @@ function WorshipWordDetail({ boardKey }) {
 
   useEffect(() => {
     setIsPlaying(false)
+    setMediaAspect(null)
 
     const videoId = extractYouTubeVideoId(post?.youtubeUrl)
     const fromStored = upgradeYouTubeThumbnailUrl(post?.thumbnail)
@@ -104,26 +107,43 @@ function WorshipWordDetail({ boardKey }) {
     setLikedByMe,
   ])
 
+  const advancePosterQuality = useCallback(
+    (currentSrc) => {
+      const videoId = extractYouTubeVideoId(post?.youtubeUrl)
+      const nextSrc = getNextYouTubeThumbnailUrl(currentSrc, videoId)
+
+      if (nextSrc) {
+        setPosterSrc(nextSrc)
+        return true
+      }
+
+      return false
+    },
+    [post?.youtubeUrl],
+  )
+
   const handlePosterError = useCallback(
     (event) => {
-      const videoId = extractYouTubeVideoId(post?.youtubeUrl)
+      advancePosterQuality(event.currentTarget.currentSrc)
+    },
+    [advancePosterQuality],
+  )
 
-      if (!videoId) {
+  const handlePosterLoad = useCallback(
+    (event) => {
+      const { naturalWidth, naturalHeight, currentSrc } = event.currentTarget
+
+      if (isYouTubeThumbnailPlaceholder(naturalWidth, naturalHeight)) {
+        setMediaAspect(null)
+        advancePosterQuality(currentSrc)
         return
       }
 
-      const fallbacks = getYouTubeThumbnailFallbackQualities(event.currentTarget.currentSrc)
-
-      for (const quality of fallbacks) {
-        const nextSrc = getYouTubeThumbnail(videoId, quality)
-
-        if (nextSrc && nextSrc !== event.currentTarget.currentSrc) {
-          setPosterSrc(nextSrc)
-          return
-        }
+      if (naturalWidth > 0 && naturalHeight > 0) {
+        setMediaAspect(naturalWidth / naturalHeight)
       }
     },
-    [post?.youtubeUrl],
+    [advancePosterQuality],
   )
 
   if (loading) {
@@ -132,6 +152,9 @@ function WorshipWordDetail({ boardKey }) {
 
   const videoId = extractYouTubeVideoId(post?.youtubeUrl)
   const embedUrl = getYouTubeEmbedUrl(videoId, { autoplay: isPlaying })
+  const videoStyle = mediaAspect
+    ? { '--worship-video-aspect': String(mediaAspect) }
+    : undefined
 
   if (!post) {
     return (
@@ -188,6 +211,7 @@ function WorshipWordDetail({ boardKey }) {
             className={`worship-word-detail__video${
               isPlaying ? ' worship-word-detail__video--playing' : ''
             }`}
+            style={videoStyle}
           >
             {embedUrl && isPlaying ? (
               <iframe
@@ -208,6 +232,7 @@ function WorshipWordDetail({ boardKey }) {
                     src={posterSrc}
                     alt=""
                     className="worship-word-detail__video-thumb"
+                    onLoad={handlePosterLoad}
                     onError={handlePosterError}
                   />
                 ) : null}
