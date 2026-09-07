@@ -199,7 +199,7 @@ function SundayBulletinEditor({ weekly, onChange, disabled = false, showPreview 
 
                 {field.type === 'seasonWeekNumber' ? (
                   <div className="sunday-bulletin-form__season-week">
-                    <span className="sunday-bulletin-form__season-fixed">제</span>
+                    <span className="sunday-bulletin-form__season-fixed">성령강림절 후 제</span>
                     <input
                       id={fieldId}
                       type="text"

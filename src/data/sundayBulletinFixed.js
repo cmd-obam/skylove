@@ -39,44 +39,19 @@ export const SUNDAY_BULLETIN_FIXED = {
 }
 
 /**
- * 주보 작성 양식 전체 목록 (주보 표시 순서에 맞춤)
+ * 주보 작성 양식 목록 (주보 표시 순서에 맞춤)
  * - lockable: true → 우측 체크박스로 고정/수정 전환 (기본 체크=고정)
  * - lockable 없음 → 매주 직접 입력 항목
+ *
+ * 예배제목/시간/사회/절기문구/봉헌기도/엘샤다이중창단/축도/
+ * 섬기는사람/선교및후원/교단명/교회명은 양식에서 제외(항상 고정값).
  */
 export const SUNDAY_BULLETIN_FORM_FIELDS = [
-  {
-    key: 'serviceTitle',
-    label: '예배 제목',
-    lockable: true,
-    multiline: false,
-    getDefault: () => SUNDAY_BULLETIN_FIXED.serviceTitle,
-  },
-  {
-    key: 'serviceTime',
-    label: '예배 시간',
-    lockable: true,
-    multiline: false,
-    getDefault: () => SUNDAY_BULLETIN_FIXED.serviceTime,
-  },
-  {
-    key: 'moderator',
-    label: '사회',
-    lockable: true,
-    multiline: false,
-    getDefault: () => SUNDAY_BULLETIN_FIXED.moderator,
-  },
-  {
-    key: 'seasonPrefix',
-    label: '절기 문구',
-    lockable: true,
-    multiline: false,
-    getDefault: () => SUNDAY_BULLETIN_FIXED.seasonPrefix,
-  },
   {
     key: 'seasonWeek',
     label: '성령강림절 후 제 ○○주',
     placeholder: '예: 14',
-    hint: '주차 숫자만 입력하세요. 주보에는 절기 문구 / “제 ○○ 주”로 표시됩니다.',
+    hint: '주차 숫자만 입력하세요. 주보에는 “성령강림절 후” / “제 ○○ 주”로 표시됩니다.',
     type: 'seasonWeekNumber',
     multiline: false,
   },
@@ -143,24 +118,10 @@ export const SUNDAY_BULLETIN_FORM_FIELDS = [
     getDefault: () => SUNDAY_BULLETIN_FIXED.orderFixed.offeringPraise,
   },
   {
-    key: 'offeringPrayer',
-    label: '봉헌기도',
-    lockable: true,
-    multiline: false,
-    getDefault: () => SUNDAY_BULLETIN_FIXED.orderFixed.offeringPrayer,
-  },
-  {
     key: 'graceSong',
     label: '은혜의통로 (찬송 제목)',
     placeholder: '예: “손 잡고 함께 가세”',
     multiline: false,
-  },
-  {
-    key: 'graceChoir',
-    label: '엘샤다이중창단',
-    lockable: true,
-    multiline: false,
-    getDefault: () => SUNDAY_BULLETIN_FIXED.graceChoir,
   },
   {
     key: 'fellowship',
@@ -188,53 +149,11 @@ export const SUNDAY_BULLETIN_FORM_FIELDS = [
     multiline: false,
   },
   {
-    key: 'benediction',
-    label: '축도',
-    lockable: true,
-    multiline: false,
-    getDefault: () => SUNDAY_BULLETIN_FIXED.orderFixed.benediction,
-  },
-  {
     key: 'churchNews',
     label: '교회소식',
     placeholder: '교회소식을 입력해 주세요. (줄바꿈 가능)',
     multiline: true,
     rows: 10,
-  },
-  {
-    key: 'servingPeople',
-    label: '섬기는사람',
-    lockable: true,
-    multiline: true,
-    rows: 6,
-    hint: '한 줄에 “역할: 이름” 형식으로 입력하세요.',
-    getDefault: () =>
-      SUNDAY_BULLETIN_FIXED.servingPeople
-        .map((item) => `${item.role}: ${item.name}`)
-        .join('\n'),
-  },
-  {
-    key: 'missionsLines',
-    label: '선교및후원 (본문)',
-    lockable: true,
-    multiline: true,
-    rows: 3,
-    hint: '한 줄에 한 항목씩 입력하세요.',
-    getDefault: () => SUNDAY_BULLETIN_FIXED.missions.lines.join('\n'),
-  },
-  {
-    key: 'missionsDenomination',
-    label: '교단명',
-    lockable: true,
-    multiline: false,
-    getDefault: () => SUNDAY_BULLETIN_FIXED.missions.denomination,
-  },
-  {
-    key: 'missionsChurchName',
-    label: '교회명',
-    lockable: true,
-    multiline: false,
-    getDefault: () => SUNDAY_BULLETIN_FIXED.missions.churchName,
   },
 ]
 

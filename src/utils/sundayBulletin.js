@@ -177,33 +177,30 @@ export function resolveSundayBulletinDisplay(weekly) {
 
   return {
     weekly: data,
-    serviceTitle: resolveBulletinFixedValue(data, 'serviceTitle'),
-    serviceTime: resolveBulletinFixedValue(data, 'serviceTime'),
-    moderator: resolveBulletinFixedValue(data, 'moderator'),
-    seasonPrefix: resolveBulletinFixedValue(data, 'seasonPrefix'),
+    serviceTitle: SUNDAY_BULLETIN_FIXED.serviceTitle,
+    serviceTime: SUNDAY_BULLETIN_FIXED.serviceTime,
+    moderator: SUNDAY_BULLETIN_FIXED.moderator,
+    seasonPrefix: SUNDAY_BULLETIN_FIXED.seasonPrefix,
     missionTitle: resolveBulletinFixedValue(data, 'missionTitle'),
     missionLines: parseMultilineText(
       resolveBulletinFixedValue(data, 'missionLines'),
       SUNDAY_BULLETIN_FIXED.missionLines,
     ),
-    graceChoir: resolveBulletinFixedValue(data, 'graceChoir'),
+    graceChoir: SUNDAY_BULLETIN_FIXED.graceChoir,
     orderFixed: {
       worshipPraise: resolveBulletinFixedValue(data, 'worshipPraise'),
       callToWorship: resolveBulletinFixedValue(data, 'callToWorship'),
       doxology: resolveBulletinFixedValue(data, 'doxology'),
       offeringPraise: resolveBulletinFixedValue(data, 'offeringPraise'),
-      offeringPrayer: resolveBulletinFixedValue(data, 'offeringPrayer'),
+      offeringPrayer: SUNDAY_BULLETIN_FIXED.orderFixed.offeringPrayer,
       fellowship: resolveBulletinFixedValue(data, 'fellowship'),
-      benediction: resolveBulletinFixedValue(data, 'benediction'),
+      benediction: SUNDAY_BULLETIN_FIXED.orderFixed.benediction,
     },
-    servingPeople: parseServingPeopleText(resolveBulletinFixedValue(data, 'servingPeople')),
+    servingPeople: SUNDAY_BULLETIN_FIXED.servingPeople,
     missions: {
-      lines: parseMultilineText(
-        resolveBulletinFixedValue(data, 'missionsLines'),
-        SUNDAY_BULLETIN_FIXED.missions.lines,
-      ),
-      denomination: resolveBulletinFixedValue(data, 'missionsDenomination'),
-      churchName: resolveBulletinFixedValue(data, 'missionsChurchName'),
+      lines: SUNDAY_BULLETIN_FIXED.missions.lines,
+      denomination: SUNDAY_BULLETIN_FIXED.missions.denomination,
+      churchName: SUNDAY_BULLETIN_FIXED.missions.churchName,
     },
   }
 }
