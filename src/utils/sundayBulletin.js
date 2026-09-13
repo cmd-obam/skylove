@@ -7,6 +7,20 @@ import {
 export const SUNDAY_BULLETIN_TYPE = 'sunday_bulletin'
 export const SUNDAY_BULLETIN_VERSION = 2
 
+/**
+ * 특정 게시글에만 적용하는 1회성 주보 덮어쓰기.
+ * (항상 고정 필드 + 해당 주 임재의말씀)
+ */
+export const SUNDAY_BULLETIN_ONE_TIME_BY_POST_ID = {
+  // 26.09.13 주일예배 주보
+  'ca1bab54-ea96-4c0e-929b-54a4eaef5f6a': {
+    moderator: '김혜경권사',
+    offeringPrayer: '최미화사관 축복기도',
+    benediction: '최미화 사관',
+    sermon: '나는~~~? 최미화 사관',
+  },
+}
+
 export const EMPTY_SUNDAY_BULLETIN_WEEKLY = {
   seasonWeek: '',
   prayer: '',
@@ -17,6 +31,23 @@ export const EMPTY_SUNDAY_BULLETIN_WEEKLY = {
   sermon: '',
   closingPraise: '',
   churchNews: '',
+}
+
+/** 항상 고정 항목에 대한 게시글별 1회성 덮어쓰기 (양식 UI에는 없음) */
+const ONE_TIME_FIXED_KEYS = ['moderator', 'offeringPrayer', 'benediction']
+
+function normalizeOneTimeFixed(raw = {}) {
+  if (!raw || typeof raw !== 'object') {
+    return {}
+  }
+
+  const result = {}
+  ONE_TIME_FIXED_KEYS.forEach((key) => {
+    if (raw[key] != null && String(raw[key]).trim() !== '') {
+      result[key] = String(raw[key]).trim()
+    }
+  })
+  return result
 }
 
 function createDefaultLocks() {
@@ -30,8 +61,12 @@ function createDefaultOverrides() {
 }
 
 export function createEmptySundayBulletinWeekly(overrides = {}) {
-  const { locks: locksOverride, fixedOverrides: fixedOverridesInput, ...weeklyFields } =
-    overrides ?? {}
+  const {
+    locks: locksOverride,
+    fixedOverrides: fixedOverridesInput,
+    oneTimeFixed: oneTimeFixedInput,
+    ...weeklyFields
+  } = overrides ?? {}
 
   return {
     ...EMPTY_SUNDAY_BULLETIN_WEEKLY,
@@ -46,7 +81,33 @@ export function createEmptySundayBulletinWeekly(overrides = {}) {
         ? fixedOverridesInput
         : {}),
     },
+    oneTimeFixed: normalizeOneTimeFixed(oneTimeFixedInput),
   }
+}
+
+export function applySundayBulletinOneTimeOverride(weekly, postId) {
+  if (!postId || !weekly) {
+    return weekly
+  }
+
+  const override = SUNDAY_BULLETIN_ONE_TIME_BY_POST_ID[postId]
+  if (!override) {
+    return weekly
+  }
+
+  const next = createEmptySundayBulletinWeekly(weekly)
+  if (override.sermon != null) {
+    next.sermon = String(override.sermon)
+  }
+
+  next.oneTimeFixed = normalizeOneTimeFixed({
+    ...next.oneTimeFixed,
+    moderator: override.moderator,
+    offeringPrayer: override.offeringPrayer,
+    benediction: override.benediction,
+  })
+
+  return next
 }
 
 export function isSundayBulletinContent(content) {
@@ -174,12 +235,13 @@ export function parseMultilineText(text, fallbackLines = []) {
 
 export function resolveSundayBulletinDisplay(weekly) {
   const data = createEmptySundayBulletinWeekly(weekly)
+  const oneTime = data.oneTimeFixed || {}
 
   return {
     weekly: data,
     serviceTitle: SUNDAY_BULLETIN_FIXED.serviceTitle,
     serviceTime: SUNDAY_BULLETIN_FIXED.serviceTime,
-    moderator: SUNDAY_BULLETIN_FIXED.moderator,
+    moderator: oneTime.moderator || SUNDAY_BULLETIN_FIXED.moderator,
     seasonPrefix: SUNDAY_BULLETIN_FIXED.seasonPrefix,
     missionTitle: resolveBulletinFixedValue(data, 'missionTitle'),
     missionLines: parseMultilineText(
@@ -192,9 +254,10 @@ export function resolveSundayBulletinDisplay(weekly) {
       callToWorship: resolveBulletinFixedValue(data, 'callToWorship'),
       doxology: resolveBulletinFixedValue(data, 'doxology'),
       offeringPraise: resolveBulletinFixedValue(data, 'offeringPraise'),
-      offeringPrayer: SUNDAY_BULLETIN_FIXED.orderFixed.offeringPrayer,
+      offeringPrayer:
+        oneTime.offeringPrayer || SUNDAY_BULLETIN_FIXED.orderFixed.offeringPrayer,
       fellowship: resolveBulletinFixedValue(data, 'fellowship'),
-      benediction: SUNDAY_BULLETIN_FIXED.orderFixed.benediction,
+      benediction: oneTime.benediction || SUNDAY_BULLETIN_FIXED.orderFixed.benediction,
     },
     servingPeople: SUNDAY_BULLETIN_FIXED.servingPeople,
     missions: {
@@ -224,6 +287,7 @@ export function parseSundayBulletinWeekly(content) {
       churchNews: parsed.churchNews ?? '',
       locks: normalizeLocks(parsed.locks),
       fixedOverrides: normalizeFixedOverrides(parsed.fixedOverrides, parsed),
+      oneTimeFixed: normalizeOneTimeFixed(parsed.oneTimeFixed),
     })
   } catch {
     return null
@@ -248,6 +312,7 @@ export function serializeSundayBulletinWeekly(weekly) {
     churchNews: data.churchNews,
     locks: data.locks,
     fixedOverrides: data.fixedOverrides,
+    oneTimeFixed: data.oneTimeFixed,
     // 미리보기/구버전 호환용으로 현재 해석된 값도 함께 저장
     callToWorship: resolveBulletinFixedValue(data, 'callToWorship'),
     fellowship: resolveBulletinFixedValue(data, 'fellowship'),

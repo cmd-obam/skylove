@@ -4,7 +4,10 @@ import BoardPostDetail from '@/components/board/BoardPostDetail'
 import SundayBulletin from '@/components/churchNews/SundayBulletin'
 import { fetchRelatedBoardPosts } from '@/services/board/posts'
 import { useBoardPost } from '@/hooks/useBoardPost'
-import { parseSundayBulletinWeekly } from '@/utils/sundayBulletin'
+import {
+  applySundayBulletinOneTimeOverride,
+  parseSundayBulletinWeekly,
+} from '@/utils/sundayBulletin'
 
 const LIST_PATH = '/church-news'
 
@@ -13,10 +16,10 @@ function ChurchNewsDetail() {
   const { post, loading } = useBoardPost('church_news', postId)
   const [relatedPosts, setRelatedPosts] = useState([])
 
-  const bulletinWeekly = useMemo(
-    () => parseSundayBulletinWeekly(post?.content),
-    [post?.content],
-  )
+  const bulletinWeekly = useMemo(() => {
+    const parsed = parseSundayBulletinWeekly(post?.content)
+    return applySundayBulletinOneTimeOverride(parsed, postId)
+  }, [post?.content, postId])
 
   useEffect(() => {
     if (!postId) {
