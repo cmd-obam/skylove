@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { FiImage } from 'react-icons/fi'
 import { formatBoardDate } from '@/utils/formatBoardDate'
+import { resolveSundayBulletinThumbnail } from '@/utils/sundayBulletin'
 
 function BoardPostExtras({
   attachments = [],
@@ -37,7 +38,9 @@ function BoardPostExtras({
         {relatedPosts.length > 0 ? (
           <ul className="board-post-extras__related-list">
             {relatedPosts.map((relatedPost) => {
-              const thumbnail = relatedPost.thumbnail || relatedPost.images?.[0]?.src
+              const thumbnail =
+                resolveSundayBulletinThumbnail(relatedPost) ||
+                relatedPost.images?.[0]?.src
               const showImageIcon = Boolean(relatedPost.hasImage || thumbnail)
 
               return (

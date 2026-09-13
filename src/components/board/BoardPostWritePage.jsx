@@ -28,6 +28,8 @@ import { resizeImageFile, resizeThumbnailFile } from '@/utils/resizeImageFile'
 import { isBoardHtmlEmpty, sanitizeBoardHtml } from '@/utils/sanitizeBoardHtml'
 import {
   createEmptySundayBulletinWeekly,
+  getSundayBulletinDefaultThumbnailUrl,
+  isSundayBulletinDefaultThumbnail,
   parseSundayBulletinWeekly,
   serializeSundayBulletinWeekly,
 } from '@/utils/sundayBulletin'
@@ -214,9 +216,21 @@ function BoardPostWritePage({
         }
       }
 
-      if (post.thumbnail) {
+      let loadedThumbnail = null
+
+      if (parsedBulletin) {
+        const defaultThumb = getSundayBulletinDefaultThumbnailUrl()
+        loadedThumbnail = {
+          file: null,
+          previewUrl: defaultThumb,
+          existingUrl: defaultThumb,
+          existingPath: null,
+          fromContent: false,
+          fromBulletinDefault: true,
+        }
+      } else if (post.thumbnail) {
         const contentHasThumb = (post.content || '').includes(post.thumbnail)
-        setThumbnailState({
+        loadedThumbnail = {
           file: null,
           previewUrl: null,
           existingUrl: post.thumbnail,
@@ -224,8 +238,11 @@ function BoardPostWritePage({
             ? null
             : extractStoragePathFromPublicUrl(post.thumbnail),
           fromContent: contentHasThumb,
-        })
+          fromBulletinDefault: false,
+        }
       }
+
+      setThumbnailState(loadedThumbnail)
 
       setAttachments(
         (post.attachments ?? []).map((file, index) => ({
@@ -246,8 +263,8 @@ function BoardPostWritePage({
           youtubeUrl: post.youtubeUrl || '',
           bulletinMode: Boolean(parsedBulletin),
           weekly: parsedBulletin || createEmptySundayBulletinWeekly(),
-          thumbnail: post.thumbnail
-            ? { existingUrl: post.thumbnail, hasFile: false }
+          thumbnail: loadedThumbnail
+            ? { existingUrl: loadedThumbnail.existingUrl, hasFile: false }
             : null,
           attachments: (post.attachments ?? []).map((file, index) => ({
             key: file.key || file.path || file.url || `existing-${index}`,
@@ -290,6 +307,17 @@ function BoardPostWritePage({
     setWeekly(nextWeekly)
     setBulletinMode(true)
     setContent(serializeSundayBulletinWeekly(nextWeekly))
+    if (!thumbnailState?.file && !thumbnailState?.existingUrl) {
+      const defaultThumb = getSundayBulletinDefaultThumbnailUrl()
+      setThumbnailState({
+        file: null,
+        previewUrl: defaultThumb,
+        existingUrl: defaultThumb,
+        existingPath: null,
+        fromContent: false,
+        fromBulletinDefault: true,
+      })
+    }
     setError('')
   }
 
@@ -304,6 +332,12 @@ function BoardPostWritePage({
     setBulletinMode(false)
     setWeekly(createEmptySundayBulletinWeekly())
     setContent('')
+    if (
+      thumbnailState?.fromBulletinDefault ||
+      isSundayBulletinDefaultThumbnail(thumbnailState?.existingUrl)
+    ) {
+      setThumbnailState(null)
+    }
     setError('')
   }
 
@@ -453,6 +487,10 @@ function BoardPostWritePage({
 
       if (isVideoWrite && !thumbnailUrl) {
         thumbnailUrl = youtubeMedia.thumbnail
+      }
+
+      if (bulletinMode && !thumbnailState?.file) {
+        thumbnailUrl = getSundayBulletinDefaultThumbnailUrl()
       }
 
       const attachmentsPayload = []

@@ -1,10 +1,13 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FiFileText } from 'react-icons/fi'
 import Breadcrumb from '@/components/Breadcrumb'
 import BoardWriteButton from '@/components/board/BoardWriteButton'
 import BoardPostTitle from '@/components/board/BoardPostTitle'
+import { useAuth } from '@/contexts/AuthContext'
 import { useBoardPostList } from '@/hooks/useBoardPostList'
+import { canWritePost } from '@/services/auth/roles'
+import { backfillSundayBulletinThumbnails } from '@/services/board/posts'
 import { formatBoardDate } from '@/utils/formatBoardDate'
 import { getPostAuthor } from '@/utils/getPostAuthor'
 import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
@@ -16,6 +19,28 @@ function ChurchNews() {
   const [searchKeyword, setSearchKeyword] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
   const { posts, loading } = useBoardPostList('church_news')
+  const { profile } = useAuth()
+
+  useEffect(() => {
+    if (!canWritePost(profile, 'church_news')) {
+      return undefined
+    }
+
+    let cancelled = false
+
+    backfillSundayBulletinThumbnails().then((result) => {
+      if (cancelled || !result.success || !result.updatedCount) {
+        return
+      }
+      console.info(
+        `[ChurchNews] 주보 기본 표지 대표이미지 등록: ${result.updatedCount}건`,
+      )
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [profile])
 
   const handleSearchSubmit = (event) => {
     event.preventDefault()

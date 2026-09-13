@@ -7,6 +7,10 @@ import {
   canWritePost,
 } from '@/services/auth/roles'
 import { fetchPostMeta } from '@/services/board/postStats'
+import {
+  getSundayBulletinDefaultThumbnailUrl,
+  resolveSundayBulletinThumbnail,
+} from '@/utils/sundayBulletin'
 
 const PERMISSION_DENIED = '권한이 없습니다.'
 
@@ -76,6 +80,9 @@ export function mapBoardPostRow(row, meta) {
       ? row.has_image
       : Boolean(row.thumbnail) || images.length > 0
 
+  const resolvedThumbnail =
+    resolveSundayBulletinThumbnail(row.content, row.thumbnail) ?? row.thumbnail ?? null
+
   return {
     id: row.id,
     postType: row.post_type,
@@ -98,8 +105,8 @@ export function mapBoardPostRow(row, meta) {
       path: image.path,
       name: image.name || `image-${index + 1}`,
     })),
-    thumbnail: row.thumbnail,
-    hasImage,
+    thumbnail: resolvedThumbnail,
+    hasImage: Boolean(hasImage || resolvedThumbnail),
     youtubeUrl: row.youtube_url ?? null,
     attachmentUrl: row.attachment_url,
     attachmentName: row.attachment_name,
@@ -107,6 +114,66 @@ export function mapBoardPostRow(row, meta) {
     scheduledAt: row.scheduled_at ?? null,
     isNotice: Boolean(row.is_notice),
     deletedAt: row.deleted_at ?? null,
+  }
+}
+
+/** 목록에 content가 없을 때 주보 글의 기본 표지 썸네일을 채웁니다. */
+async function enrichChurchNewsBulletinThumbnails(posts) {
+  if (!Array.isArray(posts) || posts.length === 0) {
+    return posts
+  }
+
+  const { data, error } = await supabase
+    .from('board_posts')
+    .select('id, content')
+    .in(
+      'id',
+      posts.map((post) => post.id),
+    )
+
+  if (error || !data?.length) {
+    return posts
+  }
+
+  const byId = new Map(data.map((row) => [String(row.id), row]))
+  const defaultThumb = getSundayBulletinDefaultThumbnailUrl()
+
+  return posts.map((post) => {
+    const row = byId.get(String(post.id))
+    if (!row || !resolveSundayBulletinThumbnail(row.content, null)) {
+      return post
+    }
+
+    if (post.thumbnail === defaultThumb && post.hasImage) {
+      return post
+    }
+
+    return {
+      ...post,
+      thumbnail: defaultThumb,
+      hasImage: true,
+    }
+  })
+}
+
+/**
+ * 기존 주보 게시글에 기본 표지 이미지를 DB 대표이미지로 등록합니다.
+ * (board admin 전용 RPC — 미적용 환경에서는 조용히 무시)
+ */
+export async function backfillSundayBulletinThumbnails() {
+  const thumbnail = getSundayBulletinDefaultThumbnailUrl()
+
+  const { data, error } = await supabase.rpc('backfill_sunday_bulletin_thumbnails', {
+    p_thumbnail: thumbnail,
+  })
+
+  if (error) {
+    return { success: false, message: error.message, updatedCount: 0 }
+  }
+
+  return {
+    success: true,
+    updatedCount: typeof data === 'number' ? data : Number(data) || 0,
   }
 }
 
@@ -181,7 +248,10 @@ export async function fetchBoardPosts(postType) {
     no: (data ?? []).length - index,
   }))
 
-  return { success: true, posts }
+  const enrichedPosts =
+    postType === 'church_news' ? await enrichChurchNewsBulletinThumbnails(posts) : posts
+
+  return { success: true, posts: enrichedPosts }
 }
 
 export async function fetchBoardPost(postType, postId) {
@@ -265,8 +335,10 @@ export async function fetchLatestBoardPosts(postType, limit = 4) {
   }
 
   const posts = (data ?? []).map((row) => mapBoardPostRow(row))
+  const enrichedPosts =
+    postType === 'church_news' ? await enrichChurchNewsBulletinThumbnails(posts) : posts
 
-  return { success: true, posts }
+  return { success: true, posts: enrichedPosts }
 }
 
 /**

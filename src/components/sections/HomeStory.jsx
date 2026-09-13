@@ -10,7 +10,7 @@ import { fetchHomeStoryPosts } from '@/services/board/posts'
 import { getAlbumThumbnailSrc } from '@/utils/albumThumbnail'
 import { getFirstContentImageSrc } from '@/utils/boardContentImages'
 import { formatPostRegistrationDate } from '@/utils/formatBoardDate'
-import { isSundayBulletinContent } from '@/utils/sundayBulletin'
+import { resolveSundayBulletinThumbnail, isSundayBulletinContent } from '@/utils/sundayBulletin'
 import { resolveYouTubeMedia } from '@/utils/youtube'
 import './HomeSections.css'
 
@@ -62,8 +62,9 @@ function resolveStoryImageSrc(post) {
     return null
   }
 
-  if (post.thumbnail) {
-    return post.thumbnail
+  const bulletinThumb = resolveSundayBulletinThumbnail(post)
+  if (bulletinThumb) {
+    return bulletinThumb
   }
 
   const albumThumb = getAlbumThumbnailSrc(post, null)

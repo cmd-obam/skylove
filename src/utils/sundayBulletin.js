@@ -7,6 +7,40 @@ import {
 export const SUNDAY_BULLETIN_TYPE = 'sunday_bulletin'
 export const SUNDAY_BULLETIN_VERSION = 2
 
+/** 주보 템플릿 기본 대표 이미지 (public/images) */
+export const SUNDAY_BULLETIN_DEFAULT_THUMBNAIL_PATH = 'images/sunday-bulletin-cover.png'
+
+export function getSundayBulletinDefaultThumbnailUrl() {
+  const base = String(import.meta.env.BASE_URL || '/').replace(/\/?$/, '/')
+  return `${base}${SUNDAY_BULLETIN_DEFAULT_THUMBNAIL_PATH}`
+}
+
+export function isSundayBulletinDefaultThumbnail(url) {
+  if (!url || typeof url !== 'string') {
+    return false
+  }
+
+  return url.includes(SUNDAY_BULLETIN_DEFAULT_THUMBNAIL_PATH)
+}
+
+/** 주보 게시글이면 기본 표지 URL을 대표이미지로 사용합니다. */
+export function resolveSundayBulletinThumbnail(postOrContent, thumbnail) {
+  const content =
+    typeof postOrContent === 'string' ? postOrContent : postOrContent?.content
+  const thumb =
+    thumbnail !== undefined
+      ? thumbnail
+      : typeof postOrContent === 'object' && postOrContent
+        ? postOrContent.thumbnail
+        : null
+
+  if (isSundayBulletinContent(content)) {
+    return getSundayBulletinDefaultThumbnailUrl()
+  }
+
+  return thumb || null
+}
+
 /**
  * 특정 게시글에만 적용하는 1회성 주보 덮어쓰기.
  * (항상 고정 필드 + 해당 주 임재의말씀)
