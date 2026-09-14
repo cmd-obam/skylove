@@ -87,6 +87,7 @@ function SimpleTable({ columns, rows, emptyText }) {
 function AccordionPanel({ id, title, count, open, onToggle, children }) {
   const panelId = `visitor-stats-panel-${id}`
   const headingId = `visitor-stats-heading-${id}`
+  const centerContent = id !== 'summary'
 
   return (
     <section
@@ -111,7 +112,12 @@ function AccordionPanel({ id, title, count, open, onToggle, children }) {
         </button>
       </h2>
       {open ? (
-        <div id={panelId} className="visitor-stats-page__accordion-panel">
+        <div
+          id={panelId}
+          className={`visitor-stats-page__accordion-panel${
+            centerContent ? ' visitor-stats-page__accordion-panel--center' : ''
+          }`}
+        >
           {children}
         </div>
       ) : null}

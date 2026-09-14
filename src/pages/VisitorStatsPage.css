@@ -93,6 +93,61 @@
   border-top: 1px solid #e5e7eb;
 }
 
+.visitor-stats-page__accordion-panel--center {
+  text-align: center;
+}
+
+.visitor-stats-page__accordion-panel--center .member-management-page__table-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.visitor-stats-page__accordion-panel--center .member-management-page__table,
+.visitor-stats-page__accordion-panel--center .visitor-stats-page__data-table,
+.visitor-stats-page__accordion-panel--center .visitor-stats-page__member-table,
+.visitor-stats-page__accordion-panel--center .visitor-stats-page__referral-table {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.visitor-stats-page__accordion-panel--center th,
+.visitor-stats-page__accordion-panel--center td {
+  text-align: center;
+}
+
+.visitor-stats-page__accordion-panel--center .visitor-stats-page__summary,
+.visitor-stats-page__accordion-panel--center .visitor-stats-page__split,
+.visitor-stats-page__accordion-panel--center .visitor-stats-page__period-buttons,
+.visitor-stats-page__accordion-panel--center .visitor-stats-page__member-toolbar,
+.visitor-stats-page__accordion-panel--center .visitor-stats-page__card-list,
+.visitor-stats-page__accordion-panel--center .visitor-stats-page__recent-list {
+  justify-content: center;
+}
+
+.visitor-stats-page__accordion-panel--center .visitor-stats-page__summary-item,
+.visitor-stats-page__accordion-panel--center .visitor-stats-page__subheading,
+.visitor-stats-page__accordion-panel--center .visitor-stats-page__hint,
+.visitor-stats-page__accordion-panel--center .member-management-page__empty,
+.visitor-stats-page__accordion-panel--center .visitor-stats-page__card,
+.visitor-stats-page__accordion-panel--center .visitor-stats-page__recent-list li {
+  text-align: center;
+}
+
+.visitor-stats-page__accordion-panel--center .visitor-stats-page__member-toolbar {
+  display: flex;
+}
+
+.visitor-stats-page__accordion-panel--center .visitor-stats-page__recent-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.visitor-stats-page__accordion-panel--center .visitor-stats-page__recent-list li {
+  justify-content: center;
+  width: min(100%, 720px);
+}
+
 .visitor-stats-page__section-title {
   margin: 0 0 0.75rem;
   font-size: 1.125rem;
