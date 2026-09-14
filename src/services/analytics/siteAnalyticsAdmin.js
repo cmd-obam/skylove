@@ -34,6 +34,7 @@ const EMPTY_DASHBOARD = {
   cta: [],
   external_links: [],
   visit_freq: [],
+  member_visits: [],
 }
 
 export function resolveAnalyticsRange(period, customFrom = '', customTo = '') {
@@ -92,10 +93,13 @@ export function getReferralAnalyticsLabel(source) {
   return map[String(source || '').toLowerCase()] || source || '기타'
 }
 
-export async function fetchSiteAnalyticsDashboard(fromDate, toDate) {
+export async function fetchSiteAnalyticsDashboard(fromDate, toDate, audience = 'all') {
+  const normalizedAudience = ['all', 'guest', 'member'].includes(audience) ? audience : 'all'
+
   const { data, error } = await supabase.rpc('get_site_analytics_dashboard', {
     p_from: fromDate,
     p_to: toDate,
+    p_audience: normalizedAudience,
   })
 
   if (error) {
@@ -111,9 +115,11 @@ export async function fetchSiteAnalyticsDashboard(fromDate, toDate) {
     dashboard: {
       ...EMPTY_DASHBOARD,
       ...(data || {}),
+      audience: data?.audience || normalizedAudience,
       summary: { ...EMPTY_DASHBOARD.summary, ...(data?.summary || {}) },
       cumulative: { ...EMPTY_DASHBOARD.cumulative, ...(data?.cumulative || {}) },
       scroll: { ...EMPTY_DASHBOARD.scroll, ...(data?.scroll || {}) },
+      member_visits: Array.isArray(data?.member_visits) ? data.member_visits : [],
     },
   }
 }

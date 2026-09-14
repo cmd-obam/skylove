@@ -209,9 +209,60 @@ function ensureSession() {
     utm_term: touch?.utm_term || '',
     ...device,
     last_activity_at: now,
+    auth_member: null,
   }
   writeJson(window.sessionStorage, SESSION_KEY, session)
   return session
+}
+
+/**
+ * Login/logout 시 세션을 분리한다.
+ * - 로그인: 이후 활동을 회원 세션으로 기록
+ * - 로그아웃: 이후 활동을 비회원 세션으로 기록
+ * 기존 세션 행은 덮어쓰지 않고 새 session id 로 시작한다.
+ */
+export function syncAnalyticsAuthState(isLoggedIn) {
+  if (!started || isBot() || typeof window === 'undefined') {
+    return
+  }
+
+  const nextFlag = Boolean(isLoggedIn)
+  ensureSession()
+  if (!session) {
+    return
+  }
+
+  if (session.auth_member == null) {
+    session.auth_member = nextFlag
+    writeJson(window.sessionStorage, SESSION_KEY, session)
+    scheduleFlush()
+    return
+  }
+
+  if (session.auth_member === nextFlag) {
+    return
+  }
+
+  markVisibleClock(false)
+  closeCurrentPageview()
+  void flush({ keepalive: true })
+
+  try {
+    window.sessionStorage.removeItem(SESSION_KEY)
+  } catch {
+    // ignore
+  }
+  session = null
+  currentPageview = null
+  pendingPageviews = new Map()
+
+  ensureSession()
+  if (session) {
+    session.auth_member = nextFlag
+    writeJson(window.sessionStorage, SESSION_KEY, session)
+  }
+  openPageview()
+  scheduleFlush()
 }
 
 function getFirstTouchReferralSafe() {

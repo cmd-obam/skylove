@@ -30,8 +30,14 @@ const PERIOD_OPTIONS = [
 
 const VISIT_FILTERS = [
   { id: 'all', label: '전체' },
-  { id: 'member', label: '회원' },
   { id: 'guest', label: '비회원' },
+  { id: 'member', label: '회원' },
+]
+
+const AUDIENCE_FILTERS = [
+  { id: 'all', label: '전체' },
+  { id: 'guest', label: '비회원' },
+  { id: 'member', label: '회원' },
 ]
 
 function StatCards({ items }) {
@@ -124,7 +130,9 @@ function VisitorStatsPage() {
   const [period, setPeriod] = useState('today')
   const [customFrom, setCustomFrom] = useState(today)
   const [customTo, setCustomTo] = useState(today)
-  const [visitFilter, setVisitFilter] = useState('all')
+  const [audience, setAudience] = useState('all')
+  const [memberSearch, setMemberSearch] = useState('')
+  const [selectedMember, setSelectedMember] = useState(null)
   const [detailLoading, setDetailLoading] = useState(true)
   const [detailError, setDetailError] = useState('')
   const [visits, setVisits] = useState([])
@@ -175,7 +183,7 @@ function VisitorStatsPage() {
       const [visitsResult, referralResult, analyticsResult] = await Promise.all([
         fetchSiteVisitsForAdmin(range.from, range.to),
         fetchReferralStatsForAdmin(range.from, range.to),
-        fetchSiteAnalyticsDashboard(range.from, range.to),
+        fetchSiteAnalyticsDashboard(range.from, range.to, audience),
       ])
 
       if (cancelled) {
@@ -212,7 +220,7 @@ function VisitorStatsPage() {
     return () => {
       cancelled = true
     }
-  }, [range.from, range.to])
+  }, [range.from, range.to, audience])
 
   const visitCounts = useMemo(() => {
     const member = visits.filter((visit) => visit.isMember).length
@@ -221,32 +229,35 @@ function VisitorStatsPage() {
   }, [visits])
 
   const filteredVisits = useMemo(() => {
-    if (visitFilter === 'member') {
+    if (audience === 'member') {
       return visits.filter((visit) => visit.isMember)
     }
-    if (visitFilter === 'guest') {
+    if (audience === 'guest') {
       return visits.filter((visit) => !visit.isMember)
     }
     return visits
-  }, [visits, visitFilter])
+  }, [visits, audience])
 
-  const recentVisits = useMemo(
-    () =>
-      [...visits].sort((a, b) => {
-        const aTime = a.lastVisitAt ? new Date(a.lastVisitAt).getTime() : 0
-        const bTime = b.lastVisitAt ? new Date(b.lastVisitAt).getTime() : 0
-        return bTime - aTime
-      }),
-    [visits],
-  )
+  const filteredReferralStats = useMemo(() => {
+    if (audience === 'all') {
+      return referralStats
+    }
 
-  const periodLabel =
-    period === 'custom'
-      ? `${range.from} ~ ${range.to}`
-      : PERIOD_OPTIONS.find((item) => item.id === period)?.label || '오늘'
+    return referralStats
+      .map((row) => {
+        const totalCount = audience === 'member' ? row.memberCount : row.guestCount
+        return {
+          ...row,
+          totalCount,
+          memberCount: audience === 'member' ? row.memberCount : 0,
+          guestCount: audience === 'guest' ? row.guestCount : 0,
+        }
+      })
+      .filter((row) => row.totalCount > 0)
+  }, [referralStats, audience])
 
   const referralTotals = useMemo(() => {
-    return referralStats.reduce(
+    return filteredReferralStats.reduce(
       (acc, row) => {
         acc.total += row.totalCount
         acc.member += row.memberCount
@@ -255,7 +266,35 @@ function VisitorStatsPage() {
       },
       { total: 0, member: 0, guest: 0 },
     )
-  }, [referralStats])
+  }, [filteredReferralStats])
+
+  const memberVisits = useMemo(() => {
+    const rows = Array.isArray(analytics?.member_visits) ? analytics.member_visits : []
+    const query = memberSearch.trim().toLowerCase()
+    if (!query) {
+      return rows
+    }
+    return rows.filter((row) => {
+      const name = String(row.name || '').toLowerCase()
+      const username = String(row.username || '').toLowerCase()
+      return name.includes(query) || username.includes(query)
+    })
+  }, [analytics?.member_visits, memberSearch])
+
+  const recentVisits = useMemo(
+    () =>
+      [...filteredVisits].sort((a, b) => {
+        const aTime = a.lastVisitAt ? new Date(a.lastVisitAt).getTime() : 0
+        const bTime = b.lastVisitAt ? new Date(b.lastVisitAt).getTime() : 0
+        return bTime - aTime
+      }),
+    [filteredVisits],
+  )
+
+  const periodLabel =
+    period === 'custom'
+      ? `${range.from} ~ ${range.to}`
+      : PERIOD_OPTIONS.find((item) => item.id === period)?.label || '오늘'
 
   const summary = analytics?.summary
   const cumulative = analytics?.cumulative
@@ -270,6 +309,7 @@ function VisitorStatsPage() {
         ? ['summary', 'visit-summary', 'visit-records', 'referral-legacy', 'recent-visits']
         : [
             'summary',
+            ...(audience === 'member' ? ['member-visits'] : []),
             'daily',
             'referrers',
             'pages',
@@ -289,7 +329,7 @@ function VisitorStatsPage() {
             'referral-legacy',
             'recent-visits',
           ],
-    [analyticsError],
+    [analyticsError, audience],
   )
 
   const toggleAccordion = (id) => {
@@ -411,6 +451,45 @@ function VisitorStatsPage() {
           </div>
         </section>
 
+        <section className="visitor-stats-page__section" aria-labelledby="visitor-audience-filter">
+          <h2 id="visitor-audience-filter" className="visitor-stats-page__section-title">
+            방문자 유형
+          </h2>
+          <div className="visitor-stats-page__period-buttons" role="group" aria-label="방문자 유형 선택">
+            {AUDIENCE_FILTERS.map((option) => (
+              <button
+                key={option.id}
+                type="button"
+                className={`visitor-stats-page__period-button${
+                  audience === option.id ? ' visitor-stats-page__period-button--active' : ''
+                }`}
+                onClick={() => {
+                  setAudience(option.id)
+                  setSelectedMember(null)
+                  setMemberSearch('')
+                  if (option.id === 'member') {
+                    setOpenAccordions((current) => {
+                      const next = new Set(current)
+                      next.add('member-visits')
+                      return next
+                    })
+                  }
+                }}
+              >
+                {option.label}
+                {option.id === 'all'
+                  ? ` ${visitCounts.total}`
+                  : option.id === 'member'
+                    ? ` ${visitCounts.member}`
+                    : ` ${visitCounts.guest}`}
+              </button>
+            ))}
+          </div>
+          <p className="visitor-stats-page__hint">
+            전체 = 회원 + 비회원. 회원은 선택한 기간에 실제 로그인한 방문만 포함합니다.
+          </p>
+        </section>
+
         {detailError ? (
           <p className="member-management-page__feedback member-management-page__feedback--error">
             {detailError}
@@ -501,6 +580,80 @@ function VisitorStatsPage() {
 
             {!analyticsError && analytics ? (
               <>
+                {audience === 'member' ? (
+                  <AccordionPanel
+                    id="member-visits"
+                    title="회원 방문 기록"
+                    count={memberVisits.length}
+                    open={isAccordionOpen('member-visits')}
+                    onToggle={toggleAccordion}
+                  >
+                    <div className="visitor-stats-page__member-toolbar">
+                      <input
+                        type="search"
+                        className="visitor-stats-page__member-search"
+                        placeholder="회원 이름 또는 아이디 검색"
+                        value={memberSearch}
+                        onChange={(event) => setMemberSearch(event.target.value)}
+                        aria-label="회원 검색"
+                      />
+                    </div>
+                    {memberVisits.length === 0 ? (
+                      <p className="member-management-page__empty">
+                        선택한 기간에 로그인한 회원 방문 기록이 없습니다.
+                      </p>
+                    ) : (
+                      <div className="member-management-page__table-wrap">
+                        <table className="member-management-page__table visitor-stats-page__data-table">
+                          <thead>
+                            <tr>
+                              <th scope="col">회원명</th>
+                              <th scope="col">아이디</th>
+                              <th scope="col">최초 방문</th>
+                              <th scope="col">마지막 활동</th>
+                              <th scope="col">체류시간</th>
+                              <th scope="col">페이지뷰</th>
+                              <th scope="col">세션</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {memberVisits.map((row) => (
+                              <tr key={row.user_id}>
+                                <td>
+                                  <button
+                                    type="button"
+                                    className="visitor-stats-page__member-link"
+                                    onClick={() => setSelectedMember(row)}
+                                  >
+                                    {row.name || '-'}
+                                  </button>
+                                </td>
+                                <td>{row.username || '-'}</td>
+                                <td>
+                                  {isSingleDay
+                                    ? formatVisitTime(row.first_visit_at)
+                                    : formatVisitDateTime(row.first_visit_at)}
+                                </td>
+                                <td>
+                                  {isSingleDay
+                                    ? formatVisitTime(row.last_visit_at)
+                                    : formatVisitDateTime(row.last_visit_at)}
+                                </td>
+                                <td>{formatDurationMs(row.active_ms)}</td>
+                                <td>{row.pageviews ?? 0}</td>
+                                <td>{row.sessions ?? 0}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                    <p className="visitor-stats-page__hint">
+                      회원명을 클릭하면 방문 페이지 등 상세 정보를 확인할 수 있습니다.
+                    </p>
+                  </AccordionPanel>
+                ) : null}
+
                 <AccordionPanel
                   id="daily"
                   title="일일 방문 통계"
@@ -844,9 +997,9 @@ function VisitorStatsPage() {
                     key={option.id}
                     type="button"
                     className={`visitor-stats-page__period-button${
-                      visitFilter === option.id ? ' visitor-stats-page__period-button--active' : ''
+                      audience === option.id ? ' visitor-stats-page__period-button--active' : ''
                     }`}
-                    onClick={() => setVisitFilter(option.id)}
+                    onClick={() => setAudience(option.id)}
                   >
                     {option.label}
                     {option.id === 'all'
@@ -963,7 +1116,7 @@ function VisitorStatsPage() {
               open={isAccordionOpen('referral-legacy')}
               onToggle={toggleAccordion}
             >
-              {referralStats.length === 0 ? (
+              {filteredReferralStats.length === 0 ? (
                 <p className="member-management-page__empty">해당 기간의 유입 경로 기록이 없습니다.</p>
               ) : (
                 <div className="member-management-page__table-wrap">
@@ -977,7 +1130,7 @@ function VisitorStatsPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {referralStats.map((row) => (
+                      {filteredReferralStats.map((row) => (
                         <tr key={row.source}>
                           <td>{row.label}</td>
                           <td>{row.totalCount}</td>
@@ -1026,6 +1179,64 @@ function VisitorStatsPage() {
             </AccordionPanel>
           </>
         )}
+
+        {selectedMember ? (
+          <div className="member-management-modal" role="presentation">
+            <div
+              className="member-management-modal__dialog"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="member-visit-detail-title"
+            >
+              <h2 id="member-visit-detail-title" className="member-management-modal__title">
+                회원 방문 상세 · {selectedMember.name || selectedMember.username || '회원'}
+              </h2>
+              <div className="visitor-stats-page__member-detail">
+                <p>
+                  <strong>아이디</strong> {selectedMember.username || '-'}
+                </p>
+                <p>
+                  <strong>최초 방문</strong>{' '}
+                  {formatVisitDateTime(selectedMember.first_visit_at)}
+                </p>
+                <p>
+                  <strong>마지막 활동</strong>{' '}
+                  {formatVisitDateTime(selectedMember.last_visit_at)}
+                </p>
+                <p>
+                  <strong>체류시간</strong> {formatDurationMs(selectedMember.active_ms)}
+                </p>
+                <p>
+                  <strong>페이지뷰</strong> {selectedMember.pageviews ?? 0}
+                </p>
+                <p>
+                  <strong>세션</strong> {selectedMember.sessions ?? 0}
+                </p>
+                <div className="visitor-stats-page__member-paths">
+                  <strong>방문 페이지</strong>
+                  {Array.isArray(selectedMember.paths) && selectedMember.paths.length > 0 ? (
+                    <ol>
+                      {selectedMember.paths.map((path, index) => (
+                        <li key={`${path}-${index}`}>{path}</li>
+                      ))}
+                    </ol>
+                  ) : (
+                    <p className="visitor-stats-page__hint">방문 페이지 기록이 없습니다.</p>
+                  )}
+                </div>
+              </div>
+              <div className="member-management-modal__actions">
+                <button
+                  type="button"
+                  className="member-management-modal__button member-management-modal__button--secondary"
+                  onClick={() => setSelectedMember(null)}
+                >
+                  닫기
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : null}
       </div>
     </MemberMypageLayout>
   )

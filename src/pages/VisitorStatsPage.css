@@ -112,6 +112,65 @@
   color: #5a7189;
 }
 
+.visitor-stats-page__member-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.75rem;
+}
+
+.visitor-stats-page__member-search {
+  width: min(100%, 280px);
+  height: 36px;
+  padding: 0 0.75rem;
+  border: 1px solid #dce5ef;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 0.875rem;
+}
+
+.visitor-stats-page__member-search:focus {
+  outline: none;
+  border-color: #4da6ff;
+  box-shadow: 0 0 0 3px rgba(77, 166, 255, 0.15);
+}
+
+.visitor-stats-page__member-link {
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #1d4ed8;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.visitor-stats-page__member-detail p {
+  margin: 0 0 0.55rem;
+  color: #374151;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.visitor-stats-page__member-detail strong {
+  display: inline-block;
+  min-width: 5.5rem;
+  color: #1f3a5f;
+}
+
+.visitor-stats-page__member-paths {
+  margin-top: 0.85rem;
+}
+
+.visitor-stats-page__member-paths ol {
+  margin: 0.5rem 0 0;
+  padding-left: 1.25rem;
+  color: #4b5563;
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+
 .visitor-stats-page__core-table {
   min-width: 320px;
 }
