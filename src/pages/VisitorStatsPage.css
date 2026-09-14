@@ -6,6 +6,93 @@
   margin-top: 0;
 }
 
+.visitor-stats-page__accordion-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.visitor-stats-page__accordion-action {
+  height: 34px;
+  padding: 0 0.85rem;
+  border: 1px solid #dce5ef;
+  border-radius: 8px;
+  background: #fff;
+  color: #1f3a5f;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.visitor-stats-page__accordion-action:hover,
+.visitor-stats-page__accordion-action:focus-visible {
+  border-color: #4da6ff;
+  color: #1d4ed8;
+  outline: none;
+}
+
+.visitor-stats-page__accordion {
+  margin-top: 0.65rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.visitor-stats-page__accordion--open {
+  border-color: #d7e3ef;
+  box-shadow: 0 4px 14px rgba(31, 58, 95, 0.05);
+}
+
+.visitor-stats-page__accordion-heading {
+  margin: 0;
+}
+
+.visitor-stats-page__accordion-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: none;
+  background: #f8fafc;
+  color: #1f3a5f;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.visitor-stats-page__accordion--open .visitor-stats-page__accordion-toggle {
+  background: #eff6ff;
+}
+
+.visitor-stats-page__accordion-toggle:hover,
+.visitor-stats-page__accordion-toggle:focus-visible {
+  background: #eff6ff;
+  outline: none;
+}
+
+.visitor-stats-page__accordion-chevron {
+  flex-shrink: 0;
+  width: 1rem;
+  color: #5a7189;
+  font-size: 0.875rem;
+  line-height: 1;
+}
+
+.visitor-stats-page__accordion-title {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.visitor-stats-page__accordion-panel {
+  padding: 0.85rem 1rem 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
 .visitor-stats-page__section-title {
   margin: 0 0 0.75rem;
   font-size: 1.125rem;

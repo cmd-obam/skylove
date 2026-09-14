@@ -78,6 +78,43 @@ function SimpleTable({ columns, rows, emptyText }) {
   )
 }
 
+function AccordionPanel({ id, title, count, open, onToggle, children }) {
+  const panelId = `visitor-stats-panel-${id}`
+  const headingId = `visitor-stats-heading-${id}`
+
+  return (
+    <section
+      className={`visitor-stats-page__accordion${open ? ' visitor-stats-page__accordion--open' : ''}`}
+      aria-labelledby={headingId}
+    >
+      <h2 className="visitor-stats-page__accordion-heading" id={headingId}>
+        <button
+          type="button"
+          className="visitor-stats-page__accordion-toggle"
+          aria-expanded={open}
+          aria-controls={panelId}
+          onClick={() => onToggle(id)}
+        >
+          <span className="visitor-stats-page__accordion-chevron" aria-hidden="true">
+            {open ? '▾' : '▸'}
+          </span>
+          <span className="visitor-stats-page__accordion-title">{title}</span>
+          {count != null ? (
+            <span className="visitor-stats-page__section-count">({count})</span>
+          ) : null}
+        </button>
+      </h2>
+      {open ? (
+        <div id={panelId} className="visitor-stats-page__accordion-panel">
+          {children}
+        </div>
+      ) : null}
+    </section>
+  )
+}
+
+const DEFAULT_OPEN_ACCORDIONS = new Set(['summary'])
+
 function VisitorStatsPage() {
   const today = getKoreaDateString()
   const [stats, setStats] = useState({ todayCount: null, totalCount: null })
@@ -94,6 +131,7 @@ function VisitorStatsPage() {
   const [referralStats, setReferralStats] = useState([])
   const [analytics, setAnalytics] = useState(null)
   const [analyticsError, setAnalyticsError] = useState('')
+  const [openAccordions, setOpenAccordions] = useState(() => new Set(DEFAULT_OPEN_ACCORDIONS))
 
   const range = useMemo(
     () => resolveAnalyticsRange(period, customFrom, customTo),
@@ -226,6 +264,56 @@ function VisitorStatsPage() {
       ? Math.round((summary.returning_visitors / summary.sessions) * 1000) / 10
       : 0
 
+  const analyticsAccordionIds = useMemo(
+    () =>
+      analyticsError
+        ? ['summary', 'visit-summary', 'visit-records', 'referral-legacy', 'recent-visits']
+        : [
+            'summary',
+            'daily',
+            'referrers',
+            'pages',
+            'worship',
+            'duration',
+            'returning',
+            'hourly',
+            'weekday',
+            'devices',
+            'viewports',
+            'landings',
+            'scroll',
+            'cta',
+            'external',
+            'visit-summary',
+            'visit-records',
+            'referral-legacy',
+            'recent-visits',
+          ],
+    [analyticsError],
+  )
+
+  const toggleAccordion = (id) => {
+    setOpenAccordions((current) => {
+      const next = new Set(current)
+      if (next.has(id)) {
+        next.delete(id)
+      } else {
+        next.add(id)
+      }
+      return next
+    })
+  }
+
+  const expandAllAccordions = () => {
+    setOpenAccordions(new Set(analyticsAccordionIds))
+  }
+
+  const collapseAllAccordions = () => {
+    setOpenAccordions(new Set())
+  }
+
+  const isAccordionOpen = (id) => openAccordions.has(id)
+
   return (
     <MemberMypageLayout>
       <div className="member-management-page visitor-stats-page">
@@ -333,10 +421,29 @@ function VisitorStatsPage() {
           <p className="member-management-page__empty">상세 통계를 불러오는 중...</p>
         ) : (
           <>
-            <section className="visitor-stats-page__section" aria-labelledby="analytics-today">
-              <h2 id="analytics-today" className="visitor-stats-page__section-title">
-                상세 분석 요약
-              </h2>
+            <div className="visitor-stats-page__accordion-toolbar">
+              <button
+                type="button"
+                className="visitor-stats-page__accordion-action"
+                onClick={expandAllAccordions}
+              >
+                전체 펼치기
+              </button>
+              <button
+                type="button"
+                className="visitor-stats-page__accordion-action"
+                onClick={collapseAllAccordions}
+              >
+                전체 접기
+              </button>
+            </div>
+
+            <AccordionPanel
+              id="summary"
+              title="상세 분석 요약"
+              open={isAccordionOpen('summary')}
+              onToggle={toggleAccordion}
+            >
               {analyticsError ? (
                 <p className="member-management-page__feedback member-management-page__feedback--error">
                   {analyticsError}
@@ -390,12 +497,16 @@ function VisitorStatsPage() {
                   </div>
                 </>
               )}
-            </section>
+            </AccordionPanel>
 
             {!analyticsError && analytics ? (
               <>
-                <section className="visitor-stats-page__section">
-                  <h2 className="visitor-stats-page__section-title">일일 방문 통계</h2>
+                <AccordionPanel
+                  id="daily"
+                  title="일일 방문 통계"
+                  open={isAccordionOpen('daily')}
+                  onToggle={toggleAccordion}
+                >
                   <SimpleTable
                     emptyText="일일 통계가 없습니다."
                     columns={[
@@ -406,10 +517,14 @@ function VisitorStatsPage() {
                     ]}
                     rows={analytics.daily}
                   />
-                </section>
+                </AccordionPanel>
 
-                <section className="visitor-stats-page__section">
-                  <h2 className="visitor-stats-page__section-title">유입경로 (상세)</h2>
+                <AccordionPanel
+                  id="referrers"
+                  title="유입경로 (상세)"
+                  open={isAccordionOpen('referrers')}
+                  onToggle={toggleAccordion}
+                >
                   <SimpleTable
                     emptyText="유입경로 데이터가 없습니다."
                     columns={[
@@ -428,10 +543,14 @@ function VisitorStatsPage() {
                     ]}
                     rows={analytics.referrers}
                   />
-                </section>
+                </AccordionPanel>
 
-                <section className="visitor-stats-page__section">
-                  <h2 className="visitor-stats-page__section-title">인기 페이지</h2>
+                <AccordionPanel
+                  id="pages"
+                  title="인기 페이지"
+                  open={isAccordionOpen('pages')}
+                  onToggle={toggleAccordion}
+                >
                   <SimpleTable
                     emptyText="페이지 데이터가 없습니다."
                     columns={[
@@ -447,10 +566,14 @@ function VisitorStatsPage() {
                     ]}
                     rows={analytics.pages}
                   />
-                </section>
+                </AccordionPanel>
 
-                <section className="visitor-stats-page__section">
-                  <h2 className="visitor-stats-page__section-title">인기 예배말씀 콘텐츠</h2>
+                <AccordionPanel
+                  id="worship"
+                  title="인기 예배말씀 콘텐츠"
+                  open={isAccordionOpen('worship')}
+                  onToggle={toggleAccordion}
+                >
                   <SimpleTable
                     emptyText="예배말씀 분석 데이터가 없습니다."
                     columns={[
@@ -466,10 +589,14 @@ function VisitorStatsPage() {
                     ]}
                     rows={analytics.worship}
                   />
-                </section>
+                </AccordionPanel>
 
-                <section className="visitor-stats-page__section">
-                  <h2 className="visitor-stats-page__section-title">체류시간 구간</h2>
+                <AccordionPanel
+                  id="duration"
+                  title="체류시간 구간"
+                  open={isAccordionOpen('duration')}
+                  onToggle={toggleAccordion}
+                >
                   <SimpleTable
                     emptyText="체류시간 데이터가 없습니다."
                     columns={[
@@ -478,10 +605,14 @@ function VisitorStatsPage() {
                     ]}
                     rows={analytics.duration_buckets}
                   />
-                </section>
+                </AccordionPanel>
 
-                <section className="visitor-stats-page__section">
-                  <h2 className="visitor-stats-page__section-title">신규 / 재방문</h2>
+                <AccordionPanel
+                  id="returning"
+                  title="신규 / 재방문"
+                  open={isAccordionOpen('returning')}
+                  onToggle={toggleAccordion}
+                >
                   <StatCards
                     items={[
                       { label: '신규 세션', value: summary?.new_visitors ?? 0 },
@@ -497,10 +628,14 @@ function VisitorStatsPage() {
                     ]}
                     rows={analytics.visit_freq}
                   />
-                </section>
+                </AccordionPanel>
 
-                <section className="visitor-stats-page__section">
-                  <h2 className="visitor-stats-page__section-title">시간대별 방문</h2>
+                <AccordionPanel
+                  id="hourly"
+                  title="시간대별 방문"
+                  open={isAccordionOpen('hourly')}
+                  onToggle={toggleAccordion}
+                >
                   <SimpleTable
                     emptyText="시간대 데이터가 없습니다."
                     columns={[
@@ -514,10 +649,14 @@ function VisitorStatsPage() {
                     ]}
                     rows={analytics.hourly}
                   />
-                </section>
+                </AccordionPanel>
 
-                <section className="visitor-stats-page__section">
-                  <h2 className="visitor-stats-page__section-title">요일별 방문</h2>
+                <AccordionPanel
+                  id="weekday"
+                  title="요일별 방문"
+                  open={isAccordionOpen('weekday')}
+                  onToggle={toggleAccordion}
+                >
                   <SimpleTable
                     emptyText="요일 데이터가 없습니다."
                     columns={[
@@ -531,10 +670,14 @@ function VisitorStatsPage() {
                     ]}
                     rows={analytics.weekday}
                   />
-                </section>
+                </AccordionPanel>
 
-                <section className="visitor-stats-page__section">
-                  <h2 className="visitor-stats-page__section-title">기기 / 브라우저 / OS</h2>
+                <AccordionPanel
+                  id="devices"
+                  title="기기 / 브라우저 / OS"
+                  open={isAccordionOpen('devices')}
+                  onToggle={toggleAccordion}
+                >
                   <div className="visitor-stats-page__split">
                     <SimpleTable
                       emptyText="기기 데이터가 없습니다."
@@ -561,10 +704,14 @@ function VisitorStatsPage() {
                       rows={analytics.os}
                     />
                   </div>
-                </section>
+                </AccordionPanel>
 
-                <section className="visitor-stats-page__section">
-                  <h2 className="visitor-stats-page__section-title">화면 크기</h2>
+                <AccordionPanel
+                  id="viewports"
+                  title="화면 크기"
+                  open={isAccordionOpen('viewports')}
+                  onToggle={toggleAccordion}
+                >
                   <SimpleTable
                     emptyText="화면 크기 데이터가 없습니다."
                     columns={[
@@ -573,10 +720,14 @@ function VisitorStatsPage() {
                     ]}
                     rows={analytics.viewports}
                   />
-                </section>
+                </AccordionPanel>
 
-                <section className="visitor-stats-page__section">
-                  <h2 className="visitor-stats-page__section-title">첫 방문 / 종료 페이지</h2>
+                <AccordionPanel
+                  id="landings"
+                  title="첫 방문 / 종료 페이지"
+                  open={isAccordionOpen('landings')}
+                  onToggle={toggleAccordion}
+                >
                   <div className="visitor-stats-page__split">
                     <div>
                       <h3 className="visitor-stats-page__subheading">진입 페이지</h3>
@@ -601,10 +752,14 @@ function VisitorStatsPage() {
                       />
                     </div>
                   </div>
-                </section>
+                </AccordionPanel>
 
-                <section className="visitor-stats-page__section">
-                  <h2 className="visitor-stats-page__section-title">스크롤 깊이</h2>
+                <AccordionPanel
+                  id="scroll"
+                  title="스크롤 깊이"
+                  open={isAccordionOpen('scroll')}
+                  onToggle={toggleAccordion}
+                >
                   <StatCards
                     items={[
                       { label: '25%+', value: analytics.scroll?.d25 ?? 0 },
@@ -615,10 +770,14 @@ function VisitorStatsPage() {
                       { label: '페이지뷰', value: analytics.scroll?.total ?? 0 },
                     ]}
                   />
-                </section>
+                </AccordionPanel>
 
-                <section className="visitor-stats-page__section">
-                  <h2 className="visitor-stats-page__section-title">CTA / 클릭</h2>
+                <AccordionPanel
+                  id="cta"
+                  title="CTA / 클릭"
+                  open={isAccordionOpen('cta')}
+                  onToggle={toggleAccordion}
+                >
                   <SimpleTable
                     emptyText="클릭 데이터가 없습니다."
                     columns={[
@@ -627,10 +786,14 @@ function VisitorStatsPage() {
                     ]}
                     rows={analytics.cta}
                   />
-                </section>
+                </AccordionPanel>
 
-                <section className="visitor-stats-page__section">
-                  <h2 className="visitor-stats-page__section-title">외부 링크 클릭</h2>
+                <AccordionPanel
+                  id="external"
+                  title="외부 링크 클릭"
+                  open={isAccordionOpen('external')}
+                  onToggle={toggleAccordion}
+                >
                   <SimpleTable
                     emptyText="외부 링크 클릭 데이터가 없습니다."
                     columns={[
@@ -639,14 +802,16 @@ function VisitorStatsPage() {
                     ]}
                     rows={analytics.external_links}
                   />
-                </section>
+                </AccordionPanel>
               </>
             ) : null}
 
-            <section className="visitor-stats-page__section" aria-labelledby="visit-summary">
-              <h2 id="visit-summary" className="visitor-stats-page__section-title">
-                {isSingleDay ? '기존 방문 기록 요약' : '기간 방문 기록 요약'}
-              </h2>
+            <AccordionPanel
+              id="visit-summary"
+              title={isSingleDay ? '기존 방문 기록 요약' : '기간 방문 기록 요약'}
+              open={isAccordionOpen('visit-summary')}
+              onToggle={toggleAccordion}
+            >
               <div className="visitor-stats-page__summary">
                 <div className="visitor-stats-page__summary-item">
                   <span className="visitor-stats-page__summary-label">전체</span>
@@ -664,17 +829,15 @@ function VisitorStatsPage() {
               <p className="visitor-stats-page__hint">
                 기존 site_traffic_events 기반 회원/비회원 방문 기록입니다.
               </p>
-            </section>
+            </AccordionPanel>
 
-            <section className="visitor-stats-page__section" aria-labelledby="visit-records">
-              <h2 id="visit-records" className="visitor-stats-page__section-title">
-                방문 기록
-                <span className="visitor-stats-page__section-count">
-                  {' '}
-                  ({filteredVisits.length}건)
-                </span>
-              </h2>
-
+            <AccordionPanel
+              id="visit-records"
+              title="방문 기록"
+              count={filteredVisits.length}
+              open={isAccordionOpen('visit-records')}
+              onToggle={toggleAccordion}
+            >
               <div className="visitor-stats-page__period-buttons" role="group" aria-label="방문 구분 필터">
                 {VISIT_FILTERS.map((option) => (
                   <button
@@ -792,12 +955,14 @@ function VisitorStatsPage() {
                   </ul>
                 </>
               )}
-            </section>
+            </AccordionPanel>
 
-            <section className="visitor-stats-page__section" aria-labelledby="referral-stats">
-              <h2 id="referral-stats" className="visitor-stats-page__section-title">
-                유입 경로 (기존)
-              </h2>
+            <AccordionPanel
+              id="referral-legacy"
+              title="유입 경로 (기존)"
+              open={isAccordionOpen('referral-legacy')}
+              onToggle={toggleAccordion}
+            >
               {referralStats.length === 0 ? (
                 <p className="member-management-page__empty">해당 기간의 유입 경로 기록이 없습니다.</p>
               ) : (
@@ -830,12 +995,14 @@ function VisitorStatsPage() {
                   </table>
                 </div>
               )}
-            </section>
+            </AccordionPanel>
 
-            <section className="visitor-stats-page__section" aria-labelledby="recent-visits">
-              <h2 id="recent-visits" className="visitor-stats-page__section-title">
-                최근 방문 기록
-              </h2>
+            <AccordionPanel
+              id="recent-visits"
+              title="최근 방문 기록"
+              open={isAccordionOpen('recent-visits')}
+              onToggle={toggleAccordion}
+            >
               {recentVisits.length === 0 ? (
                 <p className="member-management-page__empty">최근 방문 기록이 없습니다.</p>
               ) : (
@@ -856,7 +1023,7 @@ function VisitorStatsPage() {
                   ))}
                 </ul>
               )}
-            </section>
+            </AccordionPanel>
           </>
         )}
       </div>
