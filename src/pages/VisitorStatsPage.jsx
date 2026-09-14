@@ -16,6 +16,7 @@ import {
   resolveAnalyticsRange,
 } from '@/services/analytics/siteAnalyticsAdmin'
 import { getKoreaDateString } from '@/utils/visitorDate'
+import { getAnalyticsPathLabel } from '@/utils/analyticsPathLabel'
 import '@/pages/MemberManagement.css'
 import './VisitorStatsPage.css'
 
@@ -713,7 +714,11 @@ function VisitorStatsPage() {
                   <SimpleTable
                     emptyText="페이지 데이터가 없습니다."
                     columns={[
-                      { key: 'path', label: '경로' },
+                      {
+                        key: 'path',
+                        label: '페이지',
+                        render: (row) => getAnalyticsPathLabel(row.path),
+                      },
                       { key: 'pageviews', label: '조회수' },
                       { key: 'visitors', label: '고유 방문자' },
                       { key: 'sessions', label: '세션' },
@@ -893,7 +898,11 @@ function VisitorStatsPage() {
                       <SimpleTable
                         emptyText="진입 페이지 데이터가 없습니다."
                         columns={[
-                          { key: 'path', label: '경로' },
+                          {
+                            key: 'path',
+                            label: '페이지',
+                            render: (row) => getAnalyticsPathLabel(row.path),
+                          },
                           { key: 'sessions', label: '세션' },
                         ]}
                         rows={analytics.landings}
@@ -904,7 +913,11 @@ function VisitorStatsPage() {
                       <SimpleTable
                         emptyText="종료 페이지 데이터가 없습니다."
                         columns={[
-                          { key: 'path', label: '경로' },
+                          {
+                            key: 'path',
+                            label: '페이지',
+                            render: (row) => getAnalyticsPathLabel(row.path),
+                          },
                           { key: 'sessions', label: '세션' },
                         ]}
                         rows={analytics.exits}
@@ -1223,7 +1236,7 @@ function VisitorStatsPage() {
                   {Array.isArray(selectedMember.paths) && selectedMember.paths.length > 0 ? (
                     <ol>
                       {selectedMember.paths.map((path, index) => (
-                        <li key={`${path}-${index}`}>{path}</li>
+                        <li key={`${path}-${index}`}>{getAnalyticsPathLabel(path)}</li>
                       ))}
                     </ol>
                   ) : (
