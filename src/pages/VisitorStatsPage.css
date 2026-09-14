@@ -110,8 +110,24 @@
   margin-right: auto;
 }
 
+.visitor-stats-page__accordion-panel--center .member-management-page__table thead th,
+.visitor-stats-page__accordion-panel--center .member-management-page__table tbody td,
+.visitor-stats-page__accordion-panel--center .member-management-page__table tbody td:nth-child(1),
+.visitor-stats-page__accordion-panel--center .member-management-page__table tbody td:nth-child(2),
+.visitor-stats-page__accordion-panel--center .member-management-page__table tbody td:nth-child(3),
+.visitor-stats-page__accordion-panel--center .member-management-page__table tbody td:nth-child(4),
+.visitor-stats-page__accordion-panel--center .member-management-page__table tbody td:nth-child(5),
+.visitor-stats-page__accordion-panel--center .member-management-page__table tbody td:nth-child(6),
+.visitor-stats-page__accordion-panel--center .member-management-page__table tbody td:nth-child(7),
+.visitor-stats-page__accordion-panel--center .member-management-page__table tbody td:last-child,
 .visitor-stats-page__accordion-panel--center th,
 .visitor-stats-page__accordion-panel--center td {
+  text-align: center !important;
+}
+
+.visitor-stats-page__accordion-panel--center .visitor-stats-page__member-link {
+  display: inline-block;
+  width: auto;
   text-align: center;
 }
 
