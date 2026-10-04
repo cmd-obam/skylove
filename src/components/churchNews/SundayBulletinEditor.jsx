@@ -1,6 +1,10 @@
 import { useState } from 'react'
 import SundayBulletin from '@/components/churchNews/SundayBulletin'
-import { SUNDAY_BULLETIN_FORM_FIELDS } from '@/data/sundayBulletinFixed'
+import {
+  getSundayBulletinFormFields,
+  SUNDAY_BULLETIN_TEMPLATE_V1,
+  SUNDAY_BULLETIN_TEMPLATE_V2,
+} from '@/data/sundayBulletinFixed'
 import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 import {
   createEmptySundayBulletinWeekly,
@@ -29,6 +33,7 @@ function summarizeValue(value, multiline = false) {
 
 function SundayBulletinEditor({ weekly, onChange, disabled = false, showPreview = true }) {
   const data = createEmptySundayBulletinWeekly(weekly)
+  const formFields = getSundayBulletinFormFields(data.templateVersion)
   const [openKeys, setOpenKeys] = useState(() => new Set())
 
   const emitChange = (patch) => {
@@ -94,7 +99,7 @@ function SundayBulletinEditor({ weekly, onChange, disabled = false, showPreview 
   }
 
   const expandAll = () => {
-    setOpenKeys(new Set(SUNDAY_BULLETIN_FORM_FIELDS.map((field) => field.key)))
+    setOpenKeys(new Set(formFields.map((field) => field.key)))
   }
 
   const collapseAll = () => {
@@ -107,6 +112,34 @@ function SundayBulletinEditor({ weekly, onChange, disabled = false, showPreview 
         주일예배 주보 서식입니다. 항목을 눌러 펼치거나 접을 수 있습니다. 오른쪽에 체크박스가 있는
         항목은 체크되어 있으면 고정(기본값), 체크를 해제하면 직접 수정할 수 있습니다.
       </p>
+
+      <div className="sunday-bulletin-form__version" role="group" aria-label="주보 템플릿 버전">
+        <span className="sunday-bulletin-form__version-label">템플릿</span>
+        <button
+          type="button"
+          className={`sunday-bulletin-form__version-button${
+            data.templateVersion === SUNDAY_BULLETIN_TEMPLATE_V1
+              ? ' sunday-bulletin-form__version-button--active'
+              : ''
+          }`}
+          onClick={() => emitChange({ templateVersion: SUNDAY_BULLETIN_TEMPLATE_V1 })}
+          disabled={disabled}
+        >
+          V1
+        </button>
+        <button
+          type="button"
+          className={`sunday-bulletin-form__version-button${
+            data.templateVersion === SUNDAY_BULLETIN_TEMPLATE_V2
+              ? ' sunday-bulletin-form__version-button--active'
+              : ''
+          }`}
+          onClick={() => emitChange({ templateVersion: SUNDAY_BULLETIN_TEMPLATE_V2 })}
+          disabled={disabled}
+        >
+          V2
+        </button>
+      </div>
 
       <div className="sunday-bulletin-form__accordion-actions">
         <button
@@ -127,7 +160,7 @@ function SundayBulletinEditor({ weekly, onChange, disabled = false, showPreview 
         </button>
       </div>
 
-      {SUNDAY_BULLETIN_FORM_FIELDS.map((field) => {
+      {formFields.map((field) => {
         const fieldId = `bulletin-field-${field.key}`
         const lockId = `${fieldId}-lock`
         const panelId = `${fieldId}-panel`

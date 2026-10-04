@@ -1,4 +1,5 @@
 import churchLogo from '@/assets/images/church-logo.png'
+import { SUNDAY_BULLETIN_TEMPLATE_V2 } from '@/data/sundayBulletinFixed'
 import {
   formatSeasonWeekLines,
   resolveSundayBulletinDisplay,
@@ -19,6 +20,7 @@ function OrderRow({ label, spaced, children, className = '' }) {
 function SundayBulletin({ weekly }) {
   const display = resolveSundayBulletinDisplay(weekly)
   const data = display.weekly
+  const isV2 = data.templateVersion === SUNDAY_BULLETIN_TEMPLATE_V2
   const newsText = String(data.churchNews ?? '').trim()
   const seasonLines = formatSeasonWeekLines(data.seasonWeek, display.seasonPrefix)
 
@@ -70,12 +72,14 @@ function SundayBulletin({ weekly }) {
               <OrderRow label="찬양" spaced>
                 {data.praise || '\u00a0'}
               </OrderRow>
-              <OrderRow label="교독문" spaced>
+              <OrderRow label={isV2 ? '교독문.성례전' : '교독문'} spaced>
                 {data.responsiveReading || '\u00a0'}
               </OrderRow>
-              <OrderRow label="봉헌찬양" spaced>
-                {display.orderFixed.offeringPraise}
-              </OrderRow>
+              {isV2 ? null : (
+                <OrderRow label="봉헌찬양" spaced>
+                  {display.orderFixed.offeringPraise}
+                </OrderRow>
+              )}
               <OrderRow label="봉헌기도" spaced>
                 {display.orderFixed.offeringPrayer}
               </OrderRow>

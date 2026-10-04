@@ -33,6 +33,10 @@ import {
   parseSundayBulletinWeekly,
   serializeSundayBulletinWeekly,
 } from '@/utils/sundayBulletin'
+import {
+  SUNDAY_BULLETIN_TEMPLATE_V1,
+  SUNDAY_BULLETIN_TEMPLATE_V2,
+} from '@/data/sundayBulletinFixed'
 import { getPublicDisplayName } from '@/utils/getPublicDisplayName'
 import {
   formatKoreaScheduleMessage,
@@ -285,7 +289,7 @@ function BoardPostWritePage({
     }
   }, [canUseBulletin, isEdit, postId, postType, profile, currentUserId])
 
-  const handleLoadBulletinTemplate = () => {
+  const handleLoadBulletinTemplate = (templateVersion = SUNDAY_BULLETIN_TEMPLATE_V1) => {
     if (!canUseBulletin) {
       return
     }
@@ -303,7 +307,7 @@ function BoardPostWritePage({
       }
     }
 
-    const nextWeekly = createEmptySundayBulletinWeekly()
+    const nextWeekly = createEmptySundayBulletinWeekly({ templateVersion })
     setWeekly(nextWeekly)
     setBulletinMode(true)
     setContent(serializeSundayBulletinWeekly(nextWeekly))
@@ -741,19 +745,29 @@ function BoardPostWritePage({
                 일반 글쓰기로 전환
               </button>
             ) : (
-              <button
-                type="button"
-                className="church-news-board__search-button board-write-form__bulletin-button"
-                onClick={handleLoadBulletinTemplate}
-                disabled={submitting}
-              >
-                주보 서식 불러오기
-              </button>
+              <div className="board-write-form__bulletin-load">
+                <button
+                  type="button"
+                  className="church-news-board__search-button board-write-form__bulletin-button"
+                  onClick={() => handleLoadBulletinTemplate(SUNDAY_BULLETIN_TEMPLATE_V1)}
+                  disabled={submitting}
+                >
+                  주보 서식 V1 불러오기
+                </button>
+                <button
+                  type="button"
+                  className="church-news-board__search-button board-write-form__bulletin-button"
+                  onClick={() => handleLoadBulletinTemplate(SUNDAY_BULLETIN_TEMPLATE_V2)}
+                  disabled={submitting}
+                >
+                  주보 서식 V2 불러오기
+                </button>
+              </div>
             )}
             <p className="board-write-form__bulletin-help">
               {bulletinMode
-                ? '주보 내용을 수정한 뒤 등록하면 교회소식 게시글로 저장됩니다.'
-                : '일반 글은 제목과 내용만 작성하면 됩니다. 주일 주보가 필요할 때만 서식을 불러오세요.'}
+                ? '주보 내용을 수정한 뒤 등록하면 교회소식 게시글로 저장됩니다. 서식 안에서 V1/V2를 바꿀 수 있습니다.'
+                : '일반 글은 제목과 내용만 작성하면 됩니다. 주일 주보가 필요할 때만 V1 또는 V2 서식을 불러오세요.'}
             </p>
           </div>
         ) : null}

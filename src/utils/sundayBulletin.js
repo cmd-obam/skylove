@@ -2,6 +2,8 @@ import {
   SUNDAY_BULLETIN_FIXED,
   SUNDAY_BULLETIN_LOCKABLE_FIELDS,
   SUNDAY_BULLETIN_LOCKABLE_KEYS,
+  SUNDAY_BULLETIN_TEMPLATE_V1,
+  normalizeSundayBulletinTemplateVersion,
 } from '@/data/sundayBulletinFixed'
 
 export const SUNDAY_BULLETIN_TYPE = 'sunday_bulletin'
@@ -99,12 +101,16 @@ export function createEmptySundayBulletinWeekly(overrides = {}) {
     locks: locksOverride,
     fixedOverrides: fixedOverridesInput,
     oneTimeFixed: oneTimeFixedInput,
+    templateVersion: templateVersionInput,
     ...weeklyFields
   } = overrides ?? {}
 
   return {
     ...EMPTY_SUNDAY_BULLETIN_WEEKLY,
     ...weeklyFields,
+    templateVersion: normalizeSundayBulletinTemplateVersion(
+      templateVersionInput ?? SUNDAY_BULLETIN_TEMPLATE_V1,
+    ),
     locks: {
       ...createDefaultLocks(),
       ...(locksOverride && typeof locksOverride === 'object' ? locksOverride : {}),
@@ -310,6 +316,7 @@ export function parseSundayBulletinWeekly(content) {
   try {
     const parsed = JSON.parse(content.trim())
     return createEmptySundayBulletinWeekly({
+      templateVersion: parsed.templateVersion,
       seasonWeek: extractSeasonWeekNumber(parsed.seasonWeek ?? ''),
       prayer: parsed.prayer ?? '',
       praise: parsed.praise ?? '',
@@ -335,6 +342,7 @@ export function serializeSundayBulletinWeekly(weekly) {
   return JSON.stringify({
     __type: SUNDAY_BULLETIN_TYPE,
     version: SUNDAY_BULLETIN_VERSION,
+    templateVersion: data.templateVersion,
     seasonWeek: weekNumber,
     prayer: data.prayer,
     praise: data.praise,

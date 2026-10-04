@@ -38,6 +38,9 @@ export const SUNDAY_BULLETIN_FIXED = {
   },
 }
 
+export const SUNDAY_BULLETIN_TEMPLATE_V1 = 1
+export const SUNDAY_BULLETIN_TEMPLATE_V2 = 2
+
 /**
  * 주보 작성 양식 목록 (주보 표시 순서에 맞춤)
  * - lockable: true → 우측 체크박스로 고정/수정 전환 (기본 체크=고정)
@@ -46,7 +49,7 @@ export const SUNDAY_BULLETIN_FIXED = {
  * 예배제목/시간/사회/절기문구/봉헌기도/엘샤다이중창단/축도/
  * 섬기는사람/선교및후원/교단명/교회명은 양식에서 제외(항상 고정값).
  */
-export const SUNDAY_BULLETIN_FORM_FIELDS = [
+export const SUNDAY_BULLETIN_FORM_FIELDS_V1 = [
   {
     key: 'seasonWeek',
     label: '성령강림절 후 제 ○○주',
@@ -156,6 +159,29 @@ export const SUNDAY_BULLETIN_FORM_FIELDS = [
     rows: 10,
   },
 ]
+
+/** V2: 설정은 V1과 동일, 예배 순서에서 봉헌찬양 제외 · 교독문 표기만 변경 */
+export const SUNDAY_BULLETIN_FORM_FIELDS_V2 = SUNDAY_BULLETIN_FORM_FIELDS_V1.filter(
+  (field) => field.key !== 'offeringPraise',
+).map((field) =>
+  field.key === 'responsiveReading'
+    ? { ...field, label: '교독문.성례전' }
+    : field,
+)
+
+export const SUNDAY_BULLETIN_FORM_FIELDS = SUNDAY_BULLETIN_FORM_FIELDS_V1
+
+export function getSundayBulletinFormFields(templateVersion) {
+  return Number(templateVersion) === SUNDAY_BULLETIN_TEMPLATE_V2
+    ? SUNDAY_BULLETIN_FORM_FIELDS_V2
+    : SUNDAY_BULLETIN_FORM_FIELDS_V1
+}
+
+export function normalizeSundayBulletinTemplateVersion(value) {
+  return Number(value) === SUNDAY_BULLETIN_TEMPLATE_V2
+    ? SUNDAY_BULLETIN_TEMPLATE_V2
+    : SUNDAY_BULLETIN_TEMPLATE_V1
+}
 
 /** 호환용 — 전체 양식은 SUNDAY_BULLETIN_FORM_FIELDS 사용 */
 export const SUNDAY_BULLETIN_WEEKLY_FIELDS = SUNDAY_BULLETIN_FORM_FIELDS.filter(
