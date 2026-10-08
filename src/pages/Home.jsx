@@ -4,6 +4,7 @@ import HomeWorship from '@/components/sections/HomeWorship'
 import HomeStory from '@/components/sections/HomeStory'
 import Gallery from '@/components/sections/Gallery'
 import HomeLocation from '@/components/sections/HomeLocation'
+import HomeEventPopup from '@/components/home/HomeEventPopup'
 
 function Home() {
   return (
@@ -14,6 +15,7 @@ function Home() {
       <HomeStory />
       <Gallery />
       <HomeLocation />
+      <HomeEventPopup />
     </>
   )
 }
