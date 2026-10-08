@@ -17,6 +17,12 @@
   align-items: center;
   overflow: hidden;
   background-color: #1a2330;
+  transition: aspect-ratio 0.45s ease;
+}
+
+/* Thanksgiving slide: match artwork ratio (1024x539) so banner text isn't cropped */
+.hero--slide-3 {
+  --hero-aspect: 1024 / 539;
 }
 
 .hero-section {
@@ -86,6 +92,17 @@
   z-index: 1;
   background: rgba(0, 0, 0, 0.35);
   pointer-events: none;
+  transition: opacity 0.45s ease;
+}
+
+.hero__overlay--hidden {
+  opacity: 0;
+}
+
+.hero__slide--3 {
+  object-fit: contain;
+  object-position: center center;
+  background-color: #1a2330;
 }
 
 .hero__content-wrap {
@@ -323,9 +340,14 @@
     object-position: 38% 28%;
   }
 
-  /* Thanksgiving: keep title banner + harvest scene */
+  /* Thanksgiving: show full banner (contain + slide-3 aspect) */
   .hero__slide--3 {
-    object-position: 50% 18%;
+    object-fit: contain;
+    object-position: center center;
+  }
+
+  .hero--slide-3 {
+    min-height: max(15.5rem, calc(100vw * 539 / 1024));
   }
 
   .hero__content {
@@ -363,6 +385,10 @@
     --hero-subtitle-gap: 0.6rem;
   }
 
+  .hero--slide-3 {
+    min-height: max(14.5rem, calc(100vw * 539 / 1024));
+  }
+
   .hero__content {
     max-width: min(100%, 20rem);
   }
@@ -376,6 +402,10 @@
   .hero {
     min-height: max(13.75rem, calc(100vw * 406 / 1024));
     --hero-pad-inline: 0.75rem;
+  }
+
+  .hero--slide-3 {
+    min-height: max(13.75rem, calc(100vw * 539 / 1024));
   }
 
   .hero__content {

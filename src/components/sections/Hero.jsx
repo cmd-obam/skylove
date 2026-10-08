@@ -8,10 +8,13 @@ import './Hero.css'
 
 const heroImages = [hero01, hero02, hero03]
 const SLIDE_INTERVAL = 5000
+/** Slides that show only the artwork (no title / subtitle / CTAs). */
+const IMAGE_ONLY_SLIDES = new Set([2])
 
 function Hero() {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [transitionsEnabled, setTransitionsEnabled] = useState(false)
+  const isImageOnlySlide = IMAGE_ONLY_SLIDES.has(currentSlide)
 
   const goToSlide = useCallback((index) => {
     setCurrentSlide(index)
@@ -46,7 +49,10 @@ function Hero() {
   }, [currentSlide])
 
   return (
-    <section className="hero hero-section" aria-label="메인 배너">
+    <section
+      className={`hero hero-section${isImageOnlySlide ? ' hero--image-only hero--slide-3' : ''}`}
+      aria-label="메인 배너"
+    >
       <div
         className="hero__image-layer"
         onContextMenu={(event) => event.preventDefault()}
@@ -71,59 +77,64 @@ function Hero() {
         </div>
       </div>
 
-      <div className="hero__overlay" aria-hidden="true" />
+      <div
+        className={`hero__overlay${isImageOnlySlide ? ' hero__overlay--hidden' : ''}`}
+        aria-hidden="true"
+      />
 
-      <div className="hero__content-wrap">
-        <div className="hero__container">
-          <div className="hero__content">
-            <h1 className="hero__title">
-              {(HOME_HERO.titleLines ?? [HOME_HERO.title]).map((line, index) => (
-                <span
-                  key={line}
-                  className={`hero__title-line${
-                    index > 0 ? ' hero__title-line--accent' : ''
-                  }`}
-                >
-                  {line}
-                </span>
-              ))}
-            </h1>
-            <p className="hero__subtitle">
-              <span className="hero__subtitle-desktop">
-                {(HOME_HERO.subtitleLines ?? [HOME_HERO.subtitle]).map((line) => (
-                  <span key={line} className="hero__subtitle-line">
+      {!isImageOnlySlide ? (
+        <div className="hero__content-wrap">
+          <div className="hero__container">
+            <div className="hero__content">
+              <h1 className="hero__title">
+                {(HOME_HERO.titleLines ?? [HOME_HERO.title]).map((line, index) => (
+                  <span
+                    key={line}
+                    className={`hero__title-line${
+                      index > 0 ? ' hero__title-line--accent' : ''
+                    }`}
+                  >
                     {line}
                   </span>
                 ))}
-              </span>
-              <span className="hero__subtitle-mobile">
-                {(HOME_HERO.subtitleLinesMobile ?? HOME_HERO.subtitleLines ?? [HOME_HERO.subtitle]).map(
-                  (line, index) => (
-                    <span
-                      key={`mobile-${line}`}
-                      className={`hero__subtitle-line${
-                        (HOME_HERO.subtitleMobileSpacedAfter ?? []).includes(index)
-                          ? ' hero__subtitle-line--spaced'
-                          : ''
-                      }`}
-                    >
+              </h1>
+              <p className="hero__subtitle">
+                <span className="hero__subtitle-desktop">
+                  {(HOME_HERO.subtitleLines ?? [HOME_HERO.subtitle]).map((line) => (
+                    <span key={line} className="hero__subtitle-line">
                       {line}
                     </span>
-                  ),
-                )}
-              </span>
-            </p>
-            <div className="hero__actions">
-              <Link to={HOME_HERO.primaryCta.href} className="hero__btn hero__btn--primary">
-                {HOME_HERO.primaryCta.label}
-              </Link>
-              <Link to={HOME_HERO.secondaryCta.href} className="hero__btn hero__btn--secondary">
-                {HOME_HERO.secondaryCta.label}
-              </Link>
+                  ))}
+                </span>
+                <span className="hero__subtitle-mobile">
+                  {(HOME_HERO.subtitleLinesMobile ?? HOME_HERO.subtitleLines ?? [HOME_HERO.subtitle]).map(
+                    (line, index) => (
+                      <span
+                        key={`mobile-${line}`}
+                        className={`hero__subtitle-line${
+                          (HOME_HERO.subtitleMobileSpacedAfter ?? []).includes(index)
+                            ? ' hero__subtitle-line--spaced'
+                            : ''
+                        }`}
+                      >
+                        {line}
+                      </span>
+                    ),
+                  )}
+                </span>
+              </p>
+              <div className="hero__actions">
+                <Link to={HOME_HERO.primaryCta.href} className="hero__btn hero__btn--primary">
+                  {HOME_HERO.primaryCta.label}
+                </Link>
+                <Link to={HOME_HERO.secondaryCta.href} className="hero__btn hero__btn--secondary">
+                  {HOME_HERO.secondaryCta.label}
+                </Link>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      ) : null}
 
       {heroImages.length > 1 ? (
         <div className="hero__indicators" role="tablist" aria-label="슬라이드 선택">

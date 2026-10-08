@@ -371,7 +371,8 @@
   }
 
   .hero__slide--3 {
-    object-position: 50% 18%;
+    object-fit: contain;
+    object-position: center center;
   }
 
   .hero__content {
