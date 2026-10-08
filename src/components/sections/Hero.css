@@ -1,10 +1,6 @@
 .hero {
-  /*
-   * Shared frame for every slide (Thanksgiving artwork 1024x539).
-   * Photo slides fill this with cover; the banner fills it without letterboxing.
-   * Height must not depend on which slide is active or whether copy is visible.
-   */
-  --hero-aspect: 1024 / 539;
+  /* 히어로 원본 비율(약 1024x406)을 기본으로 쓰되, 콘텐츠가 더 크면 높이 확장 */
+  --hero-aspect: 1024 / 406;
   --hero-pad-inline: var(--section-padding);
   --hero-pad-block: clamp(1.25rem, 3.2vw, 2.75rem);
   --hero-title-gap: clamp(0.5rem, 1.4vw, 1.25rem);
@@ -16,12 +12,11 @@
   position: relative;
   width: 100%;
   aspect-ratio: var(--hero-aspect);
-  height: auto;
-  min-height: 0;
-  display: block;
+  min-height: fit-content;
+  display: flex;
+  align-items: center;
   overflow: hidden;
-  /* Warm harvest edge (not near-black) so any sub-pixel gap isn't a dark band */
-  background-color: #e6a24a;
+  background-color: #1a2330;
 }
 
 .hero-section {
@@ -85,50 +80,21 @@
   opacity: 1;
 }
 
-/* Full banner visible: frame ratio matches artwork, so contain fills without bars */
-.hero__slide--3 {
-  object-fit: contain;
-  object-position: center center;
-}
-
 .hero__overlay {
   position: absolute;
   inset: 0;
   z-index: 1;
   background: rgba(0, 0, 0, 0.35);
   pointer-events: none;
-  /* Instant hide/show — must stay in sync with copy, not the 1.5s image crossfade */
-  transition: none;
 }
 
-.hero__overlay--hidden {
-  opacity: 0;
-}
-
-/*
- * Copy is absolutely positioned so it never drives hero height
- * (especially important on mobile where content used to expand the section).
- */
 .hero__content-wrap {
-  position: absolute;
-  inset: 0;
+  position: relative;
   z-index: 2;
-  display: flex;
-  align-items: center;
-  box-sizing: border-box;
   width: 100%;
+  box-sizing: border-box;
   padding-inline: var(--hero-pad-inline);
   padding-block: var(--hero-pad-block);
-  opacity: 1;
-  visibility: visible;
-  /* Instant — previous copy must not linger over the Thanksgiving slide */
-  transition: none;
-}
-
-.hero__content-wrap--hidden {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
 }
 
 .hero__container {
@@ -143,10 +109,6 @@
   user-select: text;
   -webkit-user-select: text;
   animation: heroFadeUp 0.8s ease forwards;
-}
-
-.hero__content-wrap--hidden .hero__content {
-  animation: none;
 }
 
 @keyframes heroFadeUp {
@@ -288,13 +250,14 @@
   background: rgba(255, 255, 255, 0.85);
 }
 
-/* Tablet / narrow desktop: keep panoramic feel, tighter copy */
+/* Tablet / narrow desktop: keep panoramic feel, grow for content, tighter copy */
 @media (max-width: 992px) {
   .hero {
     --hero-pad-block: clamp(1.1rem, 2.8vw, 2rem);
     --hero-title-gap: clamp(0.4rem, 1.2vw, 0.85rem);
     --hero-subtitle-gap: clamp(0.75rem, 2vw, 1.35rem);
     --hero-actions-gap: clamp(0.45rem, 1.2vw, 0.75rem);
+    align-items: center;
   }
 
   .hero__title {
@@ -305,6 +268,7 @@
     max-width: min(36rem, 100%);
   }
 
+  /* Prefer prepared mobile line breaks earlier to avoid awkward wrap */
   .hero__subtitle-desktop {
     display: none;
   }
@@ -330,12 +294,12 @@
   }
 }
 
-/* Mobile: same aspect frame as desktop — do not let copy or slide type change height */
+/* Mobile: content-first height, no max-height clipping */
 @media (max-width: 768px) {
   .hero {
-    aspect-ratio: var(--hero-aspect);
+    aspect-ratio: auto;
     height: auto;
-    min-height: 0;
+    min-height: max(15.5rem, calc(100vw * 406 / 1024));
     max-height: none;
     --hero-pad-inline: 0.875rem;
     --hero-pad-block: clamp(0.9rem, 3.5vw, 1.35rem) clamp(1.15rem, 4vw, 1.75rem);
@@ -344,17 +308,19 @@
     --hero-actions-gap: 0.45rem;
   }
 
+  .hero__slide,
+  .hero__bg {
+    object-fit: cover;
+  }
+
+  /* Sanctuary: keep aisle / altar / screen in frame */
   .hero__slide--1 {
     object-position: 50% 48%;
   }
 
+  /* Greeting: keep smiling face + open arms */
   .hero__slide--2 {
     object-position: 38% 28%;
-  }
-
-  .hero__slide--3 {
-    object-fit: contain;
-    object-position: center center;
   }
 
   .hero__content {
@@ -386,6 +352,7 @@
 
 @media (max-width: 480px) {
   .hero {
+    min-height: max(14.5rem, calc(100vw * 406 / 1024));
     --hero-pad-block: 0.85rem 1.25rem;
     --hero-title-gap: 0.35rem;
     --hero-subtitle-gap: 0.6rem;
@@ -402,6 +369,7 @@
 
 @media (max-width: 360px) {
   .hero {
+    min-height: max(13.75rem, calc(100vw * 406 / 1024));
     --hero-pad-inline: 0.75rem;
   }
 
