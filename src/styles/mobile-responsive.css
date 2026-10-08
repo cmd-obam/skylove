@@ -370,6 +370,10 @@
     object-position: 38% 28%;
   }
 
+  .hero__slide--3 {
+    object-position: 50% 18%;
+  }
+
   .hero__content {
     max-width: min(100%, 22rem);
   }

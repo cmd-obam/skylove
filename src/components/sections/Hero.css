@@ -323,6 +323,11 @@
     object-position: 38% 28%;
   }
 
+  /* Thanksgiving: keep title banner + harvest scene */
+  .hero__slide--3 {
+    object-position: 50% 18%;
+  }
+
   .hero__content {
     max-width: min(100%, 22rem);
     overflow: visible;
