@@ -19,15 +19,6 @@
   background-color: #1a2330;
 }
 
-/*
- * Thanksgiving banner only: keep the same hero frame (no aspect/height change),
- * but swap the near-black fill for a harvest tone so contain letterboxing
- * is not a dark band. Photo slides keep their original background.
- */
-.hero--banner-slide {
-  background-color: #e59a2e;
-}
-
 .hero-section {
   user-select: none;
   -webkit-user-select: none;
@@ -87,15 +78,6 @@
 
 .hero__slide--active {
   opacity: 1;
-}
-
-/*
- * Thanksgiving (slide 3): never crop baked-in title/date/art.
- * contain + original aspect; letterbox uses .hero--banner-slide fill.
- */
-.hero__slide--3 {
-  object-fit: contain;
-  object-position: center center;
 }
 
 .hero__overlay {
@@ -357,12 +339,6 @@
   /* Greeting: keep smiling face + open arms */
   .hero__slide--2 {
     object-position: 38% 28%;
-  }
-
-  /* Thanksgiving: full banner, no crop (same rule as desktop) */
-  .hero__slide--3 {
-    object-fit: contain;
-    object-position: center center;
   }
 
   .hero__content {

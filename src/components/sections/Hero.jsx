@@ -49,10 +49,7 @@ function Hero() {
   }, [currentSlide])
 
   return (
-    <section
-      className={`hero hero-section${showCopy ? '' : ' hero--banner-slide'}`}
-      aria-label="메인 배너"
-    >
+    <section className="hero hero-section" aria-label="메인 배너">
       <div
         className="hero__image-layer"
         onContextMenu={(event) => event.preventDefault()}
