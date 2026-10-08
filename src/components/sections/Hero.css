@@ -86,12 +86,6 @@
   z-index: 1;
   background: rgba(0, 0, 0, 0.35);
   pointer-events: none;
-  /* Instant — must not lag behind the image crossfade */
-  transition: none;
-}
-
-.hero__overlay--hidden {
-  opacity: 0;
 }
 
 .hero__content-wrap {
@@ -101,18 +95,6 @@
   box-sizing: border-box;
   padding-inline: var(--hero-pad-inline);
   padding-block: var(--hero-pad-block);
-  /* Keep layout space when hidden so hero height stays stable across slides */
-  transition: none;
-}
-
-.hero__content-wrap--hidden {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
-
-.hero__content-wrap--hidden .hero__content {
-  animation: none;
 }
 
 .hero__container {
