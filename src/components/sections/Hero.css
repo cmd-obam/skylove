@@ -19,6 +19,15 @@
   background-color: #1a2330;
 }
 
+/*
+ * Thanksgiving banner only: keep the same hero frame (no aspect/height change),
+ * but swap the near-black fill for a harvest tone so contain letterboxing
+ * is not a dark band. Photo slides keep their original background.
+ */
+.hero--banner-slide {
+  background-color: #e59a2e;
+}
+
 .hero-section {
   user-select: none;
   -webkit-user-select: none;
@@ -80,12 +89,27 @@
   opacity: 1;
 }
 
+/*
+ * Thanksgiving (slide 3): never crop baked-in title/date/art.
+ * contain + original aspect; letterbox uses .hero--banner-slide fill.
+ */
+.hero__slide--3 {
+  object-fit: contain;
+  object-position: center center;
+}
+
 .hero__overlay {
   position: absolute;
   inset: 0;
   z-index: 1;
   background: rgba(0, 0, 0, 0.35);
   pointer-events: none;
+  /* Instant — must not lag behind the image crossfade */
+  transition: none;
+}
+
+.hero__overlay--hidden {
+  opacity: 0;
 }
 
 .hero__content-wrap {
@@ -95,6 +119,18 @@
   box-sizing: border-box;
   padding-inline: var(--hero-pad-inline);
   padding-block: var(--hero-pad-block);
+  /* Keep layout space when hidden so hero height stays stable across slides */
+  transition: none;
+}
+
+.hero__content-wrap--hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.hero__content-wrap--hidden .hero__content {
+  animation: none;
 }
 
 .hero__container {
@@ -321,6 +357,12 @@
   /* Greeting: keep smiling face + open arms */
   .hero__slide--2 {
     object-position: 38% 28%;
+  }
+
+  /* Thanksgiving: full banner, no crop (same rule as desktop) */
+  .hero__slide--3 {
+    object-fit: contain;
+    object-position: center center;
   }
 
   .hero__content {

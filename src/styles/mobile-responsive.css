@@ -370,6 +370,11 @@
     object-position: 38% 28%;
   }
 
+  .hero__slide--3 {
+    object-fit: contain;
+    object-position: center center;
+  }
+
   .hero__content {
     max-width: min(100%, 22rem);
   }

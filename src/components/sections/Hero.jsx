@@ -3,14 +3,18 @@ import { Link } from 'react-router-dom'
 import { HOME_HERO } from '@/data/home'
 import hero01 from '@/assets/images/hero/hero01.png'
 import hero02 from '@/assets/images/hero/hero02.png'
+import hero03 from '@/assets/images/hero/hero03.png'
 import './Hero.css'
 
-const heroImages = [hero01, hero02]
+const heroImages = [hero01, hero02, hero03]
 const SLIDE_INTERVAL = 5000
+/** Artwork slides: baked-in copy — hide HTML title / subtitle / CTAs. */
+const IMAGE_ONLY_SLIDES = new Set([2])
 
 function Hero() {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [transitionsEnabled, setTransitionsEnabled] = useState(false)
+  const showCopy = !IMAGE_ONLY_SLIDES.has(currentSlide)
 
   const goToSlide = useCallback((index) => {
     setCurrentSlide(index)
@@ -45,7 +49,10 @@ function Hero() {
   }, [currentSlide])
 
   return (
-    <section className="hero hero-section" aria-label="메인 배너">
+    <section
+      className={`hero hero-section${showCopy ? '' : ' hero--banner-slide'}`}
+      aria-label="메인 배너"
+    >
       <div
         className="hero__image-layer"
         onContextMenu={(event) => event.preventDefault()}
@@ -70,11 +77,17 @@ function Hero() {
         </div>
       </div>
 
-      <div className="hero__overlay" aria-hidden="true" />
+      <div
+        className={`hero__overlay${showCopy ? '' : ' hero__overlay--hidden'}`}
+        aria-hidden="true"
+      />
 
-      <div className="hero__content-wrap">
+      <div
+        className={`hero__content-wrap${showCopy ? '' : ' hero__content-wrap--hidden'}`}
+        aria-hidden={!showCopy}
+      >
         <div className="hero__container">
-          <div className="hero__content">
+          <div className="hero__content" key={showCopy ? 'copy-on' : 'copy-off'}>
             <h1 className="hero__title">
               {(HOME_HERO.titleLines ?? [HOME_HERO.title]).map((line, index) => (
                 <span
@@ -113,10 +126,18 @@ function Hero() {
               </span>
             </p>
             <div className="hero__actions">
-              <Link to={HOME_HERO.primaryCta.href} className="hero__btn hero__btn--primary">
+              <Link
+                to={HOME_HERO.primaryCta.href}
+                className="hero__btn hero__btn--primary"
+                tabIndex={showCopy ? undefined : -1}
+              >
                 {HOME_HERO.primaryCta.label}
               </Link>
-              <Link to={HOME_HERO.secondaryCta.href} className="hero__btn hero__btn--secondary">
+              <Link
+                to={HOME_HERO.secondaryCta.href}
+                className="hero__btn hero__btn--secondary"
+                tabIndex={showCopy ? undefined : -1}
+              >
                 {HOME_HERO.secondaryCta.label}
               </Link>
             </div>
