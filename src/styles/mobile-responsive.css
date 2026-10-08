@@ -349,17 +349,12 @@
 }
 
 @media (max-width: 767px) {
-  /* Align with Hero.css: grow with content, keep cover crop. */
+  /* Keep shared hero aspect from Hero.css — do not let content drive height. */
   .hero {
-    aspect-ratio: auto;
+    aspect-ratio: var(--hero-aspect);
     height: auto;
-    min-height: max(15.5rem, calc(100vw * 406 / 1024));
+    min-height: 0;
     max-height: none;
-  }
-
-  .hero__slide,
-  .hero__bg {
-    object-fit: cover;
   }
 
   .hero__slide--1 {
