@@ -49,47 +49,35 @@ function HomeEventPopup({ config = THANKSGIVING_POPUP }) {
   }
 
   return (
-    <div
-      className="home-event-popup"
-      role="presentation"
-      onClick={close}
-    >
+    <div className="home-event-popup" role="presentation" onClick={close}>
       <div
-        className="home-event-popup__dialog"
+        className="home-event-popup__panel"
         role="dialog"
         aria-modal="true"
         aria-label={config.imageAlt}
         onClick={(event) => event.stopPropagation()}
       >
-        <button
-          type="button"
-          className="home-event-popup__close-icon"
-          aria-label="닫기"
-          onClick={close}
-        >
-          &times;
-        </button>
-
-        <div className="home-event-popup__image-wrap">
+        <figure className="home-event-popup__figure">
           <img
             className="home-event-popup__image"
             src={thanksgivingPopupImage}
             alt={config.imageAlt}
             draggable={false}
           />
-        </div>
+        </figure>
 
-        <div className="home-event-popup__actions">
+        <div className="home-event-popup__footer">
           <button
             type="button"
-            className="home-event-popup__btn home-event-popup__btn--ghost"
+            className="home-event-popup__link"
             onClick={hideForToday}
           >
             오늘 하루 보지 않기
           </button>
+          <span className="home-event-popup__divider" aria-hidden="true" />
           <button
             type="button"
-            className="home-event-popup__btn home-event-popup__btn--primary"
+            className="home-event-popup__link home-event-popup__link--emphasis"
             onClick={close}
           >
             닫기
