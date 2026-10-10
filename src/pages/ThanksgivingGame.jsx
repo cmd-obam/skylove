@@ -909,7 +909,7 @@ function ThanksgivingGame() {
                       <div className="tg-tutorial-item__copy">
                         <p className="tg-tutorial-item__text">좌우로 이동하여 벼를 수확하세요!</p>
                         <p className="tg-tutorial-item__hint">키보드 ← → 방향키로 이동</p>
-                        <p className="tg-tutorial-item__hint">화면을 좌우로 드래그하여 이동</p>
+                        <p className="tg-tutorial-item__hint">또는 화면을 좌우로 드래그하여 이동</p>
                       </div>
                     </div>
                   </article>
