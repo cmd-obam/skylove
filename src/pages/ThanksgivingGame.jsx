@@ -11,6 +11,7 @@ import {
 } from '@/services/thanksgivingGame/scores'
 import farmerSrc from '@/assets/images/thanksgiving-game/farmer.png'
 import riceSrc from '@/assets/images/thanksgiving-game/rice.png'
+import goldenRiceSrc from '@/assets/images/thanksgiving-game/golden-rice.png'
 import weedSrc from '@/assets/images/thanksgiving-game/weed.png'
 import heartSrc from '@/assets/images/thanksgiving-game/heart.png'
 import brokenHeartSrc from '@/assets/images/thanksgiving-game/broken-heart.png'
@@ -21,12 +22,36 @@ const GAME_DURATION_MS = 60_000
 const BASE_FALL_SPEED = 140
 const FARMER_SPEED = 320
 const MAX_COMBO_POINTS = 5
+const GOLDEN_PER_ROUND = 5
+const GOLDEN_MIN_GAP_MS = 9_000
+const GOLDEN_EARLIEST_MS = 4_000
+const GOLDEN_LATEST_MS = 52_000
 const NICKNAME_STORAGE_KEY = 'skylove:tg-game:last-nickname'
 
 /** Combo 1–10 → 1pt, 11–20 → 2pt, … capped at 5. */
 function getComboPoints(comboCount) {
   if (comboCount < 1) return 1
   return Math.min(MAX_COMBO_POINTS, Math.floor((comboCount - 1) / 10) + 1)
+}
+
+/** Golden rice: combo tiers → 5 / 10 / 15 / 20 / 25. */
+function getGoldenComboPoints(comboCount) {
+  return getComboPoints(comboCount) * 5
+}
+
+/** 5 random spawn times in 1 minute, never back-to-back. */
+function makeGoldenSpawnTimes() {
+  const windowSize = (GOLDEN_LATEST_MS - GOLDEN_EARLIEST_MS) / GOLDEN_PER_ROUND
+  const times = []
+  for (let i = 0; i < GOLDEN_PER_ROUND; i += 1) {
+    const windowStart = GOLDEN_EARLIEST_MS + i * windowSize
+    const windowEnd = windowStart + windowSize - 500
+    const minStart = times.length ? times[times.length - 1] + GOLDEN_MIN_GAP_MS : windowStart
+    const lo = Math.min(Math.max(windowStart, minStart), windowEnd - 200)
+    const hi = Math.max(lo + 200, windowEnd)
+    times.push(lo + Math.random() * (hi - lo))
+  }
+  return times
 }
 
 /** 10s → 1.5x, 30s → 2x fall speed. */
@@ -93,7 +118,13 @@ function ThanksgivingGame() {
   const canvasRef = useRef(null)
   const stageRef = useRef(null)
   const rafRef = useRef(0)
-  const imagesRef = useRef({ farmer: null, rice: null, weed: null, brokenHeart: null })
+  const imagesRef = useRef({
+    farmer: null,
+    rice: null,
+    goldenRice: null,
+    weed: null,
+    brokenHeart: null,
+  })
   const stateRef = useRef(null)
   const fxSeqRef = useRef(0)
   const touchRef = useRef({ active: false, offsetX: 0 })
@@ -148,6 +179,9 @@ function ThanksgivingGame() {
       fx: [],
       nextSpawnAt: 400,
       itemSeq: 0,
+      lastSpawnType: null,
+      goldenSpawnAt: makeGoldenSpawnTimes(),
+      goldenSpawnIndex: 0,
       width,
       height,
       keys: { left: false, right: false },
@@ -197,12 +231,13 @@ function ThanksgivingGame() {
     Promise.all([
       loadImage(farmerSrc),
       loadImage(riceSrc),
+      loadImage(goldenRiceSrc),
       loadImage(weedSrc),
       loadImage(brokenHeartSrc),
     ])
-      .then(([farmer, rice, weed, brokenHeart]) => {
+      .then(([farmer, rice, goldenRice, weed, brokenHeart]) => {
         if (cancelled) return
-        imagesRef.current = { farmer, rice, weed, brokenHeart }
+        imagesRef.current = { farmer, rice, goldenRice, weed, brokenHeart }
         setAssetsReady(true)
       })
       .catch((error) => {
@@ -245,7 +280,12 @@ function ThanksgivingGame() {
     ctx.drawImage(imgs.farmer, farmerX, farmerY, farmerW, farmerH)
 
     for (const item of game.items) {
-      const sprite = item.type === 'rice' ? imgs.rice : imgs.weed
+      const sprite =
+        item.type === 'golden'
+          ? imgs.goldenRice
+          : item.type === 'rice'
+            ? imgs.rice
+            : imgs.weed
       if (!sprite) continue
       ctx.drawImage(sprite, item.x, item.y, item.w, item.h)
     }
@@ -280,9 +320,16 @@ function ThanksgivingGame() {
         ctx.lineWidth = 4
         ctx.strokeStyle = 'rgba(90, 40, 10, 0.55)'
         const scoreGrad = ctx.createLinearGradient(fx.x, rise - 4, fx.x, rise + 18)
-        scoreGrad.addColorStop(0, '#fff8a8')
-        scoreGrad.addColorStop(0.5, '#ffd24a')
-        scoreGrad.addColorStop(1, '#f0a020')
+        if (fx.golden) {
+          scoreGrad.addColorStop(0, '#fffef0')
+          scoreGrad.addColorStop(0.35, '#ffe566')
+          scoreGrad.addColorStop(0.7, '#ffc107')
+          scoreGrad.addColorStop(1, '#e69500')
+        } else {
+          scoreGrad.addColorStop(0, '#fff8a8')
+          scoreGrad.addColorStop(0.5, '#ffd24a')
+          scoreGrad.addColorStop(1, '#f0a020')
+        }
         ctx.strokeText(scoreLabel, fx.x, rise + 8)
         ctx.fillStyle = scoreGrad
         ctx.fillText(scoreLabel, fx.x, rise + 8)
@@ -378,13 +425,32 @@ function ThanksgivingGame() {
         game.farmerX = Math.min(Math.max(game.farmerX, 36), w - 36)
 
         if (game.elapsedMs >= game.nextSpawnAt) {
-          const isRice = Math.random() < 0.62
-          const size = isRice ? Math.min(64, w * 0.12) : Math.min(58, w * 0.11)
+          const nextGoldenAt = game.goldenSpawnAt?.[game.goldenSpawnIndex]
+          const canSpawnGolden =
+            nextGoldenAt != null &&
+            game.elapsedMs >= nextGoldenAt &&
+            game.lastSpawnType !== 'golden'
+
+          let type = 'weed'
+          if (canSpawnGolden) {
+            type = 'golden'
+            game.goldenSpawnIndex += 1
+          } else if (Math.random() < 0.62) {
+            type = 'rice'
+          }
+
+          const size =
+            type === 'golden'
+              ? Math.min(72, w * 0.14)
+              : type === 'rice'
+                ? Math.min(64, w * 0.12)
+                : Math.min(58, w * 0.11)
           const margin = size
           game.itemSeq += 1
+          game.lastSpawnType = type
           game.items.push({
             id: game.itemSeq,
-            type: isRice ? 'rice' : 'weed',
+            type,
             x: margin + Math.random() * Math.max(1, w - margin * 2),
             y: -size,
             w: size,
@@ -426,15 +492,19 @@ function ThanksgivingGame() {
             fxSeqRef.current += 1
             const fxX = item.x + item.w / 2
             const fxY = item.y + item.h / 2
-            if (item.type === 'rice') {
+            if (item.type === 'rice' || item.type === 'golden') {
               game.combo = (game.combo ?? 0) + 1
-              const points = getComboPoints(game.combo)
+              const points =
+                item.type === 'golden'
+                  ? getGoldenComboPoints(game.combo)
+                  : getComboPoints(game.combo)
               game.score += points
               game.fx.push({
                 id: fxSeqRef.current,
                 kind: 'plus',
                 combo: game.combo,
                 points,
+                golden: item.type === 'golden',
                 x: fxX,
                 y: fxY,
                 age: 0,
@@ -689,6 +759,18 @@ function ThanksgivingGame() {
                       <strong className="tg-tutorial-badge">+1점</strong>
                     </div>
                     <p className="tg-tutorial-item__text">벼를 바구니에 담으면 1점을 획득해요!</p>
+                  </article>
+
+                  <article className="tg-tutorial-item">
+                    <div className="tg-tutorial-item__visual">
+                      <span className="tg-ring">
+                        <img src={goldenRiceSrc} alt="" className="tg-tutorial-sprite" />
+                      </span>
+                      <strong className="tg-tutorial-badge tg-tutorial-badge--gold">+5점</strong>
+                    </div>
+                    <p className="tg-tutorial-item__text">
+                      황금 벼이삭은 드물게 떨어져요. 담으면 5점, 콤보에 따라 최대 25점!
+                    </p>
                   </article>
 
                   <article className="tg-tutorial-item">

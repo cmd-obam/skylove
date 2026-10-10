@@ -301,6 +301,15 @@
   text-align: center;
 }
 
+.tg-tutorial-badge--gold {
+  color: #c47a00;
+  background: linear-gradient(180deg, #fff6b0, #ffb000);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 1px 0 rgba(120, 60, 0, 0.35));
+}
+
 .tg-tutorial-item__text {
   margin: 0;
   font-size: 0.95rem;
