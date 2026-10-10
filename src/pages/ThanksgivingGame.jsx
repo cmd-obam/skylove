@@ -139,6 +139,8 @@ function ThanksgivingGame() {
   const [assetsReady, setAssetsReady] = useState(false)
   const [rankingRows, setRankingRows] = useState([])
   const [rankingStatus, setRankingStatus] = useState('idle')
+  const [rankingOpen, setRankingOpen] = useState(false)
+  const rankingResumeRef = useRef(false)
   const [myBest, setMyBest] = useState(null)
   const [myRank, setMyRank] = useState(null)
   const [myEntryId, setMyEntryId] = useState(null)
@@ -588,10 +590,58 @@ function ThanksgivingGame() {
   const togglePause = useCallback(() => {
     const game = stateRef.current
     if (!game) return
+    if (rankingOpen) return
     if (game.phase === 'playing') {
       game.phase = 'paused'
       syncHud(game)
     } else if (game.phase === 'paused') {
+      game.phase = 'playing'
+      game.lastTs = 0
+      syncHud(game)
+    }
+  }, [rankingOpen, syncHud])
+
+  const loadRankingBoard = useCallback(async () => {
+    setRankingStatus('loading')
+    const rankingResult = await fetchThanksgivingGameRanking(15)
+    if (rankingResult.success) {
+      setRankingRows(rankingResult.rows)
+      setRankingStatus(rankingResult.rows.length ? 'ready' : 'empty')
+    } else {
+      setRankingRows([])
+      setRankingStatus('error')
+    }
+
+    const mine = await fetchMyThanksgivingGameScore({
+      isLoggedIn,
+      guestKey: guestKeyRef.current,
+    })
+    if (mine.success) {
+      setMyBest(mine.bestScore)
+      setMyRank(mine.rank)
+      setMyEntryId(mine.entryId)
+    }
+  }, [isLoggedIn])
+
+  const openRanking = useCallback(() => {
+    const game = stateRef.current
+    if (game?.phase === 'playing') {
+      game.phase = 'paused'
+      rankingResumeRef.current = true
+      syncHud(game)
+    } else {
+      rankingResumeRef.current = false
+    }
+    setRankingOpen(true)
+    void loadRankingBoard()
+  }, [loadRankingBoard, syncHud])
+
+  const closeRanking = useCallback(() => {
+    setRankingOpen(false)
+    if (!rankingResumeRef.current) return
+    rankingResumeRef.current = false
+    const game = stateRef.current
+    if (game?.phase === 'paused') {
       game.phase = 'playing'
       game.lastTs = 0
       syncHud(game)
@@ -602,6 +652,8 @@ function ThanksgivingGame() {
     stopLoop()
     stateRef.current = null
     touchRef.current = { active: false, offsetX: 0 }
+    rankingResumeRef.current = false
+    setRankingOpen(false)
     setScore(0)
     setCombo(0)
     setLives(INITIAL_LIVES)
@@ -721,8 +773,16 @@ function ThanksgivingGame() {
             <button
               type="button"
               className="tg-btn tg-btn--ghost"
+              onClick={openRanking}
+              aria-label="랭킹 보기"
+            >
+              랭킹
+            </button>
+            <button
+              type="button"
+              className="tg-btn tg-btn--ghost"
               onClick={togglePause}
-              disabled={phase !== 'playing' && phase !== 'paused'}
+              disabled={(phase !== 'playing' && phase !== 'paused') || rankingOpen}
               aria-label={phase === 'paused' ? '게임 계속하기' : '일시정지'}
             >
               {phase === 'paused' ? '계속' : '일시정지'}
@@ -919,7 +979,7 @@ function ThanksgivingGame() {
             </div>
           ) : null}
 
-          {phase === 'paused' ? (
+          {phase === 'paused' && !rankingOpen ? (
             <div className="tg-overlay" role="status">
               <div className="tg-card">
                 <h2 className="tg-card__title">일시정지</h2>
@@ -931,7 +991,54 @@ function ThanksgivingGame() {
             </div>
           ) : null}
 
-          {phase === 'gameover' ? (
+          {rankingOpen ? (
+            <div className="tg-overlay">
+              <div className="tg-card tg-card--wide">
+                <h2 className="tg-card__title">랭킹</h2>
+                <p className="tg-card__text">
+                  개인 최고 점수: {myBest == null ? '-' : `${myBest}점`}
+                  {myRank != null ? ` · 내 순위 ${myRank}위` : ''}
+                </p>
+                <div className="tg-rank">
+                  <h3 className="tg-rank__title">전체 랭킹</h3>
+                  {rankingStatus === 'loading' ? (
+                    <p className="tg-card__text">랭킹을 불러오는 중…</p>
+                  ) : null}
+                  {rankingStatus === 'error' ? (
+                    <p className="tg-card__text">랭킹을 불러오지 못했습니다.</p>
+                  ) : null}
+                  {rankingStatus === 'empty' ? (
+                    <p className="tg-card__text">아직 등록된 기록이 없습니다.</p>
+                  ) : null}
+                  {rankingStatus === 'ready' ? (
+                    <ol className="tg-rank__list">
+                      {rankingRows.map((row) => (
+                        <li
+                          key={row.entryId ?? `${row.rank}-${row.displayName}`}
+                          className={
+                            highlightMe(row)
+                              ? 'tg-rank__item tg-rank__item--me'
+                              : 'tg-rank__item'
+                          }
+                        >
+                          <span>{row.rank}위</span>
+                          <span>{row.displayName}</span>
+                          <span>{row.bestScore}점</span>
+                        </li>
+                      ))}
+                    </ol>
+                  ) : null}
+                </div>
+                <div className="tg-card__actions">
+                  <button type="button" className="tg-btn tg-btn--primary" onClick={closeRanking}>
+                    닫기
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : null}
+
+          {phase === 'gameover' && !rankingOpen ? (
             <div className="tg-overlay">
               <div className="tg-card tg-card--wide">
                 <h2 className="tg-card__title">게임 오버</h2>
