@@ -652,25 +652,21 @@ function ThanksgivingGame() {
           onTouchEnd={onTouchEnd}
           onTouchCancel={onTouchEnd}
         >
-          <canvas ref={canvasRef} className="tg-canvas" aria-label="추수감사절 미니게임 영역" />
+          <canvas ref={canvasRef} className="tg-canvas" aria-label="추수하기 게임 영역" />
 
           {phase === 'intro' ? (
-            <div className="tg-overlay">
-              <div className="tg-card">
-                <h1 className="tg-card__title">추수감사절 미니게임</h1>
-                <p className="tg-card__text">
-                  떨어지는 <strong>벼</strong>를 바구니로 받고, <strong>가라지</strong>는
-                  피하세요.
-                </p>
-                <ul className="tg-card__list">
-                  <li>PC: ← → 방향키 이동</li>
-                  <li>모바일: 화면을 좌우로 드래그</li>
-                  <li>제한 시간 1분 · 생명 3개</li>
-                  <li>10초 후 1.5배, 30초 후 2배 속도</li>
-                </ul>
+            <div className="tg-overlay tg-overlay--title">
+              <div className="tg-title-screen">
+                <img
+                  src={farmerSrc}
+                  alt=""
+                  aria-hidden="true"
+                  className="tg-title-screen__farmer"
+                />
+                <h1 className="tg-title-screen__title">추수하기 게임</h1>
                 <button
                   type="button"
-                  className="tg-btn tg-btn--primary"
+                  className="tg-btn tg-btn--primary tg-title-screen__cta"
                   onClick={() => setPhase('tutorial')}
                   disabled={!assetsReady}
                 >

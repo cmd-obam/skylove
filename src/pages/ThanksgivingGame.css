@@ -123,6 +123,71 @@
   backdrop-filter: blur(2px);
 }
 
+.tg-overlay--title {
+  background:
+    radial-gradient(ellipse at 50% 28%, rgba(255, 210, 120, 0.45), transparent 55%),
+    linear-gradient(180deg, rgba(90, 52, 18, 0.35) 0%, rgba(40, 24, 10, 0.55) 100%);
+  backdrop-filter: none;
+}
+
+.tg-title-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  text-align: center;
+  animation: tg-title-in 0.55s ease-out both;
+}
+
+.tg-title-screen__farmer {
+  width: min(42vw, 9.5rem);
+  height: auto;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 10px 18px rgba(40, 24, 10, 0.35));
+  animation: tg-title-bob 2.4s ease-in-out infinite;
+}
+
+.tg-title-screen__title {
+  margin: 0;
+  font-size: clamp(2rem, 8vw, 3.1rem);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: #fff6df;
+  text-shadow:
+    0 1px 0 #f0c46a,
+    0 3px 0 #c46b22,
+    0 5px 0 #8a4a12,
+    0 10px 22px rgba(40, 24, 10, 0.4);
+}
+
+.tg-title-screen__cta {
+  margin-top: 0.35rem;
+  min-width: 8.5rem;
+  font-size: 1rem;
+}
+
+@keyframes tg-title-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes tg-title-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
 .tg-card {
   width: min(100%, 22rem);
   padding: 1.25rem 1.2rem 1.15rem;
