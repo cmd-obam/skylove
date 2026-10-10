@@ -6,13 +6,13 @@
 export const EVENT_MENU_ENABLED = true
 
 /** Restrict mini-game access to super_admin until public launch. */
-export const THANKSGIVING_GAME_SUPER_ADMIN_ONLY = true
+export const THANKSGIVING_GAME_SUPER_ADMIN_ONLY = false
 
 export const THANKSGIVING_GAME_PATH = '/thanksgiving-game'
 
 export const EVENT_MENU_ITEM = {
   title: '이벤트',
   path: THANKSGIVING_GAME_PATH,
-  requiresSuperAdmin: true,
+  requiresSuperAdmin: false,
   children: [{ title: '미니게임', path: THANKSGIVING_GAME_PATH }],
 }
