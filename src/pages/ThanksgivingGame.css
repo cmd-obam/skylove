@@ -95,7 +95,8 @@
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 14px 36px rgba(70, 42, 12, 0.18);
-  background: #d9b06a;
+  background: #c9a56a url('../assets/images/thanksgiving-game/bg-field.png') center / cover
+    no-repeat;
   touch-action: none;
 }
 
