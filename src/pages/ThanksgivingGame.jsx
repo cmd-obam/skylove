@@ -17,6 +17,7 @@ import brokenHeartSrc from '@/assets/images/thanksgiving-game/broken-heart.png'
 import './ThanksgivingGame.css'
 
 const INITIAL_LIVES = 3
+const GAME_DURATION_MS = 60_000
 const BASE_FALL_SPEED = 140
 const FARMER_SPEED = 320
 const MAX_COMBO_POINTS = 5
@@ -28,11 +29,10 @@ function getComboPoints(comboCount) {
   return Math.min(MAX_COMBO_POINTS, Math.floor((comboCount - 1) / 10) + 1)
 }
 
+/** 10s → 1.5x, 30s → 2x fall speed. */
 function getSpeedMultiplier(elapsedSec) {
-  if (elapsedSec >= 120) return 2.0
-  if (elapsedSec >= 90) return 1.7
-  if (elapsedSec >= 60) return 1.5
-  if (elapsedSec >= 30) return 1.2
+  if (elapsedSec >= 30) return 2.0
+  if (elapsedSec >= 10) return 1.5
   return 1.0
 }
 
@@ -362,6 +362,14 @@ function ThanksgivingGame() {
 
       if (game.phase === 'playing') {
         game.elapsedMs += dt * 1000
+        if (game.elapsedMs >= GAME_DURATION_MS) {
+          game.elapsedMs = GAME_DURATION_MS
+          drawFrame(game)
+          syncHud(game)
+          void endGame(game)
+          return
+        }
+
         const mult = getSpeedMultiplier(game.elapsedMs / 1000)
         const { width: w, height: h } = game
 
@@ -618,7 +626,7 @@ function ThanksgivingGame() {
             </p>
           </div>
           <p className="tg-hud__time" aria-live="polite">
-            {formatTime(elapsedMs)}
+            {formatTime(Math.max(0, GAME_DURATION_MS - elapsedMs))}
           </p>
           <div className="tg-hud__right">
             <button
@@ -657,7 +665,8 @@ function ThanksgivingGame() {
                 <ul className="tg-card__list">
                   <li>PC: ← → 방향키 이동</li>
                   <li>모바일: 화면을 좌우로 드래그</li>
-                  <li>생명 3개 · 시간이 지날수록 속도 증가</li>
+                  <li>제한 시간 1분 · 생명 3개</li>
+                  <li>10초 후 1.5배, 30초 후 2배 속도</li>
                 </ul>
                 <button
                   type="button"
@@ -719,7 +728,9 @@ function ThanksgivingGame() {
                         0개가 되면 게임 오버!
                       </strong>
                     </div>
-                    <p className="tg-tutorial-item__text">생명 3개를 모두 잃으면 게임이 종료돼요.</p>
+                    <p className="tg-tutorial-item__text">
+                      생명 3개를 모두 잃거나 1분이 지나면 게임이 종료돼요.
+                    </p>
                   </article>
 
                   <article className="tg-tutorial-item">
