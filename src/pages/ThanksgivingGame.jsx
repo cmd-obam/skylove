@@ -832,25 +832,22 @@ function ThanksgivingGame() {
                   </article>
 
                   <article className="tg-tutorial-item tg-tutorial-item--wide">
-                    <div className="tg-tutorial-item__row">
-                      <div className="tg-tutorial-item__visual tg-tutorial-item__visual--move">
-                        <span className="tg-arrow" aria-hidden="true">
-                          ←
-                        </span>
-                        <img
-                          src={farmerSrc}
-                          alt=""
-                          className="tg-tutorial-sprite tg-tutorial-sprite--farmer"
-                        />
-                        <span className="tg-arrow" aria-hidden="true">
-                          →
-                        </span>
-                      </div>
-                      <div className="tg-tutorial-item__copy">
-                        <p className="tg-tutorial-item__text">좌우로 이동해 벼를 수확하세요!</p>
-                        <p className="tg-tutorial-item__hint">키보드 ← → · 화면 좌우 드래그</p>
-                      </div>
+                    <div className="tg-tutorial-item__visual tg-tutorial-item__visual--move">
+                      <span className="tg-arrow" aria-hidden="true">
+                        ←
+                      </span>
+                      <img
+                        src={farmerSrc}
+                        alt=""
+                        className="tg-tutorial-sprite tg-tutorial-sprite--farmer"
+                      />
+                      <span className="tg-arrow" aria-hidden="true">
+                        →
+                      </span>
                     </div>
+                    <p className="tg-tutorial-item__text">좌우로 이동하여 벼를 수확하세요!</p>
+                    <p className="tg-tutorial-item__hint">키보드 ← → 방향키로 이동</p>
+                    <p className="tg-tutorial-item__hint">화면을 좌우로 드래그하여 이동</p>
                   </article>
                 </div>
                 <div className="tg-card__actions tg-card__actions--tutorial">

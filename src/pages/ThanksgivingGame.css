@@ -260,22 +260,6 @@
   grid-column: 1 / -1;
 }
 
-.tg-tutorial-item__row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  flex: 1 1 auto;
-  min-height: 0;
-  height: 100%;
-  padding: 0;
-}
-
-.tg-tutorial-item__copy {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-
 .tg-tutorial-item__visual {
   display: flex;
   align-items: center;
@@ -294,7 +278,6 @@
 
 .tg-tutorial-item__visual--move {
   flex-direction: row;
-  flex: 0 0 auto;
 }
 
 .tg-tutorial-sprite {
@@ -370,14 +353,20 @@
 }
 
 .tg-tutorial-item__hint {
-  margin: 0.1rem 0 0;
+  margin: 0;
+  width: 100%;
   font-size: clamp(0.66rem, 1.6vh, 0.76rem);
   color: rgba(58, 42, 24, 0.78);
-  text-align: left;
+  text-align: center;
+  flex-shrink: 0;
 }
 
-.tg-tutorial-item__copy .tg-tutorial-item__text {
-  text-align: left;
+.tg-tutorial-item--wide .tg-tutorial-item__text {
+  padding-bottom: 0;
+}
+
+.tg-tutorial-item--wide .tg-tutorial-item__hint:last-child {
+  padding-bottom: 1px;
 }
 
 .tg-mini-hud {
