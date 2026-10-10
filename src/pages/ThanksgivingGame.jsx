@@ -1,0 +1,586 @@
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '@/contexts/AuthContext'
+import { THANKSGIVING_GAME_PATH } from '@/data/eventMenu'
+import {
+  fetchMyThanksgivingGameScore,
+  fetchThanksgivingGameRanking,
+  submitThanksgivingGameScore,
+} from '@/services/thanksgivingGame/scores'
+import farmerSrc from '@/assets/images/thanksgiving-game/farmer.png'
+import riceSrc from '@/assets/images/thanksgiving-game/rice.png'
+import weedSrc from '@/assets/images/thanksgiving-game/weed.png'
+import heartSrc from '@/assets/images/thanksgiving-game/heart.png'
+import './ThanksgivingGame.css'
+
+const INITIAL_LIVES = 3
+const BASE_FALL_SPEED = 140 // px/sec at 1.0x
+const FARMER_SPEED = 320
+
+function getSpeedMultiplier(elapsedSec) {
+  if (elapsedSec >= 120) return 2.0
+  if (elapsedSec >= 90) return 1.7
+  if (elapsedSec >= 60) return 1.5
+  if (elapsedSec >= 30) return 1.2
+  return 1.0
+}
+
+function formatTime(ms) {
+  const totalSec = Math.max(0, Math.floor(ms / 1000))
+  const min = Math.floor(totalSec / 60)
+  const sec = totalSec % 60
+  return `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`
+}
+
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.onload = () => resolve(img)
+    img.onerror = reject
+    img.src = src
+  })
+}
+
+function rectsOverlap(a, b) {
+  return (
+    a.x < b.x + b.w &&
+    a.x + a.w > b.x &&
+    a.y < b.y + b.h &&
+    a.y + a.h > b.y
+  )
+}
+
+function ThanksgivingGame() {
+  const navigate = useNavigate()
+  const { isLoggedIn, effectiveUserId } = useAuth()
+  const canvasRef = useRef(null)
+  const stageRef = useRef(null)
+  const rafRef = useRef(0)
+  const imagesRef = useRef({ farmer: null, rice: null, weed: null })
+  const stateRef = useRef(null)
+  const touchRef = useRef({ active: false, offsetX: 0 })
+
+  const [phase, setPhase] = useState('ready')
+  const [score, setScore] = useState(0)
+  const [lives, setLives] = useState(INITIAL_LIVES)
+  const [elapsedMs, setElapsedMs] = useState(0)
+  const [assetsReady, setAssetsReady] = useState(false)
+  const [rankingRows, setRankingRows] = useState([])
+  const [rankingStatus, setRankingStatus] = useState('idle')
+  const [myBest, setMyBest] = useState(null)
+  const [myRank, setMyRank] = useState(null)
+  const [submitStatus, setSubmitStatus] = useState('idle')
+  const [submitMessage, setSubmitMessage] = useState('')
+
+  const syncHud = useCallback((game) => {
+    setScore(game.score)
+    setLives(game.lives)
+    setElapsedMs(game.elapsedMs)
+    setPhase(game.phase)
+  }, [])
+
+  const createFreshState = useCallback(
+    (width, height) => ({
+      phase: 'playing',
+      score: 0,
+      lives: INITIAL_LIVES,
+      elapsedMs: 0,
+      farmerX: width / 2,
+      items: [],
+      nextSpawnAt: 400,
+      itemSeq: 0,
+      width,
+      height,
+      keys: { left: false, right: false },
+    }),
+    [],
+  )
+
+  const resizeCanvas = useCallback(() => {
+    const canvas = canvasRef.current
+    const stage = stageRef.current
+    if (!canvas || !stage) return
+
+    const rect = stage.getBoundingClientRect()
+    const dpr = Math.min(window.devicePixelRatio || 1, 2)
+    const cssW = Math.max(280, Math.floor(rect.width))
+    const cssH = Math.max(360, Math.floor(rect.height))
+    canvas.style.width = `${cssW}px`
+    canvas.style.height = `${cssH}px`
+    canvas.width = Math.floor(cssW * dpr)
+    canvas.height = Math.floor(cssH * dpr)
+    const ctx = canvas.getContext('2d')
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+
+    const game = stateRef.current
+    if (game) {
+      const ratio = cssW / Math.max(1, game.width)
+      game.farmerX *= ratio
+      game.items = game.items.map((item) => ({
+        ...item,
+        x: item.x * ratio,
+        y: item.y * (cssH / Math.max(1, game.height)),
+      }))
+      game.width = cssW
+      game.height = cssH
+      game.farmerX = Math.min(Math.max(game.farmerX, 40), cssW - 40)
+    }
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    Promise.all([
+      loadImage(farmerSrc),
+      loadImage(riceSrc),
+      loadImage(weedSrc),
+    ])
+      .then(([farmer, rice, weed]) => {
+        if (cancelled) return
+        imagesRef.current = { farmer, rice, weed }
+        setAssetsReady(true)
+      })
+      .catch((error) => {
+        console.error('[ThanksgivingGame] asset load failed', error)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  useEffect(() => {
+    resizeCanvas()
+    window.addEventListener('resize', resizeCanvas)
+    return () => window.removeEventListener('resize', resizeCanvas)
+  }, [resizeCanvas, assetsReady])
+
+  const drawFrame = useCallback((game) => {
+    const canvas = canvasRef.current
+    const imgs = imagesRef.current
+    if (!canvas || !imgs.farmer) return
+    const ctx = canvas.getContext('2d')
+    const { width: w, height: h } = game
+
+    const gradient = ctx.createLinearGradient(0, 0, 0, h)
+    gradient.addColorStop(0, '#8ec5e8')
+    gradient.addColorStop(0.45, '#f3c57a')
+    gradient.addColorStop(1, '#d4a14a')
+    ctx.fillStyle = gradient
+    ctx.fillRect(0, 0, w, h)
+
+    ctx.fillStyle = 'rgba(120, 78, 28, 0.18)'
+    ctx.fillRect(0, h * 0.78, w, h * 0.22)
+
+    const farmerH = Math.min(h * 0.28, 150)
+    const farmerW = farmerH * (imgs.farmer.width / imgs.farmer.height)
+    const farmerX = game.farmerX - farmerW / 2
+    const farmerY = h - farmerH - 8
+    ctx.imageSmoothingEnabled = false
+    ctx.drawImage(imgs.farmer, farmerX, farmerY, farmerW, farmerH)
+
+    for (const item of game.items) {
+      const sprite = item.type === 'rice' ? imgs.rice : imgs.weed
+      if (!sprite) continue
+      ctx.drawImage(sprite, item.x, item.y, item.w, item.h)
+    }
+  }, [])
+
+  const endGame = useCallback(
+    async (game) => {
+      game.phase = 'gameover'
+      syncHud(game)
+      setSubmitStatus('idle')
+      setSubmitMessage('')
+      setRankingStatus('loading')
+
+      const rankingResult = await fetchThanksgivingGameRanking(15)
+      if (rankingResult.success) {
+        setRankingRows(rankingResult.rows)
+        setRankingStatus(rankingResult.rows.length ? 'ready' : 'empty')
+      } else {
+        setRankingRows([])
+        setRankingStatus('error')
+      }
+
+      if (!isLoggedIn) {
+        setMyBest(null)
+        setMyRank(null)
+        return
+      }
+
+      setSubmitStatus('saving')
+      const submitResult = await submitThanksgivingGameScore(game.score)
+      if (submitResult.success) {
+        setMyBest(submitResult.bestScore)
+        setSubmitStatus(submitResult.isNewBest ? 'new' : 'kept')
+        setSubmitMessage(
+          submitResult.isNewBest
+            ? '최고 점수가 갱신되었습니다.'
+            : '기존 최고 점수를 유지합니다.',
+        )
+      } else {
+        setSubmitStatus('error')
+        setSubmitMessage('점수 저장에 실패했습니다. 잠시 후 다시 시도해주세요.')
+      }
+
+      const mine = await fetchMyThanksgivingGameScore()
+      if (mine.success) {
+        setMyBest(mine.bestScore)
+        setMyRank(mine.rank)
+      }
+
+      const refreshed = await fetchThanksgivingGameRanking(15)
+      if (refreshed.success) {
+        setRankingRows(refreshed.rows)
+        setRankingStatus(refreshed.rows.length ? 'ready' : 'empty')
+      }
+    },
+    [isLoggedIn, syncHud],
+  )
+
+  const tick = useCallback(
+    (timestamp) => {
+      const game = stateRef.current
+      if (!game) return
+
+      if (!game.lastTs) game.lastTs = timestamp
+      const dt = Math.min(0.05, (timestamp - game.lastTs) / 1000)
+      game.lastTs = timestamp
+
+      if (game.phase === 'playing') {
+        game.elapsedMs += dt * 1000
+        const mult = getSpeedMultiplier(game.elapsedMs / 1000)
+        const { width: w, height: h } = game
+
+        if (game.keys.left) game.farmerX -= FARMER_SPEED * dt
+        if (game.keys.right) game.farmerX += FARMER_SPEED * dt
+        game.farmerX = Math.min(Math.max(game.farmerX, 36), w - 36)
+
+        if (game.elapsedMs >= game.nextSpawnAt) {
+          const isRice = Math.random() < 0.62
+          const size = isRice ? Math.min(64, w * 0.12) : Math.min(58, w * 0.11)
+          const margin = size
+          game.itemSeq += 1
+          game.items.push({
+            id: game.itemSeq,
+            type: isRice ? 'rice' : 'weed',
+            x: margin + Math.random() * Math.max(1, w - margin * 2),
+            y: -size,
+            w: size,
+            h: size,
+            hit: false,
+          })
+          const gap = (900 + Math.random() * 700) / mult
+          game.nextSpawnAt = game.elapsedMs + gap
+        }
+
+        const farmerImg = imagesRef.current.farmer
+        const farmerH = Math.min(h * 0.28, 150)
+        const farmerW = farmerImg
+          ? farmerH * (farmerImg.width / farmerImg.height)
+          : farmerH * 0.72
+        const farmerX = game.farmerX - farmerW / 2
+        const farmerY = h - farmerH - 8
+        // Basket-focused hitbox (upper portion of farmer sprite)
+        const basket = {
+          x: farmerX + farmerW * 0.18,
+          y: farmerY + farmerH * 0.02,
+          w: farmerW * 0.64,
+          h: farmerH * 0.28,
+        }
+
+        const fallSpeed = BASE_FALL_SPEED * mult
+        const nextItems = []
+        for (const item of game.items) {
+          if (item.hit) continue
+          item.y += fallSpeed * dt
+          const itemBox = {
+            x: item.x + item.w * 0.2,
+            y: item.y + item.h * 0.2,
+            w: item.w * 0.6,
+            h: item.h * 0.6,
+          }
+          if (rectsOverlap(basket, itemBox)) {
+            item.hit = true
+            if (item.type === 'rice') {
+              game.score += 1
+            } else {
+              game.lives -= 1
+              if (game.lives <= 0) {
+                game.lives = 0
+                drawFrame(game)
+                syncHud(game)
+                void endGame(game)
+                return
+              }
+            }
+            continue
+          }
+          if (item.y < h + item.h) {
+            nextItems.push(item)
+          }
+        }
+        game.items = nextItems
+        syncHud(game)
+      }
+
+      drawFrame(game)
+      rafRef.current = window.requestAnimationFrame(tick)
+    },
+    [drawFrame, endGame, syncHud],
+  )
+
+  const stopLoop = useCallback(() => {
+    if (rafRef.current) {
+      window.cancelAnimationFrame(rafRef.current)
+      rafRef.current = 0
+    }
+  }, [])
+
+  const startLoop = useCallback(() => {
+    stopLoop()
+    const game = stateRef.current
+    if (game) game.lastTs = 0
+    rafRef.current = window.requestAnimationFrame(tick)
+  }, [stopLoop, tick])
+
+  const startGame = useCallback(() => {
+    resizeCanvas()
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const w = canvas.clientWidth
+    const h = canvas.clientHeight
+    stateRef.current = createFreshState(w, h)
+    syncHud(stateRef.current)
+    startLoop()
+  }, [createFreshState, resizeCanvas, startLoop, syncHud])
+
+  const togglePause = useCallback(() => {
+    const game = stateRef.current
+    if (!game) return
+    if (game.phase === 'playing') {
+      game.phase = 'paused'
+      syncHud(game)
+    } else if (game.phase === 'paused') {
+      game.phase = 'playing'
+      game.lastTs = 0
+      syncHud(game)
+    }
+  }, [syncHud])
+
+  useEffect(() => () => stopLoop(), [stopLoop])
+
+  useEffect(() => {
+    const onKeyDown = (event) => {
+      const game = stateRef.current
+      if (!game || (game.phase !== 'playing' && game.phase !== 'paused')) return
+      if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+        event.preventDefault()
+      }
+      if (game.phase !== 'playing') return
+      if (event.key === 'ArrowLeft') game.keys.left = true
+      if (event.key === 'ArrowRight') game.keys.right = true
+    }
+    const onKeyUp = (event) => {
+      const game = stateRef.current
+      if (!game) return
+      if (event.key === 'ArrowLeft') game.keys.left = false
+      if (event.key === 'ArrowRight') game.keys.right = false
+    }
+    window.addEventListener('keydown', onKeyDown, { passive: false })
+    window.addEventListener('keyup', onKeyUp)
+    return () => {
+      window.removeEventListener('keydown', onKeyDown)
+      window.removeEventListener('keyup', onKeyUp)
+    }
+  }, [])
+
+  const onTouchStart = (event) => {
+    const game = stateRef.current
+    const stage = stageRef.current
+    if (!game || game.phase !== 'playing' || !stage) return
+    const touch = event.touches[0]
+    if (!touch) return
+    const rect = stage.getBoundingClientRect()
+    const x = touch.clientX - rect.left
+    touchRef.current = { active: true, offsetX: x - game.farmerX }
+    event.preventDefault()
+  }
+
+  const onTouchMove = (event) => {
+    const game = stateRef.current
+    const stage = stageRef.current
+    if (!game || game.phase !== 'playing' || !stage || !touchRef.current.active) return
+    const touch = event.touches[0]
+    if (!touch) return
+    const rect = stage.getBoundingClientRect()
+    const x = touch.clientX - rect.left - touchRef.current.offsetX
+    game.farmerX = Math.min(Math.max(x, 36), game.width - 36)
+    event.preventDefault()
+  }
+
+  const onTouchEnd = () => {
+    touchRef.current.active = false
+  }
+
+  return (
+    <div className="tg-page">
+      <div className="tg-page__inner">
+        <header className="tg-hud" aria-label="게임 상태">
+          <div className="tg-hud__left">
+            <p className="tg-hud__score">점수: {score}</p>
+            <p className="tg-hud__lives" aria-label={`생명 ${lives}개`}>
+              생명:{' '}
+              {Array.from({ length: INITIAL_LIVES }, (_, index) => (
+                <img
+                  key={index}
+                  src={heartSrc}
+                  alt=""
+                  aria-hidden="true"
+                  className={`tg-hud__heart${index < lives ? '' : ' tg-hud__heart--empty'}`}
+                />
+              ))}
+            </p>
+          </div>
+          <p className="tg-hud__time" aria-live="polite">
+            {formatTime(elapsedMs)}
+          </p>
+          <div className="tg-hud__right">
+            <button
+              type="button"
+              className="tg-btn tg-btn--ghost"
+              onClick={togglePause}
+              disabled={phase !== 'playing' && phase !== 'paused'}
+              aria-label={phase === 'paused' ? '게임 계속하기' : '일시정지'}
+            >
+              {phase === 'paused' ? '계속' : '일시정지'}
+            </button>
+            <Link to="/" className="tg-btn tg-btn--ghost">
+              홈페이지
+            </Link>
+          </div>
+        </header>
+
+        <div
+          className="tg-stage"
+          ref={stageRef}
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
+          onTouchCancel={onTouchEnd}
+        >
+          <canvas ref={canvasRef} className="tg-canvas" aria-label="추수감사절 미니게임 영역" />
+
+          {phase === 'ready' ? (
+            <div className="tg-overlay">
+              <div className="tg-card">
+                <h1 className="tg-card__title">추수감사절 미니게임</h1>
+                <p className="tg-card__text">
+                  떨어지는 <strong>벼</strong>를 바구니로 받고, <strong>가라지</strong>는
+                  피하세요.
+                </p>
+                <ul className="tg-card__list">
+                  <li>PC: ← → 방향키 이동</li>
+                  <li>모바일: 화면을 좌우로 드래그</li>
+                  <li>생명 3개 · 시간이 지날수록 속도 증가</li>
+                </ul>
+                <button
+                  type="button"
+                  className="tg-btn tg-btn--primary"
+                  onClick={startGame}
+                  disabled={!assetsReady}
+                >
+                  {assetsReady ? '게임 시작' : '이미지 불러오는 중…'}
+                </button>
+              </div>
+            </div>
+          ) : null}
+
+          {phase === 'paused' ? (
+            <div className="tg-overlay" role="status">
+              <div className="tg-card">
+                <h2 className="tg-card__title">일시정지</h2>
+                <p className="tg-card__text">게임이 잠시 멈춰 있습니다.</p>
+                <button type="button" className="tg-btn tg-btn--primary" onClick={togglePause}>
+                  계속하기
+                </button>
+              </div>
+            </div>
+          ) : null}
+
+          {phase === 'gameover' ? (
+            <div className="tg-overlay">
+              <div className="tg-card tg-card--wide">
+                <h2 className="tg-card__title">게임 오버</h2>
+                <p className="tg-card__score">최종 점수: {score}점</p>
+                {isLoggedIn ? (
+                  <p className="tg-card__text">
+                    개인 최고 점수:{' '}
+                    {myBest == null ? '-' : `${myBest}점`}
+                    {myRank != null ? ` · 내 순위 ${myRank}위` : ''}
+                  </p>
+                ) : (
+                  <p className="tg-card__text">
+                    로그인하면 랭킹에 점수를 등록할 수 있습니다.{' '}
+                    <Link
+                      to={`/login?redirect=${encodeURIComponent(THANKSGIVING_GAME_PATH)}`}
+                      className="tg-card__link"
+                    >
+                      로그인하기
+                    </Link>
+                  </p>
+                )}
+                {submitMessage ? (
+                  <p className="tg-card__note" data-status={submitStatus}>
+                    {submitMessage}
+                  </p>
+                ) : null}
+
+                <div className="tg-rank">
+                  <h3 className="tg-rank__title">전체 랭킹</h3>
+                  {rankingStatus === 'loading' ? (
+                    <p className="tg-card__text">랭킹을 불러오는 중…</p>
+                  ) : null}
+                  {rankingStatus === 'error' ? (
+                    <p className="tg-card__text">랭킹을 불러오지 못했습니다. 게임은 계속 이용할 수 있습니다.</p>
+                  ) : null}
+                  {rankingStatus === 'empty' ? (
+                    <p className="tg-card__text">아직 등록된 기록이 없습니다.</p>
+                  ) : null}
+                  {rankingStatus === 'ready' ? (
+                    <ol className="tg-rank__list">
+                      {rankingRows.map((row) => (
+                        <li
+                          key={`${row.userId}-${row.rank}`}
+                          className={
+                            row.userId === effectiveUserId
+                              ? 'tg-rank__item tg-rank__item--me'
+                              : 'tg-rank__item'
+                          }
+                        >
+                          <span>{row.rank}위</span>
+                          <span>{row.displayName}</span>
+                          <span>{row.bestScore}점</span>
+                        </li>
+                      ))}
+                    </ol>
+                  ) : null}
+                </div>
+
+                <div className="tg-card__actions">
+                  <button type="button" className="tg-btn tg-btn--primary" onClick={startGame}>
+                    다시하기
+                  </button>
+                  <button type="button" className="tg-btn tg-btn--ghost" onClick={() => navigate('/')}>
+                    홈으로
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default ThanksgivingGame

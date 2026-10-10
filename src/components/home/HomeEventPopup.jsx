@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import {
   THANKSGIVING_POPUP,
   hideHomeEventPopupForToday,
@@ -65,6 +66,18 @@ function HomeEventPopup({ config = THANKSGIVING_POPUP }) {
             draggable={false}
           />
         </figure>
+
+        {config.gamePath ? (
+          <div className="home-event-popup__cta-wrap">
+            <Link
+              to={config.gamePath}
+              className="home-event-popup__cta"
+              onClick={close}
+            >
+              {config.gameCtaLabel ?? '미니게임 시작하기'}
+            </Link>
+          </div>
+        ) : null}
 
         <div className="home-event-popup__footer">
           <button

@@ -1,3 +1,5 @@
+import { THANKSGIVING_GAME_PATH } from '@/data/eventMenu'
+
 /**
  * Home page event popup config.
  * Change `endDate` (YYYY-MM-DD, Asia/Seoul, inclusive) to control visibility.
@@ -8,6 +10,8 @@ export const THANKSGIVING_POPUP = {
   endDate: '2026-11-01',
   imageAlt: '추수감사절 11월 1일 주일예배',
   storageKey: 'skylove:home-event-popup:thanksgiving-2026:hide-date',
+  gamePath: THANKSGIVING_GAME_PATH,
+  gameCtaLabel: '미니게임 시작하기',
 }
 
 /** Today as YYYY-MM-DD in Asia/Seoul. */

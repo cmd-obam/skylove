@@ -2,6 +2,7 @@ import worshipIcon from '@/assets/icons/worship.png'
 import facilityIcon from '@/assets/icons/facility.png'
 import noticeIcon from '@/assets/icons/notice.png'
 import locationIcon from '@/assets/icons/location.png'
+import { EVENT_MENU_ENABLED, EVENT_MENU_ITEM } from '@/data/eventMenu'
 
 export const AUTH_LINKS = [
   { label: '로그인', path: '/login' },
@@ -93,6 +94,7 @@ export const MENU_ITEMS = [
     path: '/new-family',
     children: [{ title: '새가족 안내', path: '/new-family' }],
   },
+  ...(EVENT_MENU_ENABLED ? [EVENT_MENU_ITEM] : []),
 ]
 
 export function getFirstSubMenuPath(item) {

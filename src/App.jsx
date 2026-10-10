@@ -53,6 +53,7 @@ import ElShaddaiEdit from '@/pages/worshipWord/ElShaddaiEdit'
 import MemberRoute from '@/components/auth/MemberRoute'
 import SuperAdminRoute from '@/components/auth/SuperAdminRoute'
 import NewFamilyGuide from '@/pages/NewFamilyGuide'
+import ThanksgivingGame from '@/pages/ThanksgivingGame'
 import WorshipGuidePage from '@/pages/WorshipGuidePage'
 import Facilities from '@/pages/Facilities'
 import {
@@ -117,6 +118,7 @@ function App() {
           <Route path="/email-confirm" element={<EmailConfirmSuccess />} />
           <Route element={<SiteShell />}>
             <Route path="/" element={<Home />} />
+            <Route path="/thanksgiving-game" element={<ThanksgivingGame />} />
             <Route path="/login" element={<Auth />} />
             <Route path="/oauth/complete" element={<OAuthProfileComplete />} />
             <Route path="/reset-password/security-question" element={<ResetPasswordSecurityQuestion />} />
