@@ -771,7 +771,7 @@ function ThanksgivingGame() {
           ) : null}
 
           {phase === 'tutorial' ? (
-            <div className="tg-overlay tg-overlay--scroll">
+            <div className="tg-overlay tg-overlay--tutorial">
               <div className="tg-card tg-card--tutorial">
                 <h2 className="tg-card__title">게임 방법을 알아봐요!</h2>
                 <div className="tg-tutorial-grid">
@@ -782,7 +782,7 @@ function ThanksgivingGame() {
                       </span>
                       <strong className="tg-tutorial-badge">+1점</strong>
                     </div>
-                    <p className="tg-tutorial-item__text">벼를 바구니에 담으면 1점을 획득해요!</p>
+                    <p className="tg-tutorial-item__text">벼를 담으면 1점을 획득해요!</p>
                   </article>
 
                   <article className="tg-tutorial-item">
@@ -793,7 +793,7 @@ function ThanksgivingGame() {
                       <strong className="tg-tutorial-badge tg-tutorial-badge--gold">+5점</strong>
                     </div>
                     <p className="tg-tutorial-item__text">
-                      황금 벼이삭은 드물게 떨어져요. 담으면 5점, 콤보에 따라 최대 25점!
+                      황금 벼이삭은 드물게 나와요. 5점~콤보 최대 25점!
                     </p>
                   </article>
 
@@ -808,9 +808,7 @@ function ThanksgivingGame() {
                         className="tg-tutorial-sprite tg-tutorial-sprite--heart"
                       />
                     </div>
-                    <p className="tg-tutorial-item__text">
-                      가라지를 바구니에 담으면 생명이 1개 줄어들어요!
-                    </p>
+                    <p className="tg-tutorial-item__text">가라지를 담으면 생명이 1개 줄어요!</p>
                   </article>
 
                   <article className="tg-tutorial-item">
@@ -827,30 +825,35 @@ function ThanksgivingGame() {
                         </span>
                       </div>
                       <strong className="tg-tutorial-badge tg-tutorial-badge--warn">
-                        0개가 되면 게임 오버!
+                        0개면 게임 오버!
                       </strong>
                     </div>
-                    <p className="tg-tutorial-item__text">
-                      생명 3개를 모두 잃거나 1분이 지나면 게임이 종료돼요.
-                    </p>
+                    <p className="tg-tutorial-item__text">생명 0 또는 1분 후 종료돼요.</p>
                   </article>
 
-                  <article className="tg-tutorial-item">
-                    <div className="tg-tutorial-item__visual tg-tutorial-item__visual--move">
-                      <span className="tg-arrow" aria-hidden="true">
-                        ←
-                      </span>
-                      <img src={farmerSrc} alt="" className="tg-tutorial-sprite tg-tutorial-sprite--farmer" />
-                      <span className="tg-arrow" aria-hidden="true">
-                        →
-                      </span>
+                  <article className="tg-tutorial-item tg-tutorial-item--wide">
+                    <div className="tg-tutorial-item__row">
+                      <div className="tg-tutorial-item__visual tg-tutorial-item__visual--move">
+                        <span className="tg-arrow" aria-hidden="true">
+                          ←
+                        </span>
+                        <img
+                          src={farmerSrc}
+                          alt=""
+                          className="tg-tutorial-sprite tg-tutorial-sprite--farmer"
+                        />
+                        <span className="tg-arrow" aria-hidden="true">
+                          →
+                        </span>
+                      </div>
+                      <div className="tg-tutorial-item__copy">
+                        <p className="tg-tutorial-item__text">좌우로 이동해 벼를 수확하세요!</p>
+                        <p className="tg-tutorial-item__hint">키보드 ← → · 화면 좌우 드래그</p>
+                      </div>
                     </div>
-                    <p className="tg-tutorial-item__text">좌우로 이동하여 벼를 수확하세요!</p>
-                    <p className="tg-tutorial-item__hint">키보드 ← → 방향키로 이동</p>
-                    <p className="tg-tutorial-item__hint">화면을 좌우로 드래그하여 이동</p>
                   </article>
                 </div>
-                <div className="tg-card__actions">
+                <div className="tg-card__actions tg-card__actions--tutorial">
                   <button type="button" className="tg-btn tg-btn--ghost" onClick={() => setPhase('intro')}>
                     이전
                   </button>
