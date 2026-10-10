@@ -19,7 +19,14 @@ import './ThanksgivingGame.css'
 const INITIAL_LIVES = 3
 const BASE_FALL_SPEED = 140
 const FARMER_SPEED = 320
+const MAX_COMBO_POINTS = 5
 const NICKNAME_STORAGE_KEY = 'skylove:tg-game:last-nickname'
+
+/** Combo 1–10 → 1pt, 11–20 → 2pt, … capped at 5. */
+function getComboPoints(comboCount) {
+  if (comboCount < 1) return 1
+  return Math.min(MAX_COMBO_POINTS, Math.floor((comboCount - 1) / 10) + 1)
+}
 
 function getSpeedMultiplier(elapsedSec) {
   if (elapsedSec >= 120) return 2.0
@@ -95,6 +102,7 @@ function ThanksgivingGame() {
 
   const [phase, setPhase] = useState('intro')
   const [score, setScore] = useState(0)
+  const [combo, setCombo] = useState(0)
   const [lives, setLives] = useState(INITIAL_LIVES)
   const [elapsedMs, setElapsedMs] = useState(0)
   const [assetsReady, setAssetsReady] = useState(false)
@@ -122,6 +130,7 @@ function ThanksgivingGame() {
 
   const syncHud = useCallback((game) => {
     setScore(game.score)
+    setCombo(game.combo ?? 0)
     setLives(game.lives)
     setElapsedMs(game.elapsedMs)
     setPhase(game.phase)
@@ -131,6 +140,7 @@ function ThanksgivingGame() {
     (width, height) => ({
       phase: 'playing',
       score: 0,
+      combo: 0,
       lives: INITIAL_LIVES,
       elapsedMs: 0,
       farmerX: width / 2,
@@ -243,18 +253,39 @@ function ThanksgivingGame() {
     for (const fx of game.fx ?? []) {
       const t = Math.min(1, fx.age / fx.life)
       const alpha = 1 - t
-      const rise = fx.y - t * 36
+      const rise = fx.y - t * 42
       ctx.save()
       ctx.globalAlpha = Math.max(0, alpha)
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
       if (fx.kind === 'plus') {
-        ctx.font = `800 ${Math.round(Math.min(34, w * 0.07))}px system-ui, sans-serif`
-        ctx.textAlign = 'center'
-        ctx.textBaseline = 'middle'
+        const comboSize = Math.round(Math.min(22, w * 0.045))
+        const scoreSize = Math.round(Math.min(36, w * 0.075))
+        const comboLabel = `COMBO ${fx.combo}`
+        const scoreLabel = `+${fx.points}`
+
+        ctx.font = `900 ${comboSize}px system-ui, sans-serif`
+        ctx.lineWidth = 3
+        ctx.strokeStyle = 'rgba(80, 35, 8, 0.65)'
+        const comboGrad = ctx.createLinearGradient(fx.x, rise - 28, fx.x, rise - 8)
+        comboGrad.addColorStop(0, '#fff6c2')
+        comboGrad.addColorStop(0.4, '#ffb347')
+        comboGrad.addColorStop(0.75, '#e86a1a')
+        comboGrad.addColorStop(1, '#a63b12')
+        ctx.strokeText(comboLabel, fx.x, rise - 20)
+        ctx.fillStyle = comboGrad
+        ctx.fillText(comboLabel, fx.x, rise - 20)
+
+        ctx.font = `800 ${scoreSize}px system-ui, sans-serif`
         ctx.lineWidth = 4
         ctx.strokeStyle = 'rgba(90, 40, 10, 0.55)'
-        ctx.fillStyle = '#ffe566'
-        ctx.strokeText('+1', fx.x, rise)
-        ctx.fillText('+1', fx.x, rise)
+        const scoreGrad = ctx.createLinearGradient(fx.x, rise - 4, fx.x, rise + 18)
+        scoreGrad.addColorStop(0, '#fff8a8')
+        scoreGrad.addColorStop(0.5, '#ffd24a')
+        scoreGrad.addColorStop(1, '#f0a020')
+        ctx.strokeText(scoreLabel, fx.x, rise + 8)
+        ctx.fillStyle = scoreGrad
+        ctx.fillText(scoreLabel, fx.x, rise + 8)
       } else if (fx.kind === 'brokenHeart' && imgs.brokenHeart) {
         const size = Math.min(42, w * 0.09)
         ctx.drawImage(imgs.brokenHeart, fx.x - size / 2, rise - size / 2, size, size)
@@ -388,16 +419,21 @@ function ThanksgivingGame() {
             const fxX = item.x + item.w / 2
             const fxY = item.y + item.h / 2
             if (item.type === 'rice') {
-              game.score += 1
+              game.combo = (game.combo ?? 0) + 1
+              const points = getComboPoints(game.combo)
+              game.score += points
               game.fx.push({
                 id: fxSeqRef.current,
                 kind: 'plus',
+                combo: game.combo,
+                points,
                 x: fxX,
                 y: fxY,
                 age: 0,
-                life: 0.7,
+                life: 0.85,
               })
             } else {
+              game.combo = 0
               game.lives -= 1
               game.fx.push({
                 id: fxSeqRef.current,
@@ -565,6 +601,9 @@ function ThanksgivingGame() {
         <header className="tg-hud" aria-label="게임 상태">
           <div className="tg-hud__left">
             <p className="tg-hud__score">점수: {score}</p>
+            <p className="tg-hud__combo" aria-label={`콤보 ${combo}`}>
+              COMBO {combo}
+            </p>
             <p className="tg-hud__lives" aria-label={`생명 ${lives}개`}>
               생명:{' '}
               {Array.from({ length: INITIAL_LIVES }, (_, index) => (

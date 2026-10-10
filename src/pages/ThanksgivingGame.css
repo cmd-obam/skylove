@@ -48,10 +48,22 @@
 
 .tg-hud__score,
 .tg-hud__lives,
-.tg-hud__time {
+.tg-hud__time,
+.tg-hud__combo {
   margin: 0;
   font-size: 0.95rem;
   font-weight: 700;
+}
+
+.tg-hud__combo {
+  padding: 0.12rem 0.55rem;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #fff3b0 0%, #ffb347 45%, #e86a1a 100%);
+  color: #5a2408;
+  font-size: 0.82rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  box-shadow: 0 2px 8px rgba(180, 80, 20, 0.22);
 }
 
 .tg-hud__time {
