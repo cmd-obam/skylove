@@ -2,10 +2,14 @@
   --tg-ink: #3a2a18;
   --tg-warm: #c46b22;
   --tg-cream: #fff8ef;
+  /* site header + page chrome; keep stage fully above footer fold */
+  --tg-chrome: 11.5rem;
   box-sizing: border-box;
   width: 100%;
-  min-height: calc(100vh - 5.5rem);
-  padding: 1rem clamp(0.75rem, 2vw, 1.5rem) 1.5rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0.85rem clamp(0.75rem, 2vw, 1.5rem) 1.25rem;
   background:
     radial-gradient(circle at top, rgba(255, 220, 160, 0.35), transparent 45%),
     linear-gradient(180deg, #f7efe3 0%, #efe2cb 100%);
@@ -15,6 +19,10 @@
 .tg-page__inner {
   width: min(100%, 960px);
   margin: 0 auto;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .tg-hud {
@@ -22,7 +30,8 @@
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 0.5rem 0.75rem;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.65rem;
+  flex-shrink: 0;
 }
 
 .tg-hud__left,
@@ -66,8 +75,11 @@
 .tg-stage {
   position: relative;
   width: 100%;
-  height: min(68vh, 640px);
-  min-height: 380px;
+  flex: 0 1 auto;
+  /* Fit remaining viewport so farmer/ground are not clipped by the page footer */
+  height: clamp(280px, calc(100dvh - var(--tg-chrome)), 560px);
+  min-height: 280px;
+  max-height: calc(100dvh - var(--tg-chrome));
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 14px 36px rgba(70, 42, 12, 0.18);
@@ -76,8 +88,9 @@
 }
 
 .tg-stage--pregame {
-  height: min(78vh, 720px);
-  min-height: 420px;
+  height: clamp(320px, calc(100dvh - 10.5rem), 620px);
+  min-height: 320px;
+  max-height: calc(100dvh - 10.5rem);
 }
 
 .tg-canvas {
@@ -444,14 +457,21 @@
     justify-content: space-between;
   }
 
+  .tg-page {
+    --tg-chrome: 13.5rem;
+    padding: 0.65rem 0.7rem 1rem;
+  }
+
   .tg-stage {
-    height: min(62vh, 560px);
-    min-height: 340px;
+    height: clamp(260px, calc(100dvh - var(--tg-chrome)), 520px);
+    min-height: 260px;
+    max-height: calc(100dvh - var(--tg-chrome));
   }
 
   .tg-stage--pregame {
-    height: min(74vh, 640px);
-    min-height: 400px;
+    height: clamp(300px, calc(100dvh - 12rem), 580px);
+    min-height: 300px;
+    max-height: calc(100dvh - 12rem);
   }
 
   .tg-tutorial-grid {

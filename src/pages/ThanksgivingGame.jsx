@@ -207,7 +207,7 @@ function ThanksgivingGame() {
     resizeCanvas()
     window.addEventListener('resize', resizeCanvas)
     return () => window.removeEventListener('resize', resizeCanvas)
-  }, [resizeCanvas, assetsReady])
+  }, [resizeCanvas, assetsReady, phase])
 
   const drawFrame = useCallback((game) => {
     const canvas = canvasRef.current
@@ -226,10 +226,11 @@ function ThanksgivingGame() {
     ctx.fillStyle = 'rgba(120, 78, 28, 0.18)'
     ctx.fillRect(0, h * 0.78, w, h * 0.22)
 
-    const farmerH = Math.min(h * 0.28, 150)
+    const bottomPad = Math.max(18, Math.round(h * 0.035))
+    const farmerH = Math.min(h * 0.26, 140)
     const farmerW = farmerH * (imgs.farmer.width / imgs.farmer.height)
     const farmerX = game.farmerX - farmerW / 2
-    const farmerY = h - farmerH - 8
+    const farmerY = h - farmerH - bottomPad
     ctx.imageSmoothingEnabled = false
     ctx.drawImage(imgs.farmer, farmerX, farmerY, farmerW, farmerH)
 
@@ -356,12 +357,13 @@ function ThanksgivingGame() {
         }
 
         const farmerImg = imagesRef.current.farmer
-        const farmerH = Math.min(h * 0.28, 150)
+        const bottomPad = Math.max(18, Math.round(h * 0.035))
+        const farmerH = Math.min(h * 0.26, 140)
         const farmerW = farmerImg
           ? farmerH * (farmerImg.width / farmerImg.height)
           : farmerH * 0.72
         const farmerX = game.farmerX - farmerW / 2
-        const farmerY = h - farmerH - 8
+        const farmerY = h - farmerH - bottomPad
         const basket = {
           x: farmerX + farmerW * 0.18,
           y: farmerY + farmerH * 0.02,
