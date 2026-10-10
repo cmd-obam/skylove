@@ -86,8 +86,9 @@ function ThanksgivingGame() {
   const canvasRef = useRef(null)
   const stageRef = useRef(null)
   const rafRef = useRef(0)
-  const imagesRef = useRef({ farmer: null, rice: null, weed: null })
+  const imagesRef = useRef({ farmer: null, rice: null, weed: null, brokenHeart: null })
   const stateRef = useRef(null)
+  const fxSeqRef = useRef(0)
   const touchRef = useRef({ active: false, offsetX: 0 })
   const nicknameRef = useRef('')
   const guestKeyRef = useRef(getOrCreateGuestKey())
@@ -134,6 +135,7 @@ function ThanksgivingGame() {
       elapsedMs: 0,
       farmerX: width / 2,
       items: [],
+      fx: [],
       nextSpawnAt: 400,
       itemSeq: 0,
       width,
@@ -163,10 +165,16 @@ function ThanksgivingGame() {
     if (game) {
       const ratio = cssW / Math.max(1, game.width)
       game.farmerX *= ratio
+      const yRatio = cssH / Math.max(1, game.height)
       game.items = game.items.map((item) => ({
         ...item,
         x: item.x * ratio,
-        y: item.y * (cssH / Math.max(1, game.height)),
+        y: item.y * yRatio,
+      }))
+      game.fx = (game.fx ?? []).map((fx) => ({
+        ...fx,
+        x: fx.x * ratio,
+        y: fx.y * yRatio,
       }))
       game.width = cssW
       game.height = cssH
@@ -176,10 +184,15 @@ function ThanksgivingGame() {
 
   useEffect(() => {
     let cancelled = false
-    Promise.all([loadImage(farmerSrc), loadImage(riceSrc), loadImage(weedSrc)])
-      .then(([farmer, rice, weed]) => {
+    Promise.all([
+      loadImage(farmerSrc),
+      loadImage(riceSrc),
+      loadImage(weedSrc),
+      loadImage(brokenHeartSrc),
+    ])
+      .then(([farmer, rice, weed, brokenHeart]) => {
         if (cancelled) return
-        imagesRef.current = { farmer, rice, weed }
+        imagesRef.current = { farmer, rice, weed, brokenHeart }
         setAssetsReady(true)
       })
       .catch((error) => {
@@ -224,6 +237,28 @@ function ThanksgivingGame() {
       const sprite = item.type === 'rice' ? imgs.rice : imgs.weed
       if (!sprite) continue
       ctx.drawImage(sprite, item.x, item.y, item.w, item.h)
+    }
+
+    for (const fx of game.fx ?? []) {
+      const t = Math.min(1, fx.age / fx.life)
+      const alpha = 1 - t
+      const rise = fx.y - t * 36
+      ctx.save()
+      ctx.globalAlpha = Math.max(0, alpha)
+      if (fx.kind === 'plus') {
+        ctx.font = `800 ${Math.round(Math.min(34, w * 0.07))}px system-ui, sans-serif`
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.lineWidth = 4
+        ctx.strokeStyle = 'rgba(90, 40, 10, 0.55)'
+        ctx.fillStyle = '#ffe566'
+        ctx.strokeText('+1', fx.x, rise)
+        ctx.fillText('+1', fx.x, rise)
+      } else if (fx.kind === 'brokenHeart' && imgs.brokenHeart) {
+        const size = Math.min(42, w * 0.09)
+        ctx.drawImage(imgs.brokenHeart, fx.x - size / 2, rise - size / 2, size, size)
+      }
+      ctx.restore()
     }
   }, [])
 
@@ -347,12 +382,32 @@ function ThanksgivingGame() {
           }
           if (rectsOverlap(basket, itemBox)) {
             item.hit = true
+            fxSeqRef.current += 1
+            const fxX = item.x + item.w / 2
+            const fxY = item.y + item.h / 2
             if (item.type === 'rice') {
               game.score += 1
+              game.fx.push({
+                id: fxSeqRef.current,
+                kind: 'plus',
+                x: fxX,
+                y: fxY,
+                age: 0,
+                life: 0.7,
+              })
             } else {
               game.lives -= 1
+              game.fx.push({
+                id: fxSeqRef.current,
+                kind: 'brokenHeart',
+                x: fxX,
+                y: fxY,
+                age: 0,
+                life: 0.85,
+              })
               if (game.lives <= 0) {
                 game.lives = 0
+                game.items = nextItems
                 drawFrame(game)
                 syncHud(game)
                 void endGame(game)
@@ -366,7 +421,12 @@ function ThanksgivingGame() {
           }
         }
         game.items = nextItems
+        game.fx = (game.fx ?? [])
+          .map((fx) => ({ ...fx, age: fx.age + dt }))
+          .filter((fx) => fx.age < fx.life)
         syncHud(game)
+      } else if (game.phase === 'paused' || game.phase === 'gameover') {
+        // keep drawing static frame; fx freeze while paused
       }
 
       drawFrame(game)
