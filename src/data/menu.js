@@ -2,7 +2,11 @@ import worshipIcon from '@/assets/icons/worship.png'
 import facilityIcon from '@/assets/icons/facility.png'
 import noticeIcon from '@/assets/icons/notice.png'
 import locationIcon from '@/assets/icons/location.png'
-import { EVENT_MENU_ENABLED, EVENT_MENU_ITEM } from '@/data/eventMenu'
+import {
+  EVENT_MENU_ENABLED,
+  EVENT_MENU_ITEM,
+  THANKSGIVING_GAME_SUPER_ADMIN_ONLY,
+} from '@/data/eventMenu'
 
 export const AUTH_LINKS = [
   { label: '로그인', path: '/login' },
@@ -96,6 +100,19 @@ export const MENU_ITEMS = [
   },
   ...(EVENT_MENU_ENABLED ? [EVENT_MENU_ITEM] : []),
 ]
+
+/** Menu items visible for the current viewer (hides super-admin-only event items). */
+export function getVisibleMenuItems({ isSuperAdmin = false } = {}) {
+  return MENU_ITEMS.filter((item) => {
+    if (!item.requiresSuperAdmin) {
+      return true
+    }
+    if (!THANKSGIVING_GAME_SUPER_ADMIN_ONLY) {
+      return true
+    }
+    return Boolean(isSuperAdmin)
+  })
+}
 
 export function getFirstSubMenuPath(item) {
   const firstChild = item.children?.[0]

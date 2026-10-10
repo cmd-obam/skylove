@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom'
-import { useState } from 'react'
-import { AUTH_LINKS, MENU_ITEMS } from '@/data/menu'
+import { useMemo, useState } from 'react'
+import { AUTH_LINKS, getVisibleMenuItems } from '@/data/menu'
 import DropdownMenu from '@/components/layout/DropdownMenu'
+import { useSuperAdmin } from '@/hooks/useSuperAdmin'
 import './Navigation.css'
 
 function getAuthLinkPath(item) {
@@ -13,6 +14,11 @@ function getAuthLinkPath(item) {
 }
 
 function Navigation() {
+  const { isSuperAdmin } = useSuperAdmin()
+  const visibleMenuItems = useMemo(
+    () => getVisibleMenuItems({ isSuperAdmin }),
+    [isSuperAdmin],
+  )
   const [isOpen, setIsOpen] = useState(false)
   const [expandedItem, setExpandedItem] = useState(null)
 
@@ -66,7 +72,7 @@ function Navigation() {
           </ul>
 
           <ul id="main-menu" className="navigation__menu">
-            {MENU_ITEMS.map((item) => (
+            {visibleMenuItems.map((item) => (
               <li
                 key={item.path}
                 className={`navigation__item${

@@ -1,9 +1,15 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { MENU_ITEMS } from '@/data/menu'
+import { getVisibleMenuItems } from '@/data/menu'
+import { useSuperAdmin } from '@/hooks/useSuperAdmin'
 import './SitemapModal.css'
 
 function SitemapModal({ isOpen, onClose }) {
+  const { isSuperAdmin } = useSuperAdmin()
+  const visibleMenuItems = useMemo(
+    () => getVisibleMenuItems({ isSuperAdmin }),
+    [isSuperAdmin],
+  )
   useEffect(() => {
     if (!isOpen) {
       return undefined
@@ -59,7 +65,7 @@ function SitemapModal({ isOpen, onClose }) {
 
         <div className="sitemap-modal__body">
           <div className="sitemap-modal__grid">
-            {MENU_ITEMS.map((category) => (
+            {visibleMenuItems.map((category) => (
               <section key={category.path} className="sitemap-modal__column">
                 <h3 className="sitemap-modal__category">{category.title}</h3>
                 <ul className="sitemap-modal__list">

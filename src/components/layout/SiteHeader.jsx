@@ -7,11 +7,13 @@ import {
   MEMBER_MENU_LOGGED_IN_CHILDREN,
   MENU_ITEMS,
   getFirstSubMenuPath,
+  getVisibleMenuItems,
   menuItemContainsPath,
 } from '@/data/menu'
 import DropdownMenu from '@/components/layout/DropdownMenu'
 import MenuItemLabel from '@/components/layout/MenuItemLabel'
 import { useAuth } from '@/contexts/AuthContext'
+import { useSuperAdmin } from '@/hooks/useSuperAdmin'
 import useBodyScrollLock from '@/hooks/useBodyScrollLock'
 import './SiteHeader.css'
 
@@ -55,6 +57,11 @@ function SiteHeader() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const { isLoggedIn, signOut } = useAuth()
+  const { isSuperAdmin } = useSuperAdmin()
+  const visibleMenuItems = useMemo(
+    () => getVisibleMenuItems({ isSuperAdmin }),
+    [isSuperAdmin],
+  )
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [activeMenu, setActiveMenu] = useState(null)
   const [expandedItem, setExpandedItem] = useState(null)
@@ -188,7 +195,7 @@ function SiteHeader() {
 
           <nav className="site-header__nav site-header__nav--desktop" aria-label="주요 메뉴">
             <ul className="site-header__menu">
-              {MENU_ITEMS.map((item) => (
+              {visibleMenuItems.map((item) => (
                 <li
                   key={item.title}
                   className={`site-header__item${
@@ -284,7 +291,7 @@ function SiteHeader() {
                 홈
               </Link>
             </li>
-            {MENU_ITEMS.map((item) => (
+            {visibleMenuItems.map((item) => (
               <li key={item.title} className="site-header__drawer-item">
                 {item.children ? (
                   <>

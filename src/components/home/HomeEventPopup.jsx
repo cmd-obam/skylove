@@ -5,10 +5,16 @@ import {
   hideHomeEventPopupForToday,
   shouldShowHomeEventPopup,
 } from '@/data/homeEventPopup'
+import { THANKSGIVING_GAME_SUPER_ADMIN_ONLY } from '@/data/eventMenu'
+import { useSuperAdmin } from '@/hooks/useSuperAdmin'
 import thanksgivingPopupImage from '@/assets/images/home/thanksgiving-popup.png'
 import './HomeEventPopup.css'
 
 function HomeEventPopup({ config = THANKSGIVING_POPUP }) {
+  const { isSuperAdmin } = useSuperAdmin()
+  const canOpenGame =
+    Boolean(config.gamePath) &&
+    (!THANKSGIVING_GAME_SUPER_ADMIN_ONLY || isSuperAdmin)
   const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
@@ -67,7 +73,7 @@ function HomeEventPopup({ config = THANKSGIVING_POPUP }) {
           />
         </figure>
 
-        {config.gamePath ? (
+        {canOpenGame ? (
           <div className="home-event-popup__cta-wrap">
             <Link
               to={config.gamePath}

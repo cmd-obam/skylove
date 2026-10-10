@@ -118,7 +118,14 @@ function App() {
           <Route path="/email-confirm" element={<EmailConfirmSuccess />} />
           <Route element={<SiteShell />}>
             <Route path="/" element={<Home />} />
-            <Route path="/thanksgiving-game" element={<ThanksgivingGame />} />
+            <Route
+              path="/thanksgiving-game"
+              element={
+                <SuperAdminRoute>
+                  <ThanksgivingGame />
+                </SuperAdminRoute>
+              }
+            />
             <Route path="/login" element={<Auth />} />
             <Route path="/oauth/complete" element={<OAuthProfileComplete />} />
             <Route path="/reset-password/security-question" element={<ResetPasswordSecurityQuestion />} />
