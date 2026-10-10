@@ -1,21 +1,25 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
-import { THANKSGIVING_GAME_PATH } from '@/data/eventMenu'
+import { getPublicDisplayName } from '@/utils/getPublicDisplayName'
 import {
   fetchMyThanksgivingGameScore,
   fetchThanksgivingGameRanking,
+  getOrCreateGuestKey,
   submitThanksgivingGameScore,
+  validateGameNickname,
 } from '@/services/thanksgivingGame/scores'
 import farmerSrc from '@/assets/images/thanksgiving-game/farmer.png'
 import riceSrc from '@/assets/images/thanksgiving-game/rice.png'
 import weedSrc from '@/assets/images/thanksgiving-game/weed.png'
 import heartSrc from '@/assets/images/thanksgiving-game/heart.png'
+import brokenHeartSrc from '@/assets/images/thanksgiving-game/broken-heart.png'
 import './ThanksgivingGame.css'
 
 const INITIAL_LIVES = 3
-const BASE_FALL_SPEED = 140 // px/sec at 1.0x
+const BASE_FALL_SPEED = 140
 const FARMER_SPEED = 320
+const NICKNAME_STORAGE_KEY = 'skylove:tg-game:last-nickname'
 
 function getSpeedMultiplier(elapsedSec) {
   if (elapsedSec >= 120) return 2.0
@@ -50,17 +54,45 @@ function rectsOverlap(a, b) {
   )
 }
 
+function readStoredNickname() {
+  try {
+    return String(window.localStorage.getItem(NICKNAME_STORAGE_KEY) ?? '').trim()
+  } catch {
+    return ''
+  }
+}
+
+function storeNickname(value) {
+  try {
+    window.localStorage.setItem(NICKNAME_STORAGE_KEY, value)
+  } catch {
+    // ignore
+  }
+}
+
+function getDefaultNickname(profile, isLoggedIn) {
+  if (isLoggedIn && profile) {
+    const fromProfile = getPublicDisplayName(profile, { fallback: '' })
+    if (fromProfile) return fromProfile.slice(0, 12)
+    const username = String(profile.username ?? '').trim()
+    if (username) return username.slice(0, 12)
+  }
+  return readStoredNickname().slice(0, 12)
+}
+
 function ThanksgivingGame() {
   const navigate = useNavigate()
-  const { isLoggedIn, effectiveUserId } = useAuth()
+  const { isLoggedIn, effectiveUserId, profile } = useAuth()
   const canvasRef = useRef(null)
   const stageRef = useRef(null)
   const rafRef = useRef(0)
   const imagesRef = useRef({ farmer: null, rice: null, weed: null })
   const stateRef = useRef(null)
   const touchRef = useRef({ active: false, offsetX: 0 })
+  const nicknameRef = useRef('')
+  const guestKeyRef = useRef(getOrCreateGuestKey())
 
-  const [phase, setPhase] = useState('ready')
+  const [phase, setPhase] = useState('intro')
   const [score, setScore] = useState(0)
   const [lives, setLives] = useState(INITIAL_LIVES)
   const [elapsedMs, setElapsedMs] = useState(0)
@@ -69,8 +101,23 @@ function ThanksgivingGame() {
   const [rankingStatus, setRankingStatus] = useState('idle')
   const [myBest, setMyBest] = useState(null)
   const [myRank, setMyRank] = useState(null)
+  const [myEntryId, setMyEntryId] = useState(null)
   const [submitStatus, setSubmitStatus] = useState('idle')
   const [submitMessage, setSubmitMessage] = useState('')
+  const [nickname, setNickname] = useState(() => getDefaultNickname(profile, isLoggedIn))
+  const [nicknameError, setNicknameError] = useState('')
+
+  useEffect(() => {
+    nicknameRef.current = nickname
+  }, [nickname])
+
+  useEffect(() => {
+    if (phase !== 'intro' && phase !== 'tutorial' && phase !== 'nickname') return
+    const next = getDefaultNickname(profile, isLoggedIn)
+    if (!nickname.trim() && next) {
+      setNickname(next)
+    }
+  }, [isLoggedIn, profile, phase, nickname])
 
   const syncHud = useCallback((game) => {
     setScore(game.score)
@@ -129,11 +176,7 @@ function ThanksgivingGame() {
 
   useEffect(() => {
     let cancelled = false
-    Promise.all([
-      loadImage(farmerSrc),
-      loadImage(riceSrc),
-      loadImage(weedSrc),
-    ])
+    Promise.all([loadImage(farmerSrc), loadImage(riceSrc), loadImage(weedSrc)])
       .then(([farmer, rice, weed]) => {
         if (cancelled) return
         imagesRef.current = { farmer, rice, weed }
@@ -201,16 +244,19 @@ function ThanksgivingGame() {
         setRankingStatus('error')
       }
 
-      if (!isLoggedIn) {
-        setMyBest(null)
-        setMyRank(null)
-        return
-      }
-
+      const displayName = nicknameRef.current
+      const guestKey = guestKeyRef.current
       setSubmitStatus('saving')
-      const submitResult = await submitThanksgivingGameScore(game.score)
+      const submitResult = await submitThanksgivingGameScore({
+        score: game.score,
+        displayName,
+        guestKey,
+        isLoggedIn,
+      })
+
       if (submitResult.success) {
         setMyBest(submitResult.bestScore)
+        setMyEntryId(submitResult.entryId)
         setSubmitStatus(submitResult.isNewBest ? 'new' : 'kept')
         setSubmitMessage(
           submitResult.isNewBest
@@ -222,10 +268,11 @@ function ThanksgivingGame() {
         setSubmitMessage('점수 저장에 실패했습니다. 잠시 후 다시 시도해주세요.')
       }
 
-      const mine = await fetchMyThanksgivingGameScore()
+      const mine = await fetchMyThanksgivingGameScore({ isLoggedIn, guestKey })
       if (mine.success) {
         setMyBest(mine.bestScore)
         setMyRank(mine.rank)
+        setMyEntryId(mine.entryId)
       }
 
       const refreshed = await fetchThanksgivingGameRanking(15)
@@ -280,7 +327,6 @@ function ThanksgivingGame() {
           : farmerH * 0.72
         const farmerX = game.farmerX - farmerW / 2
         const farmerY = h - farmerH - 8
-        // Basket-focused hitbox (upper portion of farmer sprite)
         const basket = {
           x: farmerX + farmerW * 0.18,
           y: farmerY + farmerH * 0.02,
@@ -344,6 +390,15 @@ function ThanksgivingGame() {
   }, [stopLoop, tick])
 
   const startGame = useCallback(() => {
+    const check = validateGameNickname(nicknameRef.current)
+    if (!check.ok) {
+      setNicknameError(check.message)
+      setPhase('nickname')
+      return
+    }
+    storeNickname(check.nickname)
+    setNickname(check.nickname)
+    setNicknameError('')
     resizeCanvas()
     const canvas = canvasRef.current
     if (!canvas) return
@@ -422,6 +477,26 @@ function ThanksgivingGame() {
     touchRef.current.active = false
   }
 
+  const handleNicknameStart = () => {
+    const check = validateGameNickname(nickname)
+    if (!check.ok) {
+      setNicknameError(check.message)
+      return
+    }
+    setNickname(check.nickname)
+    nicknameRef.current = check.nickname
+    startGame()
+  }
+
+  const isPreGame = phase === 'intro' || phase === 'tutorial' || phase === 'nickname'
+  const highlightMe = useMemo(
+    () => (row) =>
+      (myEntryId && row.entryId === myEntryId) ||
+      (isLoggedIn && row.userId && row.userId === effectiveUserId) ||
+      (!isLoggedIn && guestKeyRef.current && row.guestKey === guestKeyRef.current),
+    [effectiveUserId, isLoggedIn, myEntryId],
+  )
+
   return (
     <div className="tg-page">
       <div className="tg-page__inner">
@@ -461,7 +536,7 @@ function ThanksgivingGame() {
         </header>
 
         <div
-          className="tg-stage"
+          className={`tg-stage${isPreGame ? ' tg-stage--pregame' : ''}`}
           ref={stageRef}
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
@@ -470,7 +545,7 @@ function ThanksgivingGame() {
         >
           <canvas ref={canvasRef} className="tg-canvas" aria-label="추수감사절 미니게임 영역" />
 
-          {phase === 'ready' ? (
+          {phase === 'intro' ? (
             <div className="tg-overlay">
               <div className="tg-card">
                 <h1 className="tg-card__title">추수감사절 미니게임</h1>
@@ -486,11 +561,142 @@ function ThanksgivingGame() {
                 <button
                   type="button"
                   className="tg-btn tg-btn--primary"
-                  onClick={startGame}
+                  onClick={() => setPhase('tutorial')}
                   disabled={!assetsReady}
                 >
-                  {assetsReady ? '게임 시작' : '이미지 불러오는 중…'}
+                  {assetsReady ? '다음' : '이미지 불러오는 중…'}
                 </button>
+              </div>
+            </div>
+          ) : null}
+
+          {phase === 'tutorial' ? (
+            <div className="tg-overlay tg-overlay--scroll">
+              <div className="tg-card tg-card--tutorial">
+                <h2 className="tg-card__title">게임 방법을 알아봐요!</h2>
+                <div className="tg-tutorial-grid">
+                  <article className="tg-tutorial-item">
+                    <div className="tg-tutorial-item__visual">
+                      <span className="tg-ring">
+                        <img src={riceSrc} alt="" className="tg-tutorial-sprite" />
+                      </span>
+                      <strong className="tg-tutorial-badge">+1점</strong>
+                    </div>
+                    <p className="tg-tutorial-item__text">벼를 바구니에 담으면 1점을 획득해요!</p>
+                  </article>
+
+                  <article className="tg-tutorial-item">
+                    <div className="tg-tutorial-item__visual">
+                      <span className="tg-ring">
+                        <img src={weedSrc} alt="" className="tg-tutorial-sprite" />
+                      </span>
+                      <img
+                        src={brokenHeartSrc}
+                        alt=""
+                        className="tg-tutorial-sprite tg-tutorial-sprite--heart"
+                      />
+                    </div>
+                    <p className="tg-tutorial-item__text">
+                      가라지를 바구니에 담으면 생명이 1개 줄어들어요!
+                    </p>
+                  </article>
+
+                  <article className="tg-tutorial-item">
+                    <div className="tg-tutorial-item__visual tg-tutorial-item__visual--hud">
+                      <div className="tg-mini-hud">
+                        <span>점수: 0</span>
+                        <span className="tg-mini-hud__lives">
+                          생명:{' '}
+                          <span className="tg-ring tg-ring--lives">
+                            <img src={heartSrc} alt="" />
+                            <img src={heartSrc} alt="" />
+                            <img src={heartSrc} alt="" />
+                          </span>
+                        </span>
+                      </div>
+                      <strong className="tg-tutorial-badge tg-tutorial-badge--warn">
+                        0개가 되면 게임 오버!
+                      </strong>
+                    </div>
+                    <p className="tg-tutorial-item__text">생명 3개를 모두 잃으면 게임이 종료돼요.</p>
+                  </article>
+
+                  <article className="tg-tutorial-item">
+                    <div className="tg-tutorial-item__visual tg-tutorial-item__visual--move">
+                      <span className="tg-arrow" aria-hidden="true">
+                        ←
+                      </span>
+                      <img src={farmerSrc} alt="" className="tg-tutorial-sprite tg-tutorial-sprite--farmer" />
+                      <span className="tg-arrow" aria-hidden="true">
+                        →
+                      </span>
+                    </div>
+                    <p className="tg-tutorial-item__text">좌우로 이동하여 벼를 수확하세요!</p>
+                    <p className="tg-tutorial-item__hint">키보드 ← → 방향키로 이동</p>
+                    <p className="tg-tutorial-item__hint">화면을 좌우로 드래그하여 이동</p>
+                  </article>
+                </div>
+                <div className="tg-card__actions">
+                  <button type="button" className="tg-btn tg-btn--ghost" onClick={() => setPhase('intro')}>
+                    이전
+                  </button>
+                  <button
+                    type="button"
+                    className="tg-btn tg-btn--primary"
+                    onClick={() => setPhase('nickname')}
+                  >
+                    다음
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : null}
+
+          {phase === 'nickname' ? (
+            <div className="tg-overlay">
+              <div className="tg-card">
+                <h2 className="tg-card__title">게임에서 사용할 닉네임을 설정해 주세요!</h2>
+                <p className="tg-card__text">랭킹 보드에 표시될 이름이에요.</p>
+                <label className="tg-nickname">
+                  <span className="tg-nickname__label">닉네임</span>
+                  <input
+                    className="tg-nickname__input"
+                    type="text"
+                    value={nickname}
+                    maxLength={12}
+                    autoComplete="nickname"
+                    placeholder="2~12자로 입력"
+                    onChange={(event) => {
+                      setNickname(event.target.value)
+                      if (nicknameError) setNicknameError('')
+                    }}
+                  />
+                </label>
+                {nicknameError ? <p className="tg-nickname__error">{nicknameError}</p> : null}
+                {!isLoggedIn ? (
+                  <p className="tg-card__note">비회원도 닉네임만 있으면 바로 플레이할 수 있어요.</p>
+                ) : (
+                  <p className="tg-card__note">
+                    계정 이름은 바뀌지 않아요. 이번 게임 랭킹 표시 이름만 사용됩니다.
+                  </p>
+                )}
+                <div className="tg-card__actions">
+                  <button
+                    type="button"
+                    className="tg-btn tg-btn--ghost"
+                    onClick={() => setPhase('tutorial')}
+                  >
+                    이전
+                  </button>
+                  <button
+                    type="button"
+                    className="tg-btn tg-btn--primary"
+                    onClick={handleNicknameStart}
+                    disabled={!assetsReady}
+                  >
+                    게임 시작
+                  </button>
+                </div>
               </div>
             </div>
           ) : null}
@@ -512,23 +718,13 @@ function ThanksgivingGame() {
               <div className="tg-card tg-card--wide">
                 <h2 className="tg-card__title">게임 오버</h2>
                 <p className="tg-card__score">최종 점수: {score}점</p>
-                {isLoggedIn ? (
-                  <p className="tg-card__text">
-                    개인 최고 점수:{' '}
-                    {myBest == null ? '-' : `${myBest}점`}
-                    {myRank != null ? ` · 내 순위 ${myRank}위` : ''}
-                  </p>
-                ) : (
-                  <p className="tg-card__text">
-                    로그인하면 랭킹에 점수를 등록할 수 있습니다.{' '}
-                    <Link
-                      to={`/login?redirect=${encodeURIComponent(THANKSGIVING_GAME_PATH)}`}
-                      className="tg-card__link"
-                    >
-                      로그인하기
-                    </Link>
-                  </p>
-                )}
+                <p className="tg-card__text">
+                  닉네임: <strong>{nickname}</strong>
+                </p>
+                <p className="tg-card__text">
+                  개인 최고 점수: {myBest == null ? '-' : `${myBest}점`}
+                  {myRank != null ? ` · 내 순위 ${myRank}위` : ''}
+                </p>
                 {submitMessage ? (
                   <p className="tg-card__note" data-status={submitStatus}>
                     {submitMessage}
@@ -541,7 +737,9 @@ function ThanksgivingGame() {
                     <p className="tg-card__text">랭킹을 불러오는 중…</p>
                   ) : null}
                   {rankingStatus === 'error' ? (
-                    <p className="tg-card__text">랭킹을 불러오지 못했습니다. 게임은 계속 이용할 수 있습니다.</p>
+                    <p className="tg-card__text">
+                      랭킹을 불러오지 못했습니다. 게임은 계속 이용할 수 있습니다.
+                    </p>
                   ) : null}
                   {rankingStatus === 'empty' ? (
                     <p className="tg-card__text">아직 등록된 기록이 없습니다.</p>
@@ -550,9 +748,9 @@ function ThanksgivingGame() {
                     <ol className="tg-rank__list">
                       {rankingRows.map((row) => (
                         <li
-                          key={`${row.userId}-${row.rank}`}
+                          key={row.entryId ?? `${row.rank}-${row.displayName}`}
                           className={
-                            row.userId === effectiveUserId
+                            highlightMe(row)
                               ? 'tg-rank__item tg-rank__item--me'
                               : 'tg-rank__item'
                           }
