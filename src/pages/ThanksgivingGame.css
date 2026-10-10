@@ -587,8 +587,9 @@
 
 .tg-rank__item {
   display: grid;
-  grid-template-columns: 3rem 1fr auto;
+  grid-template-columns: 5rem 1fr auto;
   gap: 0.5rem;
+  align-items: center;
   padding: 0.45rem 0.65rem;
   font-size: 0.86rem;
   background: rgba(255, 255, 255, 0.55);
@@ -601,6 +602,74 @@
 .tg-rank__item--me {
   font-weight: 800;
   background: rgba(226, 168, 90, 0.35);
+}
+
+.tg-rank__place {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  white-space: nowrap;
+}
+
+.tg-rank__medal {
+  position: relative;
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.12),
+    0 1px 2px rgba(40, 24, 10, 0.2);
+}
+
+.tg-rank__medal::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -0.22rem;
+  width: 0.55rem;
+  height: 0.35rem;
+  transform: translateX(-50%);
+  clip-path: polygon(15% 0, 85% 0, 100% 100%, 50% 70%, 0 100%);
+  opacity: 0.9;
+}
+
+.tg-rank__medal--gold {
+  background: linear-gradient(145deg, #fff4b0 0%, #ffd24a 45%, #d4a017 100%);
+  border: 1px solid #b8860b;
+}
+
+.tg-rank__medal--gold::after {
+  background: linear-gradient(180deg, #e8b923, #c48a0a);
+}
+
+.tg-rank__medal--silver {
+  background: linear-gradient(145deg, #f7f7f7 0%, #d0d4db 45%, #9aa1ab 100%);
+  border: 1px solid #7d8490;
+}
+
+.tg-rank__medal--silver::after {
+  background: linear-gradient(180deg, #c5cad2, #8e95a0);
+}
+
+.tg-rank__medal--bronze {
+  background: linear-gradient(145deg, #f0c19a 0%, #cd7f32 45%, #8f4e1a 100%);
+  border: 1px solid #8a4d1c;
+}
+
+.tg-rank__medal--bronze::after {
+  background: linear-gradient(180deg, #c06a28, #8a4518);
+}
+
+.tg-rank__medal--spacer {
+  visibility: hidden;
+  box-shadow: none;
+  border: none;
+}
+
+.tg-rank__medal--spacer::after {
+  display: none;
 }
 
 @media (max-width: 768px) {

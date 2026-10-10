@@ -112,6 +112,31 @@ function getDefaultNickname(profile, isLoggedIn) {
   return readStoredNickname().slice(0, 12)
 }
 
+function getMedalTier(rank) {
+  if (rank === 1) return 'gold'
+  if (rank === 2) return 'silver'
+  if (rank === 3) return 'bronze'
+  return null
+}
+
+function RankPlace({ rank }) {
+  const medal = getMedalTier(Number(rank))
+  return (
+    <span className="tg-rank__place">
+      {medal ? (
+        <span
+          className={`tg-rank__medal tg-rank__medal--${medal}`}
+          aria-hidden="true"
+          title={medal === 'gold' ? '금메달' : medal === 'silver' ? '은메달' : '동메달'}
+        />
+      ) : (
+        <span className="tg-rank__medal tg-rank__medal--spacer" aria-hidden="true" />
+      )}
+      <span>{rank}위</span>
+    </span>
+  )
+}
+
 function ThanksgivingGame() {
   const navigate = useNavigate()
   const { isLoggedIn, effectiveUserId, profile } = useAuth()
@@ -1021,7 +1046,7 @@ function ThanksgivingGame() {
                               : 'tg-rank__item'
                           }
                         >
-                          <span>{row.rank}위</span>
+                          <RankPlace rank={row.rank} />
                           <span>{row.displayName}</span>
                           <span>{row.bestScore}점</span>
                         </li>
@@ -1080,7 +1105,7 @@ function ThanksgivingGame() {
                               : 'tg-rank__item'
                           }
                         >
-                          <span>{row.rank}위</span>
+                          <RankPlace rank={row.rank} />
                           <span>{row.displayName}</span>
                           <span>{row.bestScore}점</span>
                         </li>
