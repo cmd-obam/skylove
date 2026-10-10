@@ -231,6 +231,11 @@ $$;
 REVOKE ALL ON FUNCTION public.submit_thanksgiving_game_score(integer) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.submit_thanksgiving_game_score(integer) TO authenticated;
 
+-- Return types changed from migration 052 — must DROP before recreate.
+DROP FUNCTION IF EXISTS public.get_thanksgiving_game_ranking(integer);
+DROP FUNCTION IF EXISTS public.get_my_thanksgiving_game_score();
+DROP FUNCTION IF EXISTS public.get_my_thanksgiving_game_score(text);
+
 CREATE OR REPLACE FUNCTION public.get_thanksgiving_game_ranking(limit_count integer DEFAULT 20)
 RETURNS TABLE (
   rank bigint,
