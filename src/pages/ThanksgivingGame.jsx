@@ -15,7 +15,16 @@ import goldenRiceSrc from '@/assets/images/thanksgiving-game/golden-rice.png'
 import weedSrc from '@/assets/images/thanksgiving-game/weed.png'
 import heartSrc from '@/assets/images/thanksgiving-game/heart.png'
 import brokenHeartSrc from '@/assets/images/thanksgiving-game/broken-heart.png'
+import medalGoldSrc from '@/assets/images/thanksgiving-game/medal-gold.png'
+import medalSilverSrc from '@/assets/images/thanksgiving-game/medal-silver.png'
+import medalBronzeSrc from '@/assets/images/thanksgiving-game/medal-bronze.png'
 import './ThanksgivingGame.css'
+
+const MEDAL_SRC = {
+  gold: medalGoldSrc,
+  silver: medalSilverSrc,
+  bronze: medalBronzeSrc,
+}
 
 const INITIAL_LIVES = 3
 const GAME_DURATION_MS = 60_000
@@ -121,16 +130,20 @@ function getMedalTier(rank) {
 
 function RankPlace({ rank }) {
   const medal = getMedalTier(Number(rank))
+  const medalLabel =
+    medal === 'gold' ? '금메달' : medal === 'silver' ? '은메달' : medal === 'bronze' ? '동메달' : null
   return (
     <span className="tg-rank__place">
       {medal ? (
-        <span
-          className={`tg-rank__medal tg-rank__medal--${medal}`}
+        <img
+          src={MEDAL_SRC[medal]}
+          alt=""
           aria-hidden="true"
-          title={medal === 'gold' ? '금메달' : medal === 'silver' ? '은메달' : '동메달'}
+          title={medalLabel}
+          className="tg-rank__medal-img"
         />
       ) : (
-        <span className="tg-rank__medal tg-rank__medal--spacer" aria-hidden="true" />
+        <span className="tg-rank__medal-img tg-rank__medal-img--spacer" aria-hidden="true" />
       )}
       <span>{rank}위</span>
     </span>
