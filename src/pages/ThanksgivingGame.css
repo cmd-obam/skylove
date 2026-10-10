@@ -247,8 +247,8 @@
   border: 1px solid rgba(90, 58, 24, 0.1);
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  justify-content: center;
+  align-items: center;
+  justify-content: space-between;
   gap: 2px;
   min-height: 0;
   height: 100%;
@@ -282,6 +282,7 @@
   justify-content: center;
   gap: 0.35rem;
   flex: 1 1 auto;
+  width: 100%;
   min-height: 0;
   margin: 0;
 }
@@ -289,7 +290,6 @@
 .tg-tutorial-item__visual--hud {
   flex-direction: column;
   gap: 0.2rem;
-  width: 100%;
 }
 
 .tg-tutorial-item__visual--move {
@@ -360,7 +360,8 @@
 
 .tg-tutorial-item__text {
   margin: 0;
-  padding: 0 1px;
+  padding: 0 1px 1px;
+  width: 100%;
   font-size: clamp(0.72rem, 1.85vh, 0.86rem);
   font-weight: 700;
   line-height: 1.3;
