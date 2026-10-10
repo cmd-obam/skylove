@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { getPublicDisplayName } from '@/utils/getPublicDisplayName'
 import {
@@ -598,6 +598,25 @@ function ThanksgivingGame() {
     }
   }, [syncHud])
 
+  const resetToIntro = useCallback(() => {
+    stopLoop()
+    stateRef.current = null
+    touchRef.current = { active: false, offsetX: 0 }
+    setScore(0)
+    setCombo(0)
+    setLives(INITIAL_LIVES)
+    setElapsedMs(0)
+    setPhase('intro')
+    setRankingRows([])
+    setRankingStatus('idle')
+    setMyBest(null)
+    setMyRank(null)
+    setMyEntryId(null)
+    setSubmitStatus('idle')
+    setSubmitMessage('')
+    setNicknameError('')
+  }, [stopLoop])
+
   useEffect(() => () => stopLoop(), [stopLoop])
 
   useEffect(() => {
@@ -708,9 +727,14 @@ function ThanksgivingGame() {
             >
               {phase === 'paused' ? '계속' : '일시정지'}
             </button>
-            <Link to="/" className="tg-btn tg-btn--ghost">
-              홈페이지
-            </Link>
+            <button
+              type="button"
+              className="tg-btn tg-btn--ghost"
+              onClick={resetToIntro}
+              aria-label="처음부터 다시 시작"
+            >
+              처음부터
+            </button>
           </div>
         </header>
 
