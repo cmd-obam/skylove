@@ -208,6 +208,7 @@ function ThanksgivingGame() {
   const guestKeyRef = useRef(getOrCreateGuestKey())
 
   const [phase, setPhase] = useState('intro')
+  const [tutorialPage, setTutorialPage] = useState(0)
   const [score, setScore] = useState(0)
   const [combo, setCombo] = useState(0)
   const [lives, setLives] = useState(INITIAL_LIVES)
@@ -776,6 +777,7 @@ function ThanksgivingGame() {
     touchRef.current = { active: false, offsetX: 0 }
     rankingResumeRef.current = false
     setRankingOpen(false)
+    setTutorialPage(0)
     setScore(0)
     setCombo(0)
     setLives(INITIAL_LIVES)
@@ -943,7 +945,10 @@ function ThanksgivingGame() {
                 <button
                   type="button"
                   className="tg-btn tg-btn--primary tg-title-screen__cta"
-                  onClick={() => setPhase('tutorial')}
+                  onClick={() => {
+                    setTutorialPage(0)
+                    setPhase('tutorial')
+                  }}
                   disabled={!assetsReady}
                 >
                   {assetsReady ? '다음' : '이미지 불러오는 중…'}
@@ -954,10 +959,16 @@ function ThanksgivingGame() {
 
           {phase === 'tutorial' ? (
             <div className="tg-overlay tg-overlay--tutorial">
-              <div className="tg-card tg-card--tutorial">
+              <div
+                className="tg-card tg-card--tutorial"
+                data-tutorial-page={tutorialPage}
+              >
                 <h2 className="tg-card__title">게임 방법을 알아봐요!</h2>
-                <div className="tg-tutorial-grid">
-                  <article className="tg-tutorial-item">
+                <p className="tg-tutorial-step" aria-live="polite">
+                  {tutorialPage + 1} / 3
+                </p>
+                <div className={`tg-tutorial-grid tg-tutorial-grid--page-${tutorialPage}`}>
+                  <article className="tg-tutorial-item" data-tut-page="0">
                     <div className="tg-tutorial-item__visual">
                       <span className="tg-ring">
                         <img src={riceSrc} alt="" className="tg-tutorial-sprite" />
@@ -967,7 +978,7 @@ function ThanksgivingGame() {
                     <p className="tg-tutorial-item__text">벼를 담으면 1점을 획득해요!</p>
                   </article>
 
-                  <article className="tg-tutorial-item">
+                  <article className="tg-tutorial-item" data-tut-page="0">
                     <div className="tg-tutorial-item__visual">
                       <span className="tg-ring">
                         <img src={goldenRiceSrc} alt="" className="tg-tutorial-sprite" />
@@ -979,7 +990,7 @@ function ThanksgivingGame() {
                     </p>
                   </article>
 
-                  <article className="tg-tutorial-item">
+                  <article className="tg-tutorial-item" data-tut-page="0">
                     <div className="tg-tutorial-item__visual">
                       <span className="tg-ring">
                         <img src={fruitBasketSrc} alt="" className="tg-tutorial-sprite" />
@@ -989,7 +1000,7 @@ function ThanksgivingGame() {
                     <p className="tg-tutorial-item__text">과일 바구니는 2점~콤보 최대 10점!</p>
                   </article>
 
-                  <article className="tg-tutorial-item">
+                  <article className="tg-tutorial-item" data-tut-page="1">
                     <div className="tg-tutorial-item__visual">
                       <span className="tg-ring">
                         <img src={grasshopperSrc} alt="" className="tg-tutorial-sprite" />
@@ -999,7 +1010,7 @@ function ThanksgivingGame() {
                     <p className="tg-tutorial-item__text">메뚜기를 담으면 점수가 1점 줄어요!</p>
                   </article>
 
-                  <article className="tg-tutorial-item">
+                  <article className="tg-tutorial-item" data-tut-page="1">
                     <div className="tg-tutorial-item__visual">
                       <span className="tg-ring">
                         <img src={weedSrc} alt="" className="tg-tutorial-sprite" />
@@ -1013,7 +1024,7 @@ function ThanksgivingGame() {
                     <p className="tg-tutorial-item__text">가라지를 담으면 생명이 1개 줄어요!</p>
                   </article>
 
-                  <article className="tg-tutorial-item">
+                  <article className="tg-tutorial-item" data-tut-page="1">
                     <div className="tg-tutorial-item__visual tg-tutorial-item__visual--hud">
                       <div className="tg-mini-hud">
                         <span>점수: 0</span>
@@ -1033,7 +1044,10 @@ function ThanksgivingGame() {
                     <p className="tg-tutorial-item__text">생명 0 또는 2분 후 종료돼요.</p>
                   </article>
 
-                  <article className="tg-tutorial-item tg-tutorial-item--wide">
+                  <article
+                    className="tg-tutorial-item tg-tutorial-item--wide"
+                    data-tut-page="2"
+                  >
                     <div className="tg-tutorial-item__row">
                       <div className="tg-tutorial-item__visual tg-tutorial-item__visual--move">
                         <span className="tg-arrow" aria-hidden="true">
@@ -1057,13 +1071,33 @@ function ThanksgivingGame() {
                   </article>
                 </div>
                 <div className="tg-card__actions tg-card__actions--tutorial">
-                  <button type="button" className="tg-btn tg-btn--ghost" onClick={() => setPhase('intro')}>
+                  <button
+                    type="button"
+                    className="tg-btn tg-btn--ghost"
+                    onClick={() => {
+                      if (window.matchMedia('(max-width: 768px)').matches) {
+                        if (tutorialPage > 0) {
+                          setTutorialPage((page) => page - 1)
+                          return
+                        }
+                      }
+                      setPhase('intro')
+                    }}
+                  >
                     이전
                   </button>
                   <button
                     type="button"
                     className="tg-btn tg-btn--primary"
-                    onClick={() => setPhase('nickname')}
+                    onClick={() => {
+                      if (window.matchMedia('(max-width: 768px)').matches) {
+                        if (tutorialPage < 2) {
+                          setTutorialPage((page) => page + 1)
+                          return
+                        }
+                      }
+                      setPhase('nickname')
+                    }}
                   >
                     다음
                   </button>
@@ -1104,7 +1138,12 @@ function ThanksgivingGame() {
                   <button
                     type="button"
                     className="tg-btn tg-btn--ghost"
-                    onClick={() => setPhase('tutorial')}
+                    onClick={() => {
+                      setTutorialPage(
+                        window.matchMedia('(max-width: 768px)').matches ? 2 : 0,
+                      )
+                      setPhase('tutorial')
+                    }}
                   >
                     이전
                   </button>

@@ -239,6 +239,14 @@
   flex-shrink: 0;
 }
 
+.tg-tutorial-step {
+  display: none;
+  margin: 0 0 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: rgba(58, 42, 24, 0.7);
+}
+
 .tg-tutorial-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -730,7 +738,57 @@
   }
 
   .tg-card--tutorial {
-    padding: 0.35rem 0.4rem 0.3rem;
+    padding: 0.45rem 0.55rem 0.4rem;
+  }
+
+  .tg-tutorial-step {
+    display: block;
+  }
+
+  .tg-tutorial-grid {
+    gap: 0.45rem;
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    align-content: stretch;
+  }
+
+  .tg-tutorial-grid--page-0,
+  .tg-tutorial-grid--page-1 {
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+  }
+
+  .tg-tutorial-grid--page-2 {
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .tg-tutorial-item[data-tut-page] {
+    display: none;
+  }
+
+  .tg-card--tutorial[data-tutorial-page='0'] .tg-tutorial-item[data-tut-page='0'],
+  .tg-card--tutorial[data-tutorial-page='1'] .tg-tutorial-item[data-tut-page='1'],
+  .tg-card--tutorial[data-tutorial-page='2'] .tg-tutorial-item[data-tut-page='2'] {
+    display: flex;
+  }
+
+  .tg-tutorial-item--wide {
+    grid-column: auto;
+  }
+
+  .tg-tutorial-item__row {
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.75rem;
+    text-align: center;
+  }
+
+  .tg-tutorial-item__copy {
+    align-items: center;
+  }
+
+  .tg-tutorial-item__copy .tg-tutorial-item__text,
+  .tg-tutorial-item__copy .tg-tutorial-item__hint {
+    text-align: center;
   }
 
   .tg-card--wide {
@@ -762,13 +820,8 @@
     height: 1.15rem;
   }
 
-  .tg-tutorial-grid {
-    gap: 0.22rem;
-    grid-template-rows: repeat(3, minmax(0, 1fr)) auto;
-  }
-
   .tg-tutorial-item {
-    padding: 3px;
+    padding: 0.45rem 0.4rem;
     min-width: 0;
   }
 
