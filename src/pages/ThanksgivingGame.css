@@ -232,12 +232,13 @@
 .tg-tutorial-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr minmax(3.2rem, 0.72fr);
-  gap: 0.35rem;
+  grid-template-rows: repeat(3, minmax(0, 1fr)) auto;
+  gap: 0.28rem;
   margin: 0;
   flex: 1 1 auto;
   min-height: 0;
   height: 100%;
+  overflow: hidden;
 }
 
 .tg-tutorial-item {
@@ -668,8 +669,8 @@
   }
 
   .tg-tutorial-grid {
-    gap: 0.28rem;
-    grid-template-rows: 1fr 1fr minmax(2.8rem, 0.68fr);
+    gap: 0.22rem;
+    grid-template-rows: repeat(3, minmax(0, 1fr)) auto;
   }
 
   .tg-tutorial-item {
