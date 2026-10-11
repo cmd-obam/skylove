@@ -646,6 +646,31 @@
     justify-content: space-between;
   }
 
+  /* Score/lives on first row; COMBO centered under pause (middle button). */
+  .tg-hud__left {
+    display: flex;
+    flex-wrap: wrap;
+    row-gap: 0.35rem;
+  }
+
+  .tg-hud__score {
+    order: 1;
+  }
+
+  .tg-hud__lives {
+    order: 2;
+    margin-left: auto;
+  }
+
+  .tg-hud__combo {
+    order: 3;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    margin-left: 0;
+  }
+
   .tg-page {
     --tg-chrome: 13.5rem;
     padding: 0.65rem 0.7rem 1rem;
