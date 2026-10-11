@@ -6,9 +6,12 @@
   --tg-chrome: 11.5rem;
   box-sizing: border-box;
   width: 100%;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
   min-height: 0;
+  min-width: 0;
+  overflow-x: clip;
   padding: 0.85rem clamp(0.75rem, 2vw, 1.5rem) 1.25rem;
   background:
     radial-gradient(circle at top, rgba(255, 220, 160, 0.35), transparent 45%),
@@ -18,11 +21,14 @@
 
 .tg-page__inner {
   width: min(100%, 960px);
+  max-width: 100%;
   margin: 0 auto;
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   min-height: 0;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .tg-hud {
@@ -190,17 +196,21 @@
 
 .tg-card {
   width: min(100%, 22rem);
+  max-width: 100%;
   padding: 1.25rem 1.2rem 1.15rem;
   border-radius: 14px;
   background: var(--tg-cream);
   box-shadow: 0 12px 28px rgba(40, 24, 10, 0.22);
   text-align: center;
+  box-sizing: border-box;
 }
 
 .tg-card--wide {
   width: min(100%, 28rem);
+  max-width: 100%;
   max-height: min(80vh, 36rem);
   overflow: auto;
+  box-sizing: border-box;
 }
 
 .tg-overlay--tutorial {
@@ -627,13 +637,25 @@
 
 @media (max-width: 768px) {
   .tg-page {
+    --tg-chrome: 14.5rem;
     min-height: calc(100vh - 4.5rem);
-    padding: 0.75rem 0.7rem 1.1rem;
+    max-width: 100%;
+    overflow-x: clip;
+    padding:
+      0.5rem
+      max(0.7rem, env(safe-area-inset-right, 0px))
+      max(0.85rem, env(safe-area-inset-bottom, 0px))
+      max(0.7rem, env(safe-area-inset-left, 0px));
+    box-sizing: border-box;
   }
 
   .tg-hud {
     grid-template-columns: 1fr;
     justify-items: stretch;
+    gap: 0.4rem;
+    margin-bottom: 0.5rem;
+    max-width: 100%;
+    min-width: 0;
   }
 
   .tg-hud__time {
@@ -644,6 +666,8 @@
   .tg-hud__left,
   .tg-hud__right {
     justify-content: space-between;
+    max-width: 100%;
+    min-width: 0;
   }
 
   /* Score/lives on first row; COMBO centered under pause (middle button). */
@@ -671,26 +695,77 @@
     margin-left: 0;
   }
 
-  .tg-page {
-    --tg-chrome: 13.5rem;
-    padding: 0.65rem 0.7rem 1rem;
+  .tg-hud__right .tg-btn {
+    min-height: 2.1rem;
+    padding: 0.32rem 0.55rem;
+    font-size: 0.78rem;
   }
 
   .tg-stage {
-    height: clamp(260px, calc(100dvh - var(--tg-chrome)), 520px);
-    min-height: 260px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    height: clamp(240px, calc(100dvh - var(--tg-chrome)), 480px);
+    min-height: 240px;
     max-height: calc(100dvh - var(--tg-chrome));
   }
 
   .tg-stage--pregame {
-    height: clamp(300px, calc(100dvh - 12rem), 580px);
-    min-height: 300px;
-    max-height: calc(100dvh - 12rem);
+    height: clamp(260px, calc(100dvh - 13rem), 520px);
+    min-height: 260px;
+    max-height: calc(100dvh - 13rem);
+  }
+
+  .tg-overlay {
+    padding: 0.55rem;
+    box-sizing: border-box;
+    align-items: center;
+  }
+
+  .tg-overlay--tutorial {
+    padding: 0.4rem;
+    align-items: stretch;
+  }
+
+  .tg-card,
+  .tg-card--wide,
+  .tg-card--tutorial {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 
   .tg-card--tutorial {
-    width: 100%;
     padding: 0.35rem 0.4rem 0.3rem;
+  }
+
+  .tg-card--wide {
+    max-height: min(68dvh, calc(100% - 0.4rem));
+    padding: 0.8rem 0.7rem 0.7rem;
+  }
+
+  .tg-card--wide .tg-card__title {
+    font-size: 1.15rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .tg-card--wide .tg-card__text,
+  .tg-card--wide .tg-card__score,
+  .tg-card--wide .tg-card__note {
+    margin-bottom: 0.45rem;
+    font-size: 0.86rem;
+  }
+
+  .tg-rank__item {
+    grid-template-columns: 4.5rem minmax(0, 1fr) auto;
+    gap: 0.35rem;
+    padding: 0.35rem 0.45rem;
+    font-size: 0.78rem;
+  }
+
+  .tg-rank__medal-img {
+    width: 1.15rem;
+    height: 1.15rem;
   }
 
   .tg-tutorial-grid {
@@ -700,6 +775,12 @@
 
   .tg-tutorial-item {
     padding: 3px;
+    min-width: 0;
+  }
+
+  .tg-tutorial-item__text,
+  .tg-tutorial-item__hint {
+    overflow-wrap: anywhere;
   }
 
   .tg-arrow {
