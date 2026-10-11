@@ -20,6 +20,7 @@ import medalSilverSrc from '@/assets/images/thanksgiving-game/medal-silver.png'
 import medalBronzeSrc from '@/assets/images/thanksgiving-game/medal-bronze.png'
 import fruitBasketSrc from '@/assets/images/thanksgiving-game/fruit-basket.png'
 import grasshopperSrc from '@/assets/images/thanksgiving-game/grasshopper.png'
+import bgFieldSrc from '@/assets/images/thanksgiving-game/bg-field.png'
 import './ThanksgivingGame.css'
 
 const MEDAL_SRC = {
@@ -113,6 +114,13 @@ function loadImage(src) {
   })
 }
 
+function drawCoverImage(ctx, img, w, h) {
+  const scale = Math.max(w / img.width, h / img.height)
+  const dw = img.width * scale
+  const dh = img.height * scale
+  ctx.drawImage(img, (w - dw) / 2, (h - dh) / 2, dw, dh)
+}
+
 function rectsOverlap(a, b) {
   return (
     a.x < b.x + b.w &&
@@ -191,6 +199,7 @@ function ThanksgivingGame() {
     brokenHeart: null,
     fruitBasket: null,
     grasshopper: null,
+    bg: null,
   })
   const stateRef = useRef(null)
   const fxSeqRef = useRef(0)
@@ -305,8 +314,9 @@ function ThanksgivingGame() {
       loadImage(brokenHeartSrc),
       loadImage(fruitBasketSrc),
       loadImage(grasshopperSrc),
+      loadImage(bgFieldSrc),
     ])
-      .then(([farmer, rice, goldenRice, weed, brokenHeart, fruitBasket, grasshopper]) => {
+      .then(([farmer, rice, goldenRice, weed, brokenHeart, fruitBasket, grasshopper, bg]) => {
         if (cancelled) return
         imagesRef.current = {
           farmer,
@@ -316,6 +326,7 @@ function ThanksgivingGame() {
           brokenHeart,
           fruitBasket,
           grasshopper,
+          bg,
         }
         setAssetsReady(true)
       })
@@ -340,15 +351,22 @@ function ThanksgivingGame() {
     const ctx = canvas.getContext('2d')
     const { width: w, height: h } = game
 
-    const gradient = ctx.createLinearGradient(0, 0, 0, h)
-    gradient.addColorStop(0, '#8ec5e8')
-    gradient.addColorStop(0.45, '#f3c57a')
-    gradient.addColorStop(1, '#d4a14a')
-    ctx.fillStyle = gradient
-    ctx.fillRect(0, 0, w, h)
+    const inPlay =
+      game.phase === 'playing' || game.phase === 'paused' || game.phase === 'gameover'
 
-    ctx.fillStyle = 'rgba(120, 78, 28, 0.18)'
-    ctx.fillRect(0, h * 0.78, w, h * 0.22)
+    if (inPlay && imgs.bg) {
+      ctx.imageSmoothingEnabled = true
+      drawCoverImage(ctx, imgs.bg, w, h)
+    } else {
+      const gradient = ctx.createLinearGradient(0, 0, 0, h)
+      gradient.addColorStop(0, '#8ec5e8')
+      gradient.addColorStop(0.45, '#f3c57a')
+      gradient.addColorStop(1, '#d4a14a')
+      ctx.fillStyle = gradient
+      ctx.fillRect(0, 0, w, h)
+      ctx.fillStyle = 'rgba(120, 78, 28, 0.18)'
+      ctx.fillRect(0, h * 0.78, w, h * 0.22)
+    }
 
     const bottomPad = Math.max(18, Math.round(h * 0.035))
     const farmerH = Math.min(h * 0.26, 140)
