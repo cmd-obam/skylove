@@ -139,17 +139,23 @@ BEGIN
   END IF;
 
   IF v_uid IS NOT NULL THEN
+    -- Logged-in member: one row per user_id; nickname always becomes latest.
     SELECT e.best_score, e.id
     INTO v_existing, v_id
     FROM public.thanksgiving_game_entries e
     WHERE e.player_kind = 'member' AND e.user_id = v_uid
     FOR UPDATE;
 
-    IF v_existing IS NULL THEN
+    IF v_id IS NULL THEN
       INSERT INTO public.thanksgiving_game_entries (
         player_kind, user_id, display_name, best_score
       )
       VALUES ('member', v_uid, v_name, p_score)
+      ON CONFLICT (user_id) DO UPDATE
+      SET
+        display_name = EXCLUDED.display_name,
+        best_score = GREATEST(public.thanksgiving_game_entries.best_score, EXCLUDED.best_score),
+        updated_at = now()
       RETURNING id, thanksgiving_game_entries.best_score INTO v_id, v_best;
       v_is_new := true;
     ELSIF p_score > v_existing THEN
@@ -163,7 +169,10 @@ BEGIN
     ELSE
       UPDATE public.thanksgiving_game_entries
       SET display_name = v_name,
-          updated_at = updated_at
+          updated_at = CASE
+            WHEN display_name IS DISTINCT FROM v_name THEN now()
+            ELSE updated_at
+          END
       WHERE id = v_id;
       v_best := v_existing;
       v_is_new := false;
@@ -179,11 +188,16 @@ BEGIN
     WHERE e.player_kind = 'guest' AND e.guest_key = v_guest
     FOR UPDATE;
 
-    IF v_existing IS NULL THEN
+    IF v_id IS NULL THEN
       INSERT INTO public.thanksgiving_game_entries (
         player_kind, guest_key, display_name, best_score
       )
       VALUES ('guest', v_guest, v_name, p_score)
+      ON CONFLICT (guest_key) DO UPDATE
+      SET
+        display_name = EXCLUDED.display_name,
+        best_score = GREATEST(public.thanksgiving_game_entries.best_score, EXCLUDED.best_score),
+        updated_at = now()
       RETURNING id, thanksgiving_game_entries.best_score INTO v_id, v_best;
       v_is_new := true;
     ELSIF p_score > v_existing THEN
@@ -196,7 +210,11 @@ BEGIN
       v_is_new := true;
     ELSE
       UPDATE public.thanksgiving_game_entries
-      SET display_name = v_name
+      SET display_name = v_name,
+          updated_at = CASE
+            WHEN display_name IS DISTINCT FROM v_name THEN now()
+            ELSE updated_at
+          END
       WHERE id = v_id;
       v_best := v_existing;
       v_is_new := false;
@@ -251,7 +269,7 @@ STABLE
 SECURITY DEFINER
 SET search_path = public
 AS $$
-  WITH ranked AS (
+  WITH identity_rows AS (
     SELECT
       e.id AS entry_id,
       e.player_kind,
@@ -259,8 +277,35 @@ AS $$
       e.guest_key,
       e.display_name,
       e.best_score,
-      dense_rank() OVER (ORDER BY e.best_score DESC) AS rank
+      e.updated_at,
+      CASE
+        WHEN e.player_kind = 'member' THEN 'm:' || e.user_id::text
+        ELSE 'g:' || e.guest_key
+      END AS identity_key
     FROM public.thanksgiving_game_entries e
+  ),
+  collapsed AS (
+    SELECT
+      identity_key,
+      (ARRAY_AGG(entry_id ORDER BY best_score DESC, updated_at DESC))[1] AS entry_id,
+      (ARRAY_AGG(player_kind ORDER BY best_score DESC, updated_at DESC))[1] AS player_kind,
+      (ARRAY_AGG(user_id ORDER BY best_score DESC, updated_at DESC))[1] AS user_id,
+      (ARRAY_AGG(guest_key ORDER BY best_score DESC, updated_at DESC))[1] AS guest_key,
+      (ARRAY_AGG(display_name ORDER BY updated_at DESC))[1] AS display_name,
+      MAX(best_score) AS best_score
+    FROM identity_rows
+    GROUP BY identity_key
+  ),
+  ranked AS (
+    SELECT
+      c.entry_id,
+      c.player_kind,
+      c.user_id,
+      c.guest_key,
+      c.display_name,
+      c.best_score,
+      dense_rank() OVER (ORDER BY c.best_score DESC) AS rank
+    FROM collapsed c
   )
   SELECT
     r.rank,
