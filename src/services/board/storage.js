@@ -40,8 +40,26 @@ async function assertBoardWriter(postType) {
   return { success: true }
 }
 
+/**
+ * Supabase Storage object keys must be ASCII-safe.
+ * Non-ASCII names (e.g. 한글 스크린샷.jpg) fail with: Invalid key: ...
+ */
 function sanitizeFileName(name) {
-  return name.replace(/[^\w.\-가-힣]/g, '_')
+  const raw = String(name || 'file').trim() || 'file'
+  const lastDot = raw.lastIndexOf('.')
+  const hasExt = lastDot > 0 && lastDot < raw.length - 1
+  const base = hasExt ? raw.slice(0, lastDot) : raw
+  const ext = hasExt ? raw.slice(lastDot + 1) : ''
+
+  const safeBase = base
+    .replace(/[^A-Za-z0-9._-]+/g, '_')
+    .replace(/_+/g, '_')
+    .replace(/^[._-]+|[._-]+$/g, '')
+
+  const safeExt = ext.replace(/[^A-Za-z0-9]+/g, '').toLowerCase()
+  const finalBase = safeBase || 'file'
+
+  return safeExt ? `${finalBase}.${safeExt}` : finalBase
 }
 
 /**
