@@ -13,7 +13,10 @@ import { togglePostLike } from '@/services/board/postLikes'
 import { formatPostRegistrationDate } from '@/utils/formatBoardDate'
 import { getPostAuthor } from '@/utils/getPostAuthor'
 import { openBoardPostViewer } from '@/utils/boardPostViewer'
-import { sanitizeBoardHtml } from '@/utils/sanitizeBoardHtml'
+import {
+  layoutAdjacentBoardImages,
+  sanitizeBoardHtml,
+} from '@/utils/sanitizeBoardHtml'
 import '@/pages/ChurchNews.css'
 
 function BoardPostDetail({
@@ -83,7 +86,9 @@ function BoardPostDetail({
 
   const hasImages = Boolean(post?.images?.length)
   const bodyHtml =
-    customBody || !post?.content ? '' : sanitizeBoardHtml(post.content)
+    customBody || !post?.content
+      ? ''
+      : layoutAdjacentBoardImages(sanitizeBoardHtml(post.content))
 
   if (!post) {
     return (

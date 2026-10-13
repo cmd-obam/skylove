@@ -829,6 +829,37 @@
   text-align: center;
 }
 
+/* 본문 이미지 2열 가로 배치 */
+.church-news-detail__body--html .board-image-row {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.75rem;
+  margin: 0.85rem auto;
+  max-width: min(960px, 100%);
+}
+
+.church-news-detail__body--html .board-image-row > img {
+  flex: 1 1 0;
+  width: calc(50% - 0.4rem) !important;
+  max-width: none !important;
+  margin: 0 !important;
+  object-fit: contain;
+}
+
+@media (max-width: 640px) {
+  .church-news-detail__body--html .board-image-row {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .church-news-detail__body--html .board-image-row > img {
+    width: 100% !important;
+    max-width: min(600px, 100%) !important;
+  }
+}
+
 .church-news-detail__body--html ul,
 .church-news-detail__body--html ol {
   margin: 0.5rem 0 0.85rem;
