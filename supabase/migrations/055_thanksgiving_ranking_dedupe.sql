@@ -1,4 +1,8 @@
 -- ============================================================
+-- SUPERSEDED by 058_thanksgiving_ranking_identity.sql.
+-- Do not run again. Step 3 deletes every row that shares a display name,
+-- including different members and separate guest keys.
+-- ============================================================
 -- Clean duplicate Thanksgiving ranking rows, then collapse by nickname.
 -- Run in Supabase SQL Editor.
 -- ============================================================

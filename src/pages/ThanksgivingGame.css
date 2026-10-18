@@ -623,6 +623,24 @@
   background: rgba(226, 168, 90, 0.35);
 }
 
+.tg-rank__name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.tg-rank__kind {
+  flex: none;
+  padding: 0.05rem 0.35rem;
+  border-radius: 999px;
+  background: rgba(120, 72, 32, 0.12);
+  color: #7a4b22;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
 .tg-rank__place {
   display: inline-flex;
   align-items: center;

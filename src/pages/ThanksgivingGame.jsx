@@ -149,11 +149,20 @@ function storeNickname(value) {
 function getDefaultNickname(profile, isLoggedIn) {
   if (isLoggedIn && profile) {
     const fromProfile = getPublicDisplayName(profile, { fallback: '' })
-    if (fromProfile) return fromProfile.slice(0, 12)
+    if (fromProfile) return fromProfile.slice(0, 20)
     const username = String(profile.username ?? '').trim()
-    if (username) return username.slice(0, 12)
+    if (username) return username.slice(0, 20)
   }
   return readStoredNickname().slice(0, 12)
+}
+
+function RankName({ row }) {
+  return (
+    <span className="tg-rank__name">
+      <span>{row.displayName}</span>
+      {row.playerKind === 'guest' ? <span className="tg-rank__kind">비회원</span> : null}
+    </span>
+  )
 }
 
 function getMedalTier(rank) {
@@ -233,7 +242,8 @@ function ThanksgivingGame() {
   useEffect(() => {
     if (phase !== 'intro' && phase !== 'tutorial' && phase !== 'nickname') return
     const next = getDefaultNickname(profile, isLoggedIn)
-    if (!nickname.trim() && next) {
+    if (!next) return
+    if (isLoggedIn || !nickname.trim()) {
       setNickname(next)
     }
   }, [isLoggedIn, profile, phase, nickname])
@@ -464,14 +474,15 @@ function ThanksgivingGame() {
         setRankingStatus('error')
       }
 
-      const displayName = nicknameRef.current
+      const displayName = isLoggedIn
+        ? getDefaultNickname(profile, true) || nicknameRef.current
+        : nicknameRef.current
       const guestKey = guestKeyRef.current
       setSubmitStatus('saving')
       const submitResult = await submitThanksgivingGameScore({
         score: game.score,
         displayName,
         guestKey,
-        isLoggedIn,
       })
 
       if (submitResult.success) {
@@ -488,7 +499,7 @@ function ThanksgivingGame() {
         setSubmitMessage('점수 저장에 실패했습니다. 잠시 후 다시 시도해주세요.')
       }
 
-      const mine = await fetchMyThanksgivingGameScore({ isLoggedIn, guestKey })
+      const mine = await fetchMyThanksgivingGameScore({ guestKey })
       if (mine.success) {
         setMyBest(mine.bestScore)
         setMyRank(mine.rank)
@@ -501,7 +512,7 @@ function ThanksgivingGame() {
         setRankingStatus(refreshed.rows.length ? 'ready' : 'empty')
       }
     },
-    [isLoggedIn, syncHud],
+    [isLoggedIn, profile, syncHud],
   )
 
   const tick = useCallback(
@@ -691,7 +702,10 @@ function ThanksgivingGame() {
   }, [stopLoop, tick])
 
   const startGame = useCallback(() => {
-    const check = validateGameNickname(nicknameRef.current)
+    const rankingName = isLoggedIn
+      ? getDefaultNickname(profile, true) || nicknameRef.current
+      : nicknameRef.current
+    const check = validateGameNickname(rankingName, { maxLength: isLoggedIn ? 20 : 12 })
     if (!check.ok) {
       setNicknameError(check.message)
       setPhase('nickname')
@@ -708,7 +722,7 @@ function ThanksgivingGame() {
     stateRef.current = createFreshState(w, h)
     syncHud(stateRef.current)
     startLoop()
-  }, [createFreshState, resizeCanvas, startLoop, syncHud])
+  }, [createFreshState, isLoggedIn, profile, resizeCanvas, startLoop, syncHud])
 
   const togglePause = useCallback(() => {
     const game = stateRef.current
@@ -736,7 +750,6 @@ function ThanksgivingGame() {
     }
 
     const mine = await fetchMyThanksgivingGameScore({
-      isLoggedIn,
       guestKey: guestKeyRef.current,
     })
     if (mine.success) {
@@ -744,7 +757,7 @@ function ThanksgivingGame() {
       setMyRank(mine.rank)
       setMyEntryId(mine.entryId)
     }
-  }, [isLoggedIn])
+  }, [])
 
   const openRanking = useCallback(() => {
     const game = stateRef.current
@@ -849,7 +862,8 @@ function ThanksgivingGame() {
   }
 
   const handleNicknameStart = () => {
-    const check = validateGameNickname(nickname)
+    const rankingName = isLoggedIn ? getDefaultNickname(profile, true) || nickname : nickname
+    const check = validateGameNickname(rankingName, { maxLength: isLoggedIn ? 20 : 12 })
     if (!check.ok) {
       setNicknameError(check.message)
       return
@@ -1117,10 +1131,12 @@ function ThanksgivingGame() {
                     className="tg-nickname__input"
                     type="text"
                     value={nickname}
-                    maxLength={12}
+                    maxLength={isLoggedIn ? 20 : 12}
                     autoComplete="nickname"
                     placeholder="2~12자로 입력"
+                    readOnly={isLoggedIn && Boolean(getDefaultNickname(profile, true))}
                     onChange={(event) => {
+                      if (isLoggedIn) return
                       setNickname(event.target.value)
                       if (nicknameError) setNicknameError('')
                     }}
@@ -1131,7 +1147,7 @@ function ThanksgivingGame() {
                   <p className="tg-card__note">비회원도 닉네임만 있으면 바로 플레이할 수 있어요.</p>
                 ) : (
                   <p className="tg-card__note">
-                    계정 이름은 바뀌지 않아요. 이번 게임 랭킹 표시 이름만 사용됩니다.
+                    로그인 회원은 계정의 이름 또는 닉네임 표시 설정으로 한 번만 기록됩니다.
                   </p>
                 )}
                 <div className="tg-card__actions">
@@ -1203,7 +1219,7 @@ function ThanksgivingGame() {
                           }
                         >
                           <RankPlace rank={row.rank} />
-                          <span>{row.displayName}</span>
+                          <RankName row={row} />
                           <span>{row.bestScore}점</span>
                         </li>
                       ))}
@@ -1262,7 +1278,7 @@ function ThanksgivingGame() {
                           }
                         >
                           <RankPlace rank={row.rank} />
-                          <span>{row.displayName}</span>
+                          <RankName row={row} />
                           <span>{row.bestScore}점</span>
                         </li>
                       ))}

@@ -1,4 +1,12 @@
 import { supabase } from '@/lib/supabase'
+import { getPublicDisplayName } from '@/utils/getPublicDisplayName'
+import {
+  buildThanksgivingScorePayload,
+  collapseRankingRows,
+  rankScoreRows,
+} from '@/services/thanksgivingGame/rankingIdentity'
+
+export { buildThanksgivingScorePayload, collapseRankingRows, rankingIdentityKey, validateGameNickname } from '@/services/thanksgivingGame/rankingIdentity'
 
 const GUEST_KEY_STORAGE = 'skylove:tg-game:guest-key'
 
@@ -22,43 +30,55 @@ export function getOrCreateGuestKey() {
   }
 }
 
-export function validateGameNickname(value) {
-  const nickname = String(value ?? '').trim()
-  if (!nickname) {
-    return { ok: false, nickname: '', message: '닉네임을 입력해 주세요.' }
-  }
-  if (nickname.length < 2) {
-    return { ok: false, nickname, message: '닉네임은 2자 이상이어야 해요.' }
-  }
-  if (nickname.length > 12) {
-    return { ok: false, nickname, message: '닉네임은 12자 이하로 입력해 주세요.' }
-  }
-  return { ok: true, nickname, message: '' }
+async function overlayMemberDisplayNames(rows) {
+  const userIds = [
+    ...new Set(rows.filter((row) => row.playerKind === 'member' && row.userId).map((row) => row.userId)),
+  ]
+  if (!userIds.length) return rows
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('user_id,name,nickname,nickname_enabled')
+    .in('user_id', userIds)
+
+  if (error || !Array.isArray(data)) return rows
+
+  const profiles = new Map(data.map((profile) => [profile.user_id, profile]))
+  return rows.map((row) => {
+    if (row.playerKind !== 'member' || !row.userId) return row
+    const profile = profiles.get(row.userId)
+    if (!profile) return row
+    const displayName = getPublicDisplayName(
+      {
+        name: profile.name,
+        nickname: profile.nickname,
+        nicknameEnabled: profile.nickname_enabled,
+      },
+      { fallback: row.displayName || '회원' },
+    )
+    return { ...row, displayName }
+  })
 }
 
 export async function submitThanksgivingGameScore({
   score,
   displayName,
   guestKey = null,
-  isLoggedIn = false,
 }) {
-  const numericScore = Number(score)
-  const nameCheck = validateGameNickname(displayName)
+  const { data: sessionData } = await supabase.auth.getSession()
+  const hasSession = Boolean(sessionData?.session?.user)
+  const built = buildThanksgivingScorePayload({
+    score,
+    displayName,
+    guestKey,
+    hasSession,
+  })
 
-  if (!Number.isFinite(numericScore) || numericScore < 0) {
-    return { success: false, error: new Error('invalid score') }
-  }
-  if (!nameCheck.ok) {
-    return { success: false, error: new Error(nameCheck.message) }
-  }
-
-  const payload = {
-    p_score: Math.floor(numericScore),
-    p_display_name: nameCheck.nickname,
-    p_guest_key: isLoggedIn ? null : guestKey,
+  if (!built.ok) {
+    return { success: false, error: new Error(built.error) }
   }
 
-  const { data, error } = await supabase.rpc('submit_thanksgiving_game_score', payload)
+  const { data, error } = await supabase.rpc('submit_thanksgiving_game_score', built.payload)
 
   if (error) {
     return { success: false, error }
@@ -67,7 +87,7 @@ export async function submitThanksgivingGameScore({
   const row = Array.isArray(data) ? data[0] : data
   return {
     success: true,
-    bestScore: Number(row?.best_score ?? numericScore),
+    bestScore: Number(row?.best_score ?? built.payload.p_score),
     isNewBest: Boolean(row?.is_new_best),
     entryId: row?.entry_id ?? null,
   }
@@ -92,12 +112,37 @@ export async function fetchThanksgivingGameRanking(limitCount = 20) {
     bestScore: Number(row.best_score),
   }))
 
-  return { success: true, rows, error: null }
+  const canonical = await canonicalizeMemberIds(rows)
+  const collapsed = collapseRankingRows(canonical)
+  const named = await overlayMemberDisplayNames(collapsed)
+  return { success: true, rows: rankScoreRows(named), error: null }
 }
 
-export async function fetchMyThanksgivingGameScore({ isLoggedIn = false, guestKey = null } = {}) {
+async function canonicalizeMemberIds(rows) {
+  const userIds = [
+    ...new Set(rows.filter((row) => row.playerKind === 'member' && row.userId).map((row) => row.userId)),
+  ]
+  if (!userIds.length) return rows
+
+  const resolved = await Promise.all(
+    userIds.map(async (userId) => {
+      const { data, error } = await supabase.rpc('resolve_primary_user_id', { p_user_id: userId })
+      return [userId, error || !data ? userId : data]
+    }),
+  )
+  const primaryIds = new Map(resolved)
+
+  return rows.map((row) => {
+    if (row.playerKind !== 'member' || !row.userId) return row
+    return { ...row, userId: primaryIds.get(row.userId) || row.userId }
+  })
+}
+
+export async function fetchMyThanksgivingGameScore({ guestKey = null } = {}) {
+  const { data: sessionData } = await supabase.auth.getSession()
+  const hasSession = Boolean(sessionData?.session?.user)
   const { data, error } = await supabase.rpc('get_my_thanksgiving_game_score', {
-    p_guest_key: isLoggedIn ? null : guestKey,
+    p_guest_key: hasSession ? null : guestKey,
   })
 
   if (error) {

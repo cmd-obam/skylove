@@ -1,4 +1,7 @@
 -- ============================================================
+-- DO NOT RE-RUN. This truncates every Thanksgiving ranking row.
+-- Historical reset only. Current scores must be kept.
+-- ============================================================
 -- Reset Thanksgiving mini-game rankings (wipe all scores).
 -- Run in Supabase SQL Editor. Irreversible.
 -- ============================================================
