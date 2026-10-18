@@ -240,7 +240,7 @@ function ThanksgivingGame() {
   }, [nickname])
 
   useEffect(() => {
-    if (phase !== 'intro' && phase !== 'tutorial' && phase !== 'nickname') return
+    if (phase !== 'intro' && phase !== 'notice' && phase !== 'tutorial' && phase !== 'nickname') return
     const next = getDefaultNickname(profile, isLoggedIn)
     if (!next) return
     if (isLoggedIn || !nickname.trim()) {
@@ -873,7 +873,8 @@ function ThanksgivingGame() {
     startGame()
   }
 
-  const isPreGame = phase === 'intro' || phase === 'tutorial' || phase === 'nickname'
+  const isPreGame =
+    phase === 'intro' || phase === 'notice' || phase === 'tutorial' || phase === 'nickname'
   const highlightMe = useMemo(
     () => (row) =>
       (myEntryId && row.entryId === myEntryId) ||
@@ -959,14 +960,56 @@ function ThanksgivingGame() {
                 <button
                   type="button"
                   className="tg-btn tg-btn--primary tg-title-screen__cta"
-                  onClick={() => {
-                    setTutorialPage(0)
-                    setPhase('tutorial')
-                  }}
+                  onClick={() => setPhase('notice')}
                   disabled={!assetsReady}
                 >
                   {assetsReady ? '다음' : '이미지 불러오는 중…'}
                 </button>
+              </div>
+            </div>
+          ) : null}
+
+          {phase === 'notice' ? (
+            <div className="tg-overlay tg-overlay--tutorial">
+              <div className="tg-card tg-card--notice">
+                <h2 className="tg-card__title">공지사항</h2>
+                <ol className="tg-notice-list">
+                  <li>회원이실 경우 로그인을 해주세요.</li>
+                  <li>회원이 아니더라도 이용 가능합니다.</li>
+                  <li>현재는 연습게임입니다.</li>
+                  <li>
+                    이벤트 기한은 다음과 같습니다.
+                    <ul className="tg-notice-detail">
+                      <li>일시: 10월 25일부터 10월 31일 자정</li>
+                      <li>
+                        내용: 최고 득점을 기준으로 랭킹에 표시되며 목사님의 시상이 있습니다.
+                      </li>
+                      <li>
+                        추가 시상으로 회원이실 경우 개발자의 특별한 시상이 있습니다. (단, 상품은
+                        아주 소소하며 손에 잡히지 않는 상품입니다.)
+                      </li>
+                    </ul>
+                  </li>
+                </ol>
+                <div className="tg-card__actions">
+                  <button
+                    type="button"
+                    className="tg-btn tg-btn--ghost"
+                    onClick={() => setPhase('intro')}
+                  >
+                    이전
+                  </button>
+                  <button
+                    type="button"
+                    className="tg-btn tg-btn--primary"
+                    onClick={() => {
+                      setTutorialPage(0)
+                      setPhase('tutorial')
+                    }}
+                  >
+                    다음
+                  </button>
+                </div>
               </div>
             </div>
           ) : null}
@@ -1095,7 +1138,7 @@ function ThanksgivingGame() {
                           return
                         }
                       }
-                      setPhase('intro')
+                      setPhase('notice')
                     }}
                   >
                     이전
