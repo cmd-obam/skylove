@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
-import { useSuperAdmin } from '@/hooks/useSuperAdmin'
+import { isSuperAdminRole } from '@/services/auth/roles'
 import { getPublicDisplayName } from '@/utils/getPublicDisplayName'
 import {
   fetchMyThanksgivingGameScore,
@@ -200,7 +200,7 @@ function RankPlace({ rank }) {
 function ThanksgivingGame() {
   const navigate = useNavigate()
   const { isLoggedIn, effectiveUserId, profile } = useAuth()
-  const { isSuperAdmin } = useSuperAdmin()
+  const showGuestKind = isLoggedIn && isSuperAdminRole(profile?.role)
   const canvasRef = useRef(null)
   const stageRef = useRef(null)
   const rafRef = useRef(0)
@@ -1266,7 +1266,7 @@ function ThanksgivingGame() {
                           }
                         >
                           <RankPlace rank={row.rank} />
-                          <RankName row={row} showGuestKind={isSuperAdmin} />
+                          <RankName row={row} showGuestKind={showGuestKind} />
                           <span>{row.bestScore}점</span>
                         </li>
                       ))}
@@ -1325,7 +1325,7 @@ function ThanksgivingGame() {
                           }
                         >
                           <RankPlace rank={row.rank} />
-                          <RankName row={row} showGuestKind={isSuperAdmin} />
+                          <RankName row={row} showGuestKind={showGuestKind} />
                           <span>{row.bestScore}점</span>
                         </li>
                       ))}
