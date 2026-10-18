@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
+import { useSuperAdmin } from '@/hooks/useSuperAdmin'
 import { getPublicDisplayName } from '@/utils/getPublicDisplayName'
 import {
   fetchMyThanksgivingGameScore,
@@ -156,11 +157,13 @@ function getDefaultNickname(profile, isLoggedIn) {
   return readStoredNickname().slice(0, 12)
 }
 
-function RankName({ row }) {
+function RankName({ row, showGuestKind = false }) {
   return (
     <span className="tg-rank__name">
       <span>{row.displayName}</span>
-      {row.playerKind === 'guest' ? <span className="tg-rank__kind">비회원</span> : null}
+      {showGuestKind && row.playerKind === 'guest' ? (
+        <span className="tg-rank__kind">비회원</span>
+      ) : null}
     </span>
   )
 }
@@ -197,6 +200,7 @@ function RankPlace({ rank }) {
 function ThanksgivingGame() {
   const navigate = useNavigate()
   const { isLoggedIn, effectiveUserId, profile } = useAuth()
+  const { isSuperAdmin } = useSuperAdmin()
   const canvasRef = useRef(null)
   const stageRef = useRef(null)
   const rafRef = useRef(0)
@@ -1262,7 +1266,7 @@ function ThanksgivingGame() {
                           }
                         >
                           <RankPlace rank={row.rank} />
-                          <RankName row={row} />
+                          <RankName row={row} showGuestKind={isSuperAdmin} />
                           <span>{row.bestScore}점</span>
                         </li>
                       ))}
@@ -1321,7 +1325,7 @@ function ThanksgivingGame() {
                           }
                         >
                           <RankPlace rank={row.rank} />
-                          <RankName row={row} />
+                          <RankName row={row} showGuestKind={isSuperAdmin} />
                           <span>{row.bestScore}점</span>
                         </li>
                       ))}
