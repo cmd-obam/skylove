@@ -213,6 +213,52 @@
   box-sizing: border-box;
 }
 
+.tg-overlay--ranking {
+  overflow: hidden;
+  padding: 0.55rem;
+}
+
+.tg-card--ranking {
+  width: min(100%, 28rem);
+  max-width: 100%;
+  max-height: 100%;
+  overflow: auto;
+  padding: 0.75rem 0.9rem 0.7rem;
+  box-sizing: border-box;
+}
+
+.tg-card--ranking .tg-card__title {
+  margin-bottom: 0.2rem;
+  font-size: 1.2rem;
+}
+
+.tg-card--ranking .tg-card__text {
+  margin-bottom: 0.35rem;
+  line-height: 1.35;
+}
+
+.tg-card--ranking .tg-rank {
+  margin-top: 0.1rem;
+}
+
+.tg-card--ranking .tg-rank__title {
+  margin-bottom: 0.28rem;
+  font-size: 0.92rem;
+}
+
+.tg-card--ranking .tg-rank__item {
+  padding: 0.26rem 0.55rem;
+}
+
+.tg-card--ranking .tg-rank__medal-img {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.tg-card--ranking .tg-card__actions {
+  margin-top: 0.55rem;
+}
+
 .tg-card--notice {
   width: min(100%, 34rem);
   max-height: 100%;
@@ -660,6 +706,37 @@
   min-width: 0;
 }
 
+.tg-rank__name > span:first-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.tg-rank__score {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.tg-rank__pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  margin-top: 0.55rem;
+}
+
+.tg-rank__pager .tg-btn {
+  min-width: 4.6rem;
+  min-height: 2.6rem;
+}
+
+.tg-rank__pager-status {
+  min-width: 3.4rem;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--tg-ink);
+}
+
 .tg-rank__kind {
   flex: none;
   padding: 0.05rem 0.35rem;
@@ -881,6 +958,37 @@
   .tg-card--wide {
     max-height: min(68dvh, calc(100% - 0.4rem));
     padding: 0.8rem 0.7rem 0.7rem;
+  }
+
+  .tg-overlay--ranking {
+    padding: 0.4rem;
+    align-items: center;
+  }
+
+  .tg-card--ranking {
+    width: 100%;
+    max-height: 100%;
+    padding: 0.6rem 0.65rem 0.55rem;
+  }
+
+  .tg-card--ranking .tg-card__title {
+    font-size: 1.08rem;
+    margin-bottom: 0.15rem;
+  }
+
+  .tg-card--ranking .tg-card__text {
+    margin-bottom: 0.25rem;
+    font-size: 0.82rem;
+  }
+
+  .tg-card--ranking .tg-rank__item {
+    padding: 0.2rem 0.4rem;
+    font-size: 0.8rem;
+  }
+
+  .tg-rank__pager .tg-btn {
+    min-width: 4.8rem;
+    min-height: 2.75rem;
   }
 
   .tg-card--wide .tg-card__title {

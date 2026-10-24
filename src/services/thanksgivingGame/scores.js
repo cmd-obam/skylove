@@ -12,6 +12,7 @@ export {
   collapseRankingRowsByName,
   rankingIdentityKey,
   rankForDisplayName,
+  sliceRankingPage,
   validateGameNickname,
 } from '@/services/thanksgivingGame/rankingIdentity'
 

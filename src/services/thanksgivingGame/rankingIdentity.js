@@ -69,6 +69,21 @@ export function collapseRankingRowsByName(rows) {
   return rankScoreRows([...byName.values()])
 }
 
+export const RANKING_PAGE_SIZE = 7
+
+export function sliceRankingPage(rows, page, pageSize = RANKING_PAGE_SIZE) {
+  const list = Array.isArray(rows) ? rows : []
+  const size = Math.max(1, pageSize)
+  const pageCount = Math.max(1, Math.ceil(list.length / size))
+  const safePage = Math.min(Math.max(1, Number(page) || 1), pageCount)
+  const start = (safePage - 1) * size
+  return {
+    page: safePage,
+    pageCount,
+    rows: list.slice(start, start + size),
+  }
+}
+
 export function rankForDisplayName(rows, displayName) {
   const nameKey = normalizeRankingName(displayName)
   if (!nameKey) return null

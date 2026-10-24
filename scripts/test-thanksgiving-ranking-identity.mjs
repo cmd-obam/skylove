@@ -5,6 +5,7 @@ import {
   collapseRankingRows,
   collapseRankingRowsByName,
   rankingIdentityKey,
+  sliceRankingPage,
 } from '../src/services/thanksgivingGame/rankingIdentity.js'
 
 test('logged-in submit does not send a guest key', () => {
@@ -176,4 +177,23 @@ test('records stay separate identities until the ranking name collapse', () => {
   assert.equal(rows.length, 2)
   assert.equal(rankingIdentityKey(rows.find((row) => row.entryId === 'unknown-1')), 'unknown:unknown-1')
   assert.equal(collapseRankingRowsByName(rows).length, 1)
+})
+
+test('ranking pages show seven people and keep the overall rank', () => {
+  const rows = Array.from({ length: 15 }, (_, index) => ({
+    rank: index + 1,
+    displayName: `player-${index + 1}`,
+    bestScore: 100 - index,
+  }))
+
+  const first = sliceRankingPage(rows, 1)
+  const second = sliceRankingPage(rows, 2)
+  const last = sliceRankingPage(rows, 3)
+
+  assert.equal(first.pageCount, 3)
+  assert.deepEqual(first.rows.map((row) => row.rank), [1, 2, 3, 4, 5, 6, 7])
+  assert.deepEqual(second.rows.map((row) => row.rank), [8, 9, 10, 11, 12, 13, 14])
+  assert.deepEqual(last.rows.map((row) => row.rank), [15])
+  assert.equal(sliceRankingPage(rows.slice(0, 7), 1).pageCount, 1)
+  assert.equal(sliceRankingPage(rows, 9).page, 3)
 })

@@ -8,6 +8,7 @@ import {
   fetchThanksgivingGameRanking,
   getOrCreateGuestKey,
   rankForDisplayName,
+  sliceRankingPage,
   submitThanksgivingGameScore,
   validateGameNickname,
 } from '@/services/thanksgivingGame/scores'
@@ -174,6 +175,64 @@ function getMedalTier(rank) {
   if (rank === 2) return 'silver'
   if (rank === 3) return 'bronze'
   return null
+}
+
+const RANKING_FETCH_LIMIT = 100
+
+function RankingBoard({ rows, status, highlightMe, showGuestKind, errorText }) {
+  const [page, setPage] = useState(1)
+  const paged = sliceRankingPage(rows, page)
+  const visibleRows = status === 'ready' ? paged.rows : []
+
+  useEffect(() => {
+    if (page !== paged.page) setPage(paged.page)
+  }, [page, paged.page])
+
+  return (
+    <div className="tg-rank">
+      <h3 className="tg-rank__title">전체 랭킹</h3>
+      {status === 'loading' ? <p className="tg-card__text">랭킹을 불러오는 중…</p> : null}
+      {status === 'error' ? <p className="tg-card__text">{errorText}</p> : null}
+      {status === 'empty' ? <p className="tg-card__text">아직 등록된 기록이 없습니다.</p> : null}
+      {status === 'ready' ? (
+        <ol className="tg-rank__list">
+          {visibleRows.map((row) => (
+            <li
+              key={row.entryId ?? `${row.rank}-${row.displayName}`}
+              className={highlightMe(row) ? 'tg-rank__item tg-rank__item--me' : 'tg-rank__item'}
+            >
+              <RankPlace rank={row.rank} />
+              <RankName row={row} showGuestKind={showGuestKind} />
+              <span className="tg-rank__score">{row.bestScore}점</span>
+            </li>
+          ))}
+        </ol>
+      ) : null}
+      {status === 'ready' && paged.pageCount > 1 ? (
+        <div className="tg-rank__pager" role="navigation" aria-label="랭킹 페이지">
+          <button
+            type="button"
+            className="tg-btn tg-btn--ghost"
+            disabled={paged.page <= 1}
+            onClick={() => setPage((current) => current - 1)}
+          >
+            이전
+          </button>
+          <span className="tg-rank__pager-status" aria-live="polite">
+            {paged.page} / {paged.pageCount}
+          </span>
+          <button
+            type="button"
+            className="tg-btn tg-btn--ghost"
+            disabled={paged.page >= paged.pageCount}
+            onClick={() => setPage((current) => current + 1)}
+          >
+            다음
+          </button>
+        </div>
+      ) : null}
+    </div>
+  )
 }
 
 function RankPlace({ rank }) {
@@ -470,7 +529,7 @@ function ThanksgivingGame() {
       setSubmitMessage('')
       setRankingStatus('loading')
 
-      const rankingResult = await fetchThanksgivingGameRanking(15)
+      const rankingResult = await fetchThanksgivingGameRanking(RANKING_FETCH_LIMIT)
       if (rankingResult.success) {
         setRankingRows(rankingResult.rows)
         setRankingStatus(rankingResult.rows.length ? 'ready' : 'empty')
@@ -504,7 +563,7 @@ function ThanksgivingGame() {
         setSubmitMessage('점수 저장에 실패했습니다. 잠시 후 다시 시도해주세요.')
       }
 
-      const refreshed = await fetchThanksgivingGameRanking(15)
+      const refreshed = await fetchThanksgivingGameRanking(RANKING_FETCH_LIMIT)
       if (refreshed.success) {
         setRankingRows(refreshed.rows)
         setRankingStatus(refreshed.rows.length ? 'ready' : 'empty')
@@ -749,7 +808,7 @@ function ThanksgivingGame() {
 
   const loadRankingBoard = useCallback(async () => {
     setRankingStatus('loading')
-    const rankingResult = await fetchThanksgivingGameRanking(15)
+    const rankingResult = await fetchThanksgivingGameRanking(RANKING_FETCH_LIMIT)
     if (rankingResult.success) {
       setRankingRows(rankingResult.rows)
       setRankingStatus(rankingResult.rows.length ? 'ready' : 'empty')
@@ -1254,43 +1313,20 @@ function ThanksgivingGame() {
           ) : null}
 
           {rankingOpen ? (
-            <div className="tg-overlay">
-              <div className="tg-card tg-card--wide">
+            <div className="tg-overlay tg-overlay--ranking">
+              <div className="tg-card tg-card--ranking">
                 <h2 className="tg-card__title">랭킹</h2>
                 <p className="tg-card__text">
                   개인 최고 점수: {myBest == null ? '-' : `${myBest}점`}
                   {myRank != null ? ` · 내 순위 ${myRank}위` : ''}
                 </p>
-                <div className="tg-rank">
-                  <h3 className="tg-rank__title">전체 랭킹</h3>
-                  {rankingStatus === 'loading' ? (
-                    <p className="tg-card__text">랭킹을 불러오는 중…</p>
-                  ) : null}
-                  {rankingStatus === 'error' ? (
-                    <p className="tg-card__text">랭킹을 불러오지 못했습니다.</p>
-                  ) : null}
-                  {rankingStatus === 'empty' ? (
-                    <p className="tg-card__text">아직 등록된 기록이 없습니다.</p>
-                  ) : null}
-                  {rankingStatus === 'ready' ? (
-                    <ol className="tg-rank__list">
-                      {rankingRows.map((row) => (
-                        <li
-                          key={row.entryId ?? `${row.rank}-${row.displayName}`}
-                          className={
-                            highlightMe(row)
-                              ? 'tg-rank__item tg-rank__item--me'
-                              : 'tg-rank__item'
-                          }
-                        >
-                          <RankPlace rank={row.rank} />
-                          <RankName row={row} showGuestKind={showGuestKind} />
-                          <span>{row.bestScore}점</span>
-                        </li>
-                      ))}
-                    </ol>
-                  ) : null}
-                </div>
+                <RankingBoard
+                  rows={rankingRows}
+                  status={rankingStatus}
+                  highlightMe={highlightMe}
+                  showGuestKind={showGuestKind}
+                  errorText="랭킹을 불러오지 못했습니다."
+                />
                 <div className="tg-card__actions">
                   <button type="button" className="tg-btn tg-btn--primary" onClick={closeRanking}>
                     닫기
@@ -1318,38 +1354,13 @@ function ThanksgivingGame() {
                   </p>
                 ) : null}
 
-                <div className="tg-rank">
-                  <h3 className="tg-rank__title">전체 랭킹</h3>
-                  {rankingStatus === 'loading' ? (
-                    <p className="tg-card__text">랭킹을 불러오는 중…</p>
-                  ) : null}
-                  {rankingStatus === 'error' ? (
-                    <p className="tg-card__text">
-                      랭킹을 불러오지 못했습니다. 게임은 계속 이용할 수 있습니다.
-                    </p>
-                  ) : null}
-                  {rankingStatus === 'empty' ? (
-                    <p className="tg-card__text">아직 등록된 기록이 없습니다.</p>
-                  ) : null}
-                  {rankingStatus === 'ready' ? (
-                    <ol className="tg-rank__list">
-                      {rankingRows.map((row) => (
-                        <li
-                          key={row.entryId ?? `${row.rank}-${row.displayName}`}
-                          className={
-                            highlightMe(row)
-                              ? 'tg-rank__item tg-rank__item--me'
-                              : 'tg-rank__item'
-                          }
-                        >
-                          <RankPlace rank={row.rank} />
-                          <RankName row={row} showGuestKind={showGuestKind} />
-                          <span>{row.bestScore}점</span>
-                        </li>
-                      ))}
-                    </ol>
-                  ) : null}
-                </div>
+                <RankingBoard
+                  rows={rankingRows}
+                  status={rankingStatus}
+                  highlightMe={highlightMe}
+                  showGuestKind={showGuestKind}
+                  errorText="랭킹을 불러오지 못했습니다. 게임은 계속 이용할 수 있습니다."
+                />
 
                 <div className="tg-card__actions">
                   <button type="button" className="tg-btn tg-btn--primary" onClick={startGame}>
