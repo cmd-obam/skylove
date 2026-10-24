@@ -7,6 +7,7 @@ import {
   fetchMyThanksgivingGameScore,
   fetchThanksgivingGameRanking,
   getOrCreateGuestKey,
+  rankForDisplayName,
   submitThanksgivingGameScore,
   validateGameNickname,
 } from '@/services/thanksgivingGame/scores'
@@ -503,17 +504,21 @@ function ThanksgivingGame() {
         setSubmitMessage('점수 저장에 실패했습니다. 잠시 후 다시 시도해주세요.')
       }
 
-      const mine = await fetchMyThanksgivingGameScore({ guestKey })
-      if (mine.success) {
-        setMyBest(mine.bestScore)
-        setMyRank(mine.rank)
-        setMyEntryId(mine.entryId)
-      }
-
       const refreshed = await fetchThanksgivingGameRanking(15)
       if (refreshed.success) {
         setRankingRows(refreshed.rows)
         setRankingStatus(refreshed.rows.length ? 'ready' : 'empty')
+      }
+
+      const mine = await fetchMyThanksgivingGameScore({ guestKey })
+      if (mine.success) {
+        setMyBest(mine.bestScore)
+        setMyEntryId(mine.entryId)
+        const namedRank =
+          mine.bestScore == null
+            ? null
+            : rankForDisplayName(refreshed.success ? refreshed.rows : [], nicknameRef.current)
+        setMyRank(namedRank ?? mine.rank)
       }
     },
     [isLoggedIn, profile, syncHud],
@@ -758,8 +763,12 @@ function ThanksgivingGame() {
     })
     if (mine.success) {
       setMyBest(mine.bestScore)
-      setMyRank(mine.rank)
       setMyEntryId(mine.entryId)
+      const namedRank =
+        mine.bestScore == null
+          ? null
+          : rankForDisplayName(rankingResult.success ? rankingResult.rows : [], nicknameRef.current)
+      setMyRank(namedRank ?? mine.rank)
     }
   }, [])
 
@@ -880,11 +889,20 @@ function ThanksgivingGame() {
   const isPreGame =
     phase === 'intro' || phase === 'notice' || phase === 'tutorial' || phase === 'nickname'
   const highlightMe = useMemo(
-    () => (row) =>
-      (myEntryId && row.entryId === myEntryId) ||
-      (isLoggedIn && row.userId && row.userId === effectiveUserId) ||
-      (!isLoggedIn && guestKeyRef.current && row.guestKey === guestKeyRef.current),
-    [effectiveUserId, isLoggedIn, myEntryId],
+    () => (row) => {
+      const sameDisplayedName =
+        myBest != null &&
+        String(row.displayName ?? '').trim().toLowerCase() ===
+          String(nickname ?? '').trim().toLowerCase() &&
+        String(nickname ?? '').trim() !== ''
+      return (
+        (myEntryId && row.entryId === myEntryId) ||
+        (isLoggedIn && row.userId && row.userId === effectiveUserId) ||
+        (!isLoggedIn && guestKeyRef.current && row.guestKey === guestKeyRef.current) ||
+        sameDisplayedName
+      )
+    },
+    [effectiveUserId, isLoggedIn, myBest, myEntryId, nickname],
   )
 
   return (

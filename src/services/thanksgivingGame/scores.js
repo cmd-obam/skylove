@@ -3,10 +3,17 @@ import { getPublicDisplayName } from '@/utils/getPublicDisplayName'
 import {
   buildThanksgivingScorePayload,
   collapseRankingRows,
-  rankScoreRows,
+  collapseRankingRowsByName,
 } from '@/services/thanksgivingGame/rankingIdentity'
 
-export { buildThanksgivingScorePayload, collapseRankingRows, rankingIdentityKey, validateGameNickname } from '@/services/thanksgivingGame/rankingIdentity'
+export {
+  buildThanksgivingScorePayload,
+  collapseRankingRows,
+  collapseRankingRowsByName,
+  rankingIdentityKey,
+  rankForDisplayName,
+  validateGameNickname,
+} from '@/services/thanksgivingGame/rankingIdentity'
 
 const GUEST_KEY_STORAGE = 'skylove:tg-game:guest-key'
 
@@ -115,7 +122,7 @@ export async function fetchThanksgivingGameRanking(limitCount = 20) {
   const canonical = await canonicalizeMemberIds(rows)
   const collapsed = collapseRankingRows(canonical)
   const named = await overlayMemberDisplayNames(collapsed)
-  return { success: true, rows: rankScoreRows(named), error: null }
+  return { success: true, rows: collapseRankingRowsByName(named), error: null }
 }
 
 async function canonicalizeMemberIds(rows) {

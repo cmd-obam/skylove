@@ -46,6 +46,36 @@ export function buildThanksgivingScorePayload({
   }
 }
 
+export function normalizeRankingName(value) {
+  return String(value ?? '').trim().toLowerCase()
+}
+
+export function collapseRankingRowsByName(rows) {
+  const byName = new Map()
+
+  for (const row of rows) {
+    const nameKey = normalizeRankingName(row?.displayName)
+    if (!nameKey) continue
+
+    const previous = byName.get(nameKey)
+    if (!previous || row.bestScore > previous.bestScore) {
+      byName.set(nameKey, {
+        ...row,
+        displayName: String(row.displayName).trim(),
+      })
+    }
+  }
+
+  return rankScoreRows([...byName.values()])
+}
+
+export function rankForDisplayName(rows, displayName) {
+  const nameKey = normalizeRankingName(displayName)
+  if (!nameKey) return null
+  const match = rows.find((row) => normalizeRankingName(row.displayName) === nameKey)
+  return match ? match.rank : null
+}
+
 export function rankingIdentityKey(row) {
   if (row?.playerKind === 'member' && row.userId) {
     return `m:${row.userId}`

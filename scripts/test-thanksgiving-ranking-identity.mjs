@@ -3,6 +3,7 @@ import test from 'node:test'
 import {
   buildThanksgivingScorePayload,
   collapseRankingRows,
+  collapseRankingRowsByName,
   rankingIdentityKey,
 } from '../src/services/thanksgivingGame/rankingIdentity.js'
 
@@ -82,79 +83,49 @@ test('a lower replay does not replace the best score', () => {
   assert.equal(rows[0].bestScore, 398)
 })
 
-test('different members with the same name stay separate', () => {
-  const rows = collapseRankingRows([
-    {
-      entryId: 'a',
-      playerKind: 'member',
-      userId: 'member-a',
-      guestKey: null,
-      displayName: '성민',
-      bestScore: 50,
-    },
-    {
-      entryId: 'b',
-      playerKind: 'member',
-      userId: 'member-b',
-      guestKey: null,
-      displayName: '성민',
-      bestScore: 40,
-    },
+test('the same display name keeps the highest score', () => {
+  const rows = collapseRankingRowsByName([
+    { entryId: 'a', playerKind: 'guest', userId: null, guestKey: 'k1', displayName: '성민', bestScore: 487 },
+    { entryId: 'b', playerKind: 'member', userId: 'member-a', guestKey: null, displayName: '한찬우', bestScore: 398 },
+    { entryId: 'c', playerKind: 'guest', userId: null, guestKey: 'k2', displayName: ' 성민 ', bestScore: 85 },
+    { entryId: 'd', playerKind: 'guest', userId: null, guestKey: 'k3', displayName: '한찬우', bestScore: 42 },
+    { entryId: 'e', playerKind: 'guest', userId: null, guestKey: 'k4', displayName: '혜미', bestScore: 16 },
+    { entryId: 'f', playerKind: 'member', userId: 'admin', guestKey: null, displayName: '관리자', bestScore: 14 },
+    { entryId: 'g', playerKind: 'guest', userId: null, guestKey: 'k5', displayName: '최성민', bestScore: 10 },
   ])
 
-  assert.equal(rows.length, 2)
   assert.deepEqual(
-    rows.map((row) => row.userId),
-    ['member-a', 'member-b'],
+    rows.map((row) => [row.rank, row.displayName, row.bestScore]),
+    [
+      [1, '성민', 487],
+      [2, '한찬우', 398],
+      [3, '혜미', 16],
+      [4, '관리자', 14],
+      [5, '최성민', 10],
+    ],
   )
 })
 
-test('a member and a guest with the same name stay separate', () => {
-  const rows = collapseRankingRows([
-    {
-      entryId: 'member',
-      playerKind: 'member',
-      userId: 'member-a',
-      guestKey: null,
-      displayName: '한찬우',
-      bestScore: 398,
-    },
-    {
-      entryId: 'guest',
-      playerKind: 'guest',
-      userId: null,
-      guestKey: 'guest-1',
-      displayName: '한찬우',
-      bestScore: 42,
-    },
+test('a lower score for the same name does not replace the best', () => {
+  const rows = collapseRankingRowsByName([
+    { entryId: 'best', displayName: '성민', bestScore: 487 },
+    { entryId: 'later', displayName: '성민', bestScore: 300 },
   ])
 
-  assert.equal(rows.length, 2)
-  assert.equal(rankingIdentityKey(rows[0]).startsWith('m:'), true)
-  assert.equal(rankingIdentityKey(rows[1]).startsWith('g:'), true)
+  assert.equal(rows.length, 1)
+  assert.equal(rows[0].bestScore, 487)
 })
 
-test('different guest keys with the same name stay separate', () => {
-  const rows = collapseRankingRows([
-    {
-      entryId: 'g1',
-      playerKind: 'guest',
-      userId: null,
-      guestKey: 'key-1',
-      displayName: '성민',
-      bestScore: 487,
-    },
-    {
-      entryId: 'g2',
-      playerKind: 'guest',
-      userId: null,
-      guestKey: 'key-2',
-      displayName: '성민',
-      bestScore: 85,
-    },
+test('a higher score for the same name becomes the ranking score', () => {
+  const rows = collapseRankingRowsByName([
+    { entryId: 'old', displayName: '성민', bestScore: 487 },
+    { entryId: 'new', displayName: '성민', bestScore: 595 },
   ])
 
-  assert.equal(rows.length, 2)
+  assert.equal(rows.length, 1)
+  assert.equal(rows[0].bestScore, 595)
+  assert.equal(rows[0].entryId, 'new')
+  assert.equal(rows[0].rank, 1)
 })
 
 test('the same guest key keeps only the best score', () => {
@@ -182,7 +153,7 @@ test('the same guest key keeps only the best score', () => {
   assert.equal(rows[0].entryId, 'old')
 })
 
-test('a row with no member id and no guest key is not attached to anyone', () => {
+test('records stay separate identities until the ranking name collapse', () => {
   const rows = collapseRankingRows([
     {
       entryId: 'unknown-1',
@@ -204,4 +175,5 @@ test('a row with no member id and no guest key is not attached to anyone', () =>
 
   assert.equal(rows.length, 2)
   assert.equal(rankingIdentityKey(rows.find((row) => row.entryId === 'unknown-1')), 'unknown:unknown-1')
+  assert.equal(collapseRankingRowsByName(rows).length, 1)
 })
