@@ -4,15 +4,16 @@ import churchLogo from '@/assets/images/church-logo.png'
 import {
   AUTH_LINKS,
   MEMBER_MENU_GUEST_CHILDREN,
-  MEMBER_MENU_LOGGED_IN_CHILDREN,
   MENU_ITEMS,
   getFirstSubMenuPath,
+  getLoggedInMemberMenuChildren,
   getVisibleMenuItems,
   menuItemContainsPath,
 } from '@/data/menu'
 import DropdownMenu from '@/components/layout/DropdownMenu'
 import MenuItemLabel from '@/components/layout/MenuItemLabel'
 import { useAuth } from '@/contexts/AuthContext'
+import { useCmsAdmin } from '@/hooks/useCmsAdmin'
 import { useSuperAdmin } from '@/hooks/useSuperAdmin'
 import useBodyScrollLock from '@/hooks/useBodyScrollLock'
 import './SiteHeader.css'
@@ -58,6 +59,7 @@ function SiteHeader() {
   const { pathname } = useLocation()
   const { isLoggedIn, signOut } = useAuth()
   const { isSuperAdmin } = useSuperAdmin()
+  const { isCmsAdmin } = useCmsAdmin()
   const visibleMenuItems = useMemo(
     () => getVisibleMenuItems({ isSuperAdmin }),
     [isSuperAdmin],
@@ -135,9 +137,13 @@ function SiteHeader() {
     [isLoggedIn, handleLogout],
   )
 
-  const memberMenuChildren = isLoggedIn
-    ? MEMBER_MENU_LOGGED_IN_CHILDREN
-    : MEMBER_MENU_GUEST_CHILDREN
+  const memberMenuChildren = useMemo(
+    () =>
+      isLoggedIn
+        ? getLoggedInMemberMenuChildren({ isSuperAdmin, isCmsAdmin })
+        : MEMBER_MENU_GUEST_CHILDREN,
+    [isCmsAdmin, isLoggedIn, isSuperAdmin],
+  )
   const isMemberMenuExpanded = expandedItem === MEMBER_MENU_TITLE
 
   useBodyScrollLock(isMobileMenuOpen, lockedScrollY)

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { CMS_ADMIN_MEMBER_MENU, SUPER_ADMIN_MEMBER_MENU } from '@/data/menu'
 import { useCmsAdmin } from '@/hooks/useCmsAdmin'
 import { useSuperAdmin } from '@/hooks/useSuperAdmin'
 import useIsCompactNav from '@/hooks/useIsCompactNav'
@@ -11,24 +12,17 @@ const BASE_MENU_ITEMS = [
   { id: 'change-password', label: '비밀번호 변경', path: '/mypage/change-password' },
 ]
 
-const SUPER_ADMIN_CHILDREN = [
-  { id: 'member-list', label: '회원관리', path: '/member/management' },
-  { id: 'content-management', label: '게시글 & 댓글 관리', path: '/member/content-management' },
-  { id: 'visitor-stats', label: '방문자통계', path: '/member/visitor-stats' },
-  { id: 'reports', label: '신고관리 (추후)', path: null, disabled: true },
-  { id: 'banned-words', label: '금칙어 관리 (추후)', path: null, disabled: true },
-]
-
-const CMS_ADMIN_CHILDREN = [
-  { id: 'content-management', label: '게시글 & 댓글 관리', path: '/member/content-management' },
-]
-
 function MemberMypageSidebar() {
   const { pathname } = useLocation()
   const isCompactNav = useIsCompactNav()
   const { isSuperAdmin } = useSuperAdmin()
   const { isCmsAdmin } = useCmsAdmin()
-  const adminChildren = isSuperAdmin ? SUPER_ADMIN_CHILDREN : isCmsAdmin ? CMS_ADMIN_CHILDREN : []
+  const adminChildren = (isSuperAdmin
+    ? SUPER_ADMIN_MEMBER_MENU
+    : isCmsAdmin
+      ? CMS_ADMIN_MEMBER_MENU
+      : []
+  ).map((item) => ({ ...item, label: item.title }))
   const showAdminMenu = adminChildren.length > 0
   const isManagementPath =
     pathname.startsWith('/member/management') ||

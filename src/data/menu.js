@@ -26,6 +26,35 @@ export const MEMBER_MENU_LOGGED_IN_CHILDREN = [
   { title: '비밀번호 변경', path: '/mypage/change-password' },
 ]
 
+/** 최고관리자 회원메뉴. 회원 목록은 최고관리자만 연다. */
+export const SUPER_ADMIN_MEMBER_MENU = [
+  { id: 'member-list', title: '회원관리', path: '/member/management' },
+  { id: 'content-management', title: '게시글 & 댓글 관리', path: '/member/content-management' },
+  { id: 'visitor-stats', title: '방문자통계', path: '/member/visitor-stats' },
+  { id: 'reports', title: '신고관리 (추후)', path: null, disabled: true },
+  { id: 'banned-words', title: '금칙어 관리 (추후)', path: null, disabled: true },
+]
+
+/** 관리자(admin) 회원메뉴. 게시글·댓글 관리만 연다. */
+export const CMS_ADMIN_MEMBER_MENU = [
+  { id: 'content-management', title: '게시글 & 댓글 관리', path: '/member/content-management' },
+]
+
+export function getLoggedInMemberMenuChildren({ isSuperAdmin = false, isCmsAdmin = false } = {}) {
+  const adminMenu = isSuperAdmin
+    ? SUPER_ADMIN_MEMBER_MENU
+    : isCmsAdmin
+      ? CMS_ADMIN_MEMBER_MENU
+      : []
+
+  return [
+    ...MEMBER_MENU_LOGGED_IN_CHILDREN,
+    ...adminMenu
+      .filter((item) => item.path && !item.disabled)
+      .map((item) => ({ title: item.title, path: item.path })),
+  ]
+}
+
 export const MENU_ITEMS = [
   {
     title: '교회소개',
