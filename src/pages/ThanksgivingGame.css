@@ -316,17 +316,26 @@
 }
 
 .tg-tutorial-step {
-  display: none;
+  display: block;
   margin: 0 0 0.35rem;
   font-size: 0.78rem;
   font-weight: 700;
   color: rgba(58, 42, 24, 0.7);
 }
 
+.tg-tutorial-item[data-tut-page] {
+  display: none;
+}
+
+.tg-card--tutorial[data-tutorial-page='0'] .tg-tutorial-item[data-tut-page='0'],
+.tg-card--tutorial[data-tutorial-page='1'] .tg-tutorial-item[data-tut-page='1'] {
+  display: flex;
+}
+
 .tg-tutorial-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: repeat(3, minmax(0, 1fr)) auto;
+  grid-template-rows: repeat(2, minmax(0, 1fr)) auto;
   gap: 0.28rem;
   margin: 0;
   flex: 1 1 auto;
@@ -355,6 +364,11 @@
   grid-column: 1 / -1;
   align-items: stretch;
   justify-content: center;
+}
+
+.tg-card--tutorial[data-tutorial-page='1'] .tg-tutorial-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr);
 }
 
 .tg-tutorial-item__row {
@@ -878,23 +892,28 @@
     align-content: stretch;
   }
 
-  .tg-tutorial-grid--page-0,
-  .tg-tutorial-grid--page-1 {
+  .tg-card--tutorial[data-tutorial-page='0'] .tg-tutorial-grid--page-0 {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(4, minmax(0, 1fr)) auto;
+  }
+
+  .tg-card--tutorial[data-tutorial-page='0'] .tg-tutorial-grid--page-0 .tg-tutorial-sprite {
+    width: 1.65rem;
+    height: 1.65rem;
+  }
+
+  .tg-card--tutorial[data-tutorial-page='0'] .tg-tutorial-grid--page-0 .tg-tutorial-badge {
+    font-size: 0.85rem;
+  }
+
+  .tg-card--tutorial[data-tutorial-page='0'] .tg-tutorial-grid--page-0 .tg-tutorial-item__text {
+    font-size: 0.7rem;
+    line-height: 1.25;
+  }
+
+  .tg-card--tutorial[data-tutorial-page='1'] .tg-tutorial-grid--page-1 {
+    grid-template-columns: 1fr;
     grid-template-rows: repeat(3, minmax(0, 1fr));
-  }
-
-  .tg-tutorial-grid--page-2 {
-    grid-template-rows: minmax(0, 1fr);
-  }
-
-  .tg-tutorial-item[data-tut-page] {
-    display: none;
-  }
-
-  .tg-card--tutorial[data-tutorial-page='0'] .tg-tutorial-item[data-tut-page='0'],
-  .tg-card--tutorial[data-tutorial-page='1'] .tg-tutorial-item[data-tut-page='1'],
-  .tg-card--tutorial[data-tutorial-page='2'] .tg-tutorial-item[data-tut-page='2'] {
-    display: flex;
   }
 
   .tg-tutorial-item--wide {
@@ -908,42 +927,14 @@
     text-align: center;
   }
 
-  .tg-card--tutorial[data-tutorial-page='2'] .tg-tutorial-item--wide {
-    justify-content: flex-end;
-    padding: 0.6rem 0.5rem 0.85rem;
+  .tg-card--tutorial[data-tutorial-page='0'] .tg-tutorial-item--wide .tg-tutorial-sprite--farmer {
+    width: clamp(2rem, 8vw, 2.6rem);
+    height: clamp(2rem, 8vw, 2.6rem);
   }
 
-  .tg-card--tutorial[data-tutorial-page='2'] .tg-tutorial-item__row {
-    justify-content: flex-end;
-    gap: 1rem;
-    padding-top: 18%;
-    flex: 1 1 auto;
-  }
-
-  .tg-card--tutorial[data-tutorial-page='2'] .tg-tutorial-item__visual--move {
-    gap: 0.85rem;
-    flex: 1 1 auto;
-    align-items: center;
-    width: 100%;
-  }
-
-  .tg-card--tutorial[data-tutorial-page='2'] .tg-tutorial-sprite--farmer {
-    width: clamp(5.5rem, 28vw, 7.5rem);
-    height: clamp(5.5rem, 28vw, 7.5rem);
-  }
-
-  .tg-card--tutorial[data-tutorial-page='2'] .tg-arrow {
-    width: 2.6rem;
-    height: 2.6rem;
-    font-size: 1.45rem;
-  }
-
-  .tg-card--tutorial[data-tutorial-page='2'] .tg-tutorial-item__copy {
-    gap: 0.2rem;
-  }
-
-  .tg-card--tutorial[data-tutorial-page='2'] .tg-tutorial-item__text {
-    font-size: clamp(0.9rem, 3.6vw, 1.05rem);
+  .tg-card--tutorial[data-tutorial-page='0'] .tg-tutorial-item--wide .tg-tutorial-item__text,
+  .tg-card--tutorial[data-tutorial-page='0'] .tg-tutorial-item--wide .tg-tutorial-item__hint {
+    font-size: 0.72rem;
   }
 
   .tg-tutorial-item__copy {
@@ -953,6 +944,19 @@
   .tg-tutorial-item__copy .tg-tutorial-item__text,
   .tg-tutorial-item__copy .tg-tutorial-item__hint {
     text-align: center;
+  }
+
+  .tg-card--tutorial[data-tutorial-page='0'] .tg-tutorial-item--wide .tg-tutorial-item__row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.4rem;
+  }
+
+  .tg-card--tutorial[data-tutorial-page='0'] .tg-tutorial-item--wide .tg-tutorial-item__text,
+  .tg-card--tutorial[data-tutorial-page='0'] .tg-tutorial-item--wide .tg-tutorial-item__hint {
+    white-space: normal;
+    text-align: left;
   }
 
   .tg-card--wide {

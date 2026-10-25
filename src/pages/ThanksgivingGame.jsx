@@ -22,6 +22,7 @@ import medalGoldSrc from '@/assets/images/thanksgiving-game/medal-gold.png'
 import medalSilverSrc from '@/assets/images/thanksgiving-game/medal-silver.png'
 import medalBronzeSrc from '@/assets/images/thanksgiving-game/medal-bronze.png'
 import fruitBasketSrc from '@/assets/images/thanksgiving-game/fruit-basket.png'
+import appleSrc from '@/assets/images/thanksgiving-game/icon_apple.png'
 import grasshopperSrc from '@/assets/images/thanksgiving-game/grasshopper.png'
 import bgFieldSrc from '@/assets/images/thanksgiving-game/bg-field.png'
 import './ThanksgivingGame.css'
@@ -59,6 +60,11 @@ function getFruitComboPoints(comboCount) {
   return getComboPoints(comboCount) * 2
 }
 
+/** Apple: combo tiers → 3 / 4 / 5 / 6 / 7. */
+function getAppleComboPoints(comboCount) {
+  return getComboPoints(comboCount) + 2
+}
+
 function randomItemFallSpeed() {
   return 1 + Math.random()
 }
@@ -67,6 +73,7 @@ function getItemSprite(imgs, type) {
   if (type === 'golden') return imgs.goldenRice
   if (type === 'rice') return imgs.rice
   if (type === 'fruit') return imgs.fruitBasket
+  if (type === 'apple') return imgs.apple
   if (type === 'hopper') return imgs.grasshopper
   return imgs.weed
 }
@@ -74,6 +81,7 @@ function getItemSprite(imgs, type) {
 function getItemSize(type, w) {
   if (type === 'golden') return Math.min(72, w * 0.14)
   if (type === 'fruit') return Math.min(70, w * 0.135)
+  if (type === 'apple') return Math.min(66, w * 0.125)
   if (type === 'hopper') return Math.min(60, w * 0.115)
   if (type === 'rice') return Math.min(64, w * 0.12)
   return Math.min(58, w * 0.11)
@@ -271,6 +279,7 @@ function ThanksgivingGame() {
     weed: null,
     brokenHeart: null,
     fruitBasket: null,
+    apple: null,
     grasshopper: null,
     bg: null,
   })
@@ -388,10 +397,11 @@ function ThanksgivingGame() {
       loadImage(weedSrc),
       loadImage(brokenHeartSrc),
       loadImage(fruitBasketSrc),
+      loadImage(appleSrc),
       loadImage(grasshopperSrc),
       loadImage(bgFieldSrc),
     ])
-      .then(([farmer, rice, goldenRice, weed, brokenHeart, fruitBasket, grasshopper, bg]) => {
+      .then(([farmer, rice, goldenRice, weed, brokenHeart, fruitBasket, apple, grasshopper, bg]) => {
         if (cancelled) return
         imagesRef.current = {
           farmer,
@@ -400,6 +410,7 @@ function ThanksgivingGame() {
           weed,
           brokenHeart,
           fruitBasket,
+          apple,
           grasshopper,
           bg,
         }
@@ -627,9 +638,12 @@ function ThanksgivingGame() {
               type = 'fruit'
               speedMult = randomItemFallSpeed()
             } else if (roll < 0.24) {
+              type = 'apple'
+              speedMult = randomItemFallSpeed()
+            } else if (roll < 0.36) {
               type = 'hopper'
               speedMult = randomItemFallSpeed()
-            } else if (roll < 0.68) {
+            } else if (roll < 0.74) {
               type = 'rice'
             }
           }
@@ -683,14 +697,16 @@ function ThanksgivingGame() {
             fxSeqRef.current += 1
             const fxX = item.x + item.w / 2
             const fxY = item.y + item.h / 2
-            if (item.type === 'rice' || item.type === 'golden' || item.type === 'fruit') {
+            if (item.type === 'rice' || item.type === 'golden' || item.type === 'fruit' || item.type === 'apple') {
               game.combo = (game.combo ?? 0) + 1
               const points =
                 item.type === 'golden'
                   ? getGoldenComboPoints(game.combo)
                   : item.type === 'fruit'
                     ? getFruitComboPoints(game.combo)
-                    : getComboPoints(game.combo)
+                    : item.type === 'apple'
+                      ? getAppleComboPoints(game.combo)
+                      : getComboPoints(game.combo)
               game.score += points
               game.fx.push({
                 id: fxSeqRef.current,
@@ -1103,7 +1119,7 @@ function ThanksgivingGame() {
               >
                 <h2 className="tg-card__title">게임 방법을 알아봐요!</h2>
                 <p className="tg-tutorial-step" aria-live="polite">
-                  {tutorialPage + 1} / 3
+                  {tutorialPage + 1} / 2
                 </p>
                 <div className={`tg-tutorial-grid tg-tutorial-grid--page-${tutorialPage}`}>
                   <article className="tg-tutorial-item" data-tut-page="0">
@@ -1136,6 +1152,39 @@ function ThanksgivingGame() {
                       <strong className="tg-tutorial-badge">+2점</strong>
                     </div>
                     <p className="tg-tutorial-item__text">과일 바구니는 2점~콤보 최대 10점!</p>
+                  </article>
+
+                  <article className="tg-tutorial-item" data-tut-page="0">
+                    <div className="tg-tutorial-item__visual">
+                      <span className="tg-ring">
+                        <img src={appleSrc} alt="" className="tg-tutorial-sprite" />
+                      </span>
+                      <strong className="tg-tutorial-badge">+3점</strong>
+                    </div>
+                    <p className="tg-tutorial-item__text">사과는 3점~콤보 최대 7점!</p>
+                  </article>
+
+                  <article className="tg-tutorial-item tg-tutorial-item--wide" data-tut-page="0">
+                    <div className="tg-tutorial-item__row">
+                      <div className="tg-tutorial-item__visual tg-tutorial-item__visual--move">
+                        <span className="tg-arrow" aria-hidden="true">
+                          ←
+                        </span>
+                        <img
+                          src={farmerSrc}
+                          alt=""
+                          className="tg-tutorial-sprite tg-tutorial-sprite--farmer"
+                        />
+                        <span className="tg-arrow" aria-hidden="true">
+                          →
+                        </span>
+                      </div>
+                      <div className="tg-tutorial-item__copy">
+                        <p className="tg-tutorial-item__text">좌우로 이동하여 벼를 수확하세요!</p>
+                        <p className="tg-tutorial-item__hint">키보드 ← → 방향키로 이동</p>
+                        <p className="tg-tutorial-item__hint">또는 화면을 좌우로 드래그하여 이동</p>
+                      </div>
+                    </div>
                   </article>
 
                   <article className="tg-tutorial-item" data-tut-page="1">
@@ -1181,43 +1230,15 @@ function ThanksgivingGame() {
                     </div>
                     <p className="tg-tutorial-item__text">생명 0 또는 2분 후 종료돼요.</p>
                   </article>
-
-                  <article
-                    className="tg-tutorial-item tg-tutorial-item--wide"
-                    data-tut-page="2"
-                  >
-                    <div className="tg-tutorial-item__row">
-                      <div className="tg-tutorial-item__visual tg-tutorial-item__visual--move">
-                        <span className="tg-arrow" aria-hidden="true">
-                          ←
-                        </span>
-                        <img
-                          src={farmerSrc}
-                          alt=""
-                          className="tg-tutorial-sprite tg-tutorial-sprite--farmer"
-                        />
-                        <span className="tg-arrow" aria-hidden="true">
-                          →
-                        </span>
-                      </div>
-                      <div className="tg-tutorial-item__copy">
-                        <p className="tg-tutorial-item__text">좌우로 이동하여 벼를 수확하세요!</p>
-                        <p className="tg-tutorial-item__hint">키보드 ← → 방향키로 이동</p>
-                        <p className="tg-tutorial-item__hint">또는 화면을 좌우로 드래그하여 이동</p>
-                      </div>
-                    </div>
-                  </article>
                 </div>
                 <div className="tg-card__actions tg-card__actions--tutorial">
                   <button
                     type="button"
                     className="tg-btn tg-btn--ghost"
                     onClick={() => {
-                      if (window.matchMedia('(max-width: 768px)').matches) {
-                        if (tutorialPage > 0) {
-                          setTutorialPage((page) => page - 1)
-                          return
-                        }
+                      if (tutorialPage > 0) {
+                        setTutorialPage((page) => page - 1)
+                        return
                       }
                       setPhase('notice')
                     }}
@@ -1228,11 +1249,9 @@ function ThanksgivingGame() {
                     type="button"
                     className="tg-btn tg-btn--primary"
                     onClick={() => {
-                      if (window.matchMedia('(max-width: 768px)').matches) {
-                        if (tutorialPage < 2) {
-                          setTutorialPage((page) => page + 1)
-                          return
-                        }
+                      if (tutorialPage < 1) {
+                        setTutorialPage((page) => page + 1)
+                        return
                       }
                       setPhase('nickname')
                     }}
@@ -1279,9 +1298,7 @@ function ThanksgivingGame() {
                     type="button"
                     className="tg-btn tg-btn--ghost"
                     onClick={() => {
-                      setTutorialPage(
-                        window.matchMedia('(max-width: 768px)').matches ? 2 : 0,
-                      )
+                      setTutorialPage(1)
                       setPhase('tutorial')
                     }}
                   >
