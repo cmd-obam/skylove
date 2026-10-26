@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { EditorContent, useEditor } from '@tiptap/react'
+import { NodeSelection } from '@tiptap/pm/state'
 import BoardEditorToolbar from '@/components/board/editor/BoardEditorToolbar'
 import { createBoardEditorExtensions } from '@/components/board/editor/boardEditorExtensions'
 import {
   BoardThumbnailSelectContext,
 } from '@/components/board/editor/BoardImageNodeView'
+import { focusOrInsertParagraphAfter, isBoardEditorChromeEvent, MEDIA_BLOCK_TYPES } from '@/components/board/editor/boardBlockGaps'
 import {
   BOARD_IMAGE_ACCEPT,
   BOARD_VIDEO_ACCEPT,
@@ -109,6 +111,55 @@ function BoardRichEditor({
     editorProps: {
       attributes: {
         class: 'board-editor__content',
+      },
+      handleKeyDown: (view, event) => {
+        if (isBoardEditorChromeEvent(event)) {
+          return false
+        }
+
+        const { selection } = view.state
+        if (!(selection instanceof NodeSelection) || !MEDIA_BLOCK_TYPES.has(selection.node.type.name)) {
+          return false
+        }
+
+        if (event.isComposing || event.ctrlKey || event.metaKey || event.altKey) {
+          return false
+        }
+
+        if (event.key !== 'Enter' && event.key !== 'Process' && event.key !== 'Unidentified' && event.key.length !== 1) {
+          return false
+        }
+
+        const typed = event.key.length === 1 && event.key !== 'Process' && event.key !== 'Unidentified' ? event.key : ''
+        const tr = focusOrInsertParagraphAfter(view.state, selection.from, typed)
+        if (!tr) {
+          return false
+        }
+
+        event.preventDefault()
+        view.dispatch(tr)
+        return true
+      },
+      handleDOMEvents: {
+        compositionend: (view, event) => {
+          if (isBoardEditorChromeEvent(event)) {
+            return false
+          }
+
+          const { selection } = view.state
+          const text = event.data || ''
+          if (!text || !(selection instanceof NodeSelection) || !MEDIA_BLOCK_TYPES.has(selection.node.type.name)) {
+            return false
+          }
+
+          const tr = focusOrInsertParagraphAfter(view.state, selection.from, text)
+          if (!tr) {
+            return false
+          }
+
+          view.dispatch(tr)
+          return true
+        },
       },
       handlePaste: (view, event) => {
         const items = Array.from(event.clipboardData?.items || [])

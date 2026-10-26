@@ -15,20 +15,6 @@ function selectedYoutube(state) {
   }
 }
 
-function isEmptyParagraph(node) {
-  return node.type.name === 'paragraph' && node.content.size === 0
-}
-
-function neighborIndex(parent, index, direction) {
-  let cursor = index + direction
-  while (cursor >= 0 && cursor < parent.childCount) {
-    if (!isEmptyParagraph(parent.child(cursor))) {
-      return cursor
-    }
-    cursor += direction
-  }
-  return -1
-}
 
 function childPosition(parent, parentStart, index) {
   let pos = parentStart
@@ -45,23 +31,24 @@ export function moveBoardYoutube(state, dispatch, direction) {
   }
 
   const { parent, index, node, $pos } = selected
-  const otherIndex = neighborIndex(parent, index, direction === 'up' ? -1 : 1)
-  if (otherIndex < 0) {
+  const otherIndex = direction === 'up' ? index - 1 : index + 1
+  if (otherIndex < 0 || otherIndex >= parent.childCount) {
     return false
   }
 
-  const start = Math.min(index, otherIndex)
-  const end = Math.max(index, otherIndex)
-  const from = childPosition(parent, $pos.start(), start)
-  const moving = node
   const other = parent.child(otherIndex)
-  const replacement = index < otherIndex ? [other, moving] : [moving, other]
-  const to = childPosition(parent, $pos.start(), end) + parent.child(end).nodeSize
+  const startIndex = Math.min(index, otherIndex)
+  const from = childPosition(parent, $pos.start(), startIndex)
+  const to = from + parent.child(startIndex).nodeSize + parent.child(startIndex + 1).nodeSize
+  const replacement = index < otherIndex ? [other, node] : [node, other]
 
   if (dispatch) {
     const tr = state.tr.replaceWith(from, to, replacement)
     const nodePos = index < otherIndex ? from + other.nodeSize : from
-    tr.setSelection(NodeSelection.create(tr.doc, nodePos))
+    const selectedNode = tr.doc.resolve(nodePos).nodeAfter
+    if (selectedNode && NodeSelection.isSelectable(selectedNode)) {
+      tr.setSelection(NodeSelection.create(tr.doc, nodePos))
+    }
     dispatch(tr.scrollIntoView())
   }
 

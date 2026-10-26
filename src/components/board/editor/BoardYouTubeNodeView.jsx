@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { NodeViewWrapper } from '@tiptap/react'
+import BoardBlockTextSlot from '@/components/board/editor/BoardBlockTextSlot'
+import { readNodePos } from '@/components/board/editor/boardBlockGaps'
 import { resolveYouTubeMedia } from '@/utils/youtube'
 
 function stopEditorMouseDown(event) {
@@ -12,28 +14,38 @@ function BoardYouTubeNodeView({ node, updateAttributes, deleteNode, editor, getP
   const media = videoId ? resolveYouTubeMedia(videoId) : null
   const [draft, setDraft] = useState(media?.youtubeUrl || '')
   const [message, setMessage] = useState('')
-  const pos = typeof getPos === 'function' ? getPos() : null
+  const [revision, setRevision] = useState(0)
+  const pos = readNodePos(getPos)
+  void revision
 
   useEffect(() => {
     setDraft(media?.youtubeUrl || '')
   }, [media?.youtubeUrl])
 
+  useEffect(() => {
+    if (!editor) {
+      return undefined
+    }
+
+    const refresh = () => setRevision((value) => value + 1)
+    editor.on('transaction', refresh)
+    return () => editor.off('transaction', refresh)
+  }, [editor])
+
   const canMove = (direction) => {
-    if (typeof pos !== 'number' || !editor) {
+    if (pos == null || !editor) {
       return false
     }
 
-    const $pos = editor.state.doc.resolve(pos)
-    const index = $pos.index()
-    let cursor = index + (direction === 'up' ? -1 : 1)
-    while (cursor >= 0 && cursor < $pos.parent.childCount) {
-      const child = $pos.parent.child(cursor)
-      if (!(child.type.name === 'paragraph' && child.content.size === 0)) {
-        return true
-      }
-      cursor += direction === 'up' ? -1 : 1
+    let $pos
+    try {
+      $pos = editor.state.doc.resolve(pos)
+    } catch {
+      return false
     }
-    return false
+
+    const nextIndex = $pos.index() + (direction === 'up' ? -1 : 1)
+    return nextIndex >= 0 && nextIndex < $pos.parent.childCount
   }
 
   const commit = (value) => {
@@ -60,10 +72,11 @@ function BoardYouTubeNodeView({ node, updateAttributes, deleteNode, editor, getP
   }
 
   const move = (direction) => {
-    if (typeof pos !== 'number') {
+    const currentPos = readNodePos(getPos)
+    if (currentPos == null) {
       return
     }
-    editor.chain().setNodeSelection(pos).moveBoardYoutube(direction).run()
+    editor.chain().setNodeSelection(currentPos).moveBoardYoutube(direction).run()
   }
 
   return (
@@ -101,10 +114,20 @@ function BoardYouTubeNodeView({ node, updateAttributes, deleteNode, editor, getP
             }
           }}
         />
-        <button type="button" onMouseDown={stopEditorMouseDown} disabled={!canMove('up')} onClick={() => move('up')}>
+        <button
+          type="button"
+          onMouseDown={stopEditorMouseDown}
+          disabled={!canMove('up')}
+          onClick={() => move('up')}
+        >
           위
         </button>
-        <button type="button" onMouseDown={stopEditorMouseDown} disabled={!canMove('down')} onClick={() => move('down')}>
+        <button
+          type="button"
+          onMouseDown={stopEditorMouseDown}
+          disabled={!canMove('down')}
+          onClick={() => move('down')}
+        >
           아래
         </button>
         <button type="button" onMouseDown={stopEditorMouseDown} onClick={() => deleteNode()}>
@@ -119,6 +142,7 @@ function BoardYouTubeNodeView({ node, updateAttributes, deleteNode, editor, getP
           <span>유튜브 주소를 입력하면 미리보기가 나타납니다.</span>
         )}
       </div>
+      <BoardBlockTextSlot editor={editor} getPos={getPos} />
     </NodeViewWrapper>
   )
 }

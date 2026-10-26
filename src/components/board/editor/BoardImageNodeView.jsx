@@ -1,5 +1,7 @@
-import { createContext, useContext } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import { NodeViewContent, NodeViewWrapper } from '@tiptap/react'
+import BoardBlockTextSlot from '@/components/board/editor/BoardBlockTextSlot'
+import { readNodePos } from '@/components/board/editor/boardBlockGaps'
 
 export const BoardThumbnailSelectContext = createContext({
   thumbnailSrc: null,
@@ -17,8 +19,36 @@ function BoardImageNodeView({ node, selected, editor, getPos }) {
   const align = node.attrs['data-align'] || 'center'
   const width = node.attrs.width || '100%'
   const isRepresentative = Boolean(src && thumbnailSrc && src === thumbnailSrc)
-  const pos = typeof getPos === 'function' ? getPos() : null
-  const inRow = typeof pos === 'number' && editor?.state.doc.resolve(pos).parent.type.name === 'boardImageRow'
+  const pos = readNodePos(getPos)
+  const [revision, setRevision] = useState(0)
+  void revision
+  let inRow = false
+  if (pos != null && editor) {
+    try {
+      inRow = editor.state.doc.resolve(pos).parent.type.name === 'boardImageRow'
+    } catch {
+      inRow = false
+    }
+  }
+
+  useEffect(() => {
+    if (!editor) {
+      return undefined
+    }
+
+    const refresh = () => setRevision((value) => value + 1)
+    editor.on('transaction', refresh)
+    return () => editor.off('transaction', refresh)
+  }, [editor])
+
+  const selectImage = () => {
+    const currentPos = readNodePos(getPos)
+    if (!editor || currentPos == null) {
+      return null
+    }
+    return editor.chain().setNodeSelection(currentPos)
+  }
+
   const canPair = Boolean(selected && editor && editor.can().pairWithAdjacentImage())
   const canMoveUp = Boolean(selected && editor && editor.can().moveImageBlock('up'))
   const canMoveDown = Boolean(selected && editor && editor.can().moveImageBlock('down'))
@@ -67,54 +97,56 @@ function BoardImageNodeView({ node, selected, editor, getPos }) {
             <button
               type="button"
               onMouseDown={stopEditorMouseDown}
-              disabled={!canPair || typeof pos !== 'number'}
-              onClick={() => editor.chain().setNodeSelection(pos).pairWithAdjacentImage().run()}
+              disabled={!canPair || pos == null}
+              onClick={() => selectImage()?.pairWithAdjacentImage().run()}
             >
               가로
             </button>
             <button
               type="button"
               onMouseDown={stopEditorMouseDown}
-              disabled={!inRow || typeof pos !== 'number'}
-              onClick={() => editor.chain().setNodeSelection(pos).unpairImageRow().run()}
+              disabled={!inRow || pos == null}
+              onClick={() => selectImage()?.unpairImageRow().run()}
             >
               세로
             </button>
             <button
               type="button"
               onMouseDown={stopEditorMouseDown}
-              disabled={!canMoveUp || typeof pos !== 'number'}
-              onClick={() => editor.chain().setNodeSelection(pos).moveImageBlock('up').run()}
+              disabled={!canMoveUp || pos == null}
+              onClick={() => selectImage()?.moveImageBlock('up').run()}
             >
               위
             </button>
             <button
               type="button"
               onMouseDown={stopEditorMouseDown}
-              disabled={!canMoveDown || typeof pos !== 'number'}
-              onClick={() => editor.chain().setNodeSelection(pos).moveImageBlock('down').run()}
+              disabled={!canMoveDown || pos == null}
+              onClick={() => selectImage()?.moveImageBlock('down').run()}
             >
               아래
             </button>
             <button
               type="button"
               onMouseDown={stopEditorMouseDown}
-              disabled={typeof pos !== 'number'}
-              onClick={() => editor.chain().setNodeSelection(pos).deleteSelection().run()}
+              disabled={pos == null}
+              onClick={() => selectImage()?.deleteSelection().run()}
             >
               삭제
             </button>
           </div>
         ) : null}
       </div>
+      {inRow ? null : <BoardBlockTextSlot editor={editor} getPos={getPos} />}
     </NodeViewWrapper>
   )
 }
 
-export function BoardImageRowView() {
+export function BoardImageRowView({ editor, getPos }) {
   return (
     <NodeViewWrapper className="board-editor-image-row" data-layout="pair">
       <NodeViewContent className="board-editor-image-row__content" />
+      <BoardBlockTextSlot editor={editor} getPos={getPos} />
     </NodeViewWrapper>
   )
 }
