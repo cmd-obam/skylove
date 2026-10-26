@@ -14,6 +14,7 @@ import {
 } from 'react-icons/fi'
 import { MdFormatListNumbered, MdFormatStrikethrough, MdChecklist } from 'react-icons/md'
 import { BsQuote, BsCodeSlash } from 'react-icons/bs'
+import { FaYoutube } from 'react-icons/fa'
 
 const FONT_SIZES = [
   { label: '기본', value: '' },
@@ -246,6 +247,12 @@ function BoardEditorToolbar({ editor, onInsertImage, onInsertVideo, uploading })
         </ToolButton>
         <ToolButton title="동영상 삽입" disabled={uploading} onClick={onInsertVideo}>
           <FiVideo />
+        </ToolButton>
+        <ToolButton
+          title="유튜브 영상 삽입"
+          onClick={() => editor.chain().focus().insertBoardYoutube().run()}
+        >
+          <FaYoutube />
         </ToolButton>
       </div>
 

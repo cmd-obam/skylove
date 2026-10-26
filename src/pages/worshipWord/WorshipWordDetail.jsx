@@ -14,6 +14,7 @@ import { boardPostPublicId, getBoardPostCanonicalPath } from '@/utils/boardPostR
 import { formatRelativeTime } from '@/utils/formatBoardDate'
 import { getPostAuthor } from '@/utils/getPostAuthor'
 import { sanitizeBoardHtml } from '@/utils/sanitizeBoardHtml'
+import { hasBoardYouTubeEmbed, renderBoardYouTubeEmbeds } from '@/utils/boardYoutube'
 import BoardYouTubePlayer from '@/components/board/BoardYouTubePlayer'
 import '@/pages/ChurchNews.css'
 import './WorshipWord.css'
@@ -152,17 +153,19 @@ function WorshipWordDetail({ boardKey }) {
         </header>
 
         <div className="worship-word-detail__body">
-          <BoardYouTubePlayer
-            youtubeUrl={post.youtubeUrl}
-            title={post.title}
-            thumbnail={post.thumbnail}
-            showPlaceholder
-          />
+          {post.youtubeUrl || !hasBoardYouTubeEmbed(post.content) ? (
+            <BoardYouTubePlayer
+              youtubeUrl={post.youtubeUrl}
+              title={post.title}
+              thumbnail={post.thumbnail}
+              showPlaceholder
+            />
+          ) : null}
 
           {post.content?.trim() ? (
             <div
               className="worship-word-detail__content worship-word-detail__content--html"
-              dangerouslySetInnerHTML={{ __html: sanitizeBoardHtml(post.content) }}
+              dangerouslySetInnerHTML={{ __html: renderBoardYouTubeEmbeds(sanitizeBoardHtml(post.content)) }}
             />
           ) : null}
 

@@ -45,6 +45,7 @@ const ALLOWED_ATTR = [
   'class',
   'data-align',
   'data-layout',
+  'data-youtube-id',
   'type',
   'checked',
   'disabled',
@@ -57,6 +58,14 @@ const ALLOWED_ATTR = [
 const BOARD_VIDEO_SRC = /\/storage\/v1\/object\/public\/board-uploads\//i
 
 DOMPurify.addHook('uponSanitizeAttribute', (node, data) => {
+  if (
+    data.attrName === 'data-youtube-id' &&
+    !/^[A-Za-z0-9_-]{11}$/.test(String(data.attrValue || ''))
+  ) {
+    data.keepAttr = false
+    return
+  }
+
   if (String(node.nodeName).toLowerCase() !== 'video' || data.attrName !== 'src') {
     return
   }
@@ -106,7 +115,7 @@ export function isBoardHtmlEmpty(html) {
   const value = String(html)
 
   // 본문에 이미지나 동영상만 있어도 내용이 있는 것으로 봅니다.
-  if (/<(img|video)\b/i.test(value)) {
+  if (/<(img|video)\b/i.test(value) || /data-youtube-id\s*=\s*["'][A-Za-z0-9_-]{11}["']/i.test(value)) {
     return false
   }
 

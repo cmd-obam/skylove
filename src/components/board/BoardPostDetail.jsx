@@ -18,6 +18,7 @@ import {
   layoutAdjacentBoardImages,
   sanitizeBoardHtml,
 } from '@/utils/sanitizeBoardHtml'
+import { renderBoardYouTubeEmbeds } from '@/utils/boardYoutube'
 import '@/pages/ChurchNews.css'
 
 function BoardPostDetail({
@@ -89,7 +90,7 @@ function BoardPostDetail({
   const bodyHtml =
     customBody || !post?.content
       ? ''
-      : layoutAdjacentBoardImages(sanitizeBoardHtml(post.content))
+      : renderBoardYouTubeEmbeds(layoutAdjacentBoardImages(sanitizeBoardHtml(post.content)))
 
   if (!post) {
     return (

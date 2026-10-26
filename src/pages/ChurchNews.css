@@ -932,6 +932,37 @@
   }
 }
 
+.church-news-detail__body--html .board-youtube,
+.worship-word-detail__content--html .board-youtube {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  margin: 1rem 0;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #111;
+  aspect-ratio: 16 / 9;
+}
+
+.church-news-detail__body--html .board-youtube iframe,
+.worship-word-detail__content--html .board-youtube iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.church-news-detail__body--html .board-youtube--invalid,
+.worship-word-detail__content--html .board-youtube--invalid {
+  aspect-ratio: auto;
+  margin: 1rem 0;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background: #f8f1f1;
+  color: #9f1239;
+}
+
 .church-news-detail__body--html ul,
 .church-news-detail__body--html ol {
   margin: 0.5rem 0 0.85rem;

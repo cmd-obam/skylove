@@ -14,12 +14,14 @@ import HorizontalRule from '@tiptap/extension-horizontal-rule'
 import { ReactNodeViewRenderer } from '@tiptap/react'
 import { Plugin } from '@tiptap/pm/state'
 import BoardImageNodeView, { BoardImageRowView } from '@/components/board/editor/BoardImageNodeView'
+import BoardYouTubeNodeView from '@/components/board/editor/BoardYouTubeNodeView'
 import {
   moveImageBlock,
   normalizeBrokenImageRows,
   pairWithAdjacentImage,
   unpairImageRow,
 } from '@/components/board/editor/boardImageCommands'
+import { moveBoardYoutube } from '@/components/board/editor/boardYoutubeCommands'
 
 const FontSize = TextStyle.extend({
   addAttributes() {
@@ -186,6 +188,60 @@ const BoardVideo = Node.create({
   },
 })
 
+const YOUTUBE_ID = /^[A-Za-z0-9_-]{11}$/
+
+const BoardYouTube = Node.create({
+  name: 'boardYoutube',
+  group: 'block',
+  atom: true,
+  draggable: true,
+  selectable: true,
+
+  addAttributes() {
+    return {
+      videoId: {
+        default: null,
+        parseHTML: (element) => {
+          const id = element.getAttribute('data-youtube-id') || ''
+          return YOUTUBE_ID.test(id) ? id : null
+        },
+        renderHTML: (attributes) => {
+          if (!YOUTUBE_ID.test(attributes.videoId || '')) {
+            return {}
+          }
+
+          return { 'data-youtube-id': attributes.videoId }
+        },
+      },
+    }
+  },
+
+  parseHTML() {
+    return [{ tag: 'div.board-youtube' }]
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return ['div', mergeAttributes(HTMLAttributes, { class: 'board-youtube' })]
+  },
+
+  addCommands() {
+    return {
+      insertBoardYoutube:
+        () =>
+        ({ commands }) =>
+          commands.insertContent({ type: this.name }),
+      moveBoardYoutube:
+        (direction) =>
+        ({ state, dispatch }) =>
+          moveBoardYoutube(state, dispatch, direction),
+    }
+  },
+
+  addNodeView() {
+    return ReactNodeViewRenderer(BoardYouTubeNodeView)
+  },
+})
+
 export function createBoardEditorExtensions({ placeholder } = {}) {
   return [
     StarterKit.configure({
@@ -217,6 +273,7 @@ export function createBoardEditorExtensions({ placeholder } = {}) {
     }),
     BoardImageRow,
     BoardVideo,
+    BoardYouTube,
     TaskList,
     TaskItem.configure({
       nested: true,
