@@ -1077,20 +1077,17 @@ function ThanksgivingGame() {
                 <ol className="tg-notice-list">
                   <li>회원이실 경우 로그인을 해주세요.</li>
                   <li>회원이 아니더라도 이용 가능합니다.</li>
-                  <li>현재는 연습게임입니다.</li>
                   <li>
                     이벤트 기간
                     <ul className="tg-notice-detail">
                       <li>
                         일시:{' '}
-                        <strong className="tg-notice-date">10월 25일부터 10월 30일</strong>
+                        <strong className="tg-notice-date">
+                          10월 25일 일요일 부터 10월 31일 금요일
+                        </strong>
                       </li>
                       <li>
                         내용: 최고 득점을 기준으로 랭킹에 표시되며 목사님의 시상이 있습니다.
-                      </li>
-                      <li>
-                        추가 시상으로 회원이실 경우 개발자의 특별한 시상이 있습니다. (단, 상품은
-                        아주 소소하며 손에 잡히지 않는 상품입니다.)
                       </li>
                     </ul>
                   </li>
