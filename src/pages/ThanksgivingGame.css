@@ -289,6 +289,11 @@
   margin-top: 0.25rem;
 }
 
+.tg-notice-date {
+  font-weight: 700;
+  color: #e11d2e;
+}
+
 .tg-overlay--tutorial {
   align-items: stretch;
   justify-content: center;

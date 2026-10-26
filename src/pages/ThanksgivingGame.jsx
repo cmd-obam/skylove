@@ -1075,9 +1075,12 @@ function ThanksgivingGame() {
                   <li>회원이 아니더라도 이용 가능합니다.</li>
                   <li>현재는 연습게임입니다.</li>
                   <li>
-                    이벤트 기한은 다음과 같습니다.
+                    이벤트 기간
                     <ul className="tg-notice-detail">
-                      <li>일시: 10월 25일부터 10월 31일 자정</li>
+                      <li>
+                        일시:{' '}
+                        <strong className="tg-notice-date">10월 25일부터 10월 30일</strong>
+                      </li>
                       <li>
                         내용: 최고 득점을 기준으로 랭킹에 표시되며 목사님의 시상이 있습니다.
                       </li>
