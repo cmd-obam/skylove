@@ -28,6 +28,27 @@ export async function fetchUserPostLike(postType, postId, userId) {
   }
 }
 
+export async function fetchUserLikedPostIds(postType, userId) {
+  if (!userId) {
+    return { success: true, postIds: [] }
+  }
+
+  const { data, error } = await supabase
+    .from('post_likes')
+    .select('post_id')
+    .eq('post_type', postType)
+    .eq('user_id', userId)
+
+  if (error) {
+    return { success: false, postIds: [], message: error.message }
+  }
+
+  return {
+    success: true,
+    postIds: (data ?? []).map((row) => String(row.post_id)),
+  }
+}
+
 export async function togglePostLike({ postType, postId, userId, liked }) {
   if (!userId) {
     return {

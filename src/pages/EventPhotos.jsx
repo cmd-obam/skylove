@@ -1,11 +1,13 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FiFileText, FiHeart } from 'react-icons/fi'
 import Breadcrumb from '@/components/Breadcrumb'
 import BoardWriteButton from '@/components/board/BoardWriteButton'
 import BoardPostTitle from '@/components/board/BoardPostTitle'
 import churchPlaceholder from '@/assets/images/home/welcome-church-exterior.png'
+import { useAuth } from '@/contexts/AuthContext'
 import { useBoardPostList } from '@/hooks/useBoardPostList'
+import { fetchUserLikedPostIds, togglePostLike } from '@/services/board/postLikes'
 import { getAlbumThumbnailSrc } from '@/utils/albumThumbnail'
 import { formatBoardDate } from '@/utils/formatBoardDate'
 import { getPostAuthor } from '@/utils/getPostAuthor'
@@ -17,7 +19,73 @@ const LIST_PATH = '/church-news/album'
 function EventPhotos() {
   const [searchKeyword, setSearchKeyword] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
+  const [likedById, setLikedById] = useState({})
+  const [countById, setCountById] = useState({})
+  const [pendingId, setPendingId] = useState(null)
   const { posts, loading } = useBoardPostList('album')
+  const { isLoggedIn, user, effectiveUserId } = useAuth()
+  const currentUserId = effectiveUserId ?? user?.id ?? null
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadLikedPosts() {
+      if (!currentUserId) {
+        setLikedById({})
+        return
+      }
+
+      const result = await fetchUserLikedPostIds('album', currentUserId)
+
+      if (cancelled || !result.success) {
+        return
+      }
+
+      setLikedById(Object.fromEntries(result.postIds.map((postId) => [postId, true])))
+    }
+
+    loadLikedPosts()
+
+    return () => {
+      cancelled = true
+    }
+  }, [currentUserId])
+
+  const handleToggleLike = async (post) => {
+    if (!isLoggedIn || !currentUserId) {
+      window.alert('로그인 후 추천할 수 있습니다.')
+      return
+    }
+
+    const postId = String(post.id)
+
+    if (pendingId === postId) {
+      return
+    }
+
+    const liked = Boolean(likedById[postId])
+    const currentCount = countById[postId] ?? post.likesCount ?? 0
+    const nextCount = Math.max(0, currentCount + (liked ? -1 : 1))
+
+    setPendingId(postId)
+    setLikedById((current) => ({ ...current, [postId]: !liked }))
+    setCountById((current) => ({ ...current, [postId]: nextCount }))
+
+    const result = await togglePostLike({
+      postType: 'album',
+      postId,
+      userId: currentUserId,
+      liked,
+    })
+
+    if (!result.success) {
+      setLikedById((current) => ({ ...current, [postId]: liked }))
+      setCountById((current) => ({ ...current, [postId]: currentCount }))
+      window.alert(result.message)
+    }
+
+    setPendingId(null)
+  }
 
   const handleSearchSubmit = (event) => {
     event.preventDefault()
@@ -76,10 +144,18 @@ function EventPhotos() {
         <ul className="event-photos-grid">
           {filteredPosts.map((post) => {
             const thumbnailSrc = getAlbumThumbnailSrc(post, churchPlaceholder)
+            const postId = String(post.id)
+            const liked = Boolean(likedById[postId])
+            const likesCount = countById[postId] ?? post.likesCount ?? 0
 
             return (
               <li key={post.id} className="event-photos-grid__item">
-                <Link to={`${LIST_PATH}/${post.id}`} className="event-photos-card">
+                <article className="event-photos-card">
+                  <Link
+                    to={`${LIST_PATH}/${post.id}`}
+                    className="event-photos-card__link"
+                    aria-label={post.title}
+                  />
                   <div className="event-photos-card__image-wrap">
                     <img
                       src={thumbnailSrc}
@@ -107,13 +183,22 @@ function EventPhotos() {
                       <span className="event-photos-card__meta-divider" aria-hidden="true">
                         ·
                       </span>
-                      <span className="event-photos-card__likes">
+                      <button
+                        type="button"
+                        className={`event-photos-card__likes${
+                          liked ? ' event-photos-card__likes--active' : ''
+                        }`}
+                        aria-pressed={liked}
+                        aria-label={liked ? '추천 취소' : '추천'}
+                        disabled={pendingId === postId}
+                        onClick={() => handleToggleLike(post)}
+                      >
                         <FiHeart aria-hidden="true" />
-                        <span>{post.likesCount ?? 0}</span>
-                      </span>
+                        <span>{likesCount}</span>
+                      </button>
                     </p>
                   </div>
-                </Link>
+                </article>
               </li>
             )
           })}
