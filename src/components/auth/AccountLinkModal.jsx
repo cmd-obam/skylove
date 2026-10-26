@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import {
   getLoginProviderLabel,
   linkMemberAccount,
@@ -78,7 +79,7 @@ function AccountLinkModal({ isOpen, primaryMember, onClose, onLinked }) {
     onLinked?.(result)
   }
 
-  return (
+  return createPortal(
     <div className="member-management-modal" role="presentation" onClick={onClose}>
       <div
         className="member-management-modal__dialog member-management-modal__dialog--detail"
@@ -191,7 +192,8 @@ function AccountLinkModal({ isOpen, primaryMember, onClose, onLinked }) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
 

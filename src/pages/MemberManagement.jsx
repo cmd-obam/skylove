@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { FiUsers } from 'react-icons/fi'
 import AccountLinkModal from '@/components/auth/AccountLinkModal'
 import MaskedPiiField from '@/components/auth/MaskedPiiField'
@@ -23,9 +24,32 @@ import {
   USER_ROLES,
 } from '@/services/auth/roles'
 import { formatBoardDate } from '@/utils/formatBoardDate'
+import {
+  countReviewLabels,
+  memberMatchesReviewFilter,
+  parseReviewLabels,
+} from '@/services/auth/memberReview'
 import { PII_FIELD } from '@/utils/maskPii'
 import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 import './MemberManagement.css'
+
+const REVIEW_FILTERS = [
+  { id: 'all', label: '전체' },
+  { id: '정상', label: '정상' },
+  { id: '이메일 미인증', label: '이메일 미인증' },
+  { id: '유사 계정', label: '유사 계정' },
+  { id: '프로필 불완전', label: '프로필 불완전' },
+  { id: '가입 경로 확인 불가', label: '경로 확인 불가' },
+  { id: '추가 조사', label: '추가 조사' },
+]
+
+function ModalPortal({ children }) {
+  if (typeof document === 'undefined' || !children) {
+    return null
+  }
+
+  return createPortal(children, document.body)
+}
 
 function MemberNameCell({ name, nickname, username }) {
   const [mode, setMode] = useState('name')
@@ -96,7 +120,8 @@ function ConfirmModal({
   }
 
   return (
-    <div className="member-management-modal" role="presentation">
+    <ModalPortal>
+      <div className="member-management-modal" role="presentation">
       <div
         className="member-management-modal__dialog"
         role="dialog"
@@ -131,7 +156,8 @@ function ConfirmModal({
           </button>
         </div>
       </div>
-    </div>
+      </div>
+    </ModalPortal>
   )
 }
 
@@ -152,7 +178,8 @@ function MemberDetailModal({
   }
 
   return (
-    <div className="member-management-modal" role="presentation" onClick={onClose}>
+    <ModalPortal>
+      <div className="member-management-modal" role="presentation" onClick={onClose}>
       <div
         className="member-management-modal__dialog member-management-modal__dialog--detail"
         role="dialog"
@@ -193,7 +220,8 @@ function MemberDetailModal({
           </button>
         </div>
       </div>
-    </div>
+      </div>
+    </ModalPortal>
   )
 }
 
@@ -217,6 +245,14 @@ function MemberManagement() {
   const [unlinkingUserId, setUnlinkingUserId] = useState('')
   const [linkModalMember, setLinkModalMember] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [reviewFilter, setReviewFilter] = useState('all')
+
+  const reviewCounts = useMemo(() => countReviewLabels(members), [members])
+  const visibleMembers = useMemo(
+    () => members.filter((member) => memberMatchesReviewFilter(member, reviewFilter)),
+    [members, reviewFilter],
+  )
+  const reviewReady = members.length === 0 || members.some((member) => member.review_labels != null)
 
   const loadLinkedAccounts = useCallback(async (userId) => {
     if (!userId) {
@@ -426,6 +462,27 @@ function MemberManagement() {
           </button>
         </form>
 
+        {!loading && members.length > 0 && !reviewReady ? (
+          <p className="member-management-page__feedback member-management-page__feedback--error" role="status">
+            가입 경로와 계정 분류는 Supabase SQL Editor에서 apply_member_detail_signup_review.sql을 실행한 뒤 확인할 수 있습니다. 기존 회원 데이터는 변경하지 않습니다.
+          </p>
+        ) : null}
+
+        <div className="member-management-page__filters" role="group" aria-label="계정 분류">
+          {REVIEW_FILTERS.map((filter) => (
+            <button
+              key={filter.id}
+              type="button"
+              className={`member-management-page__filter${reviewFilter === filter.id ? ' member-management-page__filter--active' : ''}`}
+              onClick={() => setReviewFilter(filter.id)}
+              aria-pressed={reviewFilter === filter.id}
+            >
+              {filter.label}
+              {filter.id === 'all' ? ` ${members.length}` : ` ${reviewCounts[filter.id] ?? 0}`}
+            </button>
+          ))}
+        </div>
+
         {feedback &&
           !(
             feedback.type === 'error' &&
@@ -478,11 +535,18 @@ function MemberManagement() {
                     </div>
                   </td>
                 </tr>
+              ) : visibleMembers.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="member-management-page__empty">
+                    이 분류에 해당하는 회원이 없습니다.
+                  </td>
+                </tr>
               ) : (
-                members.map((member) => {
+                visibleMembers.map((member) => {
                   const memberRole = normalizeRole(member.role)
                   const canChangeRole = canChangeMemberRole(memberRole)
                   const canDelete = canDeleteMemberBySuperAdmin(memberRole)
+                  const reviewLabels = parseReviewLabels(member.review_labels)
 
                   return (
                     <tr key={member.user_id}>
@@ -492,6 +556,15 @@ function MemberManagement() {
                           nickname={member.nickname}
                           username={member.username}
                         />
+                        {reviewLabels.length > 0 ? (
+                          <div className="member-management-page__labels">
+                            {reviewLabels.map((label) => (
+                              <span key={label} className="member-management-page__label">
+                                {label}
+                              </span>
+                            ))}
+                          </div>
+                        ) : null}
                       </td>
                       <td className="member-management-page__pii-cell">
                         <div className="member-management-page__email-actions">
@@ -613,6 +686,7 @@ function MemberManagement() {
         ) : null}
 
         {roleModal ? (
+          <ModalPortal>
           <div className="member-management-modal" role="presentation">
             <div
               className="member-management-modal__dialog"
@@ -682,6 +756,7 @@ function MemberManagement() {
               </div>
             </div>
           </div>
+          </ModalPortal>
         ) : null}
 
         <ConfirmModal

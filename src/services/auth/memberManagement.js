@@ -150,6 +150,18 @@ export async function updateMemberRoleBySuperAdmin(userId, newRole) {
   }
 }
 
+function firstRpcRow(data) {
+  if (Array.isArray(data)) {
+    return data[0] ?? null
+  }
+
+  if (data && typeof data === 'object') {
+    return data
+  }
+
+  return null
+}
+
 export async function fetchMemberDetailForSuperAdmin(userId) {
   const rpcParams = { p_user_id: userId }
 
@@ -169,9 +181,19 @@ export async function fetchMemberDetailForSuperAdmin(userId) {
     }
   }
 
+  const member = firstRpcRow(data)
+
+  if (!member) {
+    return {
+      success: false,
+      message: '회원 상세정보를 찾을 수 없습니다.',
+      member: null,
+    }
+  }
+
   return {
     success: true,
-    member: data?.[0] ?? null,
+    member,
   }
 }
 
