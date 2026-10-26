@@ -10,6 +10,7 @@ import { canWritePost } from '@/services/auth/roles'
 import { backfillSundayBulletinThumbnails } from '@/services/board/posts'
 import { formatBoardDate } from '@/utils/formatBoardDate'
 import { getPostAuthor } from '@/utils/getPostAuthor'
+import { boardPostPublicId } from '@/utils/boardPostRef'
 import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 import './ChurchNews.css'
 
@@ -133,7 +134,7 @@ function ChurchNews() {
                 <tr key={post.id}>
                   <td>{post.no}</td>
                   <td className="church-news-board__post-title">
-                    <Link to={`${LIST_PATH}/${post.id}`} className="church-news-board__post-link">
+                    <Link to={`${LIST_PATH}/${boardPostPublicId(post)}`} className="church-news-board__post-link">
                       <BoardPostTitle
                         title={post.title}
                         commentsCount={post.commentsCount}

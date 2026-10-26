@@ -20,6 +20,7 @@ import {
   getBoardDetailPath,
   getBoardWritePath,
 } from '@/utils/boardPaths'
+import { boardPostPublicId } from '@/utils/boardPostRef'
 import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 import '@/pages/MemberManagement.css'
 import './ContentManagement.css'
@@ -789,7 +790,7 @@ function ContentManagement() {
                         <td>{rowNumber}</td>
                         <td>{post.board_label}</td>
                         <td className="content-cms-title-cell">
-                          <Link to={getBoardDetailPath(post.post_type, post.id)}>{post.title}</Link>
+                          <Link to={getBoardDetailPath(post.post_type, boardPostPublicId(post))}>{post.title}</Link>
                           {post.has_admin_note ? <span className="content-cms-note-dot" title="관리자 메모" /> : null}
                         </td>
                         <td>
@@ -815,7 +816,7 @@ function ContentManagement() {
                         <td>
                           <div className="member-management-page__actions">
                             <Link
-                              to={getBoardEditPath(post.post_type, post.id)}
+                              to={getBoardEditPath(post.post_type, boardPostPublicId(post))}
                               className="member-management-page__action-button"
                             >
                               수정
@@ -973,7 +974,7 @@ function ContentManagement() {
                 <p className="content-cms-card__meta">
                   {post.board_label} · {getPostStatusLabel(post)}
                 </p>
-                <Link className="content-cms-card__title" to={getBoardDetailPath(post.post_type, post.id)}>
+                <Link className="content-cms-card__title" to={getBoardDetailPath(post.post_type, boardPostPublicId(post))}>
                   {post.title}
                 </Link>
                 <p className="content-cms-card__meta">

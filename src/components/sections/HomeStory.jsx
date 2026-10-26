@@ -12,6 +12,7 @@ import { getFirstContentImageSrc } from '@/utils/boardContentImages'
 import { formatPostRegistrationDate } from '@/utils/formatBoardDate'
 import { resolveSundayBulletinThumbnail, isSundayBulletinContent } from '@/utils/sundayBulletin'
 import { resolveYouTubeMedia } from '@/utils/youtube'
+import { boardPostPublicId } from '@/utils/boardPostRef'
 import './HomeSections.css'
 
 const BULLETIN_PREVIEW_TEXT = '클릭해서 주보 내용을 확인하세요.'
@@ -101,7 +102,7 @@ function mapStoryCard(source, post) {
     excerpt: getPostExcerpt(post.content),
     dateLabel: formatStoryDate(post, source.dateSuffix),
     imageSrc: resolveStoryImageSrc(post),
-    href: source.detailPath(post.id),
+    href: source.detailPath(boardPostPublicId(post)),
   }
 }
 

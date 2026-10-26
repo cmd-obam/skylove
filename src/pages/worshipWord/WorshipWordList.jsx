@@ -8,6 +8,7 @@ import useIsMobile from '@/hooks/useIsMobile'
 import { getWorshipWordBoard } from '@/data/worshipWord'
 import { formatBoardDate } from '@/utils/formatBoardDate'
 import { getPostAuthor } from '@/utils/getPostAuthor'
+import { boardPostPublicId } from '@/utils/boardPostRef'
 import {
   getNextYouTubeThumbnailUrl,
   isYouTubeThumbnailPlaceholder,
@@ -161,7 +162,7 @@ function WorshipWordList({ boardKey }) {
           <ul className="worship-word-grid">
             {pagedPosts.map((post) => (
               <li key={post.id} className="worship-word-grid__item">
-                <Link to={`${board.listPath}/${post.id}`} className="worship-word-card">
+                <Link to={`${board.listPath}/${boardPostPublicId(post)}`} className="worship-word-card">
                   <div className="worship-word-card__image-wrap">
                     {post.thumbnail ? (
                       <img

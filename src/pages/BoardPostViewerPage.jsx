@@ -54,7 +54,7 @@ function BoardPostViewerPage() {
 
       setPost(result.post)
 
-      const metaResult = await fetchPostMeta(result.postType, postId)
+      const metaResult = await fetchPostMeta(result.postType, result.post.id)
 
       if (isMounted && metaResult.success) {
         setViewsCount(metaResult.stats.views_count ?? 0)

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { FiImage } from 'react-icons/fi'
 import { formatBoardDate } from '@/utils/formatBoardDate'
+import { boardPostPublicId } from '@/utils/boardPostRef'
 import { resolveSundayBulletinThumbnail } from '@/utils/sundayBulletin'
 
 function BoardPostExtras({
@@ -46,7 +47,7 @@ function BoardPostExtras({
               return (
                 <li key={relatedPost.id} className="board-post-extras__related-item">
                   <Link
-                    to={`${detailPathPrefix}/${relatedPost.id}`}
+                    to={`${detailPathPrefix}/${boardPostPublicId(relatedPost)}`}
                     className={`board-post-extras__related-card${
                       thumbnail ? '' : ' board-post-extras__related-card--text-only'
                     }`}

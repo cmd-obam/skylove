@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { BOARD_POST_REF_PATTERN } from '@/utils/boardPostRef'
 import {
   captureFirstTouchReferral,
   getCurrentPath,
@@ -125,8 +126,9 @@ function isNewVisitor(visitorId) {
 }
 
 function parsePostMeta(pathname) {
+  const ref = BOARD_POST_REF_PATTERN
   const worship = pathname.match(
-    /^\/worship-word\/(sunday|el-shaddai)\/([0-9a-f-]{36})/i,
+    new RegExp(`^/worship-word/(sunday|el-shaddai)/(${ref})(?:/|$)`, 'i'),
   )
   if (worship) {
     return {
@@ -135,14 +137,19 @@ function parsePostMeta(pathname) {
     }
   }
 
-  const news = pathname.match(/^\/church-news\/(?:album\/)?([0-9a-f-]{36})/i)
-  if (news) {
-    return { post_type: 'church_news', post_id: news[1] }
+  const album = pathname.match(new RegExp(`^/church-news/album/(${ref})(?:/|$)`, 'i'))
+  if (album) {
+    return { post_type: 'album', post_id: album[1] }
   }
 
-  const pastor = pathname.match(/^\/pastor-story\/([0-9a-f-]{36})/i)
+  const pastor = pathname.match(new RegExp(`^/church-news/pastor-story/(${ref})(?:/|$)`, 'i'))
   if (pastor) {
     return { post_type: 'pastor_story', post_id: pastor[1] }
+  }
+
+  const news = pathname.match(new RegExp(`^/church-news/(${ref})(?:/|$)`, 'i'))
+  if (news) {
+    return { post_type: 'church_news', post_id: news[1] }
   }
 
   return { post_type: null, post_id: null }

@@ -11,6 +11,7 @@ import { fetchUserLikedPostIds, togglePostLike } from '@/services/board/postLike
 import { getAlbumThumbnailSrc } from '@/utils/albumThumbnail'
 import { formatBoardDate } from '@/utils/formatBoardDate'
 import { getPostAuthor } from '@/utils/getPostAuthor'
+import { boardPostPublicId } from '@/utils/boardPostRef'
 import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 import './ChurchNews.css'
 
@@ -152,7 +153,7 @@ function EventPhotos() {
               <li key={post.id} className="event-photos-grid__item">
                 <article className="event-photos-card">
                   <Link
-                    to={`${LIST_PATH}/${post.id}`}
+                    to={`${LIST_PATH}/${boardPostPublicId(post)}`}
                     className="event-photos-card__link"
                     aria-label={post.title}
                   />

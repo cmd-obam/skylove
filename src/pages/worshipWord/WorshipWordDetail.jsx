@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, Navigate, useParams } from 'react-router-dom'
 import { FiChevronDown, FiHeart, FiUser } from 'react-icons/fi'
 import BoardPageHeader from '@/components/board/BoardPageHeader'
 import BoardPostAdminBar from '@/components/board/BoardPostAdminBar'
@@ -10,6 +10,7 @@ import { useBoardPostStats } from '@/hooks/useBoardPostStats'
 import { getWorshipWordBoard } from '@/data/worshipWord'
 import { fetchAdjacentBoardPosts } from '@/services/board/posts'
 import { togglePostLike } from '@/services/board/postLikes'
+import { boardPostPublicId, getBoardPostCanonicalPath } from '@/utils/boardPostRef'
 import { formatRelativeTime } from '@/utils/formatBoardDate'
 import { getPostAuthor } from '@/utils/getPostAuthor'
 import { sanitizeBoardHtml } from '@/utils/sanitizeBoardHtml'
@@ -24,6 +25,10 @@ function WorshipWordDetail({ boardKey }) {
   const { post, loading } = useBoardPost(board.postType, postId)
   const [adjacent, setAdjacent] = useState({ prev: null, next: null })
   const currentUserId = effectiveUserId ?? user?.id
+  const canonicalPath = loading
+    ? null
+    : getBoardPostCanonicalPath(post, postId, { routePostType: board.postType })
+  const recordId = canonicalPath ? null : post?.id
 
   const {
     stats,
@@ -31,21 +36,21 @@ function WorshipWordDetail({ boardKey }) {
     setLikedByMe,
     refreshStats,
     refreshLikeState,
-  } = useBoardPostStats(board.postType, postId, post?.views ?? 0)
+  } = useBoardPostStats(board.postType, recordId, post?.views ?? 0)
 
   useEffect(() => {
     refreshLikeState(currentUserId)
   }, [refreshLikeState, currentUserId])
 
   useEffect(() => {
-    if (!postId) {
+    if (!post?.id || canonicalPath) {
       return undefined
     }
 
     let isMounted = true
 
     async function loadAdjacent() {
-      const result = await fetchAdjacentBoardPosts(board.postType, postId)
+      const result = await fetchAdjacentBoardPosts(board.postType, post.id)
 
       if (isMounted) {
         setAdjacent(result)
@@ -57,7 +62,7 @@ function WorshipWordDetail({ boardKey }) {
     return () => {
       isMounted = false
     }
-  }, [board.postType, postId])
+  }, [board.postType, canonicalPath, post?.id])
 
   const handleToggleLike = useCallback(async () => {
     if (!isLoggedIn) {
@@ -67,7 +72,7 @@ function WorshipWordDetail({ boardKey }) {
 
     const result = await togglePostLike({
       postType: board.postType,
-      postId,
+      postId: recordId,
       userId: currentUserId,
       liked: likedByMe,
     })
@@ -83,13 +88,17 @@ function WorshipWordDetail({ boardKey }) {
     currentUserId,
     isLoggedIn,
     likedByMe,
-    postId,
+    recordId,
     refreshStats,
     setLikedByMe,
   ])
 
   if (loading) {
     return null
+  }
+
+  if (canonicalPath) {
+    return <Navigate to={canonicalPath} replace />
   }
 
   if (!post) {
@@ -119,7 +128,7 @@ function WorshipWordDetail({ boardKey }) {
             <div className="worship-word-detail__header-actions">
               <BoardPostAdminBar
                 postType={board.postType}
-                postId={postId}
+                postId={post.id}
                 listPath={board.listPath}
                 post={post}
               />
@@ -178,7 +187,7 @@ function WorshipWordDetail({ boardKey }) {
           <nav className="worship-word-detail__adjacent" aria-label="이전 다음 게시글">
             {adjacent.prev && (
               <Link
-                to={`${board.listPath}/${adjacent.prev.id}`}
+                to={`${board.listPath}/${boardPostPublicId(adjacent.prev)}`}
                 className="worship-word-detail__adjacent-link"
               >
                 <FiChevronDown aria-hidden="true" />
@@ -187,7 +196,7 @@ function WorshipWordDetail({ boardKey }) {
             )}
             {adjacent.next && (
               <Link
-                to={`${board.listPath}/${adjacent.next.id}`}
+                to={`${board.listPath}/${boardPostPublicId(adjacent.next)}`}
                 className="worship-word-detail__adjacent-link"
               >
                 <FiChevronDown aria-hidden="true" />

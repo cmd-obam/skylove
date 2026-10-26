@@ -13,6 +13,7 @@ import {
   setBoardPostHidden,
 } from '@/services/board/posts'
 import { getBoardEditPath } from '@/utils/boardPaths'
+import { boardPostPublicId } from '@/utils/boardPostRef'
 import { isoToKoreaDateTimeParts } from '@/utils/koreaDateTime'
 
 function getEditPath(postType, postId) {
@@ -40,7 +41,8 @@ function BoardPostAdminBar({ postType, postId, listPath, post = null }) {
     return null
   }
 
-  const editPath = getEditPath(postType, postId)
+  const editPath = getEditPath(postType, post ? boardPostPublicId(post) : postId)
+  const mutationId = post?.id ?? postId
   const isHidden = postStatus === 'private'
   const isScheduled = postStatus === 'scheduled'
   const scheduleParts = isoToKoreaDateTimeParts(post?.scheduledAt)
@@ -52,7 +54,7 @@ function BoardPostAdminBar({ postType, postId, listPath, post = null }) {
   const handleDelete = async () => {
     setDeleting(true)
 
-    const result = await deleteBoardPost(postType, postId)
+    const result = await deleteBoardPost(postType, mutationId)
 
     if (!result.success) {
       window.alert(result.message)
@@ -68,7 +70,7 @@ function BoardPostAdminBar({ postType, postId, listPath, post = null }) {
     setHiding(true)
 
     const nextHidden = !isHidden
-    const result = await setBoardPostHidden(postType, postId, nextHidden)
+    const result = await setBoardPostHidden(postType, mutationId, nextHidden)
 
     if (!result.success) {
       window.alert(result.message)
@@ -86,7 +88,7 @@ function BoardPostAdminBar({ postType, postId, listPath, post = null }) {
     }
 
     setPublishing(true)
-    const result = await publishScheduledBoardPostNow(postType, postId)
+    const result = await publishScheduledBoardPostNow(postType, mutationId)
 
     if (!result.success) {
       window.alert(result.message)

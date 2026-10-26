@@ -1,26 +1,25 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 import BoardPostDetail from '@/components/board/BoardPostDetail'
 import PostUtilityBar from '@/components/board/PostUtilityBar'
 import { fetchRelatedBoardPosts } from '@/services/board/posts'
-import { useBoardPost } from '@/hooks/useBoardPost'
+import { useBoardPostRoute } from '@/hooks/useBoardPost'
 
 const LIST_PATH = '/church-news/album'
 
 function EventPhotoDetail() {
-  const { postId } = useParams()
-  const { post, loading } = useBoardPost('album', postId)
+  const { post, loading, canonicalPath } = useBoardPostRoute('album')
   const [relatedPosts, setRelatedPosts] = useState([])
 
   useEffect(() => {
-    if (!postId) {
+    if (!post?.id || canonicalPath) {
       return
     }
 
     let isMounted = true
 
     async function loadRelated() {
-      const related = await fetchRelatedBoardPosts('album', postId)
+      const related = await fetchRelatedBoardPosts('album', post.id)
       if (isMounted) {
         setRelatedPosts(related)
       }
@@ -31,10 +30,14 @@ function EventPhotoDetail() {
     return () => {
       isMounted = false
     }
-  }, [postId])
+  }, [canonicalPath, post?.id])
 
   if (loading) {
     return null
+  }
+
+  if (canonicalPath) {
+    return <Navigate to={canonicalPath} replace />
   }
 
   return (

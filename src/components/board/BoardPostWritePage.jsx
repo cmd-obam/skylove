@@ -38,6 +38,7 @@ import {
   SUNDAY_BULLETIN_TEMPLATE_V2,
 } from '@/data/sundayBulletinFixed'
 import { getPublicDisplayName } from '@/utils/getPublicDisplayName'
+import { boardPostPublicId, getBoardPostCanonicalPath } from '@/utils/boardPostRef'
 import {
   formatKoreaScheduleMessage,
   getKoreaDateString,
@@ -201,6 +202,18 @@ function BoardPostWritePage({
         return
       }
 
+      const canonicalPath = getBoardPostCanonicalPath(result.post, postId, {
+        mode: 'edit',
+        routePostType: postType,
+      })
+
+      if (canonicalPath) {
+        navigate(canonicalPath, { replace: true })
+        return
+      }
+
+      draftPostIdRef.current = result.post.id
+
       const post = result.post
       const parsedBulletin =
         canUseBulletin ? parseSundayBulletinWeekly(post.content) : null
@@ -293,7 +306,7 @@ function BoardPostWritePage({
     return () => {
       isMounted = false
     }
-  }, [canUseBulletin, isEdit, postId, postType, profile, currentUserId])
+  }, [canUseBulletin, isEdit, navigate, postId, postType, profile, currentUserId])
 
   const handleLoadBulletinTemplate = (templateVersion = SUNDAY_BULLETIN_TEMPLATE_V1) => {
     if (!canUseBulletin) {
@@ -408,7 +421,7 @@ function BoardPostWritePage({
   }
 
   const handleUploadEditorImage = async (file) => {
-    const postIdForUpload = isEdit ? postId : draftPostIdRef.current
+    const postIdForUpload = draftPostIdRef.current
     const resized = await resizeImageFile(file, { maxWidth: 1600, maxHeight: 1600 })
     const result = await uploadCmsFile('image', postType, postIdForUpload, resized)
 
@@ -420,7 +433,7 @@ function BoardPostWritePage({
   }
 
   const handleUploadEditorVideo = async (file) => {
-    const postIdForUpload = isEdit ? postId : draftPostIdRef.current
+    const postIdForUpload = draftPostIdRef.current
     const result = await uploadCmsFile('video', postType, postIdForUpload, file)
 
     if (result?.path && !isEdit) {
@@ -483,7 +496,7 @@ function BoardPostWritePage({
     setSubmitting(true)
 
     const writer = getPublicDisplayName(profile, { fallback: '관리자' })
-    const targetPostId = isEdit ? postId : draftPostIdRef.current
+    const targetPostId = draftPostIdRef.current
     const uploadedPaths = []
 
     try {
@@ -631,7 +644,7 @@ function BoardPostWritePage({
       }
 
       window.alert(isEdit ? '게시글이 수정되었습니다.' : '게시글이 등록되었습니다.')
-      navigate(`${detailPathPrefix}/${targetPostId}`)
+      navigate(`${detailPathPrefix}/${boardPostPublicId(result.post)}`)
     } catch (submitError) {
       if (!isEdit && uploadedPaths.length > 0) {
         await deleteBoardFiles(uploadedPaths, postType)

@@ -9,11 +9,64 @@ import {
 } from '@/services/auth/roles'
 import { fetchPostMeta } from '@/services/board/postStats'
 import {
+  boardPostLookupKey,
+  boardPostPublicId,
+  isSameBoardPost,
+} from '@/utils/boardPostRef'
+import {
   getSundayBulletinDefaultThumbnailUrl,
   resolveSundayBulletinThumbnail,
 } from '@/utils/sundayBulletin'
 
 const PERMISSION_DENIED = '권한이 없습니다.'
+const BOARD_LIST_FIELDS = 'id, post_type, title, writer, thumbnail, youtube_url, created_at, has_image'
+
+let boardListHasPostNo = true
+
+function isMissingPostNoColumn(error) {
+  const message = String(error?.message ?? '')
+  return error?.code === '42703' || /post_no/i.test(message)
+}
+
+async function queryAllowingMissingPostNo(run) {
+  if (boardListHasPostNo) {
+    const first = await run(true)
+    if (!first.error || !isMissingPostNoColumn(first.error)) {
+      return first
+    }
+    boardListHasPostNo = false
+  }
+
+  return run(false)
+}
+
+async function locateBoardPost(publicId) {
+  const lookup = boardPostLookupKey(publicId)
+
+  if (!lookup) {
+    return { success: false, notFound: true, message: '게시글을 찾을 수 없습니다.' }
+  }
+
+  const { data, error } = await supabase
+    .from('board_posts')
+    .select('*')
+    .eq(lookup.column, lookup.value)
+    .maybeSingle()
+
+  if (error) {
+    if (lookup.column === 'post_no' && isMissingPostNoColumn(error)) {
+      return { success: false, notFound: true, message: '게시글을 찾을 수 없습니다.' }
+    }
+
+    return { success: false, message: error.message }
+  }
+
+  if (!data) {
+    return { success: false, notFound: true, message: '게시글을 찾을 수 없습니다.' }
+  }
+
+  return { success: true, post: mapBoardPostRow(data) }
+}
 
 async function getSessionProfile() {
   const {
@@ -86,6 +139,7 @@ export function mapBoardPostRow(row, meta) {
 
   return {
     id: row.id,
+    postNo: row.post_no == null || row.post_no === '' ? null : String(row.post_no),
     postType: row.post_type,
     title: row.title,
     content: row.content,
@@ -187,7 +241,7 @@ async function assertCanMutatePost(postType, postId, canMutate) {
 
   const existing = await fetchBoardPost(postType, postId)
 
-  if (!existing.success || !existing.post) {
+  if (!existing.success || !existing.post || existing.typeMismatch || existing.post.postType !== postType) {
     return {
       success: false,
       message: existing.message || '게시글을 찾을 수 없습니다.',
@@ -231,11 +285,13 @@ async function publishDueBoardPostsQuietly() {
 export async function fetchBoardPosts(postType) {
   await publishDueBoardPostsQuietly()
 
-  const { data, error } = await supabase
-    .from('board_post_list')
-    .select('id, post_type, title, writer, thumbnail, youtube_url, created_at, has_image')
-    .eq('post_type', postType)
-    .order('created_at', { ascending: false })
+  const { data, error } = await queryAllowingMissingPostNo((includePostNo) =>
+    supabase
+      .from('board_post_list')
+      .select(includePostNo ? `${BOARD_LIST_FIELDS}, post_no` : BOARD_LIST_FIELDS)
+      .eq('post_type', postType)
+      .order('created_at', { ascending: false }),
+  )
 
   if (error) {
     return { success: false, message: error.message, posts: [] }
@@ -258,53 +314,58 @@ export async function fetchBoardPosts(postType) {
 export async function fetchBoardPost(postType, postId) {
   await publishDueBoardPostsQuietly()
 
-  const { data, error } = await supabase
-    .from('board_posts')
-    .select('*')
-    .eq('post_type', postType)
-    .eq('id', postId)
-    .maybeSingle()
+  const located = await locateBoardPost(postId)
 
-  if (error) {
-    return { success: false, message: error.message }
+  if (!located.success) {
+    return located
   }
 
-  if (!data) {
-    return { success: false, notFound: true, message: '게시글을 찾을 수 없습니다.' }
+  if (postType && located.post.postType !== postType) {
+    return {
+      success: true,
+      post: located.post,
+      postType: located.post.postType,
+      typeMismatch: true,
+    }
   }
 
-  const metaResult = await fetchPostMeta(postType, postId)
+  const metaResult = await fetchPostMeta(located.post.postType, located.post.id)
 
   return {
     success: true,
-    post: mapBoardPostRow(data, metaResult.success ? metaResult.stats : null),
-    postType,
+    post: withPostStats(located.post, metaResult),
+    postType: located.post.postType,
+  }
+}
+
+function withPostStats(post, metaResult) {
+  if (!metaResult?.success) {
+    return post
+  }
+
+  return {
+    ...post,
+    views: metaResult.stats?.views_count ?? post.views ?? 0,
+    likesCount: metaResult.stats?.likes_count ?? post.likesCount ?? 0,
+    commentsCount: metaResult.stats?.comments_count ?? post.commentsCount ?? 0,
   }
 }
 
 export async function fetchBoardPostById(postId) {
   await publishDueBoardPostsQuietly()
 
-  const { data, error } = await supabase
-    .from('board_posts')
-    .select('*')
-    .eq('id', postId)
-    .maybeSingle()
+  const located = await locateBoardPost(postId)
 
-  if (error) {
-    return { success: false, message: error.message }
+  if (!located.success) {
+    return located
   }
 
-  if (!data) {
-    return { success: false, notFound: true, message: '게시글을 찾을 수 없습니다.' }
-  }
-
-  const metaResult = await fetchPostMeta(data.post_type, postId)
+  const metaResult = await fetchPostMeta(located.post.postType, located.post.id)
 
   return {
     success: true,
-    post: mapBoardPostRow(data, metaResult.success ? metaResult.stats : null),
-    postType: data.post_type,
+    post: withPostStats(located.post, metaResult),
+    postType: located.post.postType,
   }
 }
 
@@ -315,7 +376,7 @@ export async function fetchRelatedBoardPosts(postType, postId, limit = 5) {
     return []
   }
 
-  return result.posts.filter((post) => String(post.id) !== String(postId)).slice(0, limit)
+  return result.posts.filter((post) => !isSameBoardPost(post, postId)).slice(0, limit)
 }
 
 /** postType별 최신 게시글 N건 */
@@ -324,12 +385,14 @@ export async function fetchLatestBoardPosts(postType, limit = 4) {
 
   const safeLimit = Math.max(1, Number(limit) || 4)
 
-  const { data, error } = await supabase
-    .from('board_post_list')
-    .select('id, post_type, title, writer, thumbnail, youtube_url, created_at, has_image')
-    .eq('post_type', postType)
-    .order('created_at', { ascending: false })
-    .limit(safeLimit)
+  const { data, error } = await queryAllowingMissingPostNo((includePostNo) =>
+    supabase
+      .from('board_post_list')
+      .select(includePostNo ? `${BOARD_LIST_FIELDS}, post_no` : BOARD_LIST_FIELDS)
+      .eq('post_type', postType)
+      .order('created_at', { ascending: false })
+      .limit(safeLimit),
+  )
 
   if (error) {
     return { success: false, message: error.message, posts: [] }
@@ -349,17 +412,20 @@ export async function fetchLatestBoardPosts(postType, limit = 4) {
 export async function fetchLatestBoardPost(postType) {
   await publishDueBoardPostsQuietly()
 
-  const { data, error } = await supabase
-    .from('board_posts')
-    .select(
-      'id, post_type, title, writer, content, thumbnail, images, youtube_url, created_at, updated_at, attachment_url, attachment_name, has_image, attachments, author_id, status, scheduled_at, deleted_at',
-    )
-    .eq('post_type', postType)
-    .is('deleted_at', null)
-    .eq('status', 'public')
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .maybeSingle()
+  const latestFields =
+    'id, post_type, title, writer, content, thumbnail, images, youtube_url, created_at, updated_at, attachment_url, attachment_name, has_image, attachments, author_id, status, scheduled_at, deleted_at'
+
+  const { data, error } = await queryAllowingMissingPostNo((includePostNo) =>
+    supabase
+      .from('board_posts')
+      .select(includePostNo ? `${latestFields}, post_no` : latestFields)
+      .eq('post_type', postType)
+      .is('deleted_at', null)
+      .eq('status', 'public')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  )
 
   if (error) {
     return { success: false, message: error.message, post: null }
@@ -379,14 +445,16 @@ export async function fetchLatestBoardPost(postType) {
 export async function fetchAlbumGalleryImages() {
   await publishDueBoardPostsQuietly()
 
-  const { data, error } = await supabase
-    .from('board_posts')
-    .select('id, title, content, images, created_at')
-    .eq('post_type', 'album')
-    .is('deleted_at', null)
-    .is('purged_at', null)
-    .eq('status', 'public')
-    .order('created_at', { ascending: false })
+  const { data, error } = await queryAllowingMissingPostNo((includePostNo) =>
+    supabase
+      .from('board_posts')
+      .select(includePostNo ? 'id, post_no, title, content, images, created_at' : 'id, title, content, images, created_at')
+      .eq('post_type', 'album')
+      .is('deleted_at', null)
+      .is('purged_at', null)
+      .eq('status', 'public')
+      .order('created_at', { ascending: false }),
+  )
 
   if (error) {
     return { success: false, message: error.message, images: [] }
@@ -416,7 +484,7 @@ export async function fetchAlbumGalleryImages() {
         id: `${row.id}:${images.length + 1}`,
         src,
         alt: title,
-        postId: row.id,
+        postId: row.post_no == null || row.post_no === '' ? row.id : String(row.post_no),
       })
     }
   }
@@ -446,7 +514,7 @@ export async function fetchAdjacentBoardPosts(postType, postId) {
     return { prev: null, next: null }
   }
 
-  const index = result.posts.findIndex((post) => String(post.id) === String(postId))
+  const index = result.posts.findIndex((post) => isSameBoardPost(post, postId))
 
   if (index < 0) {
     return { prev: null, next: null }
@@ -575,7 +643,7 @@ export async function updateBoardPost(postType, postId, payload) {
     .from('board_posts')
     .update(updateFields)
     .eq('post_type', postType)
-    .eq('id', postId)
+    .eq('id', auth.post.id)
     .select()
     .single()
 
@@ -607,7 +675,7 @@ export async function setBoardPostHidden(postType, postId, isHidden) {
       scheduled_at: null,
     })
     .eq('post_type', postType)
-    .eq('id', postId)
+    .eq('id', auth.post.id)
     .select()
     .single()
 
@@ -640,7 +708,7 @@ export async function publishScheduledBoardPostNow(postType, postId) {
       scheduled_at: null,
     })
     .eq('post_type', postType)
-    .eq('id', postId)
+    .eq('id', auth.post.id)
     .eq('status', 'scheduled')
     .select()
     .single()
@@ -673,7 +741,7 @@ export async function deleteBoardPost(postType, postId) {
 
   const { error } = await supabase.rpc('soft_delete_board_post', {
     p_post_type: postType,
-    p_post_id: postId,
+    p_post_id: auth.post.id,
   })
 
   if (error) {
