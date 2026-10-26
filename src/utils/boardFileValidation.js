@@ -1,5 +1,5 @@
-export const BOARD_IMAGE_MAX_BYTES = 5 * 1024 * 1024
-export const BOARD_VIDEO_MAX_BYTES = 50 * 1024 * 1024
+export const BOARD_IMAGE_MAX_BYTES = 25 * 1024 * 1024
+export const BOARD_VIDEO_MAX_BYTES = 200 * 1024 * 1024
 export const BOARD_ATTACHMENT_MAX_BYTES = 20 * 1024 * 1024
 
 export const BOARD_IMAGE_MIME_TYPES = [
@@ -60,7 +60,7 @@ export function validateBoardImageFile(file) {
   }
 
   if (file.size > BOARD_IMAGE_MAX_BYTES) {
-    return { success: false, message: '이미지는 5MB 이하만 업로드할 수 있습니다.' }
+    return { success: false, message: '이미지는 25MB 이하만 업로드할 수 있습니다.' }
   }
 
   const ext = getExtension(file.name)
@@ -80,7 +80,7 @@ export function validateBoardVideoFile(file) {
   }
 
   if (file.size > BOARD_VIDEO_MAX_BYTES) {
-    return { success: false, message: '동영상은 50MB 이하만 업로드할 수 있습니다.' }
+    return { success: false, message: '동영상은 200MB 이하만 업로드할 수 있습니다.' }
   }
 
   const ext = getExtension(file.name)
