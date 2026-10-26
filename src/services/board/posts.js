@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase'
 import { fetchProfileByUserId } from '@/services/auth/profile'
+import { extractContentImageSrcs } from '@/utils/boardContentImages'
 import {
   canDeletePost,
   canEditPost,
@@ -369,6 +370,53 @@ export async function fetchLatestBoardPost(postType) {
   }
 
   return { success: true, post: mapBoardPostRow(data) }
+}
+
+/**
+ * 홈 갤러리: 교회앨범 게시글 본문(및 게시글 사진 목록)의 이미지만 모읍니다.
+ * 대표 썸네일만 있는 항목은 넣지 않습니다.
+ */
+export async function fetchAlbumGalleryImages() {
+  await publishDueBoardPostsQuietly()
+
+  const { data, error } = await supabase
+    .from('board_posts')
+    .select('id, title, content, images, created_at')
+    .eq('post_type', 'album')
+    .is('deleted_at', null)
+    .is('purged_at', null)
+    .eq('status', 'public')
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    return { success: false, message: error.message, images: [] }
+  }
+
+  const images = []
+  const seen = new Set()
+
+  for (const row of data ?? []) {
+    const title = row.title?.trim() || '교회앨범'
+    const stored = Array.isArray(row.images)
+      ? row.images.map((image) => image?.url || image?.src).filter(Boolean)
+      : []
+
+    for (const src of [...extractContentImageSrcs(row.content), ...stored]) {
+      if (!src || src.startsWith('data:') || seen.has(src)) {
+        continue
+      }
+
+      seen.add(src)
+      images.push({
+        id: `${row.id}:${seen.size}`,
+        src,
+        alt: title,
+        postId: row.id,
+      })
+    }
+  }
+
+  return { success: true, images }
 }
 
 /** 홈 교회 이야기: 소스별 최신 게시글 병렬 조회 */
