@@ -5,6 +5,7 @@ import {
   collapseRankingRows,
   collapseRankingRowsByName,
 } from '@/services/thanksgivingGame/rankingIdentity'
+import { isThanksgivingRankingPeriodClosedError } from '@/services/thanksgivingGame/rankingPeriod'
 
 export {
   buildThanksgivingScorePayload,
@@ -89,6 +90,9 @@ export async function submitThanksgivingGameScore({
   const { data, error } = await supabase.rpc('submit_thanksgiving_game_score', built.payload)
 
   if (error) {
+    if (isThanksgivingRankingPeriodClosedError(error)) {
+      return { success: false, periodClosed: true, error }
+    }
     return { success: false, error }
   }
 

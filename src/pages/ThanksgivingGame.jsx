@@ -12,6 +12,7 @@ import {
   submitThanksgivingGameScore,
   validateGameNickname,
 } from '@/services/thanksgivingGame/scores'
+import { THANKSGIVING_RANKING_PERIOD_CLOSED_MESSAGE } from '@/services/thanksgivingGame/rankingPeriod'
 import farmerSrc from '@/assets/images/thanksgiving-game/farmer.png'
 import riceSrc from '@/assets/images/thanksgiving-game/rice.png'
 import goldenRiceSrc from '@/assets/images/thanksgiving-game/golden-rice.png'
@@ -560,7 +561,10 @@ function ThanksgivingGame() {
         guestKey,
       })
 
-      if (submitResult.success) {
+      if (submitResult.periodClosed) {
+        setSubmitStatus('closed')
+        setSubmitMessage(THANKSGIVING_RANKING_PERIOD_CLOSED_MESSAGE)
+      } else if (submitResult.success) {
         setMyBest(submitResult.bestScore)
         setMyEntryId(submitResult.entryId)
         setSubmitStatus(submitResult.isNewBest ? 'new' : 'kept')

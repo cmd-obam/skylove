@@ -626,8 +626,13 @@
   color: #1f6b3a;
 }
 
-.tg-card__note[data-status='error'] {
+.tg-card__note[data-status='error'],
+.tg-card__note[data-status='closed'] {
   color: #9b2c2c;
+}
+
+.tg-card__note[data-status='closed'] {
+  font-weight: 700;
 }
 
 .tg-card__actions {
