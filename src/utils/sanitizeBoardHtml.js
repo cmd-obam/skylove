@@ -23,6 +23,7 @@ const ALLOWED_TAGS = [
   'hr',
   'a',
   'img',
+  'video',
   'span',
   'div',
   'label',
@@ -44,7 +45,23 @@ const ALLOWED_ATTR = [
   'type',
   'checked',
   'disabled',
+  'controls',
+  'playsinline',
+  'preload',
+  'poster',
 ]
+
+const BOARD_VIDEO_SRC = /\/storage\/v1\/object\/public\/board-uploads\//i
+
+DOMPurify.addHook('uponSanitizeAttribute', (node, data) => {
+  if (String(node.nodeName).toLowerCase() !== 'video' || data.attrName !== 'src') {
+    return
+  }
+
+  if (!BOARD_VIDEO_SRC.test(String(data.attrValue || ''))) {
+    data.keepAttr = false
+  }
+})
 
 /**
  * Sanitize board HTML for safe storage and display.
@@ -109,8 +126,8 @@ export function isBoardHtmlEmpty(html) {
 
   const value = String(html)
 
-  // 본문에 이미지만 있어도 내용이 있는 것으로 봅니다.
-  if (/<img\b/i.test(value)) {
+  // 본문에 이미지나 동영상만 있어도 내용이 있는 것으로 봅니다.
+  if (/<(img|video)\b/i.test(value)) {
     return false
   }
 

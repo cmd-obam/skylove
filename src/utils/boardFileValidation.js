@@ -1,4 +1,5 @@
 export const BOARD_IMAGE_MAX_BYTES = 5 * 1024 * 1024
+export const BOARD_VIDEO_MAX_BYTES = 50 * 1024 * 1024
 export const BOARD_ATTACHMENT_MAX_BYTES = 20 * 1024 * 1024
 
 export const BOARD_IMAGE_MIME_TYPES = [
@@ -6,6 +7,13 @@ export const BOARD_IMAGE_MIME_TYPES = [
   'image/png',
   'image/webp',
   'image/gif',
+]
+
+export const BOARD_VIDEO_MIME_TYPES = [
+  'video/mp4',
+  'video/webm',
+  'video/quicktime',
+  'video/x-m4v',
 ]
 
 export const BOARD_ATTACHMENT_MIME_TYPES = [
@@ -26,6 +34,7 @@ export const BOARD_ATTACHMENT_MIME_TYPES = [
 ]
 
 const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp', '.gif']
+const VIDEO_EXTENSIONS = ['.mp4', '.webm', '.mov', '.m4v']
 const ATTACHMENT_EXTENSIONS = [
   ...IMAGE_EXTENSIONS,
   '.pdf',
@@ -65,6 +74,26 @@ export function validateBoardImageFile(file) {
   return { success: true }
 }
 
+export function validateBoardVideoFile(file) {
+  if (!file) {
+    return { success: false, message: '파일이 없습니다.' }
+  }
+
+  if (file.size > BOARD_VIDEO_MAX_BYTES) {
+    return { success: false, message: '동영상은 50MB 이하만 업로드할 수 있습니다.' }
+  }
+
+  const ext = getExtension(file.name)
+  const mimeOk = !file.type || BOARD_VIDEO_MIME_TYPES.includes(file.type)
+  const extOk = VIDEO_EXTENSIONS.includes(ext)
+
+  if (!mimeOk && !extOk) {
+    return { success: false, message: '허용되지 않는 동영상 형식입니다. mp4, webm, mov만 올릴 수 있습니다.' }
+  }
+
+  return { success: true }
+}
+
 export function validateBoardAttachmentFile(file) {
   if (!file) {
     return { success: false, message: '파일이 없습니다.' }
@@ -87,3 +116,4 @@ export function validateBoardAttachmentFile(file) {
 
 export const BOARD_ATTACHMENT_ACCEPT = ATTACHMENT_EXTENSIONS.join(',')
 export const BOARD_IMAGE_ACCEPT = 'image/jpeg,image/png,image/webp,image/gif'
+export const BOARD_VIDEO_ACCEPT = 'video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov,.m4v'

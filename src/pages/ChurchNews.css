@@ -804,6 +804,15 @@
   object-fit: contain;
 }
 
+.church-news-detail__body--html video {
+  width: 100% !important;
+  max-width: min(720px, 100%) !important;
+  height: auto !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  background: #111;
+}
+
 .church-news-detail__body--html img[data-align='left'],
 .church-news-detail__body--html video[data-align='left'] {
   margin: 0.85rem auto 0.85rem 0 !important;

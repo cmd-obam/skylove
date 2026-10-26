@@ -7,6 +7,7 @@ const PERMISSION_DENIED = '권한이 없습니다.'
 
 export const BOARD_STORAGE_KINDS = {
   image: 'board-images',
+  video: 'board-videos',
   thumbnail: 'board-thumbnails',
   file: 'board-files',
 }

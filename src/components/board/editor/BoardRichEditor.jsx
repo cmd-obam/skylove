@@ -5,21 +5,29 @@ import { createBoardEditorExtensions } from '@/components/board/editor/boardEdit
 import {
   BoardThumbnailSelectContext,
 } from '@/components/board/editor/BoardImageNodeView'
-import { validateBoardImageFile } from '@/utils/boardFileValidation'
+import {
+  BOARD_IMAGE_ACCEPT,
+  BOARD_VIDEO_ACCEPT,
+  validateBoardImageFile,
+  validateBoardVideoFile,
+} from '@/utils/boardFileValidation'
 import './BoardRichEditor.css'
 
 function BoardRichEditor({
   value = '',
   onChange,
   onUploadImage,
+  onUploadVideo,
   thumbnailSrc = null,
   onSelectThumbnail,
   placeholder = '내용을 입력해 주세요.',
   disabled = false,
 }) {
   const fileInputRef = useRef(null)
+  const videoInputRef = useRef(null)
   const editorRef = useRef(null)
   const [uploading, setUploading] = useState(false)
+  const [uploadKind, setUploadKind] = useState('image')
   const [error, setError] = useState('')
   const onChangeRef = useRef(onChange)
   onChangeRef.current = onChange
@@ -33,25 +41,41 @@ function BoardRichEditor({
   )
 
   const uploadAndInsert = useCallback(
-    async (editorInstance, file) => {
-      if (!file || !onUploadImage || !editorInstance) {
+    async (editorInstance, file, kind = 'image') => {
+      const isVideo = kind === 'video'
+      const upload = isVideo ? onUploadVideo : onUploadImage
+
+      if (!file || !upload || !editorInstance) {
         return
       }
 
-      const validation = validateBoardImageFile(file)
+      const validation = isVideo ? validateBoardVideoFile(file) : validateBoardImageFile(file)
       if (!validation.success) {
         setError(validation.message)
         return
       }
 
+      setUploadKind(kind)
       setUploading(true)
       setError('')
 
       try {
-        const result = await onUploadImage(file)
+        const result = await upload(file)
 
         if (!result?.success || !result.url) {
-          setError(result?.message || '이미지 업로드에 실패했습니다.')
+          setError(result?.message || (isVideo ? '동영상 업로드에 실패했습니다.' : '이미지 업로드에 실패했습니다.'))
+          return
+        }
+
+        if (isVideo) {
+          editorInstance
+            .chain()
+            .focus()
+            .insertContent({
+              type: 'boardVideo',
+              attrs: { src: result.url, title: file.name },
+            })
+            .run()
           return
         }
 
@@ -66,12 +90,12 @@ function BoardRichEditor({
           })
           .run()
       } catch (uploadError) {
-        setError(uploadError.message || '이미지 업로드에 실패했습니다.')
+        setError(uploadError.message || (isVideo ? '동영상 업로드에 실패했습니다.' : '이미지 업로드에 실패했습니다.'))
       } finally {
         setUploading(false)
       }
     },
-    [onUploadImage],
+    [onUploadImage, onUploadVideo],
   )
 
   const editor = useEditor({
@@ -87,33 +111,37 @@ function BoardRichEditor({
       },
       handlePaste: (view, event) => {
         const items = Array.from(event.clipboardData?.items || [])
+        const videoItem = items.find((item) => item.type.startsWith('video/'))
         const imageItem = items.find((item) => item.type.startsWith('image/'))
         const currentEditor = editorRef.current
+        const mediaItem = videoItem || imageItem
 
-        if (!imageItem || !currentEditor) {
+        if (!mediaItem || !currentEditor) {
           return false
         }
 
-        const file = imageItem.getAsFile()
+        const file = mediaItem.getAsFile()
         if (!file) {
           return false
         }
 
         event.preventDefault()
-        uploadAndInsert(currentEditor, file)
+        uploadAndInsert(currentEditor, file, videoItem ? 'video' : 'image')
         return true
       },
       handleDrop: (view, event) => {
         const files = Array.from(event.dataTransfer?.files || [])
+        const videoFile = files.find((file) => file.type.startsWith('video/'))
         const imageFile = files.find((file) => file.type.startsWith('image/'))
         const currentEditor = editorRef.current
+        const mediaFile = videoFile || imageFile
 
-        if (!imageFile || !currentEditor) {
+        if (!mediaFile || !currentEditor) {
           return false
         }
 
         event.preventDefault()
-        uploadAndInsert(currentEditor, imageFile)
+        uploadAndInsert(currentEditor, mediaFile, videoFile ? 'video' : 'image')
         return true
       },
     },
@@ -146,7 +174,11 @@ function BoardRichEditor({
     fileInputRef.current?.click()
   }
 
-  const handleFileChange = async (event) => {
+  const handleInsertVideoClick = () => {
+    videoInputRef.current?.click()
+  }
+
+  const handleFileChange = async (event, kind) => {
     const file = event.target.files?.[0]
     event.target.value = ''
 
@@ -154,7 +186,7 @@ function BoardRichEditor({
       return
     }
 
-    await uploadAndInsert(editor, file)
+    await uploadAndInsert(editor, file, kind)
   }
 
   return (
@@ -163,17 +195,29 @@ function BoardRichEditor({
         <BoardEditorToolbar
           editor={editor}
           onInsertImage={handleInsertImageClick}
+          onInsertVideo={handleInsertVideoClick}
           uploading={uploading}
         />
         <EditorContent editor={editor} />
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/jpeg,image/png,image/webp,image/gif"
+          accept={BOARD_IMAGE_ACCEPT}
           className="board-editor__file-input"
-          onChange={handleFileChange}
+          onChange={(event) => handleFileChange(event, 'image')}
         />
-        {uploading ? <p className="board-editor__status">이미지 업로드 중…</p> : null}
+        <input
+          ref={videoInputRef}
+          type="file"
+          accept={BOARD_VIDEO_ACCEPT}
+          className="board-editor__file-input"
+          onChange={(event) => handleFileChange(event, 'video')}
+        />
+        {uploading ? (
+          <p className="board-editor__status">
+            {uploadKind === 'video' ? '동영상 업로드 중…' : '이미지 업로드 중…'}
+          </p>
+        ) : null}
         {error ? <p className="board-editor__error">{error}</p> : null}
       </div>
     </BoardThumbnailSelectContext.Provider>

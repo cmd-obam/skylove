@@ -7,6 +7,7 @@ import {
   FiAlignRight,
   FiLink,
   FiImage,
+  FiVideo,
   FiList,
   FiMinus,
   FiType,
@@ -42,7 +43,7 @@ function ToolButton({ active, disabled, onClick, title, children }) {
   )
 }
 
-function BoardEditorToolbar({ editor, onInsertImage, uploading }) {
+function BoardEditorToolbar({ editor, onInsertImage, onInsertVideo, uploading }) {
   if (!editor) {
     return null
   }
@@ -242,6 +243,9 @@ function BoardEditorToolbar({ editor, onInsertImage, uploading }) {
         </ToolButton>
         <ToolButton title="이미지 삽입" disabled={uploading} onClick={onInsertImage}>
           <FiImage />
+        </ToolButton>
+        <ToolButton title="동영상 삽입" disabled={uploading} onClick={onInsertVideo}>
+          <FiVideo />
         </ToolButton>
       </div>
 

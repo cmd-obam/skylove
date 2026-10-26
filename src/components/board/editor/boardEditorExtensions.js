@@ -1,3 +1,4 @@
+import { mergeAttributes, Node } from '@tiptap/core'
 import StarterKit from '@tiptap/starter-kit'
 import Underline from '@tiptap/extension-underline'
 import Link from '@tiptap/extension-link'
@@ -74,6 +75,37 @@ const ResizableImage = Image.extend({
   },
 })
 
+const BoardVideo = Node.create({
+  name: 'boardVideo',
+  group: 'block',
+  atom: true,
+  draggable: true,
+  selectable: true,
+
+  addAttributes() {
+    return {
+      src: { default: null },
+      title: { default: null },
+    }
+  },
+
+  parseHTML() {
+    return [{ tag: 'video[src]' }]
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return [
+      'video',
+      mergeAttributes(HTMLAttributes, {
+        controls: 'true',
+        playsinline: 'true',
+        preload: 'metadata',
+        class: 'board-editor-video',
+      }),
+    ]
+  },
+})
+
 export function createBoardEditorExtensions({ placeholder } = {}) {
   return [
     StarterKit.configure({
@@ -103,6 +135,7 @@ export function createBoardEditorExtensions({ placeholder } = {}) {
       inline: false,
       allowBase64: false,
     }),
+    BoardVideo,
     TaskList,
     TaskItem.configure({
       nested: true,

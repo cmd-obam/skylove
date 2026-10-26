@@ -413,6 +413,17 @@ function BoardPostWritePage({
     return result
   }
 
+  const handleUploadEditorVideo = async (file) => {
+    const postIdForUpload = isEdit ? postId : draftPostIdRef.current
+    const result = await uploadCmsFile('video', postType, postIdForUpload, file)
+
+    if (result?.path && !isEdit) {
+      draftUploadedPathsRef.current.push(result.path)
+    }
+
+    return result
+  }
+
   const savePost = async ({ status = 'public', scheduledAt = null } = {}) => {
     setError('')
     setScheduleError('')
@@ -721,13 +732,14 @@ function BoardPostWritePage({
               value={content}
               onChange={setContent}
               onUploadImage={handleUploadEditorImage}
+              onUploadVideo={handleUploadEditorVideo}
               thumbnailSrc={thumbnailState?.existingUrl || thumbnailState?.previewUrl || null}
               onSelectThumbnail={handleSelectContentThumbnail}
               disabled={submitting}
               placeholder={
                 isVideoWrite
                   ? '영상 설명을 입력해 주세요. (선택)'
-                  : '내용을 입력하거나 이미지를 첨부해 주세요.'
+                  : '내용을 입력하거나 이미지·동영상을 첨부해 주세요.'
               }
             />
           )}
