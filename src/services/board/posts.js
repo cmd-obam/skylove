@@ -400,6 +400,7 @@ export async function fetchAlbumGalleryImages() {
     const stored = Array.isArray(row.images)
       ? row.images.map((image) => image?.url || image?.src).filter(Boolean)
       : []
+    const srcs = []
 
     for (const src of [...extractContentImageSrcs(row.content), ...stored]) {
       if (!src || src.startsWith('data:') || seen.has(src)) {
@@ -407,8 +408,12 @@ export async function fetchAlbumGalleryImages() {
       }
 
       seen.add(src)
+      srcs.push(src)
+    }
+
+    for (const src of srcs.reverse()) {
       images.push({
-        id: `${row.id}:${seen.size}`,
+        id: `${row.id}:${images.length + 1}`,
         src,
         alt: title,
         postId: row.id,

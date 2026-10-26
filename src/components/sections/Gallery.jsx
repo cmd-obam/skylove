@@ -1,8 +1,16 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
+import { GALLERY_ITEMS } from '@/data/gallery'
 import { fetchAlbumGalleryImages } from '@/services/board/posts'
 import './Gallery.css'
+
+const LEGACY_GALLERY_IMAGES = GALLERY_ITEMS.map((item) => ({
+  id: `legacy-${item.id}`,
+  src: item.image,
+  alt: item.alt,
+  postId: null,
+}))
 
 const DESKTOP_PAGE_SIZE = 4
 const COMPACT_PAGE_SIZE = 2
@@ -38,7 +46,7 @@ function Gallery() {
         return
       }
 
-      setImages(result.images ?? [])
+      setImages([...(result.images ?? []), ...LEGACY_GALLERY_IMAGES])
       setLoading(false)
     })
 
@@ -92,9 +100,15 @@ function Gallery() {
             <ul className="gallery__grid">
               {visible.map((item) => (
                 <li key={item.id} className="gallery__item">
-                  <Link to={`/church-news/album/${item.postId}`} className="gallery__frame">
-                    <img src={item.src} alt={item.alt} className="gallery__image" />
-                  </Link>
+                  {item.postId ? (
+                    <Link to={`/church-news/album/${item.postId}`} className="gallery__frame">
+                      <img src={item.src} alt={item.alt} className="gallery__image" />
+                    </Link>
+                  ) : (
+                    <div className="gallery__frame">
+                      <img src={item.src} alt={item.alt} className="gallery__image" />
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>
