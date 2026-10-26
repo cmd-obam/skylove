@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 import { fetchAlbumGalleryImages } from '@/services/board/posts'
+import { selectStableGalleryImages } from '@/utils/stableGallerySelection'
 import './Gallery.css'
 
 const DESKTOP_PAGE_SIZE = 4
@@ -38,7 +39,7 @@ function Gallery() {
         return
       }
 
-      setImages(result.images ?? [])
+      setImages(selectStableGalleryImages(result.images ?? []))
       setLoading(false)
     })
 
