@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
+import { recordIpVisitPage } from '@/services/analytics/ipVisitTracking'
 import { trackSiteVisitExtensions } from '@/services/analytics/visitTracking'
 
 /**
@@ -17,6 +18,7 @@ function VisitTracker() {
     }
 
     void trackSiteVisitExtensions({ user })
+    void recordIpVisitPage({ user })
     return undefined
   }, [authLoading, user, user?.id, location.pathname])
 
@@ -29,6 +31,7 @@ function VisitTracker() {
     function onVisible() {
       if (document.visibilityState === 'visible') {
         void trackSiteVisitExtensions({ user })
+        void recordIpVisitPage({ user })
       }
     }
 

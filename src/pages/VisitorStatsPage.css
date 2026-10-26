@@ -496,3 +496,114 @@
     grid-column: span 1;
   }
 }
+
+.ip-visit-panel__note,
+.ip-visit-panel__retention p,
+.visitor-stats-page__hint {
+  color: #475569;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.ip-visit-panel__filters {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.ip-visit-panel__search,
+.ip-visit-panel__filters label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ip-visit-panel__search input,
+.ip-visit-panel__filters select {
+  min-height: 36px;
+  border: 1px solid #d7dee8;
+  border-radius: 8px;
+  padding: 0 0.6rem;
+}
+
+.ip-visit-panel__ip-button,
+.ip-visit-panel__button,
+.ip-visit-panel__pager button,
+.ip-visit-panel__search button {
+  border: 1px solid #1d4e89;
+  border-radius: 8px;
+  background: #fff;
+  color: #1d4e89;
+  cursor: pointer;
+  font: inherit;
+  padding: 0.35rem 0.7rem;
+}
+
+.ip-visit-panel__pager {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.ip-visit-panel__error {
+  color: #b91c1c;
+}
+
+.ip-visit-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 4000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.ip-visit-modal__dialog {
+  width: min(100%, 720px);
+  max-height: min(90vh, 820px);
+  overflow: auto;
+  padding: 1.25rem;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.ip-visit-detail__facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.ip-visit-detail__facts div {
+  margin: 0;
+}
+
+.ip-visit-detail__facts dt {
+  color: #64748b;
+  font-size: 0.75rem;
+}
+
+.ip-visit-detail__facts dd,
+.ip-visit-detail__events,
+.ip-visit-detail__daily {
+  margin: 0.2rem 0 0;
+}
+
+.ip-visit-detail__events {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-left: 1.2rem;
+}
+
+.ip-visit-detail__events li,
+.ip-visit-detail__daily li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}

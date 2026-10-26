@@ -17,6 +17,7 @@ import {
 } from '@/services/analytics/siteAnalyticsAdmin'
 import { getKoreaDateString } from '@/utils/visitorDate'
 import { getAnalyticsPathLabel } from '@/utils/analyticsPathLabel'
+import IpVisitPanel from '@/components/analytics/IpVisitPanel'
 import '@/pages/MemberManagement.css'
 import './VisitorStatsPage.css'
 
@@ -407,10 +408,12 @@ function VisitorStatsPage() {
               </table>
             </div>
             <p className="visitor-stats-page__hint">
-              이 숫자는 홈페이지 푸터와 동일한 기존 집계입니다. 변경하지 않습니다.
+              이 숫자는 홈페이지 푸터와 같은 기존 집계입니다. 브라우저마다 한국 날짜 기준 하루 1회만 더하며, IP 통계를 추가해도 이 값은 바꾸거나 지우지 않습니다.
             </p>
           </section>
         )}
+
+        <IpVisitPanel />
 
         <section className="visitor-stats-page__section" aria-labelledby="visitor-period-filter">
           <h2 id="visitor-period-filter" className="visitor-stats-page__section-title">
