@@ -252,6 +252,34 @@ function BoardEditorToolbar({ editor, onInsertImage, onInsertVideo, uploading })
       {editor.isActive('image') && (
         <div className="board-editor__toolbar-group">
           <ToolButton
+            title="바로 옆 이미지와 가로로 배치"
+            disabled={!editor.can().pairWithAdjacentImage()}
+            onClick={() => editor.chain().focus().pairWithAdjacentImage().run()}
+          >
+            가로
+          </ToolButton>
+          <ToolButton
+            title="가로 배치를 풀고 세로로 배치"
+            disabled={!editor.can().unpairImageRow()}
+            onClick={() => editor.chain().focus().unpairImageRow().run()}
+          >
+            세로
+          </ToolButton>
+          <ToolButton
+            title="이미지 앞으로"
+            disabled={!editor.can().moveImageBlock('up')}
+            onClick={() => editor.chain().focus().moveImageBlock('up').run()}
+          >
+            위
+          </ToolButton>
+          <ToolButton
+            title="이미지 뒤로"
+            disabled={!editor.can().moveImageBlock('down')}
+            onClick={() => editor.chain().focus().moveImageBlock('down').run()}
+          >
+            아래
+          </ToolButton>
+          <ToolButton
             title="이미지 왼쪽"
             onClick={() => editor.chain().focus().updateAttributes('image', { 'data-align': 'left' }).run()}
           >

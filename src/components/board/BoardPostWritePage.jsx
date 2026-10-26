@@ -25,7 +25,7 @@ import {
   getFirstContentImageSrc,
 } from '@/utils/boardContentImages'
 import { resizeImageFile, resizeThumbnailFile } from '@/utils/resizeImageFile'
-import { isBoardHtmlEmpty, sanitizeBoardHtml } from '@/utils/sanitizeBoardHtml'
+import { isBoardHtmlEmpty, prepareBoardImagesForEditor, sanitizeBoardHtml } from '@/utils/sanitizeBoardHtml'
 import {
   createEmptySundayBulletinWeekly,
   getSundayBulletinDefaultThumbnailUrl,
@@ -205,8 +205,12 @@ function BoardPostWritePage({
       const parsedBulletin =
         canUseBulletin ? parseSundayBulletinWeekly(post.content) : null
 
+      const editableContent = parsedBulletin
+        ? post.content || ''
+        : prepareBoardImagesForEditor(post.content || '')
+
       setTitle(post.title)
-      setContent(post.content || '')
+      setContent(editableContent)
       setYoutubeUrl(post.youtubeUrl || '')
       setBulletinMode(Boolean(parsedBulletin))
       setWeekly(parsedBulletin || createEmptySundayBulletinWeekly())
@@ -265,7 +269,7 @@ function BoardPostWritePage({
       setInitialSnapshot(
         JSON.stringify({
           title: post.title || '',
-          content: post.content || '',
+          content: editableContent,
           youtubeUrl: post.youtubeUrl || '',
           bulletinMode: Boolean(parsedBulletin),
           weekly: parsedBulletin || createEmptySundayBulletinWeekly(),

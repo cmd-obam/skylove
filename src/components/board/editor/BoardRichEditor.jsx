@@ -87,6 +87,7 @@ function BoardRichEditor({
             alt: file.name,
             width: '100%',
             'data-align': 'center',
+            'data-layout': 'stack',
           })
           .run()
       } catch (uploadError) {

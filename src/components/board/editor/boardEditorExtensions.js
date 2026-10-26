@@ -12,7 +12,14 @@ import TaskList from '@tiptap/extension-task-list'
 import TaskItem from '@tiptap/extension-task-item'
 import HorizontalRule from '@tiptap/extension-horizontal-rule'
 import { ReactNodeViewRenderer } from '@tiptap/react'
-import BoardImageNodeView from '@/components/board/editor/BoardImageNodeView'
+import { Plugin } from '@tiptap/pm/state'
+import BoardImageNodeView, { BoardImageRowView } from '@/components/board/editor/BoardImageNodeView'
+import {
+  moveImageBlock,
+  normalizeBrokenImageRows,
+  pairWithAdjacentImage,
+  unpairImageRow,
+} from '@/components/board/editor/boardImageCommands'
 
 const FontSize = TextStyle.extend({
   addAttributes() {
@@ -36,6 +43,8 @@ const FontSize = TextStyle.extend({
 })
 
 const ResizableImage = Image.extend({
+  draggable: true,
+
   addAttributes() {
     return {
       ...this.parent?.(),
@@ -67,11 +76,82 @@ const ResizableImage = Image.extend({
           }; max-width: 100%; height: auto;`,
         }),
       },
+      'data-layout': {
+        default: null,
+        parseHTML: (element) => element.getAttribute('data-layout') || null,
+        renderHTML: (attributes) => {
+          if (!attributes['data-layout']) {
+            return {}
+          }
+
+          return { 'data-layout': attributes['data-layout'] }
+        },
+      },
+    }
+  },
+
+  addCommands() {
+    return {
+      ...this.parent?.(),
+      pairWithAdjacentImage:
+        () =>
+        ({ state, dispatch }) =>
+          pairWithAdjacentImage(state, dispatch),
+      unpairImageRow:
+        () =>
+        ({ state, dispatch }) =>
+          unpairImageRow(state, dispatch),
+      moveImageBlock:
+        (direction) =>
+        ({ state, dispatch }) =>
+          moveImageBlock(state, dispatch, direction),
     }
   },
 
   addNodeView() {
     return ReactNodeViewRenderer(BoardImageNodeView)
+  },
+})
+
+const BoardImageRow = Node.create({
+  name: 'boardImageRow',
+  group: 'block',
+  content: 'image{1,2}',
+  defining: true,
+  isolating: true,
+  draggable: true,
+
+  parseHTML() {
+    return [{ tag: 'div.board-image-row' }]
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return ['div', mergeAttributes(HTMLAttributes, { class: 'board-image-row', 'data-layout': 'pair' }), 0]
+  },
+
+  addNodeView() {
+    return ReactNodeViewRenderer(BoardImageRowView)
+  },
+
+  addProseMirrorPlugins() {
+    return [
+      new Plugin({
+        appendTransaction(transactions, _oldState, state) {
+          if (!transactions.some((transaction) => transaction.docChanged)) {
+            return null
+          }
+
+          let next = null
+          if (normalizeBrokenImageRows(state, (tr) => {
+            next = tr
+          })) {
+            return next
+          }
+
+          return null
+        },
+      }),
+    ]
   },
 })
 
@@ -135,6 +215,7 @@ export function createBoardEditorExtensions({ placeholder } = {}) {
       inline: false,
       allowBase64: false,
     }),
+    BoardImageRow,
     BoardVideo,
     TaskList,
     TaskItem.configure({

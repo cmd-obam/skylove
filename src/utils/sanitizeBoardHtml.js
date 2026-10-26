@@ -1,5 +1,7 @@
 import DOMPurify from 'dompurify'
 
+export { layoutAdjacentBoardImages, prepareBoardImagesForEditor } from '@/utils/boardImageLayout'
+
 const ALLOWED_TAGS = [
   'p',
   'br',
@@ -42,6 +44,7 @@ const ALLOWED_ATTR = [
   'style',
   'class',
   'data-align',
+  'data-layout',
   'type',
   'checked',
   'disabled',
@@ -92,30 +95,6 @@ export function sanitizeBoardHtml(html) {
     ALLOWED_ATTR,
     ALLOW_DATA_ATTR: false,
     ADD_ATTR: ['target'],
-  })
-}
-
-/**
- * 연속된 이미지 2장을 가로 배치용 래퍼로 묶습니다.
- * 이미 board-image-row 안에 있으면 다시 묶지 않습니다.
- * 예: img1+img2 가로, img3는 단독(세로) 유지
- */
-export function layoutAdjacentBoardImages(html) {
-  if (!html || typeof html !== 'string' || !/<img\b/i.test(html)) {
-    return html
-  }
-
-  return html.replace(/(<img\b[^>]*>)\s*(<img\b[^>]*>)/gi, (match, imgA, imgB, offset, full) => {
-    const before = full.slice(0, offset)
-    const lastOpen = before.lastIndexOf('board-image-row')
-    if (lastOpen !== -1) {
-      const afterOpen = before.slice(lastOpen)
-      if (!afterOpen.includes('</div>')) {
-        return match
-      }
-    }
-
-    return `<div class="board-image-row">${imgA}${imgB}</div>`
   })
 }
 

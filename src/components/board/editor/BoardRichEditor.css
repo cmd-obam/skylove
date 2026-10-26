@@ -247,6 +247,81 @@
   object-fit: contain;
 }
 
+.board-editor-image__actions {
+  position: absolute;
+  left: 0.5rem;
+  bottom: 0.5rem;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  max-width: calc(100% - 1rem);
+}
+
+.board-editor-image__actions button {
+  border: 1px solid #d7e3ef;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #1f3a5f;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0.35rem 0.55rem;
+  cursor: pointer;
+}
+
+.board-editor-image__actions button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.board-editor-image-row {
+  width: 100%;
+  max-width: 100%;
+  margin: 0.75rem 0;
+}
+
+.board-editor-image-row__content {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 100%;
+}
+
+.board-editor-image-row__content > .board-editor-image {
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto;
+  margin: 0;
+}
+
+.board-editor-image-row__content > .board-editor-image[data-width='40%'] {
+  flex-grow: 0.8;
+}
+
+.board-editor-image-row__content > .board-editor-image[data-width='70%'] {
+  flex-grow: 1.4;
+}
+
+.board-editor-image-row .board-editor-image__frame,
+.board-editor-image-row .board-editor-image__img {
+  width: 100%;
+  max-width: 100%;
+}
+
+@media (max-width: 640px) {
+  .board-editor-image-row__content {
+    flex-direction: column;
+  }
+
+  .board-editor-image-row__content > .board-editor-image {
+    width: 100%;
+  }
+}
+
 .board-editor-image.is-selected .board-editor-image__frame {
   outline: 2px solid #4da6ff;
   outline-offset: 2px;

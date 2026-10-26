@@ -885,31 +885,48 @@
 }
 
 /* 본문 이미지 2열 가로 배치 */
-.church-news-detail__body--html .board-image-row {
+.church-news-detail__body--html .board-image-row,
+.worship-word-detail__content--html .board-image-row {
   display: flex;
   flex-wrap: nowrap;
   align-items: flex-start;
   justify-content: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
   margin: 0.85rem auto;
+  width: 100%;
   max-width: min(960px, 100%);
 }
 
-.church-news-detail__body--html .board-image-row > img {
-  flex: 1 1 0;
-  width: calc(50% - 0.4rem) !important;
-  max-width: none !important;
+.church-news-detail__body--html .board-image-row > img,
+.worship-word-detail__content--html .board-image-row > img {
+  flex: 1 1 0 !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  height: auto !important;
   margin: 0 !important;
   object-fit: contain;
 }
 
+.church-news-detail__body--html .board-image-row > img[width='40%'],
+.worship-word-detail__content--html .board-image-row > img[width='40%'] {
+  flex-grow: 0.8 !important;
+}
+
+.church-news-detail__body--html .board-image-row > img[width='70%'],
+.worship-word-detail__content--html .board-image-row > img[width='70%'] {
+  flex-grow: 1.4 !important;
+}
+
 @media (max-width: 640px) {
-  .church-news-detail__body--html .board-image-row {
+  .church-news-detail__body--html .board-image-row,
+  .worship-word-detail__content--html .board-image-row {
     flex-direction: column;
     align-items: center;
   }
 
-  .church-news-detail__body--html .board-image-row > img {
+  .church-news-detail__body--html .board-image-row > img,
+  .worship-word-detail__content--html .board-image-row > img {
     width: 100% !important;
     max-width: min(600px, 100%) !important;
   }
