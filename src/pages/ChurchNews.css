@@ -946,11 +946,15 @@
 
 .church-news-detail__body--html .board-youtube iframe,
 .worship-word-detail__content--html .board-youtube iframe {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border: 0;
+  position: absolute !important;
+  inset: 0 !important;
+  display: block !important;
+  width: 100% !important;
+  max-width: none !important;
+  height: 100% !important;
+  margin: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
 }
 
 .church-news-detail__body--html .board-youtube--invalid,
