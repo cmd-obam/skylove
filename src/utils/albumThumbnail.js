@@ -1,3 +1,5 @@
+import { resolveYouTubeMedia } from '@/utils/youtube'
+
 export function getAlbumPhotoCount(post) {
   return Array.isArray(post?.images) ? post.images.length : 0
 }
@@ -11,6 +13,11 @@ export function getAlbumThumbnailSrc(post, placeholderSrc) {
 
   if (firstImage?.src) {
     return firstImage.src
+  }
+
+  const youtubeThumbnail = resolveYouTubeMedia(post?.youtubeUrl)?.thumbnail
+  if (youtubeThumbnail) {
+    return youtubeThumbnail
   }
 
   return placeholderSrc

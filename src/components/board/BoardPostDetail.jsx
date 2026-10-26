@@ -6,6 +6,7 @@ import BoardPostExtras from '@/components/board/BoardPostExtras'
 import BoardPostComments from '@/components/board/BoardPostComments'
 import BoardPostAdminBar from '@/components/board/BoardPostAdminBar'
 import AlbumImageGallery from '@/components/board/AlbumImageGallery'
+import BoardYouTubePlayer from '@/components/board/BoardYouTubePlayer'
 import PostCopyright from '@/components/board/PostCopyright'
 import { useBoardPostStats } from '@/hooks/useBoardPostStats'
 import { useAuth } from '@/contexts/AuthContext'
@@ -196,6 +197,16 @@ function BoardPostDetail({
         </header>
 
         {children}
+
+        {post.youtubeUrl ? (
+          <div className="church-news-detail__body church-news-detail__body--video">
+            <BoardYouTubePlayer
+              youtubeUrl={post.youtubeUrl}
+              title={post.title}
+              thumbnail={post.thumbnail}
+            />
+          </div>
+        ) : null}
 
         {customBody ? (
           <div className="church-news-detail__body church-news-detail__body--custom">{customBody}</div>

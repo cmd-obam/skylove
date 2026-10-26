@@ -806,6 +806,10 @@
   white-space: normal;
 }
 
+.church-news-detail__body--video {
+  white-space: normal;
+}
+
 .church-news-detail__body--custom {
   white-space: normal;
   color: inherit;

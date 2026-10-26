@@ -233,7 +233,7 @@ export async function fetchBoardPosts(postType) {
 
   const { data, error } = await supabase
     .from('board_post_list')
-    .select('id, post_type, title, writer, thumbnail, created_at, has_image')
+    .select('id, post_type, title, writer, thumbnail, youtube_url, created_at, has_image')
     .eq('post_type', postType)
     .order('created_at', { ascending: false })
 
@@ -326,7 +326,7 @@ export async function fetchLatestBoardPosts(postType, limit = 4) {
 
   const { data, error } = await supabase
     .from('board_post_list')
-    .select('id, post_type, title, writer, thumbnail, created_at, has_image')
+    .select('id, post_type, title, writer, thumbnail, youtube_url, created_at, has_image')
     .eq('post_type', postType)
     .order('created_at', { ascending: false })
     .limit(safeLimit)

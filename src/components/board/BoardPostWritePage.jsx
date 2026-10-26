@@ -93,6 +93,8 @@ function BoardPostWritePage({
   const currentUserId = effectiveUserId ?? user?.id
   const isEdit = mode === 'edit'
   const isVideoWrite = writeVariant === 'video'
+  const isAlbumWrite = postType === 'album'
+  const acceptsYoutube = isVideoWrite || isAlbumWrite
   const canUseBulletin = enableBulletinTemplate && !isVideoWrite
 
   const [title, setTitle] = useState('')
@@ -447,20 +449,23 @@ function BoardPostWritePage({
         setError('성령강림절 후 제 ○○주(주차 숫자)를 입력해 주세요.')
         return
       }
-    } else if (!isVideoWrite && isBoardHtmlEmpty(sanitizedContent)) {
+    } else if (!isVideoWrite && isBoardHtmlEmpty(sanitizedContent) && !(isAlbumWrite && trimmedYoutubeUrl)) {
       setError('내용 또는 이미지를 입력해 주세요.')
       return
     }
 
     let youtubeMedia = null
 
-    if (isVideoWrite) {
+    if (acceptsYoutube && trimmedYoutubeUrl) {
       youtubeMedia = resolveYouTubeMedia(trimmedYoutubeUrl)
 
       if (!youtubeMedia) {
         setError('올바른 유튜브 링크를 입력해 주세요.')
         return
       }
+    } else if (isVideoWrite) {
+      setError('올바른 유튜브 링크를 입력해 주세요.')
+      return
     }
 
     const isScheduled = status === 'scheduled'
@@ -500,7 +505,7 @@ function BoardPostWritePage({
         thumbnailUrl = getFirstContentImageSrc(sanitizedContent)
       }
 
-      if (isVideoWrite && !thumbnailUrl) {
+      if ((isVideoWrite || isAlbumWrite) && !thumbnailUrl && youtubeMedia) {
         thumbnailUrl = youtubeMedia.thumbnail
       }
 
@@ -581,7 +586,7 @@ function BoardPostWritePage({
         })),
         thumbnail: thumbnailUrl,
         hasImage,
-        youtubeUrl: isVideoWrite ? youtubeMedia.youtubeUrl : null,
+        youtubeUrl: acceptsYoutube ? (youtubeMedia?.youtubeUrl ?? null) : null,
         status: isScheduled ? 'scheduled' : 'public',
         scheduledAt: isScheduled ? scheduledAt : null,
       }
@@ -670,7 +675,7 @@ function BoardPostWritePage({
     return null
   }
 
-  const youtubePreview = isVideoWrite ? resolveYouTubeMedia(youtubeUrl) : null
+  const youtubePreview = acceptsYoutube ? resolveYouTubeMedia(youtubeUrl) : null
 
   return (
     <div className="church-news-page">
@@ -695,10 +700,10 @@ function BoardPostWritePage({
           />
         </div>
 
-        {isVideoWrite && (
+        {acceptsYoutube && (
           <div className="board-write-form__field">
             <label htmlFor="board-write-youtube" className="board-write-form__label">
-              유튜브 링크
+              유튜브 링크{isAlbumWrite ? ' (선택)' : ''}
             </label>
             <input
               id="board-write-youtube"
@@ -708,7 +713,7 @@ function BoardPostWritePage({
               onChange={(event) => setYoutubeUrl(event.target.value)}
               disabled={submitting}
               placeholder="https://www.youtube.com/watch?v=..."
-              required
+              required={isVideoWrite}
               autoComplete={AUTOCOMPLETE_OFF}
             />
             {youtubePreview?.thumbnail && (
