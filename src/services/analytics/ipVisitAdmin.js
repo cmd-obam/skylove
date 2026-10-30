@@ -21,6 +21,54 @@ function rowsOf(data) {
   return Array.isArray(data) ? data : []
 }
 
+export async function fetchIpVisitRecorderStatus() {
+  try {
+    const response = await fetch('/api/record-ip-visit', {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+    })
+    const body = await response.json().catch(() => null)
+
+    if (!response.ok || !body || typeof body !== 'object') {
+      return {
+        success: false,
+        ready: false,
+        reason: 'status_unavailable',
+        message: 'IP 방문 기록 서버 상태를 확인하지 못했습니다.',
+      }
+    }
+
+    if (body.ready) {
+      return { success: true, ready: true, reason: null, message: '' }
+    }
+
+    const missing = Array.isArray(body.missing) ? body.missing.filter(Boolean) : []
+    if (body.reason === 'server_key_missing' || missing.includes('SUPABASE_SERVICE_ROLE_KEY')) {
+      return {
+        success: true,
+        ready: false,
+        reason: 'server_key_missing',
+        message:
+          'IP 방문이 저장되지 않습니다. Vercel 프로젝트 Environment Variables에 서버 전용 SUPABASE_SERVICE_ROLE_KEY를 넣고 재배포해주세요. VITE_ 접두사는 사용하지 마세요.',
+      }
+    }
+
+    return {
+      success: true,
+      ready: false,
+      reason: body.reason || 'not_ready',
+      message: 'IP 방문 기록 서버 설정이 아직 준비되지 않았습니다.',
+    }
+  } catch {
+    return {
+      success: false,
+      ready: false,
+      reason: 'network',
+      message: 'IP 방문 기록 서버에 연결하지 못했습니다.',
+    }
+  }
+}
+
 export async function fetchIpVisitOverview() {
   const { data, error } = await supabase.rpc('get_ip_visit_overview_for_super_admin')
 

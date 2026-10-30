@@ -12,13 +12,32 @@ function parseBody(body) {
 }
 
 function readEnv(name, fallbackName) {
-  return process.env[name] || process.env[fallbackName] || ''
+  return process.env[name] || (fallbackName ? process.env[fallbackName] : '') || ''
 }
 
 function bearerToken(header) {
   const value = String(header || '')
   const match = value.match(/^Bearer\s+(.+)$/i)
   return match ? match[1].trim() : ''
+}
+
+function recorderConfig() {
+  const supabaseUrl = readEnv('SUPABASE_URL', 'VITE_SUPABASE_URL').replace(/\/$/, '')
+  const anonKey = readEnv('SUPABASE_ANON_KEY', 'VITE_SUPABASE_PUBLISHABLE_KEY')
+  const serviceKey = readEnv('SUPABASE_SERVICE_ROLE_KEY', '')
+  const missing = []
+
+  if (!supabaseUrl) missing.push('SUPABASE_URL')
+  if (!serviceKey) missing.push('SUPABASE_SERVICE_ROLE_KEY')
+
+  return {
+    supabaseUrl,
+    anonKey,
+    serviceKey,
+    ready: missing.length === 0,
+    reason: missing.length === 0 ? null : 'server_key_missing',
+    missing,
+  }
 }
 
 async function verifiedUserId(supabaseUrl, anonKey, token) {
@@ -56,6 +75,10 @@ async function recordVisit({ supabaseUrl, serviceKey, payload, userId }) {
 
   const body = await response.json().catch(() => null)
   if (!response.ok) {
+    console.error('[record-ip-visit] rpc_rejected', {
+      status: response.status,
+      body,
+    })
     return { recorded: false, reason: 'rpc_rejected' }
   }
 
@@ -63,40 +86,69 @@ async function recordVisit({ supabaseUrl, serviceKey, payload, userId }) {
 }
 
 export default async function handler(req, res) {
+  if (req.method === 'GET') {
+    const config = recorderConfig()
+    res.status(200).json({
+      ready: config.ready,
+      reason: config.reason,
+      // Never return the key. Only tell the admin which server env names are missing.
+      missing: config.missing,
+    })
+    return
+  }
+
   if (req.method !== 'POST') {
-    res.setHeader('Allow', 'POST')
+    res.setHeader('Allow', 'GET, POST')
     res.status(405).json({ recorded: false, reason: 'method_not_allowed' })
     return
   }
 
   const payload = buildTrustedVisitPayload(req.headers, parseBody(req.body))
   if (!payload.ip) {
+    console.error('[record-ip-visit] ip_unavailable', {
+      hasRealIp: Boolean(req.headers?.['x-real-ip'] || req.headers?.['x-vercel-forwarded-for']),
+      path: payload.path,
+    })
     res.status(200).json({ recorded: false, reason: 'ip_unavailable' })
     return
   }
 
-  const supabaseUrl = readEnv('SUPABASE_URL', 'VITE_SUPABASE_URL').replace(/\/$/, '')
-  const anonKey = readEnv('SUPABASE_ANON_KEY', 'VITE_SUPABASE_PUBLISHABLE_KEY')
-  const serviceKey = readEnv('SUPABASE_SERVICE_ROLE_KEY', '')
-
-  if (!supabaseUrl || !serviceKey) {
-    res.status(200).json({ recorded: false, reason: 'server_key_missing' })
+  const config = recorderConfig()
+  if (!config.ready) {
+    console.error('[record-ip-visit] server_key_missing', {
+      missing: config.missing,
+      path: payload.path,
+    })
+    res.status(200).json({ recorded: false, reason: 'server_key_missing', missing: config.missing })
     return
   }
 
   try {
-    const userId = await verifiedUserId(supabaseUrl, anonKey, bearerToken(req.headers.authorization))
+    const userId = await verifiedUserId(
+      config.supabaseUrl,
+      config.anonKey,
+      bearerToken(req.headers.authorization),
+    )
     const result = await recordVisit({
-      supabaseUrl,
-      serviceKey,
+      supabaseUrl: config.supabaseUrl,
+      serviceKey: config.serviceKey,
       payload,
       userId,
     })
+
+    if (!result.recorded) {
+      console.error('[record-ip-visit] not_recorded', {
+        reason: result.reason || null,
+        path: payload.path,
+      })
+    }
+
     res.status(200).json({
       recorded: Boolean(result.recorded),
       reason: result.reason || null,
     })
-  } catch {
+  } catch (error) {
+    console.error('[record-ip-visit] record_failed', error)
     res.status(200).json({ recorded: false, reason: 'record_failed' })
   }
 }

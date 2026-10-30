@@ -3,6 +3,10 @@
 -- Does not change footer TODAY/TOTAL, site_traffic_events, members, or posts.
 -- The browser cannot insert an IP. Only record_trusted_ip_visit, granted to
 -- service_role, writes rows. Vercel sets the IP before that call.
+--
+-- After this SQL is applied, Vercel Production must also have the server-only
+-- env var SUPABASE_SERVICE_ROLE_KEY (never VITE_). Without that key the
+-- /api/record-ip-visit route returns server_key_missing and stores nothing.
 -- ============================================================
 
 CREATE TABLE IF NOT EXISTS public.site_ip_visit_settings (

@@ -48,15 +48,18 @@ export function normalizeTrustedIp(value) {
 }
 
 /**
- * Vercel overwrites x-real-ip and x-forwarded-for so a browser cannot spoof them.
- * x-real-ip is the address Vercel's own helper uses.
- * A value sent in the JSON body is never read.
+ * Vercel overwrites x-real-ip, x-vercel-forwarded-for, and x-forwarded-for,
+ * so a browser cannot spoof them on the deployed site.
+ * A value sent in the JSON body is never read. Localhost/private values are rejected.
  */
 export function resolveTrustedClientIp(headers) {
   const realIp = normalizeTrustedIp(headerValue(headers, 'x-real-ip'))
   if (realIp) return realIp
 
-  return normalizeTrustedIp(headerValue(headers, 'x-vercel-forwarded-for'))
+  const vercelForwarded = normalizeTrustedIp(headerValue(headers, 'x-vercel-forwarded-for'))
+  if (vercelForwarded) return vercelForwarded
+
+  return normalizeTrustedIp(headerValue(headers, 'x-forwarded-for'))
 }
 
 export function sanitizeVisitPath(value) {

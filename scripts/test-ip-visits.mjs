@@ -22,7 +22,16 @@ test('trusted IP comes from Vercel headers and ignores the request body', () => 
   )
   assert.equal(resolveTrustedClientIp({ 'x-real-ip': '127.0.0.1' }), null)
   assert.equal(resolveTrustedClientIp({ 'x-vercel-forwarded-for': '203.0.113.8, 10.0.0.1' }), '203.0.113.8')
+  assert.equal(resolveTrustedClientIp({ 'x-forwarded-for': '203.0.113.7, 10.0.0.1' }), '203.0.113.7')
   assert.equal(resolveTrustedClientIp({}), null)
+})
+
+test('IP visit recorder status endpoint does not invent visits', () => {
+  const source = readFileSync(new URL('../api/record-ip-visit.js', import.meta.url), 'utf8')
+  assert.match(source, /req\.method === 'GET'/)
+  assert.match(source, /server_key_missing/)
+  assert.match(source, /console\.error\('\[record-ip-visit\]/)
+  assert.doesNotMatch(source, /Math\.random|fake.?ip|0\.0\.0\.0/i)
 })
 
 test('IP visit SQL keeps existing stats and limits reads to super admins', () => {

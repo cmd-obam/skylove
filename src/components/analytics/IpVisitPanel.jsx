@@ -4,6 +4,7 @@ import {
   fetchIpVisitDetail,
   fetchIpVisitList,
   fetchIpVisitOverview,
+  fetchIpVisitRecorderStatus,
   updateIpVisitRetention,
 } from '@/services/analytics/ipVisitAdmin'
 import { formatVisitDateTime } from '@/services/analytics/visitorStatsAdmin'
@@ -155,6 +156,7 @@ function IpVisitPanel() {
   const [detailLoading, setDetailLoading] = useState(false)
   const [detailError, setDetailError] = useState('')
   const [retentionMessage, setRetentionMessage] = useState('')
+  const [recorderMessage, setRecorderMessage] = useState('')
 
   const range = useMemo(
     () => resolveAnalyticsRange(period, customFrom, customTo),
@@ -168,7 +170,8 @@ function IpVisitPanel() {
     async function load() {
       setLoading(true)
       setError('')
-      const [overviewResult, listResult] = await Promise.all([
+      setRecorderMessage('')
+      const [overviewResult, listResult, recorderResult] = await Promise.all([
         fetchIpVisitOverview(),
         fetchIpVisitList({
           from: range.from,
@@ -179,6 +182,7 @@ function IpVisitPanel() {
           limit: PAGE_SIZE,
           offset: (page - 1) * PAGE_SIZE,
         }),
+        fetchIpVisitRecorderStatus(),
       ])
 
       if (cancelled) return
@@ -192,6 +196,10 @@ function IpVisitPanel() {
         setOverview(overviewResult.overview)
         setRows(listResult.rows)
         setTotal(listResult.total)
+      }
+
+      if (recorderResult.message && !recorderResult.ready) {
+        setRecorderMessage(recorderResult.message)
       }
       setLoading(false)
     }
@@ -249,6 +257,7 @@ function IpVisitPanel() {
       </p>
       {loading ? <p>불러오는 중...</p> : null}
       {error ? <p className="ip-visit-panel__error" role="alert">{error}</p> : null}
+      {recorderMessage ? <p className="ip-visit-panel__error" role="alert">{recorderMessage}</p> : null}
       <div className="visitor-stats-page__summary visitor-stats-page__summary--wide">
         {[
           ['오늘 순 방문 IP', overview?.today_unique_ips],
