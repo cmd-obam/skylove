@@ -1105,12 +1105,15 @@ function ThanksgivingGame() {
               ))}
             </p>
           </div>
-          <p className="tg-hud__time" aria-live="polite">
-            {formatTime(Math.max(0, GAME_DURATION_MS - elapsedMs))}
-          </p>
           <div className="tg-hud__right">
+            <p className="tg-hud__time" aria-live="polite">
+              <span className="tg-hud__time-label">남은 시간</span>
+              <strong className="tg-hud__time-value">
+                {formatTime(Math.max(0, GAME_DURATION_MS - elapsedMs))}
+              </strong>
+            </p>
             {phase === 'ended' ? null : (
-              <>
+              <div className="tg-hud__actions">
                 <button
                   type="button"
                   className="tg-btn tg-btn--ghost"
@@ -1136,7 +1139,7 @@ function ThanksgivingGame() {
                 >
                   처음부터
                 </button>
-              </>
+              </div>
             )}
           </div>
         </header>
