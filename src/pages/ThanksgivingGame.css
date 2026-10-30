@@ -227,6 +227,14 @@
   box-sizing: border-box;
 }
 
+.tg-card--ended {
+  width: min(100%, 40rem);
+}
+
+.tg-card__title--ended {
+  color: #9f1239;
+}
+
 .tg-card--ranking .tg-card__title {
   margin-bottom: 0.2rem;
   font-size: 1.2rem;

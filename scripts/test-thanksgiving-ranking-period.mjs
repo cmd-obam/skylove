@@ -5,19 +5,23 @@ import { buildThanksgivingScorePayload } from '../src/services/thanksgivingGame/
 import {
   isThanksgivingRankingPeriodClosedError,
   isThanksgivingRankingPeriodOpen,
+  THANKSGIVING_EVENT_ENDED_MESSAGE,
   THANKSGIVING_RANKING_PERIOD_CLOSED_MESSAGE,
+  THANKSGIVING_RANKING_PERIOD_END,
 } from '../src/services/thanksgivingGame/rankingPeriod.js'
 
 test('ranking opens at 2026-10-25 00:00 KST', () => {
   assert.equal(isThanksgivingRankingPeriodOpen('2026-10-25T00:00:00+09:00'), true)
 })
 
-test('ranking is still open at 2026-10-30 23:59 KST', () => {
-  assert.equal(isThanksgivingRankingPeriodOpen('2026-10-30T23:59:00+09:00'), true)
-  assert.equal(isThanksgivingRankingPeriodOpen('2026-10-30T23:59:59+09:00'), true)
+test('ranking stays open just before 2026-10-30 23:59 KST', () => {
+  assert.equal(isThanksgivingRankingPeriodOpen('2026-10-30T23:58:59+09:00'), true)
 })
 
-test('ranking closes at 2026-10-31 00:00 KST and stays closed at 00:01', () => {
+test('ranking closes at 2026-10-30 23:59 KST and stays closed afterwards', () => {
+  assert.equal(THANKSGIVING_RANKING_PERIOD_END, '2026-10-30T23:59:00+09:00')
+  assert.equal(isThanksgivingRankingPeriodOpen('2026-10-30T23:59:00+09:00'), false)
+  assert.equal(isThanksgivingRankingPeriodOpen('2026-10-30T23:59:59+09:00'), false)
   assert.equal(isThanksgivingRankingPeriodOpen('2026-10-31T00:00:00+09:00'), false)
   assert.equal(isThanksgivingRankingPeriodOpen('2026-10-31T00:01:00+09:00'), false)
 })
@@ -52,6 +56,7 @@ test('closed-period database errors are recognized without treating them as a sa
     THANKSGIVING_RANKING_PERIOD_CLOSED_MESSAGE,
     '랭킹 기록 기간이 종료되어 더 이상 점수가 등록되지 않습니다.',
   )
+  assert.equal(THANKSGIVING_EVENT_ENDED_MESSAGE, '이벤트 기간이 종료되었습니다.')
 })
 
 test('database save function rejects writes from server time before it changes rows', () => {
@@ -67,7 +72,20 @@ test('database save function rejects writes from server time before it changes r
   assert.ok(guard < firstDelete)
   assert.ok(guard < firstInsert)
   assert.match(sql, /timestamptz '2026-10-25 00:00:00\+09'/)
-  assert.match(sql, /timestamptz '2026-10-31 00:00:00\+09'/)
+  assert.match(sql, /timestamptz '2026-10-30 23:59:00\+09'/)
   assert.match(sql, /BEFORE INSERT OR UPDATE ON public\.thanksgiving_game_entries/)
   assert.doesNotMatch(sql, /TRUNCATE|DELETE FROM public\.thanksgiving_game_entries\s*;/i)
+})
+
+test('event-end migration closes at Oct 30 23:59 KST and exposes a server status RPC', () => {
+  const sql = fs.readFileSync(
+    new URL('../supabase/migrations/065_thanksgiving_event_end_oct30.sql', import.meta.url),
+    'utf8',
+  )
+
+  assert.match(sql, /timestamptz '2026-10-30 23:59:00\+09'/)
+  assert.match(sql, /get_thanksgiving_ranking_period_status/)
+  assert.match(sql, /GRANT EXECUTE ON FUNCTION public\.get_thanksgiving_ranking_period_status/)
+  assert.doesNotMatch(sql, /DELETE FROM public\.thanksgiving_game_entries/)
+  assert.doesNotMatch(sql, /TRUNCATE/i)
 })

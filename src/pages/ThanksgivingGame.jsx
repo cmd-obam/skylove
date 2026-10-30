@@ -6,13 +6,17 @@ import { getPublicDisplayName } from '@/utils/getPublicDisplayName'
 import {
   fetchMyThanksgivingGameScore,
   fetchThanksgivingGameRanking,
+  fetchThanksgivingRankingPeriodStatus,
   getOrCreateGuestKey,
   rankForDisplayName,
   sliceRankingPage,
   submitThanksgivingGameScore,
   validateGameNickname,
 } from '@/services/thanksgivingGame/scores'
-import { THANKSGIVING_RANKING_PERIOD_CLOSED_MESSAGE } from '@/services/thanksgivingGame/rankingPeriod'
+import {
+  THANKSGIVING_EVENT_ENDED_MESSAGE,
+  THANKSGIVING_RANKING_PERIOD_CLOSED_MESSAGE,
+} from '@/services/thanksgivingGame/rankingPeriod'
 import farmerSrc from '@/assets/images/thanksgiving-game/farmer.png'
 import riceSrc from '@/assets/images/thanksgiving-game/rice.png'
 import goldenRiceSrc from '@/assets/images/thanksgiving-game/golden-rice.png'
@@ -291,6 +295,9 @@ function ThanksgivingGame() {
   const guestKeyRef = useRef(getOrCreateGuestKey())
 
   const [phase, setPhase] = useState('intro')
+  const [eventOpen, setEventOpen] = useState(true)
+  const [eventStatusReady, setEventStatusReady] = useState(false)
+  const eventOpenRef = useRef(true)
   const [tutorialPage, setTutorialPage] = useState(0)
   const [score, setScore] = useState(0)
   const [combo, setCombo] = useState(0)
@@ -323,6 +330,9 @@ function ThanksgivingGame() {
   }, [isLoggedIn, profile, phase, nickname])
 
   const syncHud = useCallback((game) => {
+    if (!eventOpenRef.current) {
+      return
+    }
     setScore(game.score)
     setCombo(game.combo ?? 0)
     setLives(game.lives)
@@ -562,9 +572,39 @@ function ThanksgivingGame() {
       })
 
       if (submitResult.periodClosed) {
+        eventOpenRef.current = false
+        setEventOpen(false)
+        if (rafRef.current) {
+          window.cancelAnimationFrame(rafRef.current)
+          rafRef.current = 0
+        }
+        stateRef.current = null
+        setRankingOpen(false)
+        setPhase('ended')
         setSubmitStatus('closed')
         setSubmitMessage(THANKSGIVING_RANKING_PERIOD_CLOSED_MESSAGE)
-      } else if (submitResult.success) {
+        const closedRanking = await fetchThanksgivingGameRanking(RANKING_FETCH_LIMIT)
+        if (closedRanking.success) {
+          setRankingRows(closedRanking.rows)
+          setRankingStatus(closedRanking.rows.length ? 'ready' : 'empty')
+        }
+        const mineClosed = await fetchMyThanksgivingGameScore({ guestKey })
+        if (mineClosed.success) {
+          setMyBest(mineClosed.bestScore)
+          setMyEntryId(mineClosed.entryId)
+          setMyRank(
+            mineClosed.bestScore == null
+              ? null
+              : rankForDisplayName(
+                  closedRanking.success ? closedRanking.rows : [],
+                  nicknameRef.current,
+                ) ?? mineClosed.rank,
+          )
+        }
+        return
+      }
+
+      if (submitResult.success) {
         setMyBest(submitResult.bestScore)
         setMyEntryId(submitResult.entryId)
         setSubmitStatus(submitResult.isNewBest ? 'new' : 'kept')
@@ -601,7 +641,7 @@ function ThanksgivingGame() {
   const tick = useCallback(
     (timestamp) => {
       const game = stateRef.current
-      if (!game) return
+      if (!game || !eventOpenRef.current) return
 
       if (!game.lastTs) game.lastTs = timestamp
       const dt = Math.min(0.05, (timestamp - game.lastTs) / 1000)
@@ -789,43 +829,6 @@ function ThanksgivingGame() {
     rafRef.current = window.requestAnimationFrame(tick)
   }, [stopLoop, tick])
 
-  const startGame = useCallback(() => {
-    const rankingName = isLoggedIn
-      ? getDefaultNickname(profile, true) || nicknameRef.current
-      : nicknameRef.current
-    const check = validateGameNickname(rankingName, { maxLength: isLoggedIn ? 20 : 12 })
-    if (!check.ok) {
-      setNicknameError(check.message)
-      setPhase('nickname')
-      return
-    }
-    storeNickname(check.nickname)
-    setNickname(check.nickname)
-    setNicknameError('')
-    resizeCanvas()
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const w = canvas.clientWidth
-    const h = canvas.clientHeight
-    stateRef.current = createFreshState(w, h)
-    syncHud(stateRef.current)
-    startLoop()
-  }, [createFreshState, isLoggedIn, profile, resizeCanvas, startLoop, syncHud])
-
-  const togglePause = useCallback(() => {
-    const game = stateRef.current
-    if (!game) return
-    if (rankingOpen) return
-    if (game.phase === 'playing') {
-      game.phase = 'paused'
-      syncHud(game)
-    } else if (game.phase === 'paused') {
-      game.phase = 'playing'
-      game.lastTs = 0
-      syncHud(game)
-    }
-  }, [rankingOpen, syncHud])
-
   const loadRankingBoard = useCallback(async () => {
     setRankingStatus('loading')
     const rankingResult = await fetchThanksgivingGameRanking(RANKING_FETCH_LIMIT)
@@ -850,6 +853,85 @@ function ThanksgivingGame() {
       setMyRank(namedRank ?? mine.rank)
     }
   }, [])
+
+  const enterEndedMode = useCallback(async () => {
+    eventOpenRef.current = false
+    setEventOpen(false)
+    stopLoop()
+    stateRef.current = null
+    touchRef.current = { active: false, offsetX: 0 }
+    rankingResumeRef.current = false
+    setRankingOpen(false)
+    setPhase('ended')
+    setSubmitStatus('closed')
+    setSubmitMessage(THANKSGIVING_RANKING_PERIOD_CLOSED_MESSAGE)
+    await loadRankingBoard()
+  }, [loadRankingBoard, stopLoop])
+
+  const refreshEventStatus = useCallback(async () => {
+    const status = await fetchThanksgivingRankingPeriodStatus()
+    setEventStatusReady(true)
+
+    if (!status.success) {
+      // Keep the previous open/closed choice when the status RPC fails mid-session.
+      return status
+    }
+
+    if (!status.isOpen) {
+      await enterEndedMode()
+      return status
+    }
+
+    eventOpenRef.current = true
+    setEventOpen(true)
+    return status
+  }, [enterEndedMode])
+
+  const startGame = useCallback(async () => {
+    const status = await refreshEventStatus()
+    if (status.success && !status.isOpen) {
+      return
+    }
+    if (!eventOpenRef.current) {
+      return
+    }
+
+    const rankingName = isLoggedIn
+      ? getDefaultNickname(profile, true) || nicknameRef.current
+      : nicknameRef.current
+    const check = validateGameNickname(rankingName, { maxLength: isLoggedIn ? 20 : 12 })
+    if (!check.ok) {
+      setNicknameError(check.message)
+      setPhase('nickname')
+      return
+    }
+    storeNickname(check.nickname)
+    setNickname(check.nickname)
+    setNicknameError('')
+    resizeCanvas()
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const w = canvas.clientWidth
+    const h = canvas.clientHeight
+    stateRef.current = createFreshState(w, h)
+    syncHud(stateRef.current)
+    startLoop()
+  }, [createFreshState, isLoggedIn, profile, refreshEventStatus, resizeCanvas, startLoop, syncHud])
+
+  const togglePause = useCallback(() => {
+    if (!eventOpenRef.current) return
+    const game = stateRef.current
+    if (!game) return
+    if (rankingOpen) return
+    if (game.phase === 'playing') {
+      game.phase = 'paused'
+      syncHud(game)
+    } else if (game.phase === 'paused') {
+      game.phase = 'playing'
+      game.lastTs = 0
+      syncHud(game)
+    }
+  }, [rankingOpen, syncHud])
 
   const openRanking = useCallback(() => {
     const game = stateRef.current
@@ -877,6 +959,10 @@ function ThanksgivingGame() {
   }, [syncHud])
 
   const resetToIntro = useCallback(() => {
+    if (!eventOpenRef.current) {
+      void enterEndedMode()
+      return
+    }
     stopLoop()
     stateRef.current = null
     touchRef.current = { active: false, offsetX: 0 }
@@ -896,7 +982,15 @@ function ThanksgivingGame() {
     setSubmitStatus('idle')
     setSubmitMessage('')
     setNicknameError('')
-  }, [stopLoop])
+  }, [enterEndedMode, stopLoop])
+
+  useEffect(() => {
+    void refreshEventStatus()
+    const timer = window.setInterval(() => {
+      void refreshEventStatus()
+    }, 30_000)
+    return () => window.clearInterval(timer)
+  }, [refreshEventStatus])
 
   useEffect(() => () => stopLoop(), [stopLoop])
 
@@ -926,6 +1020,7 @@ function ThanksgivingGame() {
   }, [])
 
   const onTouchStart = (event) => {
+    if (!eventOpenRef.current) return
     const game = stateRef.current
     const stage = stageRef.current
     if (!game || game.phase !== 'playing' || !stage) return
@@ -966,7 +1061,11 @@ function ThanksgivingGame() {
   }
 
   const isPreGame =
-    phase === 'intro' || phase === 'notice' || phase === 'tutorial' || phase === 'nickname'
+    phase === 'intro' ||
+    phase === 'notice' ||
+    phase === 'tutorial' ||
+    phase === 'nickname' ||
+    phase === 'ended'
   const highlightMe = useMemo(
     () => (row) => {
       const sameDisplayedName =
@@ -1010,31 +1109,35 @@ function ThanksgivingGame() {
             {formatTime(Math.max(0, GAME_DURATION_MS - elapsedMs))}
           </p>
           <div className="tg-hud__right">
-            <button
-              type="button"
-              className="tg-btn tg-btn--ghost"
-              onClick={openRanking}
-              aria-label="랭킹 보기"
-            >
-              랭킹
-            </button>
-            <button
-              type="button"
-              className="tg-btn tg-btn--ghost"
-              onClick={togglePause}
-              disabled={(phase !== 'playing' && phase !== 'paused') || rankingOpen}
-              aria-label={phase === 'paused' ? '게임 계속하기' : '일시정지'}
-            >
-              {phase === 'paused' ? '계속' : '일시정지'}
-            </button>
-            <button
-              type="button"
-              className="tg-btn tg-btn--ghost"
-              onClick={resetToIntro}
-              aria-label="처음부터 다시 시작"
-            >
-              처음부터
-            </button>
+            {phase === 'ended' ? null : (
+              <>
+                <button
+                  type="button"
+                  className="tg-btn tg-btn--ghost"
+                  onClick={openRanking}
+                  aria-label="랭킹 보기"
+                >
+                  랭킹
+                </button>
+                <button
+                  type="button"
+                  className="tg-btn tg-btn--ghost"
+                  onClick={togglePause}
+                  disabled={(phase !== 'playing' && phase !== 'paused') || rankingOpen}
+                  aria-label={phase === 'paused' ? '게임 계속하기' : '일시정지'}
+                >
+                  {phase === 'paused' ? '계속' : '일시정지'}
+                </button>
+                <button
+                  type="button"
+                  className="tg-btn tg-btn--ghost"
+                  onClick={resetToIntro}
+                  aria-label="처음부터 다시 시작"
+                >
+                  처음부터
+                </button>
+              </>
+            )}
           </div>
         </header>
 
@@ -1048,7 +1151,34 @@ function ThanksgivingGame() {
         >
           <canvas ref={canvasRef} className="tg-canvas" aria-label="추수하기 게임 영역" />
 
-          {phase === 'intro' ? (
+          {phase === 'ended' ? (
+            <div className="tg-overlay tg-overlay--ranking">
+              <div className="tg-card tg-card--ranking tg-card--ended">
+                <h2 className="tg-card__title tg-card__title--ended">{THANKSGIVING_EVENT_ENDED_MESSAGE}</h2>
+                <p className="tg-card__text">
+                  최종 랭킹만 확인할 수 있습니다. 새 점수는 더 이상 기록되지 않습니다.
+                </p>
+                <p className="tg-card__text">
+                  개인 최고 점수: {myBest == null ? '-' : `${myBest}점`}
+                  {myRank != null ? ` · 내 순위 ${myRank}위` : ''}
+                </p>
+                <RankingBoard
+                  rows={rankingRows}
+                  status={rankingStatus}
+                  highlightMe={highlightMe}
+                  showGuestKind={showGuestKind}
+                  errorText="랭킹을 불러오지 못했습니다."
+                />
+                <div className="tg-card__actions">
+                  <button type="button" className="tg-btn tg-btn--ghost" onClick={() => navigate('/')}>
+                    홈으로
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : null}
+
+          {phase === 'intro' && eventOpen ? (
             <div className="tg-overlay tg-overlay--title">
               <div className="tg-title-screen">
                 <img
@@ -1062,15 +1192,19 @@ function ThanksgivingGame() {
                   type="button"
                   className="tg-btn tg-btn--primary tg-title-screen__cta"
                   onClick={() => setPhase('notice')}
-                  disabled={!assetsReady}
+                  disabled={!assetsReady || !eventStatusReady}
                 >
-                  {assetsReady ? '다음' : '이미지 불러오는 중…'}
+                  {!eventStatusReady
+                    ? '이벤트 상태 확인 중…'
+                    : assetsReady
+                      ? '다음'
+                      : '이미지 불러오는 중…'}
                 </button>
               </div>
             </div>
           ) : null}
 
-          {phase === 'notice' ? (
+          {phase === 'notice' && eventOpen ? (
             <div className="tg-overlay tg-overlay--tutorial">
               <div className="tg-card tg-card--notice">
                 <h2 className="tg-card__title">공지사항</h2>
@@ -1083,7 +1217,7 @@ function ThanksgivingGame() {
                       <li>
                         일시:{' '}
                         <strong className="tg-notice-date">
-                          10월 25일 일요일 부터 10월 31일 금요일
+                          10월 25일 일요일 부터 10월 30일 목요일 23시 59분
                         </strong>
                       </li>
                       <li>
@@ -1115,7 +1249,7 @@ function ThanksgivingGame() {
             </div>
           ) : null}
 
-          {phase === 'tutorial' ? (
+          {phase === 'tutorial' && eventOpen ? (
             <div className="tg-overlay tg-overlay--tutorial">
               <div
                 className="tg-card tg-card--tutorial"
@@ -1267,7 +1401,7 @@ function ThanksgivingGame() {
             </div>
           ) : null}
 
-          {phase === 'nickname' ? (
+          {phase === 'nickname' && eventOpen ? (
             <div className="tg-overlay">
               <div className="tg-card">
                 <h2 className="tg-card__title">게임에서 사용할 닉네임을 설정해 주세요!</h2>
@@ -1321,7 +1455,7 @@ function ThanksgivingGame() {
             </div>
           ) : null}
 
-          {phase === 'paused' && !rankingOpen ? (
+          {phase === 'paused' && eventOpen && !rankingOpen ? (
             <div className="tg-overlay" role="status">
               <div className="tg-card">
                 <h2 className="tg-card__title">일시정지</h2>
@@ -1333,7 +1467,7 @@ function ThanksgivingGame() {
             </div>
           ) : null}
 
-          {rankingOpen ? (
+          {rankingOpen && eventOpen ? (
             <div className="tg-overlay tg-overlay--ranking">
               <div className="tg-card tg-card--ranking">
                 <h2 className="tg-card__title">랭킹</h2>
@@ -1357,7 +1491,7 @@ function ThanksgivingGame() {
             </div>
           ) : null}
 
-          {phase === 'gameover' && !rankingOpen ? (
+          {phase === 'gameover' && eventOpen && !rankingOpen ? (
             <div className="tg-overlay">
               <div className="tg-card tg-card--wide">
                 <h2 className="tg-card__title">게임 오버</h2>
@@ -1384,7 +1518,7 @@ function ThanksgivingGame() {
                 />
 
                 <div className="tg-card__actions">
-                  <button type="button" className="tg-btn tg-btn--primary" onClick={startGame}>
+                  <button type="button" className="tg-btn tg-btn--primary" onClick={() => void startGame()}>
                     다시하기
                   </button>
                   <button type="button" className="tg-btn tg-btn--ghost" onClick={() => navigate('/')}>

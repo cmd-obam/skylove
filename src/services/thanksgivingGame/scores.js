@@ -69,11 +69,54 @@ async function overlayMemberDisplayNames(rows) {
   })
 }
 
+export async function fetchThanksgivingRankingPeriodStatus() {
+  const { data, error } = await supabase.rpc('get_thanksgiving_ranking_period_status')
+
+  if (error) {
+    // Older databases may only expose the boolean helper. Fall back without inventing scores.
+    const fallback = await supabase.rpc('thanksgiving_ranking_period_open')
+    if (!fallback.error) {
+      return {
+        success: true,
+        isOpen: Boolean(fallback.data),
+        startsAt: null,
+        endsAt: null,
+        serverNow: null,
+        error: null,
+      }
+    }
+
+    return {
+      success: false,
+      isOpen: false,
+      startsAt: null,
+      endsAt: null,
+      serverNow: null,
+      error,
+    }
+  }
+
+  const row = data && typeof data === 'object' ? data : {}
+  return {
+    success: true,
+    isOpen: Boolean(row.is_open),
+    startsAt: row.starts_at ?? null,
+    endsAt: row.ends_at ?? null,
+    serverNow: row.server_now ?? null,
+    error: null,
+  }
+}
+
 export async function submitThanksgivingGameScore({
   score,
   displayName,
   guestKey = null,
 }) {
+  const period = await fetchThanksgivingRankingPeriodStatus()
+  if (period.success && !period.isOpen) {
+    return { success: false, periodClosed: true, error: new Error('ranking period closed') }
+  }
+
   const { data: sessionData } = await supabase.auth.getSession()
   const hasSession = Boolean(sessionData?.session?.user)
   const built = buildThanksgivingScorePayload({

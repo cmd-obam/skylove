@@ -1,6 +1,6 @@
 -- ============================================================
 -- Thanksgiving ranking writes are accepted only during the event window.
--- 2026-10-25 00:00:00 KST inclusive through 2026-10-31 00:00:00 KST exclusive.
+-- 2026-10-25 00:00:00 KST inclusive through 2026-10-30 23:59:00 KST exclusive.
 -- Existing rows are not deleted or reset. Clock source is the database now().
 -- ============================================================
 
@@ -13,7 +13,7 @@ STABLE
 SET search_path = public
 AS $$
   SELECT p_at >= timestamptz '2026-10-25 00:00:00+09'
-     AND p_at < timestamptz '2026-10-31 00:00:00+09';
+     AND p_at < timestamptz '2026-10-30 23:59:00+09';
 $$;
 
 REVOKE ALL ON FUNCTION public.thanksgiving_ranking_period_open(timestamptz) FROM PUBLIC;
