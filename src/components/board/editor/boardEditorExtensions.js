@@ -16,6 +16,7 @@ import { Plugin } from '@tiptap/pm/state'
 import BoardImageNodeView, { BoardImageRowView } from '@/components/board/editor/BoardImageNodeView'
 import BoardYouTubeNodeView from '@/components/board/editor/BoardYouTubeNodeView'
 import {
+  insertBoardImageRow,
   moveImageBlock,
   normalizeBrokenImageRows,
   pairWithAdjacentImage,
@@ -95,6 +96,10 @@ const ResizableImage = Image.extend({
   addCommands() {
     return {
       ...this.parent?.(),
+      setImage:
+        (options) =>
+        ({ state, dispatch }) =>
+          insertBoardImageRow(state, dispatch, options),
       pairWithAdjacentImage:
         () =>
         ({ state, dispatch }) =>
@@ -123,12 +128,29 @@ const BoardImageRow = Node.create({
   isolating: true,
   draggable: true,
 
+  addAttributes() {
+    return {
+      'data-layout': {
+        default: 'stack',
+        parseHTML: (element) => {
+          const layout = element.getAttribute('data-layout')
+          if (layout === 'pair' || layout === 'stack') return layout
+          const imageCount = element.querySelectorAll('img').length
+          return imageCount >= 2 ? 'pair' : 'stack'
+        },
+        renderHTML: (attributes) => ({
+          'data-layout': attributes['data-layout'] === 'pair' ? 'pair' : 'stack',
+        }),
+      },
+    }
+  },
+
   parseHTML() {
     return [{ tag: 'div.board-image-row' }]
   },
 
   renderHTML({ HTMLAttributes }) {
-    return ['div', mergeAttributes(HTMLAttributes, { class: 'board-image-row', 'data-layout': 'pair' }), 0]
+    return ['div', mergeAttributes({ class: 'board-image-row' }, HTMLAttributes), 0]
   },
 
   addNodeView() {

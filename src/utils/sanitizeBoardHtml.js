@@ -1,6 +1,10 @@
 import DOMPurify from 'dompurify'
 
-export { layoutAdjacentBoardImages, prepareBoardImagesForEditor } from '@/utils/boardImageLayout'
+export {
+  layoutAdjacentBoardImages,
+  normalizeBoardImageRows,
+  prepareBoardImagesForEditor,
+} from '@/utils/boardImageLayout'
 
 const ALLOWED_TAGS = [
   'p',

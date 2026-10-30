@@ -34,9 +34,11 @@ test('an invalid youtube block shows a message and no iframe', () => {
 
 test('an image row and a stacked image stay put around a youtube block', () => {
   const html = '<img src="https://example.com/a.jpg"><div class="board-youtube" data-youtube-id="abcdefghijk"></div><img src="https://example.com/b.jpg" data-layout="stack">'
-  const rendered = renderBoardYouTubeEmbeds(layoutAdjacentBoardImages(html))
+  const laidOut = layoutAdjacentBoardImages(html)
+  const rendered = renderBoardYouTubeEmbeds(laidOut)
 
-  assert.equal(rendered.includes('board-image-row'), false)
+  assert.equal((laidOut.match(/board-image-row/g) || []).length, 2)
+  assert.equal(laidOut.includes('data-layout="pair"'), false)
   assert.ok(rendered.indexOf('a.jpg') < rendered.indexOf('embed/abcdefghijk'))
   assert.ok(rendered.indexOf('embed/abcdefghijk') < rendered.indexOf('b.jpg'))
   assert.equal(rendered.includes('data-layout="stack"'), true)

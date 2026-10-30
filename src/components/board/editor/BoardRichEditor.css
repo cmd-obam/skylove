@@ -306,19 +306,26 @@
   max-width: 100%;
 }
 
-/* TipTap puts the row's images inside this element, not directly under __content. */
+/* TipTap mounts row children inside [data-node-view-content-react]. */
 .board-editor-image-row [data-node-view-content-react] {
-  display: flex;
-  flex-flow: row nowrap;
-  align-items: flex-start;
-  gap: 0.5rem;
   width: 100%;
   max-width: 100%;
   min-width: 0;
   white-space: normal !important;
 }
 
-.board-editor-image-row [data-node-view-content-react] > .react-renderer {
+.board-editor-image-row[data-layout='stack'] [data-node-view-content-react] {
+  display: block;
+}
+
+.board-editor-image-row[data-layout='pair'] [data-node-view-content-react] {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.board-editor-image-row[data-layout='pair'] [data-node-view-content-react] > .react-renderer {
   flex: 1 1 0;
   min-width: 0;
   width: auto;
@@ -327,6 +334,11 @@
 
 .board-editor-image-row .board-editor-image {
   width: 100%;
+  max-width: min(600px, 100%);
+  margin: 0 auto;
+}
+
+.board-editor-image-row[data-layout='pair'] .board-editor-image {
   max-width: 100%;
   margin: 0;
 }
@@ -348,11 +360,11 @@
   cursor: text;
 }
 
-.board-editor-image-row [data-node-view-content-react] > .react-renderer:has(.board-editor-image[data-width='40%']) {
+.board-editor-image-row[data-layout='pair'] [data-node-view-content-react] > .react-renderer:has(.board-editor-image[data-width='40%']) {
   flex-grow: 0.8;
 }
 
-.board-editor-image-row [data-node-view-content-react] > .react-renderer:has(.board-editor-image[data-width='70%']) {
+.board-editor-image-row[data-layout='pair'] [data-node-view-content-react] > .react-renderer:has(.board-editor-image[data-width='70%']) {
   flex-grow: 1.4;
 }
 
@@ -363,11 +375,11 @@
 }
 
 @media (max-width: 640px) {
-  .board-editor-image-row [data-node-view-content-react] {
+  .board-editor-image-row[data-layout='pair'] [data-node-view-content-react] {
     flex-direction: column;
   }
 
-  .board-editor-image-row [data-node-view-content-react] > .react-renderer {
+  .board-editor-image-row[data-layout='pair'] [data-node-view-content-react] > .react-renderer {
     flex: none;
     width: 100%;
   }

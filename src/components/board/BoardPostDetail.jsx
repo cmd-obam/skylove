@@ -15,7 +15,7 @@ import { formatPostRegistrationDate } from '@/utils/formatBoardDate'
 import { getPostAuthor } from '@/utils/getPostAuthor'
 import { openBoardPostViewer } from '@/utils/boardPostViewer'
 import {
-  layoutAdjacentBoardImages,
+  normalizeBoardImageRows,
   sanitizeBoardHtml,
 } from '@/utils/sanitizeBoardHtml'
 import { renderBoardYouTubeEmbeds } from '@/utils/boardYoutube'
@@ -90,7 +90,7 @@ function BoardPostDetail({
   const bodyHtml =
     customBody || !post?.content
       ? ''
-      : renderBoardYouTubeEmbeds(layoutAdjacentBoardImages(sanitizeBoardHtml(post.content)))
+      : renderBoardYouTubeEmbeds(normalizeBoardImageRows(sanitizeBoardHtml(post.content)))
 
   if (!post) {
     return (

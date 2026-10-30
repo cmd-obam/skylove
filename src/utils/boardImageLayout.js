@@ -1,39 +1,105 @@
 /**
- * 표시용 이미지 배치.
- * data-layout="stack" 이 없는 기존 연속 이미지는 지금처럼 두 장씩 가로로 유지합니다.
- * 새로 올린 세로 이미지와 작성자가 저장한 가로 행은 그대로 둡니다.
+ * Board images are stored as row units in HTML:
+ *   <div class="board-image-row" data-layout="stack">one img</div>
+ *   <div class="board-image-row" data-layout="pair">two imgs</div>
+ *
+ * Legacy posts without rows keep previous display via normalizeBoardImageRows:
+ * unmarked adjacent <img> pairs become pair rows; bare images become stack rows.
  */
-export function layoutAdjacentBoardImages(html) {
+
+function isStackImg(tag) {
+  return /data-layout\s*=\s*["']stack["']/i.test(tag)
+}
+
+function isInsideOpenRow(before) {
+  const lastOpen = before.lastIndexOf('board-image-row')
+  if (lastOpen === -1) return false
+  return !before.slice(lastOpen).includes('</div>')
+}
+
+function ensureStackAttr(imgTag) {
+  if (isStackImg(imgTag) || /data-layout\s*=/i.test(imgTag)) {
+    return imgTag
+  }
+  return imgTag.replace(/<img\b/i, '<img data-layout="stack"')
+}
+
+/**
+ * Normalize HTML so every board image belongs to a row unit.
+ * Existing board-image-row blocks are preserved.
+ */
+export function normalizeBoardImageRows(html) {
   if (!html || typeof html !== 'string' || !/<img\b/i.test(html)) {
-    return html
+    return html || ''
   }
 
-  return html.replace(/(<img\b[^>]*>)\s*(<img\b[^>]*>)/gi, (match, imgA, imgB, offset, full) => {
-    if (/data-layout\s*=\s*["']stack["']/i.test(imgA) || /data-layout\s*=\s*["']stack["']/i.test(imgB)) {
-      return match
+  let result = ''
+  let cursor = 0
+  const source = html
+
+  while (cursor < source.length) {
+    const openIdx = source.toLowerCase().indexOf('<div', cursor)
+    const imgSearch = source.slice(cursor).search(/<img\b/i)
+    const nextImgAbs = imgSearch >= 0 ? cursor + imgSearch : -1
+
+    if (openIdx !== -1 && (nextImgAbs === -1 || openIdx <= nextImgAbs)) {
+      const slice = source.slice(openIdx)
+      const rowMatch = slice.match(/^<div\b[^>]*\bboard-image-row\b[^>]*>[\s\S]*?<\/div>/i)
+      if (rowMatch) {
+        result += source.slice(cursor, openIdx) + rowMatch[0]
+        cursor = openIdx + rowMatch[0].length
+        continue
+      }
+      result += source.slice(cursor, openIdx + 4)
+      cursor = openIdx + 4
+      continue
     }
 
-    const before = full.slice(0, offset)
-    const lastOpen = before.lastIndexOf('board-image-row')
-    if (lastOpen !== -1) {
-      const afterOpen = before.slice(lastOpen)
-      if (!afterOpen.includes('</div>')) {
-        return match
+    if (nextImgAbs === -1) {
+      result += source.slice(cursor)
+      break
+    }
+
+    result += source.slice(cursor, nextImgAbs)
+    const imgA = source.slice(nextImgAbs).match(/^<img\b[^>]*>/i)[0]
+    const afterA = nextImgAbs + imgA.length
+    const before = source.slice(0, nextImgAbs)
+
+    if (isInsideOpenRow(before)) {
+      result += imgA
+      cursor = afterA
+      continue
+    }
+
+    const rest = source.slice(afterA)
+    const betweenAndB = rest.match(/^\s*(<img\b[^>]*>)/i)
+
+    if (betweenAndB && !isStackImg(imgA) && !isStackImg(betweenAndB[1])) {
+      const gap = rest.slice(0, betweenAndB.index)
+      if (!gap.trim()) {
+        const imgB = betweenAndB[1]
+        result += `<div class="board-image-row" data-layout="pair">${imgA}${imgB}</div>`
+        cursor = afterA + betweenAndB.index + imgB.length
+        continue
       }
     }
 
-    return `<div class="board-image-row" data-layout="pair">${imgA}${imgB}</div>`
-  })
+    result += `<div class="board-image-row" data-layout="stack">${ensureStackAttr(imgA)}</div>`
+    cursor = afterA
+  }
+
+  return result
 }
 
+/** Display helper used by detail pages. */
+export function layoutAdjacentBoardImages(html) {
+  return normalizeBoardImageRows(html)
+}
+
+/** Load helper used by the write/edit page. */
 export function prepareBoardImagesForEditor(html) {
   if (!html || typeof html !== 'string') {
     return html || ''
   }
-
-  if (/board-image-row|data-layout\s*=/i.test(html)) {
-    return html
-  }
-
-  return layoutAdjacentBoardImages(html)
+  return normalizeBoardImageRows(html)
 }

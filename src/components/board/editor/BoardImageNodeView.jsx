@@ -142,9 +142,10 @@ function BoardImageNodeView({ node, selected, editor, getPos }) {
   )
 }
 
-export function BoardImageRowView({ editor, getPos }) {
+export function BoardImageRowView({ node, editor, getPos }) {
+  const layout = node?.attrs?.['data-layout'] === 'pair' ? 'pair' : 'stack'
   return (
-    <NodeViewWrapper className="board-editor-image-row" data-layout="pair">
+    <NodeViewWrapper className="board-editor-image-row" data-layout={layout}>
       <NodeViewContent className="board-editor-image-row__content" />
       <BoardBlockTextSlot editor={editor} getPos={getPos} />
     </NodeViewWrapper>
