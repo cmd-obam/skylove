@@ -16,6 +16,37 @@ export function isThanksgivingRankingPeriodOpen(at = new Date()) {
   return ms >= PERIOD_START_MS && ms < PERIOD_END_MS
 }
 
+export function getThanksgivingEventEndMs(endsAt = THANKSGIVING_RANKING_PERIOD_END) {
+  if (typeof endsAt === 'number' && Number.isFinite(endsAt)) {
+    return endsAt
+  }
+  const parsed = Date.parse(endsAt)
+  return Number.isFinite(parsed) ? parsed : PERIOD_END_MS
+}
+
+export function getThanksgivingEventRemainingMs({
+  at = Date.now(),
+  endsAt = THANKSGIVING_RANKING_PERIOD_END,
+  clockOffsetMs = 0,
+} = {}) {
+  const nowMs = typeof at === 'number' ? at : at instanceof Date ? at.getTime() : Date.parse(at)
+  if (!Number.isFinite(nowMs)) return 0
+  return Math.max(0, getThanksgivingEventEndMs(endsAt) - (nowMs + clockOffsetMs))
+}
+
+export function formatThanksgivingEventCountdown(remainingMs) {
+  const totalSeconds = Math.max(0, Math.floor(Number(remainingMs) / 1000))
+  const hours = Math.floor(totalSeconds / 3600)
+  const minutes = Math.floor((totalSeconds % 3600) / 60)
+  const seconds = totalSeconds % 60
+  return {
+    hours,
+    minutes,
+    seconds,
+    text: `${hours}시간 ${minutes}분 ${seconds}초`,
+  }
+}
+
 export function isThanksgivingRankingPeriodClosedError(error) {
   const text = [error?.message, error?.details, error?.hint, error?.code]
     .filter(Boolean)

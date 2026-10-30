@@ -3,6 +3,8 @@ import fs from 'node:fs'
 import test from 'node:test'
 import { buildThanksgivingScorePayload } from '../src/services/thanksgivingGame/rankingIdentity.js'
 import {
+  formatThanksgivingEventCountdown,
+  getThanksgivingEventRemainingMs,
   isThanksgivingRankingPeriodClosedError,
   isThanksgivingRankingPeriodOpen,
   THANKSGIVING_EVENT_ENDED_MESSAGE,
@@ -24,6 +26,31 @@ test('ranking closes at 2026-10-30 23:59 KST and stays closed afterwards', () =>
   assert.equal(isThanksgivingRankingPeriodOpen('2026-10-30T23:59:59+09:00'), false)
   assert.equal(isThanksgivingRankingPeriodOpen('2026-10-31T00:00:00+09:00'), false)
   assert.equal(isThanksgivingRankingPeriodOpen('2026-10-31T00:01:00+09:00'), false)
+})
+
+test('event countdown shows hours minutes and seconds until 23:59 KST', () => {
+  const remainingMs = getThanksgivingEventRemainingMs({
+    at: '2026-10-30T12:00:00+09:00',
+    endsAt: THANKSGIVING_RANKING_PERIOD_END,
+  })
+  const countdown = formatThanksgivingEventCountdown(remainingMs)
+
+  assert.equal(remainingMs, (11 * 60 + 59) * 60 * 1000)
+  assert.deepEqual(countdown, {
+    hours: 11,
+    minutes: 59,
+    seconds: 0,
+    text: '11시간 59분 0초',
+  })
+  assert.equal(
+    formatThanksgivingEventCountdown(
+      getThanksgivingEventRemainingMs({
+        at: '2026-10-30T23:59:00+09:00',
+        endsAt: THANKSGIVING_RANKING_PERIOD_END,
+      }),
+    ).text,
+    '0시간 0분 0초',
+  )
 })
 
 test('ranking is closed before the window starts', () => {

@@ -14,8 +14,12 @@ import {
   validateGameNickname,
 } from '@/services/thanksgivingGame/scores'
 import {
+  formatThanksgivingEventCountdown,
+  getThanksgivingEventEndMs,
+  getThanksgivingEventRemainingMs,
   THANKSGIVING_EVENT_ENDED_MESSAGE,
   THANKSGIVING_RANKING_PERIOD_CLOSED_MESSAGE,
+  THANKSGIVING_RANKING_PERIOD_END,
 } from '@/services/thanksgivingGame/rankingPeriod'
 import farmerSrc from '@/assets/images/thanksgiving-game/farmer.png'
 import riceSrc from '@/assets/images/thanksgiving-game/rice.png'
@@ -297,7 +301,14 @@ function ThanksgivingGame() {
   const [phase, setPhase] = useState('intro')
   const [eventOpen, setEventOpen] = useState(true)
   const [eventStatusReady, setEventStatusReady] = useState(false)
+  const [eventCountdown, setEventCountdown] = useState(() =>
+    formatThanksgivingEventCountdown(
+      getThanksgivingEventRemainingMs({ endsAt: THANKSGIVING_RANKING_PERIOD_END }),
+    ),
+  )
   const eventOpenRef = useRef(true)
+  const eventEndsAtRef = useRef(getThanksgivingEventEndMs(THANKSGIVING_RANKING_PERIOD_END))
+  const eventClockOffsetRef = useRef(0)
   const [tutorialPage, setTutorialPage] = useState(0)
   const [score, setScore] = useState(0)
   const [combo, setCombo] = useState(0)
@@ -868,16 +879,38 @@ function ThanksgivingGame() {
     await loadRankingBoard()
   }, [loadRankingBoard, stopLoop])
 
+  const syncEventCountdown = useCallback(() => {
+    const remainingMs = getThanksgivingEventRemainingMs({
+      endsAt: eventEndsAtRef.current,
+      clockOffsetMs: eventClockOffsetRef.current,
+    })
+    setEventCountdown(formatThanksgivingEventCountdown(remainingMs))
+    return remainingMs
+  }, [])
+
   const refreshEventStatus = useCallback(async () => {
     const status = await fetchThanksgivingRankingPeriodStatus()
     setEventStatusReady(true)
 
     if (!status.success) {
       // Keep the previous open/closed choice when the status RPC fails mid-session.
+      syncEventCountdown()
       return status
     }
 
-    if (!status.isOpen) {
+    if (status.endsAt) {
+      eventEndsAtRef.current = getThanksgivingEventEndMs(status.endsAt)
+    }
+    if (status.serverNow) {
+      const serverMs = Date.parse(status.serverNow)
+      if (Number.isFinite(serverMs)) {
+        eventClockOffsetRef.current = serverMs - Date.now()
+      }
+    }
+
+    const remainingMs = syncEventCountdown()
+
+    if (!status.isOpen || remainingMs <= 0) {
       await enterEndedMode()
       return status
     }
@@ -885,7 +918,7 @@ function ThanksgivingGame() {
     eventOpenRef.current = true
     setEventOpen(true)
     return status
-  }, [enterEndedMode])
+  }, [enterEndedMode, syncEventCountdown])
 
   const startGame = useCallback(async () => {
     const status = await refreshEventStatus()
@@ -991,6 +1024,19 @@ function ThanksgivingGame() {
     }, 30_000)
     return () => window.clearInterval(timer)
   }, [refreshEventStatus])
+
+  useEffect(() => {
+    const tickCountdown = () => {
+      const remainingMs = syncEventCountdown()
+      if (remainingMs <= 0 && eventOpenRef.current) {
+        void refreshEventStatus()
+      }
+    }
+
+    tickCountdown()
+    const timer = window.setInterval(tickCountdown, 250)
+    return () => window.clearInterval(timer)
+  }, [refreshEventStatus, syncEventCountdown])
 
   useEffect(() => () => stopLoop(), [stopLoop])
 
@@ -1105,15 +1151,12 @@ function ThanksgivingGame() {
               ))}
             </p>
           </div>
+          <p className="tg-hud__time" aria-live="polite" title="이번 판 남은 시간">
+            {formatTime(Math.max(0, GAME_DURATION_MS - elapsedMs))}
+          </p>
           <div className="tg-hud__right">
-            <p className="tg-hud__time" aria-live="polite">
-              <span className="tg-hud__time-label">남은 시간</span>
-              <strong className="tg-hud__time-value">
-                {formatTime(Math.max(0, GAME_DURATION_MS - elapsedMs))}
-              </strong>
-            </p>
             {phase === 'ended' ? null : (
-              <div className="tg-hud__actions">
+              <>
                 <button
                   type="button"
                   className="tg-btn tg-btn--ghost"
@@ -1139,7 +1182,7 @@ function ThanksgivingGame() {
                 >
                   처음부터
                 </button>
-              </div>
+              </>
             )}
           </div>
         </header>
@@ -1153,6 +1196,19 @@ function ThanksgivingGame() {
           onTouchCancel={onTouchEnd}
         >
           <canvas ref={canvasRef} className="tg-canvas" aria-label="추수하기 게임 영역" />
+
+          {eventOpen ? (
+            <div
+              className="tg-event-countdown"
+              aria-live="polite"
+              aria-label={`이벤트 종료까지 ${eventCountdown.text}`}
+            >
+              <span className="tg-event-countdown__label">이벤트 종료까지</span>
+              <strong className="tg-event-countdown__value">
+                {eventCountdown.hours}시간 {eventCountdown.minutes}분 {eventCountdown.seconds}초
+              </strong>
+            </div>
+          ) : null}
 
           {phase === 'ended' ? (
             <div className="tg-overlay tg-overlay--ranking">
