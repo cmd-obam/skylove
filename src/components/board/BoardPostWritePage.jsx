@@ -242,14 +242,16 @@ function BoardPostWritePage({
       let loadedThumbnail = null
 
       if (parsedBulletin) {
-        const defaultThumb = getSundayBulletinDefaultThumbnailUrl()
+        const storedThumb = post.thumbnail || ''
+        const useDefault = !storedThumb || isSundayBulletinDefaultThumbnail(storedThumb)
+        const thumbUrl = useDefault ? getSundayBulletinDefaultThumbnailUrl() : storedThumb
         loadedThumbnail = {
           file: null,
-          previewUrl: defaultThumb,
-          existingUrl: defaultThumb,
-          existingPath: null,
+          previewUrl: useDefault ? thumbUrl : null,
+          existingUrl: thumbUrl,
+          existingPath: useDefault ? null : extractStoragePathFromPublicUrl(storedThumb),
           fromContent: false,
-          fromBulletinDefault: true,
+          fromBulletinDefault: useDefault,
         }
       } else if (post.thumbnail) {
         const contentHasThumb = (post.content || '').includes(post.thumbnail)
@@ -526,7 +528,7 @@ function BoardPostWritePage({
         thumbnailUrl = youtubeMedia.thumbnail
       }
 
-      if (bulletinMode && !thumbnailState?.file) {
+      if (bulletinMode && !thumbnailUrl) {
         thumbnailUrl = getSundayBulletinDefaultThumbnailUrl()
       }
 

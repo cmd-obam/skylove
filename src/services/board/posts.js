@@ -15,6 +15,8 @@ import {
 } from '@/utils/boardPostRef'
 import {
   getSundayBulletinDefaultThumbnailUrl,
+  isSundayBulletinContent,
+  isSundayBulletinDefaultThumbnail,
   resolveSundayBulletinThumbnail,
 } from '@/utils/sundayBulletin'
 
@@ -196,8 +198,15 @@ async function enrichChurchNewsBulletinThumbnails(posts) {
 
   return posts.map((post) => {
     const row = byId.get(String(post.id))
-    if (!row || !resolveSundayBulletinThumbnail(row.content, null)) {
+    if (!row || !isSundayBulletinContent(row.content)) {
       return post
+    }
+
+    if (post.thumbnail && !isSundayBulletinDefaultThumbnail(post.thumbnail)) {
+      return {
+        ...post,
+        hasImage: true,
+      }
     }
 
     if (post.thumbnail === defaultThumb && post.hasImage) {
@@ -213,8 +222,8 @@ async function enrichChurchNewsBulletinThumbnails(posts) {
 }
 
 /**
- * 기존 주보 게시글에 기본 표지 이미지를 DB 대표이미지로 등록합니다.
- * (board admin 전용 RPC — 미적용 환경에서는 조용히 무시)
+ * 썸네일이 비어 있는 주보 글에만 기본 표지를 채웁니다.
+ * 직접 등록한 대표이미지는 바꾸지 않습니다. 목록 화면에서는 호출하지 않습니다.
  */
 export async function backfillSundayBulletinThumbnails() {
   const thumbnail = getSundayBulletinDefaultThumbnailUrl()

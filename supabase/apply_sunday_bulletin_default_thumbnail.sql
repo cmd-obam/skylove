@@ -37,7 +37,6 @@ BEGIN
     AND (
       thumbnail IS NULL
       OR btrim(thumbnail) = ''
-      OR thumbnail IS DISTINCT FROM btrim(p_thumbnail)
     );
 
   GET DIAGNOSTICS updated_count = ROW_COUNT;
@@ -60,5 +59,4 @@ WHERE post_type = 'church_news'
   AND (
     thumbnail IS NULL
     OR btrim(thumbnail) = ''
-    OR thumbnail IS DISTINCT FROM '/images/sunday-bulletin-cover.png'
   );

@@ -3,11 +3,8 @@ import { Link } from 'react-router-dom'
 import { FiChevronLeft, FiChevronRight, FiFileText, FiHeart } from 'react-icons/fi'
 import Breadcrumb from '@/components/Breadcrumb'
 import BoardWriteButton from '@/components/board/BoardWriteButton'
-import { useAuth } from '@/contexts/AuthContext'
 import { useBoardPostList } from '@/hooks/useBoardPostList'
 import useIsMobile from '@/hooks/useIsMobile'
-import { canWritePost } from '@/services/auth/roles'
-import { backfillSundayBulletinThumbnails } from '@/services/board/posts'
 import { formatBoardDate } from '@/utils/formatBoardDate'
 import { getPostAuthor } from '@/utils/getPostAuthor'
 import { boardPostPublicId } from '@/utils/boardPostRef'
@@ -68,29 +65,7 @@ function ChurchNews() {
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const { posts, loading } = useBoardPostList('church_news')
-  const { profile } = useAuth()
   const skipScrollOnMountRef = useRef(true)
-
-  useEffect(() => {
-    if (!canWritePost(profile, 'church_news')) {
-      return undefined
-    }
-
-    let cancelled = false
-
-    backfillSundayBulletinThumbnails().then((result) => {
-      if (cancelled || !result.success || !result.updatedCount) {
-        return
-      }
-      console.info(
-        `[ChurchNews] 주보 기본 표지 대표이미지 등록: ${result.updatedCount}건`,
-      )
-    })
-
-    return () => {
-      cancelled = true
-    }
-  }, [profile])
 
   const goToPage = (page) => {
     setCurrentPage(page)

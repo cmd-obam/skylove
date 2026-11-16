@@ -25,7 +25,10 @@ export function isSundayBulletinDefaultThumbnail(url) {
   return url.includes(SUNDAY_BULLETIN_DEFAULT_THUMBNAIL_PATH)
 }
 
-/** 주보 게시글이면 기본 표지 URL을 대표이미지로 사용합니다. */
+/**
+ * 주보 게시글의 대표이미지.
+ * 직접 등록한 이미지가 있으면 그 이미지를 쓰고, 없을 때만 기본 표지를 씁니다.
+ */
 export function resolveSundayBulletinThumbnail(postOrContent, thumbnail) {
   const content =
     typeof postOrContent === 'string' ? postOrContent : postOrContent?.content
@@ -35,6 +38,10 @@ export function resolveSundayBulletinThumbnail(postOrContent, thumbnail) {
       : typeof postOrContent === 'object' && postOrContent
         ? postOrContent.thumbnail
         : null
+
+  if (thumb && !isSundayBulletinDefaultThumbnail(thumb)) {
+    return thumb
+  }
 
   if (isSundayBulletinContent(content)) {
     return getSundayBulletinDefaultThumbnailUrl()
