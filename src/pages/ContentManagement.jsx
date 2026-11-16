@@ -21,6 +21,7 @@ import {
   getBoardWritePath,
 } from '@/utils/boardPaths'
 import { boardPostPublicId } from '@/utils/boardPostRef'
+import { toPublicAuthorLabel } from '@/utils/getPostAuthor'
 import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 import '@/pages/MemberManagement.css'
 import './ContentManagement.css'
@@ -795,9 +796,11 @@ function ContentManagement() {
                         </td>
                         <td>
                           {post.author_id ? (
-                            <Link to={getMemberDetailPath(post.author_id)}>{post.writer}</Link>
+                            <Link to={getMemberDetailPath(post.author_id)}>
+                              {toPublicAuthorLabel(post.writer, post.author_id)}
+                            </Link>
                           ) : (
-                            post.writer
+                            toPublicAuthorLabel(post.writer, post.author_id)
                           )}
                         </td>
                         <td>{formatDateTime(post.created_at)}</td>
@@ -909,9 +912,11 @@ function ContentManagement() {
                         </td>
                         <td>
                           {comment.user_id ? (
-                            <Link to={getMemberDetailPath(comment.user_id)}>{comment.author_name}</Link>
+                            <Link to={getMemberDetailPath(comment.user_id)}>
+                              {toPublicAuthorLabel(comment.author_name, comment.user_id)}
+                            </Link>
                           ) : (
-                            comment.author_name
+                            toPublicAuthorLabel(comment.author_name, comment.user_id)
                           )}
                         </td>
                         <td>{formatDateTime(comment.created_at)}</td>
@@ -978,7 +983,7 @@ function ContentManagement() {
                   {post.title}
                 </Link>
                 <p className="content-cms-card__meta">
-                  {post.writer} · {formatDateTime(post.created_at)}
+                  {toPublicAuthorLabel(post.writer, post.author_id)} · {formatDateTime(post.created_at)}
                 </p>
                 <p className="content-cms-card__meta">
                   조회 {post.views_count} · 댓글 {post.comments_count} · 추천 {post.likes_count}
@@ -1006,7 +1011,7 @@ function ContentManagement() {
                   {comment.board_label} · {comment.post_title}
                 </p>
                 <p className="content-cms-card__meta">
-                  {comment.author_name} · {formatDateTime(comment.created_at)} ·{' '}
+                  {toPublicAuthorLabel(comment.author_name, comment.user_id)} · {formatDateTime(comment.created_at)} ·{' '}
                   {getCommentStatusLabel(comment)}
                 </p>
               </article>

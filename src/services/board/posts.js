@@ -19,7 +19,8 @@ import {
 } from '@/utils/sundayBulletin'
 
 const PERMISSION_DENIED = '권한이 없습니다.'
-const BOARD_LIST_FIELDS = 'id, post_type, title, writer, thumbnail, youtube_url, created_at, has_image'
+const BOARD_LIST_FIELDS =
+  'id, post_type, title, writer, author_id, thumbnail, youtube_url, created_at, has_image'
 
 let boardListHasPostNo = true
 

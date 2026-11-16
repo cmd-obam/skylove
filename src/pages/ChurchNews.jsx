@@ -1,26 +1,75 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { FiFileText } from 'react-icons/fi'
+import { FiChevronLeft, FiChevronRight, FiFileText, FiHeart } from 'react-icons/fi'
 import Breadcrumb from '@/components/Breadcrumb'
 import BoardWriteButton from '@/components/board/BoardWriteButton'
-import BoardPostTitle from '@/components/board/BoardPostTitle'
 import { useAuth } from '@/contexts/AuthContext'
 import { useBoardPostList } from '@/hooks/useBoardPostList'
+import useIsMobile from '@/hooks/useIsMobile'
 import { canWritePost } from '@/services/auth/roles'
 import { backfillSundayBulletinThumbnails } from '@/services/board/posts'
 import { formatBoardDate } from '@/utils/formatBoardDate'
 import { getPostAuthor } from '@/utils/getPostAuthor'
 import { boardPostPublicId } from '@/utils/boardPostRef'
+import {
+  getNextYouTubeThumbnailUrl,
+  isYouTubeThumbnailPlaceholder,
+  upgradeYouTubeThumbnailUrl,
+} from '@/utils/youtube'
 import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 import './ChurchNews.css'
+import './worshipWord/WorshipWord.css'
 
 const LIST_PATH = '/church-news'
+const PAGE_SIZE_DESKTOP = 12
+const PAGE_SIZE_MOBILE = 5
+const PAGE_BUTTON_WINDOW = 5
+
+function advanceYouTubeThumb(img) {
+  const nextSrc = getNextYouTubeThumbnailUrl(img.currentSrc)
+
+  if (nextSrc) {
+    img.src = nextSrc
+  }
+}
+
+function handleYouTubeThumbError(event) {
+  advanceYouTubeThumb(event.currentTarget)
+}
+
+function handleYouTubeThumbLoad(event) {
+  const img = event.currentTarget
+
+  if (isYouTubeThumbnailPlaceholder(img.naturalWidth, img.naturalHeight)) {
+    advanceYouTubeThumb(img)
+  }
+}
+
+function getVisiblePageNumbers(currentPage, totalPages, windowSize = PAGE_BUTTON_WINDOW) {
+  if (totalPages <= windowSize) {
+    return Array.from({ length: totalPages }, (_, index) => index + 1)
+  }
+
+  let start = Math.max(1, currentPage - Math.floor(windowSize / 2))
+  let end = start + windowSize - 1
+
+  if (end > totalPages) {
+    end = totalPages
+    start = Math.max(1, end - windowSize + 1)
+  }
+
+  return Array.from({ length: end - start + 1 }, (_, index) => start + index)
+}
 
 function ChurchNews() {
+  const isMobile = useIsMobile()
+  const pageSize = isMobile ? PAGE_SIZE_MOBILE : PAGE_SIZE_DESKTOP
   const [searchKeyword, setSearchKeyword] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
   const { posts, loading } = useBoardPostList('church_news')
   const { profile } = useAuth()
+  const skipScrollOnMountRef = useRef(true)
 
   useEffect(() => {
     if (!canWritePost(profile, 'church_news')) {
@@ -43,9 +92,14 @@ function ChurchNews() {
     }
   }, [profile])
 
+  const goToPage = (page) => {
+    setCurrentPage(page)
+  }
+
   const handleSearchSubmit = (event) => {
     event.preventDefault()
     setSearchQuery(searchKeyword.trim())
+    setCurrentPage(1)
   }
 
   const filteredPosts = useMemo(() => {
@@ -56,8 +110,35 @@ function ChurchNews() {
     return posts.filter((post) => post.title?.includes(searchQuery))
   }, [posts, searchQuery])
 
+  const totalPages = Math.max(1, Math.ceil(filteredPosts.length / pageSize))
+
+  useEffect(() => {
+    setCurrentPage((prev) => Math.min(prev, totalPages))
+  }, [totalPages, pageSize])
+
+  useEffect(() => {
+    if (skipScrollOnMountRef.current) {
+      skipScrollOnMountRef.current = false
+      return
+    }
+
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
+  }, [currentPage])
+
+  const pagedPosts = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize
+    return filteredPosts.slice(startIndex, startIndex + pageSize)
+  }, [filteredPosts, currentPage, pageSize])
+
+  const pageNumbers = useMemo(
+    () => getVisiblePageNumbers(currentPage, totalPages),
+    [currentPage, totalPages],
+  )
+
+  const showPagination = !loading && filteredPosts.length > 0 && totalPages > 1
+
   return (
-    <div className="church-news-page">
+    <div className="church-news-page worship-word-page">
       <header className="sub-layout__header">
         <div className="sub-layout__heading">
           <h1 className="sub-layout__title">교회소식</h1>
@@ -87,80 +168,105 @@ function ChurchNews() {
         <BoardWriteButton to="/news/write" postType="church_news" />
       </div>
 
-      <div className="church-news-board__table-wrap">
-        <table className="church-news-board__table">
-          <colgroup>
-            <col className="church-news-board__col-no" />
-            <col className="church-news-board__col-title" />
-            <col className="church-news-board__col-date" />
-            <col className="church-news-board__col-views" />
-            <col className="church-news-board__col-author" />
-          </colgroup>
-          <thead>
-            <tr>
-              <th scope="col">번호</th>
-              <th scope="col">제목</th>
-              <th scope="col" className="church-news-board__col-date-header">
-                작성일
-              </th>
-              <th scope="col" className="church-news-board__col-views-header">
-                조회
-              </th>
-              <th scope="col" className="church-news-board__col-author-header">
-                작성자
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan={5} className="church-news-board__empty">
-                  <div className="church-news-board__empty-inner">
-                    <span>불러오는 중...</span>
-                  </div>
-                </td>
-              </tr>
-            ) : filteredPosts.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="church-news-board__empty">
-                  <div className="church-news-board__empty-inner">
-                    <FiFileText className="church-news-board__empty-icon" aria-hidden="true" />
-                    <span>등록된 게시글이 없습니다.</span>
-                  </div>
-                </td>
-              </tr>
-            ) : (
-              filteredPosts.map((post) => (
-                <tr key={post.id}>
-                  <td>{post.no}</td>
-                  <td className="church-news-board__post-title">
-                    <Link to={`${LIST_PATH}/${boardPostPublicId(post)}`} className="church-news-board__post-link">
-                      <BoardPostTitle
-                        title={post.title}
-                        commentsCount={post.commentsCount}
-                        hasImage={Boolean(post.hasImage || post.thumbnail)}
+      {loading ? (
+        <div className="event-photos-empty" role="status">
+          <span>불러오는 중...</span>
+        </div>
+      ) : filteredPosts.length === 0 ? (
+        <div className="event-photos-empty">
+          <FiFileText className="event-photos-empty__icon" aria-hidden="true" />
+          <span>등록된 게시글이 없습니다.</span>
+        </div>
+      ) : (
+        <>
+          <ul className="worship-word-grid">
+            {pagedPosts.map((post) => (
+              <li key={post.id} className="worship-word-grid__item">
+                <Link to={`${LIST_PATH}/${boardPostPublicId(post)}`} className="worship-word-card">
+                  <div className="worship-word-card__image-wrap">
+                    {post.thumbnail ? (
+                      <img
+                        src={upgradeYouTubeThumbnailUrl(post.thumbnail)}
+                        alt={`${post.title} 썸네일`}
+                        className="worship-word-card__image"
+                        loading="lazy"
+                        onLoad={handleYouTubeThumbLoad}
+                        onError={handleYouTubeThumbError}
                       />
-                    </Link>
-                  </td>
-                  <td className="church-news-board__col-date-cell">{formatBoardDate(post.date)}</td>
-                  <td className="church-news-board__col-views-cell">{post.views}</td>
-                  <td className="church-news-board__col-author-cell">{getPostAuthor(post)}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+                    ) : (
+                      <div className="worship-word-card__placeholder" aria-hidden="true">
+                        <span>소식</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="worship-word-card__body">
+                    <h2 className="worship-word-card__title">{post.title}</h2>
+                    <p className="worship-word-card__meta">
+                      <span>작성자 : {getPostAuthor(post)}</span>
+                      <span className="worship-word-card__meta-sep" aria-hidden="true">
+                        ·
+                      </span>
+                      <time dateTime={post.createdAt || post.date}>
+                        {formatBoardDate(post.date || post.createdAt)}
+                      </time>
+                      <span className="worship-word-card__meta-sep" aria-hidden="true">
+                        ·
+                      </span>
+                      <span className="worship-word-card__likes">
+                        <FiHeart aria-hidden="true" />
+                        <span>{post.likesCount ?? 0}</span>
+                      </span>
+                    </p>
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
 
-      <nav className="church-news-board__pagination" aria-label="게시판 페이지">
-        <button
-          type="button"
-          className="church-news-board__page church-news-board__page--active"
-          aria-current="page"
-        >
-          1
-        </button>
-      </nav>
+          {showPagination ? (
+            <nav className="church-news-board__pagination worship-word-pagination" aria-label="게시판 페이지">
+              <button
+                type="button"
+                className="church-news-board__page worship-word-pagination__nav"
+                onClick={() => goToPage(Math.max(1, currentPage - 1))}
+                disabled={currentPage <= 1}
+                aria-label="이전 페이지"
+              >
+                <FiChevronLeft aria-hidden="true" />
+              </button>
+
+              {pageNumbers.map((pageNumber) => {
+                const isActive = pageNumber === currentPage
+
+                return (
+                  <button
+                    key={pageNumber}
+                    type="button"
+                    className={`church-news-board__page${
+                      isActive ? ' church-news-board__page--active' : ''
+                    }`}
+                    onClick={() => goToPage(pageNumber)}
+                    aria-current={isActive ? 'page' : undefined}
+                    disabled={isActive}
+                  >
+                    {pageNumber}
+                  </button>
+                )
+              })}
+
+              <button
+                type="button"
+                className="church-news-board__page worship-word-pagination__nav"
+                onClick={() => goToPage(Math.min(totalPages, currentPage + 1))}
+                disabled={currentPage >= totalPages}
+                aria-label="다음 페이지"
+              >
+                <FiChevronRight aria-hidden="true" />
+              </button>
+            </nav>
+          ) : null}
+        </>
+      )}
     </div>
   )
 }

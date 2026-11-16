@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { toPublicAuthorLabel } from '@/utils/getPostAuthor'
 
 function mapCommentRow(row, likeMeta = {}) {
   return {
@@ -6,7 +7,7 @@ function mapCommentRow(row, likeMeta = {}) {
     postType: row.post_type,
     postId: row.post_id,
     userId: row.user_id,
-    authorName: row.author_name,
+    authorName: toPublicAuthorLabel(row.author_name, row.user_id),
     body: row.body,
     isHidden: row.is_hidden,
     isPinned: row.is_pinned,

@@ -5,6 +5,7 @@ import {
   updatePurgedPostForSuperAdmin,
 } from '@/services/admin/contentManagement'
 import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
+import { toPublicAuthorLabel } from '@/utils/getPostAuthor'
 
 const STATUS_OPTIONS = [
   { value: 'public', label: '공개' },
@@ -86,7 +87,7 @@ function PurgedPostEditModal({ post, onClose, onSaved }) {
           영구삭제 게시글 수정
         </h2>
         <p className="content-cms-purged-modal__meta">
-          {post.board_label} · {post.writer} · 영구삭제 {formatDateTime(post.purged_at)}
+          {post.board_label} · {toPublicAuthorLabel(post.writer, post.author_id)} · 영구삭제 {formatDateTime(post.purged_at)}
         </p>
 
         <div className="content-cms-purged-modal__field">
@@ -358,7 +359,7 @@ function PurgedPostsModal({ isOpen, onClose, onFeedback, onChanged }) {
                       </td>
                       <td>{post.board_label}</td>
                       <td className="content-cms-title-cell">{post.title}</td>
-                      <td>{post.writer}</td>
+                      <td>{toPublicAuthorLabel(post.writer, post.author_id)}</td>
                       <td>{formatDateTime(post.purged_at)}</td>
                       <td>
                         <div className="member-management-page__actions">
