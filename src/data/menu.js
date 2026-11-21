@@ -7,6 +7,8 @@ import {
   EVENT_MENU_ITEM,
   THANKSGIVING_GAME_SUPER_ADMIN_ONLY,
 } from '@/data/eventMenu'
+import { filterVisibleMenuItems } from '@/data/menuVisibility'
+import { PRAYER_MENU_ITEM } from '@/data/prayerMenu'
 
 export const AUTH_LINKS = [
   { label: '로그인', path: '/login' },
@@ -127,19 +129,16 @@ export const MENU_ITEMS = [
     path: '/new-family',
     children: [{ title: '새가족 안내', path: '/new-family' }],
   },
+  PRAYER_MENU_ITEM,
   ...(EVENT_MENU_ENABLED ? [EVENT_MENU_ITEM] : []),
 ]
 
-/** Menu items visible for the current viewer (hides super-admin-only event items). */
-export function getVisibleMenuItems({ isSuperAdmin = false } = {}) {
-  return MENU_ITEMS.filter((item) => {
-    if (!item.requiresSuperAdmin) {
-      return true
-    }
-    if (!THANKSGIVING_GAME_SUPER_ADMIN_ONLY) {
-      return true
-    }
-    return Boolean(isSuperAdmin)
+/** Menu items visible for the current viewer. */
+export function getVisibleMenuItems({ isSuperAdmin = false, isLoggedIn = false } = {}) {
+  return filterVisibleMenuItems(MENU_ITEMS, {
+    isSuperAdmin,
+    isLoggedIn,
+    superAdminGate: THANKSGIVING_GAME_SUPER_ADMIN_ONLY,
   })
 }
 

@@ -54,6 +54,10 @@ import MemberRoute from '@/components/auth/MemberRoute'
 import SuperAdminRoute from '@/components/auth/SuperAdminRoute'
 import NewFamilyGuide from '@/pages/NewFamilyGuide'
 import ThanksgivingGame from '@/pages/ThanksgivingGame'
+import PrayerListPage from '@/pages/prayer/PrayerListPage'
+import PrayerDetailPage from '@/pages/prayer/PrayerDetailPage'
+import PrayerWritePage from '@/pages/prayer/PrayerWritePage'
+import PrayerEditPage from '@/pages/prayer/PrayerEditPage'
 import WorshipGuidePage from '@/pages/WorshipGuidePage'
 import Facilities from '@/pages/Facilities'
 import {
@@ -118,7 +122,28 @@ function App() {
           <Route path="/email-confirm" element={<EmailConfirmSuccess />} />
           <Route element={<SiteShell />}>
             <Route path="/" element={<Home />} />
-            <Route path="/thanksgiving-game" element={<ThanksgivingGame />} />
+            <Route
+              path="/thanksgiving-game"
+              element={
+                <SuperAdminRoute>
+                  <ThanksgivingGame />
+                </SuperAdminRoute>
+              }
+            />
+            <Route element={<MemberRoute />}>
+              <Route path="/prayer" element={<PrayerListPage />} />
+              <Route path="/prayer/write" element={<PrayerWritePage />} />
+              <Route
+                path="/prayer/manage"
+                element={
+                  <SuperAdminRoute>
+                    <PrayerListPage mode="manage" />
+                  </SuperAdminRoute>
+                }
+              />
+              <Route path="/prayer/:prayerId/edit" element={<PrayerEditPage />} />
+              <Route path="/prayer/:prayerId" element={<PrayerDetailPage />} />
+            </Route>
             <Route path="/login" element={<Auth />} />
             <Route path="/oauth/complete" element={<OAuthProfileComplete />} />
             <Route path="/reset-password/security-question" element={<ResetPasswordSecurityQuestion />} />

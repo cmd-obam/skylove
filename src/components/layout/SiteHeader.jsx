@@ -61,8 +61,8 @@ function SiteHeader() {
   const { isSuperAdmin } = useSuperAdmin()
   const { isCmsAdmin } = useCmsAdmin()
   const visibleMenuItems = useMemo(
-    () => getVisibleMenuItems({ isSuperAdmin }),
-    [isSuperAdmin],
+    () => getVisibleMenuItems({ isSuperAdmin, isLoggedIn }),
+    [isLoggedIn, isSuperAdmin],
   )
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [activeMenu, setActiveMenu] = useState(null)

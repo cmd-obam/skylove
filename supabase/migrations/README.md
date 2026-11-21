@@ -136,6 +136,17 @@ supabase/migrations/004_add_role_column.sql
 
 실행 후 `profiles` 테이블에 `role` 컬럼이 있는지 Table Editor에서 확인하세요.
 
+## 중보기도 (068)
+
+Supabase SQL Editor에서 아래 파일 전체를 한 번 실행하세요.
+
+```
+supabase/apply_intercessory_prayer.sql
+```
+
+이벤트(추수감사 미니게임) 테이블과 데이터는 바꾸지 않습니다.  
+실행 후 중보기도 메뉴는 로그인한 회원에게만, 이벤트 메뉴는 최고관리자에게만 동작합니다.
+
 관리자 지정 예시:
 
 ```sql

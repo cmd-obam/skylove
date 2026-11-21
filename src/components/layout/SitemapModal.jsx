@@ -1,14 +1,16 @@
 import { useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
+import { useAuth } from '@/contexts/AuthContext'
 import { getVisibleMenuItems } from '@/data/menu'
 import { useSuperAdmin } from '@/hooks/useSuperAdmin'
 import './SitemapModal.css'
 
 function SitemapModal({ isOpen, onClose }) {
+  const { isLoggedIn } = useAuth()
   const { isSuperAdmin } = useSuperAdmin()
   const visibleMenuItems = useMemo(
-    () => getVisibleMenuItems({ isSuperAdmin }),
-    [isSuperAdmin],
+    () => getVisibleMenuItems({ isSuperAdmin, isLoggedIn }),
+    [isLoggedIn, isSuperAdmin],
   )
   useEffect(() => {
     if (!isOpen) {
