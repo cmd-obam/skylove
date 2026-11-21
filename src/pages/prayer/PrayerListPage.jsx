@@ -199,18 +199,23 @@ function PrayerListPage({ mode = 'board' }) {
 
   return (
     <PrayerCopyGuard>
-      <div className="prayer-page">
+      <div className={`prayer-page prayer-page--board${manage ? ' prayer-page--manage' : ''}`}>
         <PrayerHero compact={manage} title={manage ? '중보기도 관리' : '중보기도'}>
           {manage ? (
-            <p className="prayer-hero__text">공개와 비공개 기도 제목을 함께 관리합니다.</p>
+            <>
+              <p className="prayer-hero__text">공개와 비공개 기도 제목을 함께 관리합니다.</p>
+              <Link className="prayer-back prayer-back--on-hero" to={PRAYER_PATH}>
+                기도 나눔으로
+              </Link>
+            </>
           ) : null}
+          <div className="prayer-hero__actions">
+            <Link className="prayer-button prayer-button--hero" to={PRAYER_WRITE_PATH}>
+              기도 제목 작성하기
+            </Link>
+          </div>
         </PrayerHero>
         <div className="prayer-page__inner">
-          {manage ? (
-            <Link className="prayer-back" to={PRAYER_PATH}>
-              기도 나눔으로
-            </Link>
-          ) : null}
           <PrayerStats
             stats={stats}
             status={statsStatus}
@@ -218,25 +223,25 @@ function PrayerListPage({ mode = 'board' }) {
             filters={{ status, withParticipants }}
             onSelect={handleStat}
           />
-          <div className="prayer-toolbar">
-            <p className="prayer-note">
-              {access.isSuperAdmin
-                ? '최고관리자는 비공개 기도 제목과 익명 작성자를 확인할 수 있습니다.'
-                : access.canViewPrivate
-                  ? '담임목사 권한으로 비공개 기도 제목도 함께 보입니다. 익명 작성자의 이름은 보이지 않습니다.'
-                  : '로그인한 회원과 함께 기도하는 공간입니다.'}
-            </p>
-            <div className="prayer-toolbar__actions">
-              <Link className="prayer-button" to={PRAYER_WRITE_PATH}>
-                기도 제목 작성하기
-              </Link>
+          <section className="prayer-board" aria-labelledby="prayer-board-title">
+            <header className="prayer-board__head">
+              <div>
+                <p className="prayer-board__eyebrow">함께 나누는 기도</p>
+                <h2 id="prayer-board-title">기도 나눔</h2>
+                <p className="prayer-note">
+                  {access.isSuperAdmin
+                    ? '최고관리자는 비공개 기도 제목과 익명 작성자를 확인할 수 있습니다.'
+                    : access.canViewPrivate
+                      ? '담임목사 권한으로 비공개 기도 제목도 함께 보입니다. 익명 작성자의 이름은 보이지 않습니다.'
+                      : '로그인한 회원과 함께 기도하는 공간입니다.'}
+                </p>
+              </div>
               {access.isSuperAdmin && !manage ? (
-                <Link className="prayer-button prayer-button--ghost" to={PRAYER_MANAGE_PATH}>
+                <Link className="prayer-button prayer-button--ghost prayer-button--admin" to={PRAYER_MANAGE_PATH}>
                   기도 관리
                 </Link>
               ) : null}
-            </div>
-          </div>
+            </header>
           <PrayerFilters
             category={category}
             status={status}
@@ -255,12 +260,12 @@ function PrayerListPage({ mode = 'board' }) {
               setQuery(keyword.trim())
             }}
           />
-          {listStatus === 'loading' ? <p className="prayer-status">기도 제목을 불러오는 중입니다.</p> : null}
+          {listStatus === 'loading' ? <p className="prayer-status prayer-status--card">기도 제목을 불러오는 중입니다.</p> : null}
           {listMessage && listStatus !== 'loading' ? (
-            <p className="prayer-status prayer-status--error">{listMessage}</p>
+            <p className="prayer-status prayer-status--card prayer-status--error">{listMessage}</p>
           ) : null}
           {listStatus === 'empty' ? (
-            <p className="prayer-status">조건에 맞는 기도 제목이 없습니다.</p>
+            <p className="prayer-status prayer-status--card">조건에 맞는 기도 제목이 없습니다.</p>
           ) : null}
           {listStatus === 'ready' || listStatus === 'loading-more' ? (
             <div className="prayer-list">
@@ -306,6 +311,7 @@ function PrayerListPage({ mode = 'board' }) {
               </button>
             </div>
           ) : null}
+          </section>
         </div>
         <Modal
           isOpen={Boolean(deleteTarget)}

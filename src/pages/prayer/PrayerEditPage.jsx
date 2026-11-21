@@ -87,11 +87,12 @@ function PrayerEditPage() {
   return (
     <PrayerCopyGuard>
       <div className="prayer-page">
-        <PrayerHero compact title="기도 제목 수정" />
-        <div className="prayer-page__inner">
-          <Link className="prayer-back" to={PRAYER_PATH}>
+        <PrayerHero compact title="기도 제목 수정">
+          <Link className="prayer-back prayer-back--on-hero" to={PRAYER_PATH}>
             기도 나눔으로
           </Link>
+        </PrayerHero>
+        <div className="prayer-page__inner">
           {loading ? <p className="prayer-status">기도 제목을 불러오는 중입니다.</p> : null}
           {message ? <p className="prayer-status prayer-status--error">{message}</p> : null}
           {draft ? (

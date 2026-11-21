@@ -121,11 +121,12 @@ function PrayerDetailPage() {
   return (
     <PrayerCopyGuard>
       <div className="prayer-page">
-        <PrayerHero compact title="중보기도" />
-        <div className="prayer-page__inner">
-          <Link className="prayer-back" to={PRAYER_PATH}>
+        <PrayerHero compact title="중보기도">
+          <Link className="prayer-back prayer-back--on-hero" to={PRAYER_PATH}>
             기도 나눔으로
           </Link>
+        </PrayerHero>
+        <div className="prayer-page__inner">
           {status === 'loading' ? <p className="prayer-status">기도 제목을 불러오는 중입니다.</p> : null}
           {status === 'error' ? <p className="prayer-status prayer-status--error">{message}</p> : null}
           {status === 'ready' && prayer ? (
@@ -147,46 +148,60 @@ function PrayerDetailPage() {
               </p>
               <p className="prayer-detail__content">{prayer.content}</p>
               {message ? <p className="prayer-status prayer-status--error">{message}</p> : null}
-              <div className="prayer-detail__actions">
+              <div className="prayer-detail__pray">
                 <PrayerParticipateButton
                   participating={prayer.viewerParticipating}
                   pending={pending}
                   onToggle={handleToggle}
                 />
-                {prayer.canEdit ? (
-                  <Link className="prayer-button prayer-button--ghost" to={prayerEditPath(prayer.id)}>
-                    수정
-                  </Link>
-                ) : null}
-                {prayer.canDelete ? (
-                  <button type="button" className="prayer-button prayer-button--danger" onClick={() => setConfirmDelete(true)}>
-                    삭제
-                  </button>
-                ) : null}
               </div>
-              {prayer.canChangeStatus ? (
-                <div className="prayer-inline-actions">
-                  <button
-                    type="button"
-                    className="prayer-button prayer-button--ghost"
-                    disabled={pending || prayer.status === 'praying'}
-                    onClick={() => handleStatus('praying')}
-                  >
-                    기도 중으로 표시
-                  </button>
-                  <button
-                    type="button"
-                    className="prayer-button prayer-button--ghost"
-                    disabled={pending || prayer.status === 'answered'}
-                    onClick={() => handleStatus('answered')}
-                  >
-                    응답 완료로 표시
-                  </button>
-                </div>
+              {prayer.canEdit || prayer.canChangeStatus ? (
+                <section className="prayer-manage">
+                  <header className="prayer-manage__head">
+                    <h3>기도 제목 관리</h3>
+                    <p>작성자와 권한이 있는 사람에게만 보입니다.</p>
+                  </header>
+                  <div className="prayer-manage__actions">
+                    {prayer.canEdit ? (
+                      <Link className="prayer-button prayer-button--ghost" to={prayerEditPath(prayer.id)}>
+                        수정
+                      </Link>
+                    ) : null}
+                    {prayer.canChangeStatus ? (
+                      <>
+                        <button
+                          type="button"
+                          className="prayer-button prayer-button--ghost"
+                          disabled={pending || prayer.status === 'praying'}
+                          onClick={() => handleStatus('praying')}
+                        >
+                          기도 중으로 표시
+                        </button>
+                        <button
+                          type="button"
+                          className="prayer-button prayer-button--ghost"
+                          disabled={pending || prayer.status === 'answered'}
+                          onClick={() => handleStatus('answered')}
+                        >
+                          응답 완료로 표시
+                        </button>
+                      </>
+                    ) : null}
+                  </div>
+                </section>
               ) : null}
               {prayer.canDelete ? (
-                <section>
-                  <h3>기도 참여 내역</h3>
+                <section className="prayer-manage prayer-manage--admin">
+                  <header className="prayer-manage__head">
+                    <h3>최고관리자</h3>
+                    <p>삭제와 기도 참여 내역은 최고관리자만 볼 수 있습니다.</p>
+                  </header>
+                  <div className="prayer-manage__actions">
+                    <button type="button" className="prayer-button prayer-button--danger" onClick={() => setConfirmDelete(true)}>
+                      삭제
+                    </button>
+                  </div>
+                  <h4 className="prayer-manage__subhead">기도 참여 내역</h4>
                   {participantMessage ? (
                     <p className="prayer-status prayer-status--error">{participantMessage}</p>
                   ) : null}
@@ -196,7 +211,8 @@ function PrayerDetailPage() {
                     <ul className="prayer-participants">
                       {participants.map((person) => (
                         <li key={person.userId}>
-                          {person.displayName} · {formatPrayerDate(person.createdAt)}
+                          <span>{person.displayName}</span>
+                          <span>{formatPrayerDate(person.createdAt)}</span>
                         </li>
                       ))}
                     </ul>

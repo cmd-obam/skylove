@@ -37,43 +37,54 @@ function PrayerFilters({
 }) {
   return (
     <div className="prayer-filter-bar">
-      <FilterGroup
-        label="기도 제목 카테고리"
-        value={category}
-        options={PRAYER_CATEGORY_FILTERS}
-        onChange={onCategoryChange}
-      />
-      <FilterGroup
-        label="기도 상태"
-        value={status}
-        options={PRAYER_STATUS_FILTERS}
-        onChange={onStatusChange}
-      />
-      {showVisibility ? (
+      <div className="prayer-filter-block">
+        <p className="prayer-filter-label">카테고리</p>
         <FilterGroup
-          label="공개 범위"
-          value={visibility}
-          options={PRAYER_VISIBILITY_FILTERS}
-          onChange={onVisibilityChange}
+          label="기도 제목 카테고리"
+          value={category}
+          options={PRAYER_CATEGORY_FILTERS}
+          onChange={onCategoryChange}
         />
-      ) : null}
-      <form className="prayer-search" onSubmit={onSearch}>
-        <label className="prayer-search__label" htmlFor="prayer-search">
-          기도 제목 검색
-        </label>
-        <input
-          id="prayer-search"
-          className="prayer-search__input"
-          value={keyword}
-          onChange={(event) => onKeywordChange(event.target.value)}
-          placeholder="제목 또는 내용"
-          autoComplete={AUTOCOMPLETE_OFF}
-          maxLength={80}
-        />
-        <button type="submit" className="prayer-button prayer-button--ghost">
-          검색
-        </button>
-      </form>
+      </div>
+      <div className="prayer-filter-tools">
+        <div className="prayer-filter-block">
+          <p className="prayer-filter-label">기도 상태</p>
+          <FilterGroup
+            label="기도 상태"
+            value={status}
+            options={PRAYER_STATUS_FILTERS}
+            onChange={onStatusChange}
+          />
+        </div>
+        {showVisibility ? (
+          <div className="prayer-filter-block">
+            <p className="prayer-filter-label">공개 범위</p>
+            <FilterGroup
+              label="공개 범위"
+              value={visibility}
+              options={PRAYER_VISIBILITY_FILTERS}
+              onChange={onVisibilityChange}
+            />
+          </div>
+        ) : null}
+        <form className="prayer-search" onSubmit={onSearch}>
+          <label className="prayer-search__label" htmlFor="prayer-search">
+            검색
+          </label>
+          <input
+            id="prayer-search"
+            className="prayer-search__input"
+            value={keyword}
+            onChange={(event) => onKeywordChange(event.target.value)}
+            placeholder="제목 또는 내용"
+            autoComplete={AUTOCOMPLETE_OFF}
+            maxLength={80}
+          />
+          <button type="submit" className="prayer-button prayer-button--search">
+            검색
+          </button>
+        </form>
+      </div>
     </div>
   )
 }

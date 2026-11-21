@@ -64,11 +64,12 @@ function PrayerWritePage() {
   return (
     <PrayerCopyGuard>
       <div className="prayer-page">
-        <PrayerHero compact title="기도 제목 작성" />
-        <div className="prayer-page__inner">
-          <Link className="prayer-back" to={PRAYER_PATH}>
+        <PrayerHero compact title="기도 제목 작성">
+          <Link className="prayer-back prayer-back--on-hero" to={PRAYER_PATH}>
             기도 나눔으로
           </Link>
+        </PrayerHero>
+        <div className="prayer-page__inner">
           {privateDone ? (
             <div className="prayer-panel">
               <h2>비공개로 전해졌습니다.</h2>
