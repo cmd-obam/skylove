@@ -29,6 +29,22 @@
   background: linear-gradient(128deg, #2f86d6 0%, #4da6ff 42%, #5bb8ff 70%, #87ceeb 100%);
 }
 
+.prayer-hero--photo {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(12, 22, 40, 0.62) 0%,
+      rgba(12, 22, 40, 0.34) 46%,
+      rgba(12, 22, 40, 0.12) 100%
+    ),
+    var(--prayer-hero-image) center / cover no-repeat;
+}
+
+.prayer-hero--photo .prayer-hero__sky,
+.prayer-hero--photo .prayer-hero__art {
+  visibility: hidden;
+}
+
 .prayer-hero__sky,
 .prayer-hero__glow,
 .prayer-hero__cloud,

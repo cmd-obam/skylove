@@ -1,3 +1,5 @@
+import heroImage from '@/assets/images/intercession/1.png'
+
 function CrossIcon() {
   return (
     <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
@@ -53,7 +55,10 @@ function HeroMark() {
 
 function PrayerHero({ compact = false, title = '중보기도', children }) {
   return (
-    <header className={`prayer-hero${compact ? ' prayer-hero--compact' : ''}`}>
+    <header
+      className={`prayer-hero${compact ? ' prayer-hero--compact' : ' prayer-hero--photo'}`}
+      style={compact ? undefined : { '--prayer-hero-image': `url(${heroImage})` }}
+    >
       <div className="prayer-hero__sky" aria-hidden="true">
         <span className="prayer-hero__glow" />
         <span className="prayer-hero__ray" />
