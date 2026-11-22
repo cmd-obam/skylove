@@ -64,7 +64,7 @@ export const SUNDAY_BULLETIN_ONE_TIME_BY_POST_ID = {
   },
   // 2026.11.22 주일예배 주보 — 절기만 1회성
   'f11f0942-e778-46cc-8193-16ebd0bd6fcd': {
-    seasonWeek: '마지막주일',
+    seasonWeek: '성령강림절 후\n마지막주일',
   },
 }
 
