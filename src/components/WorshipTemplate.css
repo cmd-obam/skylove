@@ -762,7 +762,7 @@
 }
 
 @media (max-width: 767px) {
-  /* 예배안내 모바일 배너 헤드라인: 주일축복예배 글자 크기로 통일 */
+  /* 예배안내 배너 미리보기 글자만 약 13% 축소. 이미지·확대 기능은 그대로 */
   .mobile-banner-expand.worship-template__intro--banner .worship-template__headline,
   .mobile-banner-expand.worship-template__intro--banner .worship-template__headline-line,
   .mobile-banner-expand.worship-template__intro--banner .worship-template__headline-accent,
@@ -770,8 +770,24 @@
     .worship-template__headline,
   .mobile-banner-expand.worship-template__intro--banner.worship-template__intro--typography-classic
     .worship-template__headline-line {
-    font-size: var(--fs-section-title);
+    font-size: calc(var(--fs-section-title) * 0.87);
     font-weight: var(--fw-section-title);
-    line-height: var(--lh-section-title);
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+  }
+
+  .mobile-banner-expand.worship-template__intro--banner .worship-template__intro-title {
+    font-size: clamp(0.87rem, 4.87cqi, 1.196rem);
+    line-height: 1.28;
+    letter-spacing: -0.02em;
+  }
+
+  .mobile-banner-expand.worship-template__intro--banner .worship-template__description,
+  .mobile-banner-expand.worship-template__intro--banner .worship-template__description--rich,
+  .mobile-banner-expand.worship-template__intro--banner .worship-template__description-line,
+  .mobile-banner-expand.worship-template__intro--banner .worship-template__description-accent {
+    font-size: clamp(0.76rem, 4cqi, 0.98rem);
+    line-height: 1.4;
+    letter-spacing: -0.02em;
   }
 }
