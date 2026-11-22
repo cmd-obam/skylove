@@ -1,5 +1,7 @@
 import heroImage from '@/assets/images/intercession/1.png'
 
+export { default as prayerWriteHeroImage } from '@/assets/images/intercession/2.jpg'
+
 function CrossIcon() {
   return (
     <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
@@ -53,11 +55,13 @@ function HeroMark() {
   )
 }
 
-function PrayerHero({ compact = false, title = '중보기도', children }) {
+function PrayerHero({ compact = false, title = '중보기도', image, children }) {
+  const photo = image || (compact ? null : heroImage)
+
   return (
     <header
-      className={`prayer-hero${compact ? ' prayer-hero--compact' : ' prayer-hero--photo'}`}
-      style={compact ? undefined : { '--prayer-hero-image': `url(${heroImage})` }}
+      className={`prayer-hero${compact ? ' prayer-hero--compact' : ''}${photo ? ' prayer-hero--photo' : ''}`}
+      style={photo ? { '--prayer-hero-image': `url(${photo})` } : undefined}
     >
       <div className="prayer-hero__sky" aria-hidden="true">
         <span className="prayer-hero__glow" />
@@ -67,10 +71,12 @@ function PrayerHero({ compact = false, title = '중보기도', children }) {
       </div>
       <div className="prayer-hero__inner">
         <div className="prayer-hero__copy">
-          <p className="prayer-hero__eyebrow">
-            <CrossIcon />
-            하늘사랑교회
-          </p>
+          {compact ? (
+            <p className="prayer-hero__eyebrow">
+              <CrossIcon />
+              하늘사랑교회
+            </p>
+          ) : null}
           <h1 className="prayer-hero__title">{title}</h1>
           {compact ? null : (
             <>

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import PrayerCopyGuard from '@/components/prayer/PrayerCopyGuard'
 import PrayerForm from '@/components/prayer/PrayerForm'
-import PrayerHero from '@/components/prayer/PrayerHero'
+import PrayerHero, { prayerWriteHeroImage } from '@/components/prayer/PrayerHero'
 import { PRAYER_PATH, prayerDetailPath } from '@/data/prayerMenu'
 import { EMPTY_PRAYER_DRAFT, validatePrayerDraft } from '@/services/prayer/present'
 import { createPrayerRequest, fetchPrayerAccess } from '@/services/prayer/requests'
@@ -64,7 +64,7 @@ function PrayerWritePage() {
   return (
     <PrayerCopyGuard>
       <div className="prayer-page">
-        <PrayerHero compact title="기도 제목 작성">
+        <PrayerHero compact image={prayerWriteHeroImage} title="기도 제목 작성">
           <Link className="prayer-back prayer-back--on-hero" to={PRAYER_PATH}>
             기도 나눔으로
           </Link>

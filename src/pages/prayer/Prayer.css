@@ -135,6 +135,25 @@
   letter-spacing: -0.04em;
 }
 
+.prayer-hero:not(.prayer-hero--compact) .prayer-hero__title {
+  font-family: 'Nanum Myeongjo', serif;
+  font-weight: var(--fw-hero-title);
+  line-height: var(--lh-hero-title);
+  letter-spacing: var(--ls-hero-title);
+}
+
+.prayer-hero:not(.prayer-hero--compact) .prayer-hero__lead,
+.prayer-hero:not(.prayer-hero--compact) .prayer-hero__text {
+  font-family: var(--font-family);
+  font-weight: var(--fw-hero-subtitle);
+  letter-spacing: var(--ls-hero-subtitle);
+}
+
+.prayer-hero:not(.prayer-hero--compact) .prayer-button--hero {
+  font-family: var(--font-family);
+  font-weight: var(--fw-hero-btn);
+}
+
 .prayer-hero__lead,
 .prayer-hero__text {
   margin: 0;
