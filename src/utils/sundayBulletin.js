@@ -52,7 +52,7 @@ export function resolveSundayBulletinThumbnail(postOrContent, thumbnail) {
 
 /**
  * 특정 게시글에만 적용하는 1회성 주보 덮어쓰기.
- * (항상 고정 필드 + 해당 주 임재의말씀)
+ * (항상 고정 필드 + 해당 주 임재의말씀 + 절기 표기)
  */
 export const SUNDAY_BULLETIN_ONE_TIME_BY_POST_ID = {
   // 26.09.13 주일예배 주보
@@ -61,6 +61,10 @@ export const SUNDAY_BULLETIN_ONE_TIME_BY_POST_ID = {
     offeringPrayer: '최미화사관 축복기도',
     benediction: '최미화 사관',
     sermon: '나는~~~? 최미화 사관',
+  },
+  // 2026.11.22 주일예배 주보 — 절기만 1회성
+  'f11f0942-e778-46cc-8193-16ebd0bd6fcd': {
+    seasonWeek: '마지막주일',
   },
 }
 
@@ -145,6 +149,9 @@ export function applySundayBulletinOneTimeOverride(weekly, postId) {
   const next = createEmptySundayBulletinWeekly(weekly)
   if (override.sermon != null) {
     next.sermon = String(override.sermon)
+  }
+  if (override.seasonWeek != null && String(override.seasonWeek).trim() !== '') {
+    next.seasonWeek = String(override.seasonWeek).trim()
   }
 
   next.oneTimeFixed = normalizeOneTimeFixed({
