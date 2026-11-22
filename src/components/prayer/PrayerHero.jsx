@@ -55,12 +55,13 @@ function HeroMark() {
   )
 }
 
-function PrayerHero({ compact = false, title = '중보기도', image, children }) {
+function PrayerHero({ compact = false, matchMain = false, title = '중보기도', image, children }) {
   const photo = image || (compact ? null : heroImage)
+  const fullSize = !compact || matchMain
 
   return (
     <header
-      className={`prayer-hero${compact ? ' prayer-hero--compact' : ''}${photo ? ' prayer-hero--photo' : ''}`}
+      className={`prayer-hero${fullSize ? '' : ' prayer-hero--compact'}${photo ? ' prayer-hero--photo' : ''}`}
       style={photo ? { '--prayer-hero-image': `url(${photo})` } : undefined}
     >
       <div className="prayer-hero__sky" aria-hidden="true">
@@ -70,25 +71,39 @@ function PrayerHero({ compact = false, title = '중보기도', image, children }
         <span className="prayer-hero__cloud prayer-hero__cloud--right" />
       </div>
       <div className="prayer-hero__inner">
-        <div className="prayer-hero__copy">
-          {compact ? (
-            <p className="prayer-hero__eyebrow">
-              <CrossIcon />
-              하늘사랑교회
-            </p>
-          ) : null}
-          <h1 className="prayer-hero__title">{title}</h1>
-          {compact ? null : (
-            <>
+        <div className={`prayer-hero__copy${matchMain ? ' prayer-hero__copy--match' : ''}`}>
+          {matchMain ? (
+            <div className="prayer-hero__sizer" aria-hidden="true">
+              <p className="prayer-hero__title">중보기도</p>
               <p className="prayer-hero__lead">기도는 사랑의 또 다른 표현입니다.</p>
               <p className="prayer-hero__text">
                 서로의 기도 제목을 나누고 함께 기도하는 하늘사랑교회의 기도 공간입니다.
               </p>
-            </>
-          )}
-          {children}
+              <div className="prayer-hero__actions">
+                <span className="prayer-button prayer-button--hero">기도 제목 작성하기</span>
+              </div>
+            </div>
+          ) : null}
+          <div className={matchMain ? 'prayer-hero__face' : undefined}>
+            {fullSize ? null : (
+              <p className="prayer-hero__eyebrow">
+                <CrossIcon />
+                하늘사랑교회
+              </p>
+            )}
+            <h1 className="prayer-hero__title">{title}</h1>
+            {fullSize && !matchMain ? (
+              <>
+                <p className="prayer-hero__lead">기도는 사랑의 또 다른 표현입니다.</p>
+                <p className="prayer-hero__text">
+                  서로의 기도 제목을 나누고 함께 기도하는 하늘사랑교회의 기도 공간입니다.
+                </p>
+              </>
+            ) : null}
+            {children}
+          </div>
         </div>
-        {compact ? null : <HeroMark />}
+        {fullSize ? <HeroMark /> : null}
       </div>
     </header>
   )

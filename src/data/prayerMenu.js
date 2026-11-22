@@ -16,7 +16,7 @@ export const PRAYER_MENU_ITEM = {
   path: PRAYER_PATH,
   requiresAuth: true,
   children: [
-    { title: '기도 나눔', path: PRAYER_PATH },
+    { title: '중보기도', path: PRAYER_PATH },
     { title: '기도 제목 작성', path: PRAYER_WRITE_PATH },
   ],
 }

@@ -113,6 +113,22 @@
   padding: 2.6rem 0 2.4rem;
 }
 
+.prayer-hero__copy--match {
+  position: relative;
+}
+
+.prayer-hero__sizer {
+  visibility: hidden;
+}
+
+.prayer-hero__face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
 .prayer-hero__eyebrow {
   display: inline-flex;
   align-items: center;
