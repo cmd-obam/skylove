@@ -190,7 +190,7 @@
 }
 
 .prayer-page--board:not(.prayer-page--manage) .prayer-page__inner {
-  margin-top: -4.6rem;
+  margin-top: 20px;
   padding-top: 0;
 }
 
@@ -919,7 +919,7 @@
   }
 
   .prayer-page--board:not(.prayer-page--manage) .prayer-page__inner {
-    margin-top: -3.6rem;
+    margin-top: 20px;
   }
 
   .prayer-stats,
