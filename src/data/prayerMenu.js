@@ -10,7 +10,7 @@ export function prayerEditPath(prayerId) {
   return `/prayer/${prayerId}/edit`
 }
 
-/** 중보기도는 로그인한 회원에게만 보인다. 관리 화면은 최고관리자만. */
+/** 중보기도는 로그인한 회원에게만 보인다. 목록 관리는 게시글 관리의 중보기도 탭. */
 export const PRAYER_MENU_ITEM = {
   title: '중보기도',
   path: PRAYER_PATH,
@@ -18,6 +18,5 @@ export const PRAYER_MENU_ITEM = {
   children: [
     { title: '기도 나눔', path: PRAYER_PATH },
     { title: '기도 제목 작성', path: PRAYER_WRITE_PATH },
-    { title: '기도 관리', path: PRAYER_MANAGE_PATH, requiresSuperAdmin: true },
   ],
 }

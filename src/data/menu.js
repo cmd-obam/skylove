@@ -42,10 +42,14 @@ export const CMS_ADMIN_MEMBER_MENU = [
   { id: 'content-management', title: '게시글 & 댓글 관리', path: '/member/content-management' },
 ]
 
-export function getLoggedInMemberMenuChildren({ isSuperAdmin = false, isCmsAdmin = false } = {}) {
+export function getLoggedInMemberMenuChildren({
+  isSuperAdmin = false,
+  isCmsAdmin = false,
+  canManagePrayers = false,
+} = {}) {
   const adminMenu = isSuperAdmin
     ? SUPER_ADMIN_MEMBER_MENU
-    : isCmsAdmin
+    : isCmsAdmin || canManagePrayers
       ? CMS_ADMIN_MEMBER_MENU
       : []
 

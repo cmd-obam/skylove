@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { CMS_ADMIN_MEMBER_MENU, SUPER_ADMIN_MEMBER_MENU } from '@/data/menu'
+import { useAuth } from '@/contexts/AuthContext'
 import { useCmsAdmin } from '@/hooks/useCmsAdmin'
 import { useSuperAdmin } from '@/hooks/useSuperAdmin'
+import { canManagePrayers } from '@/services/auth/roles'
 import useIsCompactNav from '@/hooks/useIsCompactNav'
 import '@/components/layout/CategorySidebar.css'
 import './MemberMypageSidebar.css'
@@ -15,11 +17,13 @@ const BASE_MENU_ITEMS = [
 function MemberMypageSidebar() {
   const { pathname } = useLocation()
   const isCompactNav = useIsCompactNav()
+  const { isLoggedIn, profile } = useAuth()
   const { isSuperAdmin } = useSuperAdmin()
   const { isCmsAdmin } = useCmsAdmin()
+  const prayerManager = isLoggedIn && canManagePrayers(profile)
   const adminChildren = (isSuperAdmin
     ? SUPER_ADMIN_MEMBER_MENU
-    : isCmsAdmin
+    : isCmsAdmin || prayerManager
       ? CMS_ADMIN_MEMBER_MENU
       : []
   ).map((item) => ({ ...item, label: item.title }))
@@ -29,7 +33,7 @@ function MemberMypageSidebar() {
     pathname.startsWith('/member/content-management') ||
     pathname.startsWith('/member/visitor-stats')
   const [isManagementExpanded, setIsManagementExpanded] = useState(isManagementPath)
-  const adminTitle = isSuperAdmin ? '관리자' : isCmsAdmin ? '운영 관리' : '회원정보'
+  const adminTitle = isSuperAdmin ? '관리자' : isCmsAdmin || prayerManager ? '운영 관리' : '회원정보'
   const adminGroupLabel = isSuperAdmin ? '회원관리' : '콘텐츠 관리'
   const adminGroupPath = isSuperAdmin ? '/member/management' : '/member/content-management'
 

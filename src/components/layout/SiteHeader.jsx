@@ -14,6 +14,7 @@ import DropdownMenu from '@/components/layout/DropdownMenu'
 import MenuItemLabel from '@/components/layout/MenuItemLabel'
 import { useAuth } from '@/contexts/AuthContext'
 import { useCmsAdmin } from '@/hooks/useCmsAdmin'
+import { canManagePrayers } from '@/services/auth/roles'
 import { useSuperAdmin } from '@/hooks/useSuperAdmin'
 import useBodyScrollLock from '@/hooks/useBodyScrollLock'
 import './SiteHeader.css'
@@ -57,9 +58,10 @@ function isMemberMenuPath(pathname) {
 function SiteHeader() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
-  const { isLoggedIn, signOut } = useAuth()
+  const { isLoggedIn, profile, signOut } = useAuth()
   const { isSuperAdmin } = useSuperAdmin()
   const { isCmsAdmin } = useCmsAdmin()
+  const prayerManager = isLoggedIn && canManagePrayers(profile)
   const visibleMenuItems = useMemo(
     () => getVisibleMenuItems({ isSuperAdmin, isLoggedIn }),
     [isLoggedIn, isSuperAdmin],
@@ -140,9 +142,13 @@ function SiteHeader() {
   const memberMenuChildren = useMemo(
     () =>
       isLoggedIn
-        ? getLoggedInMemberMenuChildren({ isSuperAdmin, isCmsAdmin })
+        ? getLoggedInMemberMenuChildren({
+            isSuperAdmin,
+            isCmsAdmin,
+            canManagePrayers: prayerManager,
+          })
         : MEMBER_MENU_GUEST_CHILDREN,
-    [isCmsAdmin, isLoggedIn, isSuperAdmin],
+    [isCmsAdmin, isLoggedIn, isSuperAdmin, prayerManager],
   )
   const isMemberMenuExpanded = expandedItem === MEMBER_MENU_TITLE
 

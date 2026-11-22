@@ -295,6 +295,11 @@ export function canAccessCMS(profile) {
   return isCmsAdminRole(getProfileRole(profile))
 }
 
+/** 중보기도 관리. 최고관리자와 담임목사(지정 계정 포함)만. */
+export function canManagePrayers(profile) {
+  return isSuperAdminRole(getProfileRole(profile)) || isSeniorPastorOperator(profile)
+}
+
 export function canManageMembers(profile) {
   return isSuperAdminRole(getProfileRole(profile))
 }

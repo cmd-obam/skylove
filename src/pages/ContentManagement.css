@@ -385,6 +385,17 @@
   color: #1d4ed8;
 }
 
+.content-cms-visibility {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.content-cms-card__visibility {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0.35rem 0 0;
+}
+
 .content-cms-status--비공개,
 .content-cms-status--숨김 {
   background: #f3f4f6;

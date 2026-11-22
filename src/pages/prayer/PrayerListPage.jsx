@@ -6,7 +6,7 @@ import PrayerCopyGuard from '@/components/prayer/PrayerCopyGuard'
 import PrayerFilters from '@/components/prayer/PrayerFilters'
 import PrayerHero from '@/components/prayer/PrayerHero'
 import PrayerStats from '@/components/prayer/PrayerStats'
-import { PRAYER_MANAGE_PATH, PRAYER_PATH, PRAYER_WRITE_PATH } from '@/data/prayerMenu'
+import { PRAYER_PATH, PRAYER_WRITE_PATH } from '@/data/prayerMenu'
 import { filtersForStat } from '@/services/prayer/present'
 import {
   PRAYER_PAGE_SIZE,
@@ -228,19 +228,7 @@ function PrayerListPage({ mode = 'board' }) {
               <div>
                 <p className="prayer-board__eyebrow">함께 나누는 기도</p>
                 <h2 id="prayer-board-title">기도 나눔</h2>
-                <p className="prayer-note">
-                  {access.isSuperAdmin
-                    ? '최고관리자는 비공개 기도 제목과 익명 작성자를 확인할 수 있습니다.'
-                    : access.canViewPrivate
-                      ? '담임목사 권한으로 비공개 기도 제목도 함께 보입니다. 익명 작성자의 이름은 보이지 않습니다.'
-                      : '로그인한 회원과 함께 기도하는 공간입니다.'}
-                </p>
               </div>
-              {access.isSuperAdmin && !manage ? (
-                <Link className="prayer-button prayer-button--ghost prayer-button--admin" to={PRAYER_MANAGE_PATH}>
-                  기도 관리
-                </Link>
-              ) : null}
             </header>
           <PrayerFilters
             category={category}

@@ -3,7 +3,12 @@ import { Link } from 'react-router-dom'
 import { FiChevronDown, FiPlus, FiSearch } from 'react-icons/fi'
 import PurgedPostsModal from '@/components/admin/PurgedPostsModal'
 import MemberMypageLayout from '@/components/auth/MemberMypageLayout'
+import { useAuth } from '@/contexts/AuthContext'
 import { useSuperAdmin } from '@/hooks/useSuperAdmin'
+import { prayerDetailPath } from '@/data/prayerMenu'
+import { prayerAuthorLabel } from '@/services/prayer/present'
+import { fetchPrayerFeed } from '@/services/prayer/requests'
+import { canAccessCMS, canManagePrayers } from '@/services/auth/roles'
 import {
   bulkUpdateCommentsForSuperAdmin,
   bulkUpdatePostsForSuperAdmin,
@@ -188,8 +193,13 @@ function formatDateTime(value) {
 }
 
 function ContentManagement() {
+  const { profile, isLoggedIn } = useAuth()
   const { isSuperAdmin } = useSuperAdmin()
-  const [tab, setTab] = useState('posts')
+  const cmsAdmin = isLoggedIn && canAccessCMS(profile)
+  const prayerManager = isLoggedIn && canManagePrayers(profile)
+  const [tab, setTab] = useState(cmsAdmin ? 'posts' : 'prayers')
+  const [prayerRows, setPrayerRows] = useState([])
+  const [prayerHasMore, setPrayerHasMore] = useState(false)
   const [rows, setRows] = useState([])
   const [totalCount, setTotalCount] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -219,9 +229,35 @@ function ContentManagement() {
   const [writeMenuOpen, setWriteMenuOpen] = useState(false)
   const writeMenuRef = useRef(null)
 
-  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize))
+  const totalPages =
+    tab === 'prayers' ? page + (prayerHasMore ? 1 : 0) : Math.max(1, Math.ceil(totalCount / pageSize))
 
   const loadRows = useCallback(async () => {
+    if (tab === 'prayers') {
+      setLoading(true)
+      setFeedback(null)
+
+      const result = await fetchPrayerFeed({
+        query: appliedFilters.search,
+        limit: pageSize + 1,
+        offset: (page - 1) * pageSize,
+      })
+
+      if (!result.success) {
+        setFeedback({ type: 'error', message: result.message })
+        setPrayerRows([])
+        setPrayerHasMore(false)
+        setLoading(false)
+        return
+      }
+
+      setPrayerRows(result.rows.slice(0, pageSize))
+      setPrayerHasMore(result.rows.length > pageSize)
+      setSelectedIds([])
+      setLoading(false)
+      return
+    }
+
     setLoading(true)
     setFeedback(null)
 
@@ -408,8 +444,11 @@ function ContentManagement() {
   const statusOptions = tab === 'posts' ? POST_STATUS_OPTIONS : COMMENT_STATUS_OPTIONS
 
   const pageLabel = useMemo(
-    () => `총 ${totalCount.toLocaleString()}건 | ${page}/${totalPages} 페이지`,
-    [page, totalCount, totalPages],
+    () =>
+      tab === 'prayers'
+        ? `${page} 페이지`
+        : `총 ${totalCount.toLocaleString()}건 | ${page}/${totalPages} 페이지`,
+    [page, tab, totalCount, totalPages],
   )
 
   return (
@@ -450,32 +489,51 @@ function ContentManagement() {
         </div>
 
         <div className="content-cms-tabs content-cms-tabs--pill" role="tablist" aria-label="콘텐츠 관리 탭">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={tab === 'posts'}
-            className={`content-cms-tabs__button${tab === 'posts' ? ' is-active' : ''}`}
-            onClick={() => {
-              setTab('posts')
-              setPage(1)
-              setSelectedIds([])
-            }}
-          >
-            게시글
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={tab === 'comments'}
-            className={`content-cms-tabs__button${tab === 'comments' ? ' is-active' : ''}`}
-            onClick={() => {
-              setTab('comments')
-              setPage(1)
-              setSelectedIds([])
-            }}
-          >
-            댓글
-          </button>
+          {cmsAdmin ? (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={tab === 'posts'}
+              className={`content-cms-tabs__button${tab === 'posts' ? ' is-active' : ''}`}
+              onClick={() => {
+                setTab('posts')
+                setPage(1)
+                setSelectedIds([])
+              }}
+            >
+              게시글
+            </button>
+          ) : null}
+          {cmsAdmin ? (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={tab === 'comments'}
+              className={`content-cms-tabs__button${tab === 'comments' ? ' is-active' : ''}`}
+              onClick={() => {
+                setTab('comments')
+                setPage(1)
+                setSelectedIds([])
+              }}
+            >
+              댓글
+            </button>
+          ) : null}
+          {prayerManager ? (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={tab === 'prayers'}
+              className={`content-cms-tabs__button${tab === 'prayers' ? ' is-active' : ''}`}
+              onClick={() => {
+                setTab('prayers')
+                setPage(1)
+                setSelectedIds([])
+              }}
+            >
+              중보기도
+            </button>
+          ) : null}
         </div>
 
         <form className="content-cms-search" onSubmit={applySearch} autoComplete="off">
@@ -494,20 +552,24 @@ function ContentManagement() {
               />
             </label>
 
-            <button
-              type="button"
-              className={`content-cms-search__advanced${advancedSearchOpen ? ' is-open' : ''}`}
-              onClick={() => setAdvancedSearchOpen((current) => !current)}
-              aria-expanded={advancedSearchOpen}
-            >
-              상세 검색
-              <FiChevronDown className="content-cms-search__advanced-icon" aria-hidden="true" />
-            </button>
+            {tab === 'prayers' ? null : (
+              <button
+                type="button"
+                className={`content-cms-search__advanced${advancedSearchOpen ? ' is-open' : ''}`}
+                onClick={() => setAdvancedSearchOpen((current) => !current)}
+                aria-expanded={advancedSearchOpen}
+              >
+                상세 검색
+                <FiChevronDown className="content-cms-search__advanced-icon" aria-hidden="true" />
+              </button>
+            )}
 
             <button type="submit" className="content-cms-search__submit">
               검색
             </button>
 
+            {tab === 'prayers' ? null : (
+            <>
             <select
               className="content-cms-search__select"
               value={draftFilters.period}
@@ -553,9 +615,11 @@ function ContentManagement() {
                 </label>
               </>
             ) : null}
+            </>
+            )}
           </div>
 
-          {advancedSearchOpen ? (
+          {tab !== 'prayers' && advancedSearchOpen ? (
             <div className="content-cms-search__panel">
               <select
                 value={draftFilters.searchField}
@@ -646,6 +710,7 @@ function ContentManagement() {
         </form>
 
         <div className="content-cms-actions">
+          {tab === 'prayers' ? <div className="content-cms-actions__bulk" /> : (
           <div className="content-cms-actions__bulk">
             <button type="button" onClick={toggleSelectAll}>
               {allSelected ? '전체해제' : '전체선택'}
@@ -683,8 +748,10 @@ function ContentManagement() {
               </>
             ) : null}
           </div>
+          )}
 
           <div className="content-cms-actions__meta">
+            {tab === 'prayers' ? null : (
             <button
               type="button"
               className="content-cms-actions__delete"
@@ -693,6 +760,7 @@ function ContentManagement() {
             >
               선택 삭제
             </button>
+            )}
 
             <div className="content-cms-actions__pager" aria-label="페이지 이동">
               <button
@@ -746,7 +814,61 @@ function ContentManagement() {
         ) : null}
 
         <div className="member-management-page__table-wrap content-cms-table-wrap">
-          {tab === 'posts' ? (
+          {tab === 'prayers' ? (
+            <table className="member-management-page__table content-cms-table">
+              <thead>
+                <tr>
+                  <th scope="col">번호</th>
+                  <th scope="col">제목</th>
+                  <th scope="col">이름</th>
+                  <th scope="col">작성일</th>
+                  <th scope="col" className="content-cms-visibility">구분</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td colSpan={5} className="member-management-page__empty">
+                      불러오는 중...
+                    </td>
+                  </tr>
+                ) : prayerRows.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="member-management-page__empty">
+                      작성된 기도 제목이 없습니다.
+                    </td>
+                  </tr>
+                ) : (
+                  prayerRows.map((prayer, index) => {
+                    const visibilityLabel = prayer.visibility === 'private' ? '비공개' : '공개'
+                    return (
+                      <tr key={prayer.id}>
+                        <td>{(page - 1) * pageSize + index + 1}</td>
+                        <td className="content-cms-title-cell">
+                          <Link to={prayerDetailPath(prayer.id)}>{prayer.title}</Link>
+                        </td>
+                        <td>
+                          {prayer.authorUserId ? (
+                            <Link to={getMemberDetailPath(prayer.authorUserId)}>
+                              {prayerAuthorLabel(prayer)}
+                            </Link>
+                          ) : (
+                            prayerAuthorLabel(prayer)
+                          )}
+                        </td>
+                        <td>{formatDateTime(prayer.createdAt)}</td>
+                        <td className="content-cms-visibility">
+                          <span className={`content-cms-status content-cms-status--${visibilityLabel}`}>
+                            {visibilityLabel}
+                          </span>
+                        </td>
+                      </tr>
+                    )
+                  })
+                )}
+              </tbody>
+            </table>
+          ) : tab === 'posts' ? (
             <table className="member-management-page__table content-cms-table">
               <thead>
                 <tr>
@@ -963,6 +1085,30 @@ function ContentManagement() {
         <div className="content-cms-cards" aria-hidden={false}>
           {loading ? (
             <p className="member-management-page__empty">불러오는 중...</p>
+          ) : tab === 'prayers' ? (
+            prayerRows.length === 0 ? (
+              <p className="member-management-page__empty">작성된 기도 제목이 없습니다.</p>
+            ) : (
+              prayerRows.map((prayer, index) => {
+                const visibilityLabel = prayer.visibility === 'private' ? '비공개' : '공개'
+                return (
+                  <article key={prayer.id} className="content-cms-card">
+                    <p className="content-cms-card__meta">#{(page - 1) * pageSize + index + 1}</p>
+                    <Link className="content-cms-card__title" to={prayerDetailPath(prayer.id)}>
+                      {prayer.title}
+                    </Link>
+                    <p className="content-cms-card__meta">
+                      {prayerAuthorLabel(prayer)} · {formatDateTime(prayer.createdAt)}
+                    </p>
+                    <p className="content-cms-card__visibility">
+                      <span className={`content-cms-status content-cms-status--${visibilityLabel}`}>
+                        {visibilityLabel}
+                      </span>
+                    </p>
+                  </article>
+                )
+              })
+            )
           ) : rows.length === 0 ? (
             <p className="member-management-page__empty">검색 결과가 없습니다.</p>
           ) : tab === 'posts' ? (
