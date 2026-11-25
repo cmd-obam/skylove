@@ -1,46 +1,44 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 import { Link } from 'react-router-dom'
-import Modal from '@/components/common/Modal'
-import PrayerCard from '@/components/prayer/PrayerCard'
 import PrayerCopyGuard from '@/components/prayer/PrayerCopyGuard'
-import PrayerFilters from '@/components/prayer/PrayerFilters'
 import PrayerHero from '@/components/prayer/PrayerHero'
 import PrayerStats from '@/components/prayer/PrayerStats'
-import { PRAYER_PATH, PRAYER_WRITE_PATH } from '@/data/prayerMenu'
-import { filtersForStat, prayerListStat } from '@/services/prayer/present'
-import {
-  PRAYER_PAGE_SIZE,
-  deletePrayerRequest,
-  fetchPrayerAccess,
-  fetchPrayerFeed,
-  fetchPrayerStats,
-  togglePrayerParticipation,
-} from '@/services/prayer/requests'
+import { PRAYER_PATH, PRAYER_WRITE_PATH, prayerDetailPath } from '@/data/prayerMenu'
+import { filtersForStat, formatPrayerDate, prayerAuthorLabel, prayerListStat } from '@/services/prayer/present'
+import { PRAYER_PAGE_SIZE, fetchPrayerFeed, fetchPrayerStats } from '@/services/prayer/requests'
 import './Prayer.css'
+
+const PAGE_BUTTON_WINDOW = 5
+
+function getVisiblePageNumbers(currentPage, totalPages, windowSize = PAGE_BUTTON_WINDOW) {
+  if (totalPages <= windowSize) {
+    return Array.from({ length: totalPages }, (_, index) => index + 1)
+  }
+
+  let start = Math.max(1, currentPage - Math.floor(windowSize / 2))
+  let end = start + windowSize - 1
+
+  if (end > totalPages) {
+    end = totalPages
+    start = Math.max(1, end - windowSize + 1)
+  }
+
+  return Array.from({ length: end - start + 1 }, (_, index) => start + index)
+}
 
 function PrayerListPage({ mode = 'board' }) {
   const manage = mode === 'manage'
-  const [access, setAccess] = useState({ canViewPrivate: false, isSuperAdmin: false })
   const [stats, setStats] = useState(null)
   const [statsStatus, setStatsStatus] = useState('loading')
   const [statsMessage, setStatsMessage] = useState('')
   const [rows, setRows] = useState([])
   const [listStatus, setListStatus] = useState('loading')
   const [listMessage, setListMessage] = useState('')
-  const [hasMore, setHasMore] = useState(false)
-  const [offset, setOffset] = useState(0)
-  const [pendingId, setPendingId] = useState(null)
-  const [category, setCategory] = useState('all')
+  const [page, setPage] = useState(1)
   const [status, setStatus] = useState('praying')
   const [withParticipants, setWithParticipants] = useState(false)
-  const [visibility, setVisibility] = useState('all')
-  const [keyword, setKeyword] = useState('')
-  const [query, setQuery] = useState('')
-  const [deleteTarget, setDeleteTarget] = useState(null)
-  const [deleteError, setDeleteError] = useState('')
 
-  const showVisibility = manage || access.canViewPrivate
-  const requestVisibility = showVisibility ? visibility : 'all'
   const activeStat = prayerListStat(status, withParticipants)
   const bucketCount =
     activeStat === 'together'
@@ -52,30 +50,25 @@ function PrayerListPage({ mode = 'board' }) {
           : null
   const bucketKnown = statsStatus === 'ready'
   const bucketEmpty = bucketCount === 0
+  const totalPages = bucketKnown
+    ? Math.max(1, Math.ceil((bucketCount ?? 0) / PRAYER_PAGE_SIZE))
+    : page + (rows.length === PRAYER_PAGE_SIZE ? 1 : 0)
+  const pageNumbers = useMemo(
+    () => getVisiblePageNumbers(page, totalPages),
+    [page, totalPages],
+  )
   const showWriteEmpty =
     listStatus === 'empty' && bucketKnown && bucketEmpty && (activeStat === 'together' || activeStat === 'praying')
   const showAnsweredEmpty = listStatus === 'empty' && bucketKnown && bucketEmpty && activeStat === 'answered'
-  const showFilteredEmpty = listStatus === 'empty' && !showWriteEmpty && !showAnsweredEmpty && statsStatus !== 'loading'
-  const feedFilters = {
-    category,
-    status,
-    visibility: requestVisibility,
-    query,
-    withParticipants,
-  }
 
   useEffect(() => {
     let cancelled = false
 
-    async function loadAccessAndStats() {
-      const [accessResult, statsResult] = await Promise.all([fetchPrayerAccess(), fetchPrayerStats()])
+    async function loadStats() {
+      const statsResult = await fetchPrayerStats()
 
       if (cancelled) {
         return
-      }
-
-      if (accessResult.success) {
-        setAccess(accessResult.access)
       }
 
       if (!statsResult.success) {
@@ -89,7 +82,7 @@ function PrayerListPage({ mode = 'board' }) {
       setStatsStatus('ready')
     }
 
-    void loadAccessAndStats()
+    void loadStats()
 
     return () => {
       cancelled = true
@@ -99,15 +92,13 @@ function PrayerListPage({ mode = 'board' }) {
   useEffect(() => {
     let cancelled = false
 
-    async function loadFirstPage() {
+    async function loadPage() {
+      setListStatus('loading')
       const result = await fetchPrayerFeed({
-        category,
         status,
-        visibility: requestVisibility,
-        query,
         withParticipants,
         limit: PRAYER_PAGE_SIZE,
-        offset: 0,
+        offset: (page - 1) * PRAYER_PAGE_SIZE,
       })
 
       if (cancelled) {
@@ -116,101 +107,32 @@ function PrayerListPage({ mode = 'board' }) {
 
       if (!result.success) {
         setRows([])
-        setHasMore(false)
         setListStatus('error')
         setListMessage(result.message)
         return
       }
 
       setRows(result.rows)
-      setHasMore(result.rows.length === PRAYER_PAGE_SIZE)
-      setOffset(0)
       setListMessage('')
       setListStatus(result.rows.length === 0 ? 'empty' : 'ready')
     }
 
-    void loadFirstPage()
+    void loadPage()
 
     return () => {
       cancelled = true
     }
-  }, [category, query, requestVisibility, status, withParticipants])
+  }, [page, status, withParticipants])
 
   const handleStat = (stat) => {
     const next = filtersForStat(stat)
     setStatus(next.status)
     setWithParticipants(next.withParticipants)
+    setPage(1)
   }
 
-  const handleToggle = async (prayer) => {
-    setPendingId(prayer.id)
-    const result = await togglePrayerParticipation(prayer.id)
-    setPendingId(null)
-
-    if (!result.success) {
-      setListMessage(result.message)
-      return
-    }
-
-    const delta = result.participating === prayer.viewerParticipating ? 0 : result.participating ? 1 : -1
-    setRows((current) =>
-      current.map((row) =>
-        row.id === prayer.id
-          ? {
-              ...row,
-              viewerParticipating: result.participating,
-              participantCount: Math.max(0, row.participantCount + delta),
-            }
-          : row,
-      ),
-    )
-    const statsResult = await fetchPrayerStats()
-
-    if (statsResult.success) {
-      setStats(statsResult.stats)
-      setStatsStatus('ready')
-    }
-  }
-
-  const handleDelete = async () => {
-    if (!deleteTarget) {
-      return
-    }
-
-    setDeleteError('')
-    const result = await deletePrayerRequest(deleteTarget.id)
-
-    if (!result.success) {
-      setDeleteError(result.message)
-      return
-    }
-
-    setDeleteTarget(null)
-    setListStatus('loading')
-    setStatsStatus('loading')
-    const [listResult, statsResult] = await Promise.all([
-      fetchPrayerFeed({ ...feedFilters, limit: PRAYER_PAGE_SIZE, offset: 0 }),
-      fetchPrayerStats(),
-    ])
-
-    if (listResult.success) {
-      setRows(listResult.rows)
-      setHasMore(listResult.rows.length === PRAYER_PAGE_SIZE)
-      setOffset(0)
-      setListMessage('')
-      setListStatus(listResult.rows.length === 0 ? 'empty' : 'ready')
-    } else {
-      setListStatus('error')
-      setListMessage(listResult.message)
-    }
-
-    if (statsResult.success) {
-      setStats(statsResult.stats)
-      setStatsStatus('ready')
-    } else {
-      setStatsStatus('error')
-      setStatsMessage(statsResult.message)
-    }
+  const goToPage = (nextPage) => {
+    setPage(Math.min(totalPages, Math.max(1, nextPage)))
   }
 
   return (
@@ -239,107 +161,124 @@ function PrayerListPage({ mode = 'board' }) {
             filters={{ status, withParticipants }}
             onSelect={handleStat}
           />
-          <section className="prayer-board" aria-label="기도 목록">
-          <PrayerFilters
-            category={category}
-            visibility={visibility}
-            showVisibility={showVisibility}
-            keyword={keyword}
-            onCategoryChange={setCategory}
-            onVisibilityChange={setVisibility}
-            onKeywordChange={setKeyword}
-            onSearch={(event) => {
-              event.preventDefault()
-              setQuery(keyword.trim())
-            }}
-          />
-          {listStatus === 'loading' ? <p className="prayer-board__note">기도 제목을 불러오는 중입니다.</p> : null}
-          {listMessage && listStatus !== 'loading' ? (
-            <p className="prayer-board__note prayer-board__note--error">{listMessage}</p>
-          ) : null}
-          {showWriteEmpty ? (
-            <div className="prayer-board__empty">
-              <p>현재 작성된 기도가 없습니다.</p>
-              <Link className="prayer-button" to={PRAYER_WRITE_PATH}>
-                기도 제목 작성하기
-              </Link>
-            </div>
-          ) : null}
-          {showAnsweredEmpty ? (
-            <p className="prayer-board__empty">기도 응답 완료된 내역이 없습니다.</p>
-          ) : null}
-          {showFilteredEmpty ? (
-            <p className="prayer-board__empty">조건에 맞는 기도 제목이 없습니다.</p>
-          ) : null}
-          {listStatus === 'ready' || listStatus === 'loading-more' ? (
-            <div className="prayer-list">
-              {rows.map((prayer) => (
-                <PrayerCard
-                  key={prayer.id}
-                  prayer={prayer}
-                  pending={pendingId === prayer.id}
-                  onToggle={handleToggle}
-                  onDelete={setDeleteTarget}
-                  showManage={manage}
-                />
-              ))}
-            </div>
-          ) : null}
-          {hasMore ? (
-            <div className="prayer-toolbar">
-              <button
-                type="button"
-                className="prayer-button prayer-button--ghost"
-                disabled={listStatus === 'loading-more'}
-                onClick={async () => {
-                  setListStatus('loading-more')
-                  const result = await fetchPrayerFeed({
-                    ...feedFilters,
-                    limit: PRAYER_PAGE_SIZE,
-                    offset: offset + PRAYER_PAGE_SIZE,
-                  })
+          <section className="prayer-board" aria-labelledby="prayer-board-title">
+            <h2 id="prayer-board-title" className="prayer-board__title">
+              기도 게시판
+            </h2>
+            <div className="prayer-table-wrap">
+              <table className="prayer-table">
+                <colgroup>
+                  <col className="prayer-table__col-no" />
+                  <col className="prayer-table__col-title" />
+                  <col className="prayer-table__col-author" />
+                  <col className="prayer-table__col-date" />
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th scope="col">번호</th>
+                    <th scope="col">기도 제목</th>
+                    <th scope="col">작성자</th>
+                    <th scope="col">작성일</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {listStatus === 'loading' ? (
+                    <tr>
+                      <td colSpan={4} className="prayer-table__empty">
+                        기도 제목을 불러오는 중입니다.
+                      </td>
+                    </tr>
+                  ) : null}
+                  {listStatus === 'error' ? (
+                    <tr>
+                      <td colSpan={4} className="prayer-table__empty prayer-table__empty--error">
+                        {listMessage}
+                      </td>
+                    </tr>
+                  ) : null}
+                  {showWriteEmpty ? (
+                    <tr>
+                      <td colSpan={4} className="prayer-table__empty">
+                        <p>현재 작성된 기도가 없습니다.</p>
+                        <Link className="prayer-button" to={PRAYER_WRITE_PATH}>
+                          기도 제목 작성하기
+                        </Link>
+                      </td>
+                    </tr>
+                  ) : null}
+                  {showAnsweredEmpty ? (
+                    <tr>
+                      <td colSpan={4} className="prayer-table__empty">
+                        기도 응답 완료된 내역이 없습니다.
+                      </td>
+                    </tr>
+                  ) : null}
+                  {listStatus === 'empty' && !showWriteEmpty && !showAnsweredEmpty && statsStatus !== 'loading' ? (
+                    <tr>
+                      <td colSpan={4} className="prayer-table__empty">
+                        등록된 기도 제목이 없습니다.
+                      </td>
+                    </tr>
+                  ) : null}
+                  {listStatus === 'ready'
+                    ? rows.map((prayer, index) => {
+                        const number = bucketKnown
+                          ? Math.max(1, bucketCount - (page - 1) * PRAYER_PAGE_SIZE - index)
+                          : (page - 1) * PRAYER_PAGE_SIZE + index + 1
 
-                  if (!result.success) {
-                    setListStatus('ready')
-                    setListMessage(result.message)
-                    return
-                  }
-
-                  setRows((current) => [...current, ...result.rows])
-                  setHasMore(result.rows.length === PRAYER_PAGE_SIZE)
-                  setOffset((current) => current + PRAYER_PAGE_SIZE)
-                  setListStatus('ready')
-                }}
-              >
-                {listStatus === 'loading-more' ? '불러오는 중' : '더 보기'}
-              </button>
+                        return (
+                          <tr key={prayer.id}>
+                            <td>{number}</td>
+                            <td className="prayer-table__title">
+                              <Link className="prayer-table__link" to={prayerDetailPath(prayer.id)}>
+                                {prayer.title}
+                              </Link>
+                            </td>
+                            <td className="prayer-table__author">{prayerAuthorLabel(prayer)}</td>
+                            <td className="prayer-table__date">{formatPrayerDate(prayer.createdAt)}</td>
+                          </tr>
+                        )
+                      })
+                    : null}
+                </tbody>
+              </table>
             </div>
-          ) : null}
+            {listStatus === 'ready' && totalPages > 1 ? (
+              <nav className="prayer-pagination" aria-label="기도 게시판 페이지">
+                <button
+                  type="button"
+                  className="prayer-pagination__nav"
+                  onClick={() => goToPage(page - 1)}
+                  disabled={page <= 1}
+                  aria-label="이전 페이지"
+                >
+                  <FiChevronLeft aria-hidden="true" />
+                </button>
+                {pageNumbers.map((pageNumber) => (
+                  <button
+                    key={pageNumber}
+                    type="button"
+                    className={`prayer-pagination__page${pageNumber === page ? ' is-active' : ''}`}
+                    onClick={() => goToPage(pageNumber)}
+                    aria-current={pageNumber === page ? 'page' : undefined}
+                    disabled={pageNumber === page}
+                  >
+                    {pageNumber}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  className="prayer-pagination__nav"
+                  onClick={() => goToPage(page + 1)}
+                  disabled={page >= totalPages}
+                  aria-label="다음 페이지"
+                >
+                  <FiChevronRight aria-hidden="true" />
+                </button>
+              </nav>
+            ) : null}
           </section>
         </div>
-        <Modal
-          isOpen={Boolean(deleteTarget)}
-          title="기도 제목을 삭제할까요?"
-          onClose={() => {
-            setDeleteTarget(null)
-            setDeleteError('')
-          }}
-        >
-          <p>{deleteTarget ? `「${deleteTarget.title}」 기도 제목과 참여 기록을 삭제합니다.` : ''}</p>
-          {deleteError ? <p className="prayer-status prayer-status--error">{deleteError}</p> : null}
-          <div className="prayer-inline-actions">
-            <button type="button" className="prayer-button prayer-button--danger" onClick={handleDelete}>
-              삭제
-            </button>
-            <button
-              type="button"
-              className="prayer-button prayer-button--ghost"
-              onClick={() => setDeleteTarget(null)}
-            >
-              취소
-            </button>
-          </div>
-        </Modal>
       </div>
     </PrayerCopyGuard>
   )
