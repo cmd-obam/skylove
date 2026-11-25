@@ -2,13 +2,17 @@ export const PRAYER_TITLE_MAX = 120
 export const PRAYER_CONTENT_MAX = 4000
 
 export const PRAYER_CATEGORIES = [
-  { id: 'personal', label: '개인' },
-  { id: 'family', label: '가정' },
-  { id: 'health', label: '건강' },
-  { id: 'church', label: '교회' },
-  { id: 'mission', label: '선교' },
-  { id: 'other', label: '기타' },
+  { id: 'intercession', label: '중보기도' },
+  { id: 'personal', label: '개인기도' },
 ]
+
+const LEGACY_CATEGORY_LABELS = {
+  family: '가정',
+  health: '건강',
+  church: '교회',
+  mission: '선교',
+  other: '기타',
+}
 
 export const PRAYER_CATEGORY_FILTERS = [{ id: 'all', label: '전체' }, ...PRAYER_CATEGORIES]
 
@@ -27,7 +31,7 @@ export const PRAYER_VISIBILITY_FILTERS = [
 const CATEGORY_LABELS = Object.fromEntries(PRAYER_CATEGORIES.map((item) => [item.id, item.label]))
 
 export function prayerCategoryLabel(category) {
-  return CATEGORY_LABELS[category] ?? '기타'
+  return CATEGORY_LABELS[category] ?? LEGACY_CATEGORY_LABELS[category] ?? '기타'
 }
 
 export function prayerStatusLabel(status) {

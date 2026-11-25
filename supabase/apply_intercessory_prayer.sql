@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS public.prayer_requests (
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
   CONSTRAINT prayer_requests_category_check
-    CHECK (category IN ('personal', 'family', 'health', 'church', 'mission', 'other')),
+    CHECK (category IN ('intercession', 'personal', 'family', 'health', 'church', 'mission', 'other')),
   CONSTRAINT prayer_requests_visibility_check
     CHECK (visibility IN ('public', 'private')),
   CONSTRAINT prayer_requests_status_check
@@ -381,7 +381,7 @@ BEGIN
     RAISE EXCEPTION '로그인이 필요합니다.';
   END IF;
 
-  IF v_category NOT IN ('personal', 'family', 'health', 'church', 'mission', 'other') THEN
+  IF v_category NOT IN ('intercession', 'personal', 'family', 'health', 'church', 'mission', 'other') THEN
     RAISE EXCEPTION '카테고리를 선택해 주세요.';
   END IF;
 
@@ -468,7 +468,7 @@ BEGIN
     RAISE EXCEPTION '권한이 없습니다.';
   END IF;
 
-  IF v_category NOT IN ('personal', 'family', 'health', 'church', 'mission', 'other') THEN
+  IF v_category NOT IN ('intercession', 'personal', 'family', 'health', 'church', 'mission', 'other') THEN
     RAISE EXCEPTION '카테고리를 선택해 주세요.';
   END IF;
 
