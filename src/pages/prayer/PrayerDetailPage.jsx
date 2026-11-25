@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import Modal from '@/components/common/Modal'
 import PrayerCopyGuard from '@/components/prayer/PrayerCopyGuard'
@@ -15,6 +15,7 @@ import {
   deletePrayerRequest,
   fetchPrayerParticipants,
   fetchPrayerRequest,
+  savePrayerParticipation,
   setPrayerStatus,
 } from '@/services/prayer/requests'
 import './Prayer.css'
@@ -28,7 +29,11 @@ function PrayerDetailPage() {
   const [pending, setPending] = useState(false)
   const [participants, setParticipants] = useState([])
   const [participantMessage, setParticipantMessage] = useState('')
+  const [composing, setComposing] = useState(false)
+  const [note, setNote] = useState('')
+  const [savingNote, setSavingNote] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const noteRef = useRef(null)
 
   useEffect(() => {
     let cancelled = false
@@ -51,7 +56,7 @@ function PrayerDetailPage() {
       setPrayer(result.prayer)
       setStatus('ready')
 
-      if (result.prayer.canDelete) {
+      if (result.prayer.category === 'intercession' || result.prayer.canDelete) {
         const people = await fetchPrayerParticipants(prayerId)
 
         if (cancelled) {
@@ -85,6 +90,55 @@ function PrayerDetailPage() {
     }
 
     navigate(PRAYER_PATH, { replace: true, state: { board: 'answered' } })
+  }
+
+  const openComposer = () => {
+    const mine = participants.find((person) => person.isMine)
+    setNote(mine?.message || '')
+    setParticipantMessage('')
+    setComposing(true)
+  }
+
+  useEffect(() => {
+    if (!composing) {
+      return
+    }
+
+    noteRef.current?.focus()
+    noteRef.current?.scrollIntoView({ block: 'nearest' })
+  }, [composing])
+
+  const handlePray = async (event) => {
+    event.preventDefault()
+    const text = note.trim()
+
+    if (!text) {
+      setParticipantMessage('기도를 적어 주세요.')
+      return
+    }
+
+    setSavingNote(true)
+    const result = await savePrayerParticipation(prayer.id, text)
+    setSavingNote(false)
+
+    if (!result.success) {
+      setParticipantMessage(result.message)
+      return
+    }
+
+    const people = await fetchPrayerParticipants(prayer.id)
+
+    if (!people.success) {
+      setParticipantMessage(people.message)
+      return
+    }
+
+    setParticipants(people.participants)
+    setPrayer((current) =>
+      current ? { ...current, participantCount: people.participants.length } : current,
+    )
+    setComposing(false)
+    setParticipantMessage('')
   }
 
   const handleDelete = async () => {
@@ -159,24 +213,68 @@ function PrayerDetailPage() {
                   </button>
                 </div>
               ) : null}
-              {prayer.canDelete ? (
-                <section className="prayer-manage prayer-manage--admin">
-                  <h4 className="prayer-manage__subhead">기도 참여 내역</h4>
+              {prayer.category === 'intercession' && !prayer.isOwner && prayer.status !== 'answered' ? (
+                <div className="prayer-detail__answer">
+                  <button
+                    type="button"
+                    className="prayer-button prayer-detail__answer-button"
+                    onClick={openComposer}
+                  >
+                    같이 기도하기
+                  </button>
+                </div>
+              ) : null}
+              {prayer.category === 'intercession' || prayer.canDelete ? (
+                <section className="prayer-manage prayer-manage--admin" aria-label="기도 참여 내역">
+                  <h4 className="prayer-manage__subhead prayer-manage__subhead--first">기도 참여 내역</h4>
+                  {composing ? (
+                    <form className="prayer-pray-form" onSubmit={handlePray}>
+                      <label className="prayer-field">
+                        함께 드리는 기도
+                        <textarea
+                          ref={noteRef}
+                          value={note}
+                          rows={4}
+                          maxLength={500}
+                          placeholder="이 제목을 위해 드리는 기도를 적어 주세요."
+                          onChange={(event) => setNote(event.target.value)}
+                        />
+                      </label>
+                      <div className="prayer-pray-form__actions">
+                        <button
+                          type="button"
+                          className="prayer-button prayer-button--ghost"
+                          onClick={() => setComposing(false)}
+                        >
+                          취소
+                        </button>
+                        <button type="submit" className="prayer-button" disabled={savingNote}>
+                          {savingNote ? '남기는 중' : '기도 남기기'}
+                        </button>
+                      </div>
+                    </form>
+                  ) : null}
                   {participantMessage ? (
                     <p className="prayer-status prayer-status--error">{participantMessage}</p>
                   ) : null}
-                  {participants.length === 0 ? (
+                  {participants.length === 0 && !composing ? (
                     <p className="prayer-status">아직 참여한 회원이 없습니다.</p>
-                  ) : (
+                  ) : null}
+                  {participants.length > 0 ? (
                     <ul className="prayer-participants">
                       {participants.map((person) => (
                         <li key={person.userId}>
-                          <span>{person.displayName}</span>
-                          <span>{formatPrayerDate(person.createdAt)}</span>
+                          <div className="prayer-participants__meta">
+                            <span>{person.displayName}</span>
+                            <span>{formatPrayerDate(person.createdAt)}</span>
+                          </div>
+                          {person.message ? (
+                            <p className="prayer-participants__message">{person.message}</p>
+                          ) : null}
                         </li>
                       ))}
                     </ul>
-                  )}
+                  ) : null}
                 </section>
               ) : null}
             </article>

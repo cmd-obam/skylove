@@ -224,6 +224,19 @@ export async function togglePrayerParticipation(id) {
   return { success: true, participating: Boolean(data) }
 }
 
+export async function savePrayerParticipation(id, message) {
+  const { error } = await supabase.rpc('save_prayer_participation', {
+    p_id: id,
+    p_message: message.trim(),
+  })
+
+  if (error) {
+    return fail(error)
+  }
+
+  return { success: true }
+}
+
 export async function fetchPrayerParticipants(id) {
   const { data, error } = await supabase.rpc('list_prayer_participants', { p_id: id })
 
@@ -237,6 +250,8 @@ export async function fetchPrayerParticipants(id) {
       userId: row.user_id,
       displayName: row.display_name || '회원',
       createdAt: row.created_at,
+      message: row.message || '',
+      isMine: Boolean(row.is_mine),
     })),
   }
 }
