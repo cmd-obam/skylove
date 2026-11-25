@@ -43,9 +43,9 @@ function PrayerListPage({ mode = 'board' }) {
   const [listMessage, setListMessage] = useState('')
   const [page, setPage] = useState(1)
   const [status, setStatus] = useState('praying')
-  const [withParticipants, setWithParticipants] = useState(false)
+  const [category, setCategory] = useState('personal')
 
-  const activeStat = prayerListStat(status, withParticipants)
+  const activeStat = prayerListStat(status, false, category)
   const boardTitle = BOARD_TITLES[activeStat] ?? '개인기도 게시판'
   const bucketCount =
     activeStat === 'together'
@@ -103,7 +103,7 @@ function PrayerListPage({ mode = 'board' }) {
       setListStatus('loading')
       const result = await fetchPrayerFeed({
         status,
-        withParticipants,
+        category,
         limit: PRAYER_PAGE_SIZE,
         offset: (page - 1) * PRAYER_PAGE_SIZE,
       })
@@ -129,12 +129,12 @@ function PrayerListPage({ mode = 'board' }) {
     return () => {
       cancelled = true
     }
-  }, [page, status, withParticipants])
+  }, [page, status, category])
 
   const handleStat = (stat) => {
     const next = filtersForStat(stat)
     setStatus(next.status)
-    setWithParticipants(next.withParticipants)
+    setCategory(next.category)
     setPage(1)
   }
 
@@ -165,7 +165,7 @@ function PrayerListPage({ mode = 'board' }) {
             stats={stats}
             status={statsStatus}
             message={statsMessage}
-            filters={{ status, withParticipants }}
+            filters={{ status, category }}
             onSelect={handleStat}
           />
           <section className="prayer-board" aria-labelledby="prayer-board-title">

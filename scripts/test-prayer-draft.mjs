@@ -9,7 +9,7 @@ import {
 } from '../src/services/prayer/present.js'
 
 const validDraft = {
-  category: 'family',
+  category: 'personal',
   title: '가정의 평안',
   content: '가족 모두가 건강하도록 기도합니다.',
   visibility: 'public',
@@ -18,7 +18,9 @@ const validDraft = {
 
 test('기도 제목 초안은 카테고리와 길이, 공개 범위를 검사한다', () => {
   assert.equal(validatePrayerDraft(validDraft), null)
+  assert.equal(validatePrayerDraft({ ...validDraft, category: 'intercession' }), null)
   assert.equal(validatePrayerDraft({ ...validDraft, category: '' }), '카테고리를 선택해 주세요.')
+  assert.equal(validatePrayerDraft({ ...validDraft, category: 'family' }), '카테고리를 선택해 주세요.')
   assert.equal(validatePrayerDraft({ ...validDraft, title: '   ' }), '기도 제목은 1자 이상 120자 이하로 입력해 주세요.')
   assert.equal(
     validatePrayerDraft({ ...validDraft, title: '가'.repeat(121) }),
@@ -43,18 +45,23 @@ test('익명 작성자는 최고관리자에게만 실명이 붙는다', () => {
   assert.equal(prayerAuthorLabel({ isAnonymous: false, authorLabel: '김성도', authorUserId: null }), '김성도')
 })
 
-test('통계 카드는 기도 상태 필터와 함께 토글된다', () => {
-  assert.equal(prayerListStat('all', false), 'all')
-  assert.deepEqual(filtersForStat('together', { status: 'all', withParticipants: false }), {
+test('통계 카드는 중보기도와 개인기도 목록으로 나뉜다', () => {
+  assert.equal(prayerListStat('praying', false, 'intercession'), 'together')
+  assert.equal(prayerListStat('praying', false, 'personal'), 'praying')
+  assert.equal(prayerListStat('answered', false, ''), 'answered')
+  assert.deepEqual(filtersForStat('together'), {
     status: 'praying',
-    withParticipants: true,
-  })
-  assert.deepEqual(filtersForStat('together', { status: 'praying', withParticipants: true }), {
-    status: 'all',
+    category: 'intercession',
     withParticipants: false,
   })
-  assert.deepEqual(filtersForStat('answered', { status: 'praying', withParticipants: false }), {
+  assert.deepEqual(filtersForStat('praying'), {
+    status: 'praying',
+    category: 'personal',
+    withParticipants: false,
+  })
+  assert.deepEqual(filtersForStat('answered'), {
     status: 'answered',
+    category: '',
     withParticipants: false,
   })
 })

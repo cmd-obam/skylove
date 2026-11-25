@@ -271,7 +271,14 @@ AS $$
       p_category IS NULL
       OR btrim(p_category) = ''
       OR lower(btrim(p_category)) = 'all'
-      OR r.category = lower(btrim(p_category))
+      OR (
+        lower(btrim(p_category)) = 'personal'
+        AND r.category IN ('personal', 'family', 'health', 'church', 'mission', 'other')
+      )
+      OR (
+        lower(btrim(p_category)) <> 'personal'
+        AND r.category = lower(btrim(p_category))
+      )
     )
     AND (
       p_status IS NULL
@@ -325,13 +332,12 @@ AS $$
   SELECT
     count(*) FILTER (
       WHERE r.status = 'praying'
-        AND EXISTS (
-          SELECT 1
-          FROM public.prayer_participants AS pp
-          WHERE pp.prayer_id = r.id
-        )
+        AND r.category = 'intercession'
     )::bigint AS together_count,
-    count(*) FILTER (WHERE r.status = 'praying')::bigint AS praying_count,
+    count(*) FILTER (
+      WHERE r.status = 'praying'
+        AND r.category IN ('personal', 'family', 'health', 'church', 'mission', 'other')
+    )::bigint AS praying_count,
     count(*) FILTER (WHERE r.status = 'answered')::bigint AS answered_count
   FROM public.prayer_requests AS r
   WHERE auth.uid() IS NOT NULL

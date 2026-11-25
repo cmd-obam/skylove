@@ -52,7 +52,7 @@ function StatCard({ id, label, hint, value, active, onSelect }) {
 }
 
 function PrayerStats({ stats, status, message, filters, onSelect }) {
-  const active = prayerListStat(filters.status, filters.withParticipants)
+  const active = prayerListStat(filters.status, false, filters.category)
 
   if (status === 'loading') {
     return <p className="prayer-status prayer-status--card">기도 통계를 불러오는 중입니다.</p>
@@ -66,16 +66,16 @@ function PrayerStats({ stats, status, message, filters, onSelect }) {
     <div className="prayer-stats">
       <StatCard
         id="together"
-        label="함께 기도 중인 제목"
-        hint="한 명 이상이 함께하는 기도"
+        label="중보기도"
+        hint="중보기도로 올린 제목"
         value={stats.togetherCount}
         active={active === 'together'}
         onSelect={onSelect}
       />
       <StatCard
         id="praying"
-        label="현재 기도 중인 제목"
-        hint="응답을 기다리는 기도"
+        label="개인기도"
+        hint="개인기도로 올린 제목"
         value={stats.prayingCount}
         active={active === 'praying'}
         onSelect={onSelect}

@@ -109,8 +109,12 @@ export function validatePrayerDraft(draft) {
   return null
 }
 
-export function prayerListStat(status, withParticipants) {
-  if (status === 'praying' && withParticipants) {
+export function prayerListStat(status, _withParticipants, category) {
+  if (status === 'answered') {
+    return 'answered'
+  }
+
+  if (category === 'intercession') {
     return 'together'
   }
 
@@ -118,27 +122,23 @@ export function prayerListStat(status, withParticipants) {
     return 'praying'
   }
 
-  if (status === 'answered') {
-    return 'answered'
-  }
-
   return 'all'
 }
 
 export function filtersForStat(stat) {
   if (stat === 'together') {
-    return { status: 'praying', withParticipants: true }
+    return { status: 'praying', category: 'intercession', withParticipants: false }
   }
 
   if (stat === 'praying') {
-    return { status: 'praying', withParticipants: false }
+    return { status: 'praying', category: 'personal', withParticipants: false }
   }
 
   if (stat === 'answered') {
-    return { status: 'answered', withParticipants: false }
+    return { status: 'answered', category: '', withParticipants: false }
   }
 
-  return { status: 'all', withParticipants: false }
+  return { status: 'praying', category: 'personal', withParticipants: false }
 }
 
 export const EMPTY_PRAYER_DRAFT = {
