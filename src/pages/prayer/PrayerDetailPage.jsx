@@ -192,10 +192,6 @@ function PrayerDetailPage() {
               ) : null}
               {prayer.canDelete ? (
                 <section className="prayer-manage prayer-manage--admin">
-                  <header className="prayer-manage__head">
-                    <h3>최고관리자</h3>
-                    <p>삭제와 기도 참여 내역은 최고관리자만 볼 수 있습니다.</p>
-                  </header>
                   <div className="prayer-manage__actions">
                     <button type="button" className="prayer-button prayer-button--danger" onClick={() => setConfirmDelete(true)}>
                       삭제

@@ -82,7 +82,7 @@ function PrayerForm({ draft, onChange, onSubmit, submitting, error, submitLabel,
         익명으로 작성
       </label>
       <p className="prayer-form__help">
-        다른 회원에게는 작성자가 보이지 않습니다. 최고관리자는 필요한 경우 작성자를 확인할 수 있습니다.
+        다른 회원에게는 작성자가 보이지 않습니다.
       </p>
 
       <fieldset className="prayer-field">
@@ -107,7 +107,7 @@ function PrayerForm({ draft, onChange, onSubmit, submitting, error, submitLabel,
           비공개
         </label>
         <p className="prayer-form__help">
-          담임목사와 최고관리자만 볼 수 있습니다. 일반 회원은 작성자 본인이라도 이 글을 다시 열 수 없습니다.
+          비공개로 전달됩니다. 일반 회원은 작성자 본인이라도 이 글을 다시 열 수 없습니다.
         </p>
       </fieldset>
 

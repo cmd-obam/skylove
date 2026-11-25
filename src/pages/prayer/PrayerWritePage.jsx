@@ -69,7 +69,7 @@ function PrayerWritePage() {
           {privateDone ? (
             <div className="prayer-panel">
               <h2>비공개로 전해졌습니다.</h2>
-              <p>이 기도 제목은 담임목사와 최고관리자만 볼 수 있습니다.</p>
+              <p>일반 회원은 이 글을 다시 볼 수 없습니다.</p>
               <Link className="prayer-button" to={PRAYER_PATH}>
                 기도 나눔으로
               </Link>
