@@ -20,8 +20,13 @@ function StatCard({ id, label, hint, value, active, onSelect }) {
       <span className="prayer-stat__icon">
         <img src={STAT_ICONS[id]} alt="" />
       </span>
-      <span className="prayer-stat__value">{value}</span>
-      <span className="prayer-stat__label">{label}</span>
+      <span className="prayer-stat__headline">
+        <span className="prayer-stat__label">{label}</span>
+        <span className="prayer-stat__value">
+          {value}
+          <span className="prayer-stat__unit">건</span>
+        </span>
+      </span>
       <span className="prayer-stat__hint">{hint}</span>
     </button>
   )
