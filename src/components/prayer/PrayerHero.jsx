@@ -55,7 +55,7 @@ function HeroMark() {
   )
 }
 
-function PrayerHero({ compact = false, matchMain = false, title = '중보기도', image, children }) {
+function PrayerHero({ compact = false, matchMain = false, title = '중보기도', image, eyebrow = true, children }) {
   const photo = image || (compact ? null : heroImage)
   const fullSize = !compact || matchMain
 
@@ -85,7 +85,7 @@ function PrayerHero({ compact = false, matchMain = false, title = '중보기도'
             </div>
           ) : null}
           <div className={matchMain ? 'prayer-hero__face' : undefined}>
-            {fullSize ? null : (
+            {fullSize || !eyebrow ? null : (
               <p className="prayer-hero__eyebrow">
                 <CrossIcon />
                 하늘사랑교회
