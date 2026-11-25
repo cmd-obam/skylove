@@ -7,7 +7,7 @@ import PrayerFilters from '@/components/prayer/PrayerFilters'
 import PrayerHero from '@/components/prayer/PrayerHero'
 import PrayerStats from '@/components/prayer/PrayerStats'
 import { PRAYER_PATH, PRAYER_WRITE_PATH } from '@/data/prayerMenu'
-import { filtersForStat } from '@/services/prayer/present'
+import { filtersForStat, prayerListStat } from '@/services/prayer/present'
 import {
   PRAYER_PAGE_SIZE,
   deletePrayerRequest,
@@ -31,7 +31,7 @@ function PrayerListPage({ mode = 'board' }) {
   const [offset, setOffset] = useState(0)
   const [pendingId, setPendingId] = useState(null)
   const [category, setCategory] = useState('all')
-  const [status, setStatus] = useState('all')
+  const [status, setStatus] = useState('praying')
   const [withParticipants, setWithParticipants] = useState(false)
   const [visibility, setVisibility] = useState('all')
   const [keyword, setKeyword] = useState('')
@@ -39,7 +39,23 @@ function PrayerListPage({ mode = 'board' }) {
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [deleteError, setDeleteError] = useState('')
 
-  const requestVisibility = manage || access.canViewPrivate ? visibility : 'all'
+  const showVisibility = manage || access.canViewPrivate
+  const requestVisibility = showVisibility ? visibility : 'all'
+  const activeStat = prayerListStat(status, withParticipants)
+  const bucketCount =
+    activeStat === 'together'
+      ? stats?.togetherCount
+      : activeStat === 'praying'
+        ? stats?.prayingCount
+        : activeStat === 'answered'
+          ? stats?.answeredCount
+          : null
+  const bucketKnown = statsStatus === 'ready'
+  const bucketEmpty = bucketCount === 0
+  const showWriteEmpty =
+    listStatus === 'empty' && bucketKnown && bucketEmpty && (activeStat === 'together' || activeStat === 'praying')
+  const showAnsweredEmpty = listStatus === 'empty' && bucketKnown && bucketEmpty && activeStat === 'answered'
+  const showFilteredEmpty = listStatus === 'empty' && !showWriteEmpty && !showAnsweredEmpty && statsStatus !== 'loading'
   const feedFilters = {
     category,
     status,
@@ -121,7 +137,7 @@ function PrayerListPage({ mode = 'board' }) {
   }, [category, query, requestVisibility, status, withParticipants])
 
   const handleStat = (stat) => {
-    const next = filtersForStat(stat, { status, withParticipants })
+    const next = filtersForStat(stat)
     setStatus(next.status)
     setWithParticipants(next.withParticipants)
   }
@@ -223,18 +239,12 @@ function PrayerListPage({ mode = 'board' }) {
             filters={{ status, withParticipants }}
             onSelect={handleStat}
           />
-          <section className="prayer-board" aria-labelledby="prayer-board-title">
-            <header className="prayer-board__head">
-              <div>
-                <p className="prayer-board__eyebrow">함께 나누는 기도</p>
-                <h2 id="prayer-board-title">기도 나눔</h2>
-              </div>
-            </header>
+          <section className="prayer-board" aria-label="기도 목록">
           <PrayerFilters
             category={category}
             status={status}
             visibility={visibility}
-            showVisibility={manage || access.canViewPrivate}
+            showVisibility={showVisibility}
             keyword={keyword}
             onCategoryChange={setCategory}
             onStatusChange={(nextStatus) => {
@@ -252,7 +262,18 @@ function PrayerListPage({ mode = 'board' }) {
           {listMessage && listStatus !== 'loading' ? (
             <p className="prayer-status prayer-status--card prayer-status--error">{listMessage}</p>
           ) : null}
-          {listStatus === 'empty' ? (
+          {showWriteEmpty ? (
+            <div className="prayer-empty">
+              <p className="prayer-status prayer-status--card">현재 작성된 기도가 없습니다.</p>
+              <Link className="prayer-button" to={PRAYER_WRITE_PATH}>
+                기도 제목 작성하기
+              </Link>
+            </div>
+          ) : null}
+          {showAnsweredEmpty ? (
+            <p className="prayer-status prayer-status--card">기도 응답 완료된 내역이 없습니다.</p>
+          ) : null}
+          {showFilteredEmpty ? (
             <p className="prayer-status prayer-status--card">조건에 맞는 기도 제목이 없습니다.</p>
           ) : null}
           {listStatus === 'ready' || listStatus === 'loading-more' ? (

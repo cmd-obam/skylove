@@ -121,11 +121,7 @@ export function prayerListStat(status, withParticipants) {
   return 'all'
 }
 
-export function filtersForStat(stat, current) {
-  if (prayerListStat(current?.status, current?.withParticipants) === stat) {
-    return { status: 'all', withParticipants: false }
-  }
-
+export function filtersForStat(stat) {
   if (stat === 'together') {
     return { status: 'praying', withParticipants: true }
   }

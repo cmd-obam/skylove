@@ -276,6 +276,11 @@
   box-shadow: 0 0 0 3px rgba(77, 166, 255, 0.22), var(--prayer-shadow);
 }
 
+.prayer-stat--answered.prayer-stat--active {
+  border-color: #d6b76a;
+  box-shadow: 0 0 0 3px rgba(214, 183, 106, 0.34), var(--prayer-shadow);
+}
+
 .prayer-stat__icon {
   display: inline-flex;
   align-items: center;
@@ -318,8 +323,21 @@
   font-weight: 400;
 }
 
+.prayer-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1.25rem 0 0.35rem;
+  text-align: center;
+}
+
+.prayer-empty .prayer-status {
+  margin: 0;
+}
+
 .prayer-board {
-  margin-top: 2.5rem;
+  margin-top: 20px;
   padding: 1.75rem 1.6rem 1.5rem;
   border: 1px solid var(--prayer-line);
   border-radius: 28px !important;
@@ -957,7 +975,34 @@
     margin-top: 20px;
   }
 
-  .prayer-stats,
+  .prayer-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  .prayer-stat {
+    min-height: 0;
+    padding: 0.85rem 0.55rem 0.75rem;
+  }
+
+  .prayer-stat__icon {
+    width: 34px;
+    height: 34px;
+    margin-bottom: 0.4rem;
+  }
+
+  .prayer-stat__value {
+    font-size: 1.45rem;
+  }
+
+  .prayer-stat__label {
+    font-size: 0.75rem;
+  }
+
+  .prayer-stat__hint {
+    font-size: 0.68rem;
+  }
+
   .prayer-list {
     grid-template-columns: 1fr;
   }
