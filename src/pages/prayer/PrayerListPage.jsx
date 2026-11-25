@@ -11,6 +11,12 @@ import './Prayer.css'
 
 const PAGE_BUTTON_WINDOW = 5
 
+const BOARD_TITLES = {
+  together: '중보기도 게시판',
+  praying: '개인기도 게시판',
+  answered: '기도응답 완료 게시판',
+}
+
 function getVisiblePageNumbers(currentPage, totalPages, windowSize = PAGE_BUTTON_WINDOW) {
   if (totalPages <= windowSize) {
     return Array.from({ length: totalPages }, (_, index) => index + 1)
@@ -40,6 +46,7 @@ function PrayerListPage({ mode = 'board' }) {
   const [withParticipants, setWithParticipants] = useState(false)
 
   const activeStat = prayerListStat(status, withParticipants)
+  const boardTitle = BOARD_TITLES[activeStat] ?? '개인기도 게시판'
   const bucketCount =
     activeStat === 'together'
       ? stats?.togetherCount
@@ -163,7 +170,7 @@ function PrayerListPage({ mode = 'board' }) {
           />
           <section className="prayer-board" aria-labelledby="prayer-board-title">
             <h2 id="prayer-board-title" className="prayer-board__title">
-              기도 게시판
+              {boardTitle}
             </h2>
             <div className="prayer-table-wrap">
               <table className="prayer-table">
@@ -244,7 +251,7 @@ function PrayerListPage({ mode = 'board' }) {
               </table>
             </div>
             {listStatus === 'ready' && totalPages > 1 ? (
-              <nav className="prayer-pagination" aria-label="기도 게시판 페이지">
+              <nav className="prayer-pagination" aria-label={`${boardTitle} 페이지`}>
                 <button
                   type="button"
                   className="prayer-pagination__nav"
