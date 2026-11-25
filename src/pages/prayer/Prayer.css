@@ -282,20 +282,18 @@
 }
 
 .prayer-stat__icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 42px;
-  height: 42px;
-  margin-bottom: 0.7rem;
-  border-radius: 14px !important;
-  background: rgba(77, 166, 255, 0.14);
-  color: #2f86d6;
+  display: block;
+  width: 92px;
+  aspect-ratio: 3 / 2;
+  margin-bottom: 0.35rem;
+  background: transparent;
 }
 
-.prayer-stat--answered .prayer-stat__icon {
-  background: rgba(214, 183, 106, 0.28);
-  color: #8a6a24;
+.prayer-stat__icon img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .prayer-stat__value {
@@ -1174,9 +1172,9 @@
   }
 
   .prayer-stat__icon {
-    width: 34px;
-    height: 34px;
-    margin-bottom: 0.4rem;
+    width: 64px;
+    height: auto;
+    margin-bottom: 0.2rem;
   }
 
   .prayer-stat__value {
