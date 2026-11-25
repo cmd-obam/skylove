@@ -67,8 +67,9 @@ function PrayerListPage({ mode = 'board' }) {
     () => getVisiblePageNumbers(page, totalPages),
     [page, totalPages],
   )
+  const canWriteBoard = activeStat === 'together' || activeStat === 'praying'
   const showWriteEmpty =
-    listStatus === 'empty' && bucketKnown && bucketEmpty && (activeStat === 'together' || activeStat === 'praying')
+    listStatus === 'empty' && bucketKnown && bucketEmpty && canWriteBoard
   const showAnsweredEmpty = listStatus === 'empty' && bucketKnown && bucketEmpty && activeStat === 'answered'
 
   useEffect(() => {
@@ -157,11 +158,6 @@ function PrayerListPage({ mode = 'board' }) {
               </Link>
             </>
           ) : null}
-          <div className="prayer-hero__actions">
-            <Link className="prayer-button prayer-button--hero" to={PRAYER_WRITE_PATH}>
-              기도 제목 작성하기
-            </Link>
-          </div>
         </PrayerHero>
         <div className="prayer-page__inner">
           <PrayerStats
@@ -172,9 +168,16 @@ function PrayerListPage({ mode = 'board' }) {
             onSelect={handleStat}
           />
           <section className="prayer-board" aria-labelledby="prayer-board-title">
-            <h2 id="prayer-board-title" className="prayer-board__title">
-              {boardTitle}
-            </h2>
+            <div className="prayer-board__heading">
+              <h2 id="prayer-board-title" className="prayer-board__title">
+                {boardTitle}
+              </h2>
+              {canWriteBoard ? (
+                <Link className="prayer-button prayer-button--board" to={PRAYER_WRITE_PATH}>
+                  기도 작성하기
+                </Link>
+              ) : null}
+            </div>
             <div className="prayer-table-wrap">
               <table className="prayer-table">
                 <colgroup>

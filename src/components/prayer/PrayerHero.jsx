@@ -79,9 +79,6 @@ function PrayerHero({ compact = false, matchMain = false, title = '중보기도'
               <p className="prayer-hero__text">
                 서로의 기도 제목을 나누고 함께 기도하는 하늘사랑교회의 기도 공간입니다.
               </p>
-              <div className="prayer-hero__actions">
-                <span className="prayer-button prayer-button--hero">기도 제목 작성하기</span>
-              </div>
             </div>
           ) : null}
           <div className={matchMain ? 'prayer-hero__face' : undefined}>
