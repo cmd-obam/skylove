@@ -283,8 +283,8 @@
 
 .prayer-stat__icon {
   display: block;
-  width: 92px;
-  aspect-ratio: 3 / 2;
+  width: 84px;
+  height: 84px;
   margin-bottom: 0.35rem;
   background: transparent;
 }
@@ -1172,8 +1172,8 @@
   }
 
   .prayer-stat__icon {
-    width: 64px;
-    height: auto;
+    width: 58px;
+    height: 58px;
     margin-bottom: 0.2rem;
   }
 
