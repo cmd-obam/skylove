@@ -889,7 +889,7 @@
 }
 
 .prayer-form .prayer-button {
-  align-self: flex-start;
+  align-self: flex-end;
   min-width: 180px;
 }
 
@@ -1023,7 +1023,6 @@
   }
 
   .prayer-button--hero,
-  .prayer-form .prayer-button,
   .prayer-detail__pray .prayer-button--pray {
     width: 100%;
   }
