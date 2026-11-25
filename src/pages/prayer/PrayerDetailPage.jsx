@@ -20,6 +20,20 @@ import {
 } from '@/services/prayer/requests'
 import './Prayer.css'
 
+const COMMENT_CATEGORIES = new Set(['personal', 'family', 'health', 'church', 'mission', 'other'])
+
+function prayerNoteKind(category) {
+  if (category === 'intercession') {
+    return 'together'
+  }
+
+  if (COMMENT_CATEGORIES.has(category)) {
+    return 'comment'
+  }
+
+  return null
+}
+
 function PrayerDetailPage() {
   const { prayerId } = useParams()
   const navigate = useNavigate()
@@ -56,7 +70,7 @@ function PrayerDetailPage() {
       setPrayer(result.prayer)
       setStatus('ready')
 
-      if (result.prayer.category === 'intercession' || result.prayer.canDelete) {
+      if (prayerNoteKind(result.prayer.category) || result.prayer.canDelete) {
         const people = await fetchPrayerParticipants(prayerId)
 
         if (cancelled) {
@@ -113,7 +127,7 @@ function PrayerDetailPage() {
     const text = note.trim()
 
     if (!text) {
-      setParticipantMessage('기도를 적어 주세요.')
+      setParticipantMessage(prayerNoteKind(prayer.category) === 'comment' ? '댓글을 적어 주세요.' : '기도를 적어 주세요.')
       return
     }
 
@@ -151,6 +165,9 @@ function PrayerDetailPage() {
 
     navigate(PRAYER_PATH, { replace: true })
   }
+
+  const noteKind = prayerNoteKind(prayer?.category)
+  const isComment = noteKind === 'comment'
 
   return (
     <PrayerCopyGuard>
@@ -213,30 +230,32 @@ function PrayerDetailPage() {
                   </button>
                 </div>
               ) : null}
-              {prayer.category === 'intercession' && !prayer.isOwner && prayer.status !== 'answered' ? (
+              {noteKind && !prayer.isOwner && prayer.status !== 'answered' ? (
                 <div className="prayer-detail__answer">
                   <button
                     type="button"
                     className="prayer-button prayer-detail__answer-button"
                     onClick={openComposer}
                   >
-                    같이 기도하기
+                    {isComment ? '댓글달기' : '같이 기도하기'}
                   </button>
                 </div>
               ) : null}
-              {prayer.category === 'intercession' || prayer.canDelete ? (
-                <section className="prayer-manage prayer-manage--admin" aria-label="기도 참여 내역">
-                  <h4 className="prayer-manage__subhead prayer-manage__subhead--first">기도 참여 내역</h4>
+              {noteKind || prayer.canDelete ? (
+                <section className="prayer-manage prayer-manage--admin" aria-label={isComment ? '댓글' : '기도 참여 내역'}>
+                  <h4 className="prayer-manage__subhead prayer-manage__subhead--first">
+                    {isComment ? '댓글' : '기도 참여 내역'}
+                  </h4>
                   {composing ? (
                     <form className="prayer-pray-form" onSubmit={handlePray}>
                       <label className="prayer-field">
-                        함께 드리는 기도
+                        {isComment ? '댓글' : '함께 드리는 기도'}
                         <textarea
                           ref={noteRef}
                           value={note}
                           rows={4}
                           maxLength={500}
-                          placeholder="이 제목을 위해 드리는 기도를 적어 주세요."
+                          placeholder={isComment ? '댓글을 적어 주세요.' : '이 제목을 위해 드리는 기도를 적어 주세요.'}
                           onChange={(event) => setNote(event.target.value)}
                         />
                       </label>
@@ -249,7 +268,7 @@ function PrayerDetailPage() {
                           취소
                         </button>
                         <button type="submit" className="prayer-button" disabled={savingNote}>
-                          {savingNote ? '남기는 중' : '기도 남기기'}
+                          {savingNote ? '남기는 중' : isComment ? '댓글 남기기' : '기도 남기기'}
                         </button>
                       </div>
                     </form>
@@ -258,7 +277,9 @@ function PrayerDetailPage() {
                     <p className="prayer-status prayer-status--error">{participantMessage}</p>
                   ) : null}
                   {participants.length === 0 && !composing ? (
-                    <p className="prayer-status">아직 참여한 회원이 없습니다.</p>
+                    <p className="prayer-status">
+                      {isComment ? '아직 댓글이 없습니다.' : '아직 참여한 회원이 없습니다.'}
+                    </p>
                   ) : null}
                   {participants.length > 0 ? (
                     <ul className="prayer-participants">

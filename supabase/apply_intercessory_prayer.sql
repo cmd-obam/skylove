@@ -698,7 +698,8 @@ BEGIN
     RAISE EXCEPTION '기도 제목을 찾을 수 없거나 볼 수 없습니다.';
   END IF;
 
-  IF v_category IS DISTINCT FROM 'intercession' AND NOT public.is_prayer_super_admin() THEN
+  IF v_category NOT IN ('intercession', 'personal', 'family', 'health', 'church', 'mission', 'other')
+    AND NOT public.is_prayer_super_admin() THEN
     RAISE EXCEPTION '권한이 없습니다.';
   END IF;
 
@@ -734,7 +735,7 @@ BEGIN
   END IF;
 
   IF char_length(v_message) < 1 OR char_length(v_message) > 500 THEN
-    RAISE EXCEPTION '기도는 1자 이상 500자 이하로 적어 주세요.';
+    RAISE EXCEPTION '1자 이상 500자 이하로 적어 주세요.';
   END IF;
 
   SELECT prayer_requests.user_id, prayer_requests.visibility, prayer_requests.category, prayer_requests.status
@@ -750,8 +751,8 @@ BEGIN
     RAISE EXCEPTION '기도 제목을 찾을 수 없거나 볼 수 없습니다.';
   END IF;
 
-  IF v_category IS DISTINCT FROM 'intercession' THEN
-    RAISE EXCEPTION '중보기도 글에만 함께 기도할 수 있습니다.';
+  IF v_category NOT IN ('intercession', 'personal', 'family', 'health', 'church', 'mission', 'other') THEN
+    RAISE EXCEPTION '이 기도 글에는 남길 수 없습니다.';
   END IF;
 
   IF v_status IS DISTINCT FROM 'praying' THEN
