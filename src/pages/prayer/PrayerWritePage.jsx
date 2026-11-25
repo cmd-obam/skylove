@@ -64,11 +64,7 @@ function PrayerWritePage() {
   return (
     <PrayerCopyGuard>
       <div className="prayer-page">
-        <PrayerHero matchMain image={prayerWriteHeroImage} title="기도 제목 작성">
-          <Link className="prayer-back prayer-back--on-hero" to={PRAYER_PATH}>
-            기도 나눔으로
-          </Link>
-        </PrayerHero>
+        <PrayerHero matchMain image={prayerWriteHeroImage} title="기도 제목 작성" />
         <div className="prayer-page__inner">
           {privateDone ? (
             <div className="prayer-panel">
