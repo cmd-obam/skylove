@@ -8,7 +8,7 @@
 -- is_senior_pastor / is_pastor_story_designated_writer 를 사용합니다.
 --
 -- 회원 공개(public): 로그인한 회원
--- 비공개(private): 담임목사, 지정 담임목사 계정, 최고관리자
+-- 비공개(private): 담임목사, 지정 담임목사 계정, 최고관리자, 관리자
 -- 익명 작성자 실명: 최고관리자만
 -- ============================================================
 
@@ -39,7 +39,13 @@ AS $$
   SELECT
     public.is_prayer_super_admin()
     OR public.is_senior_pastor()
-    OR public.is_pastor_story_designated_writer();
+    OR public.is_pastor_story_designated_writer()
+    OR EXISTS (
+      SELECT 1
+      FROM public.profiles
+      WHERE user_id = public.effective_user_id()
+        AND lower(trim(role)) = 'admin'
+    );
 $$;
 
 REVOKE ALL ON FUNCTION public.is_prayer_super_admin() FROM PUBLIC, anon, authenticated;
