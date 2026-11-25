@@ -396,8 +396,12 @@
   vertical-align: middle;
 }
 
-.prayer-table__title {
+.prayer-table tbody td.prayer-table__title {
   padding-left: 18px;
+  text-align: left;
+}
+
+.prayer-table tbody td.prayer-table__title .prayer-table__link {
   text-align: left;
 }
 
