@@ -2,9 +2,8 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import Modal from '@/components/common/Modal'
 import PrayerCopyGuard from '@/components/prayer/PrayerCopyGuard'
-import heroImage from '@/assets/images/intercession/1.png'
 import PrayerHero from '@/components/prayer/PrayerHero'
-import { PRAYER_PATH, prayerEditPath } from '@/data/prayerMenu'
+import { PRAYER_PATH, PRAYER_WRITE_PATH, prayerEditPath } from '@/data/prayerMenu'
 import {
   formatPrayerDate,
   prayerAuthorLabel,
@@ -102,7 +101,13 @@ function PrayerDetailPage() {
   return (
     <PrayerCopyGuard>
       <div className="prayer-page">
-        <PrayerHero compact image={heroImage} eyebrow={false} title="중보기도" />
+        <PrayerHero title="중보기도">
+          <div className="prayer-hero__actions">
+            <Link className="prayer-button prayer-button--hero" to={PRAYER_WRITE_PATH}>
+              기도 제목 작성하기
+            </Link>
+          </div>
+        </PrayerHero>
         <div className="prayer-page__inner">
           {status === 'loading' ? <p className="prayer-status">기도 제목을 불러오는 중입니다.</p> : null}
           {status === 'error' ? <p className="prayer-status prayer-status--error">{message}</p> : null}
