@@ -4,7 +4,6 @@ import Modal from '@/components/common/Modal'
 import PrayerCopyGuard from '@/components/prayer/PrayerCopyGuard'
 import heroImage from '@/assets/images/intercession/1.png'
 import PrayerHero from '@/components/prayer/PrayerHero'
-import PrayerParticipateButton from '@/components/prayer/PrayerParticipateButton'
 import { PRAYER_PATH, prayerEditPath } from '@/data/prayerMenu'
 import {
   formatPrayerDate,
@@ -18,7 +17,6 @@ import {
   fetchPrayerParticipants,
   fetchPrayerRequest,
   setPrayerStatus,
-  togglePrayerParticipation,
 } from '@/services/prayer/requests'
 import './Prayer.css'
 
@@ -77,24 +75,6 @@ function PrayerDetailPage() {
     }
   }, [prayerId])
 
-  const handleToggle = async () => {
-    setPending(true)
-    const result = await togglePrayerParticipation(prayer.id)
-    setPending(false)
-
-    if (!result.success) {
-      setMessage(result.message)
-      return
-    }
-
-    const delta = result.participating === prayer.viewerParticipating ? 0 : result.participating ? 1 : -1
-    setPrayer((current) => ({
-      ...current,
-      viewerParticipating: result.participating,
-      participantCount: Math.max(0, current.participantCount + delta),
-    }))
-  }
-
   const handleStatus = async (nextStatus) => {
     setPending(true)
     const result = await setPrayerStatus(prayer.id, nextStatus)
@@ -145,13 +125,6 @@ function PrayerDetailPage() {
               </p>
               <p className="prayer-detail__content">{prayer.content}</p>
               {message ? <p className="prayer-status prayer-status--error">{message}</p> : null}
-              <div className="prayer-detail__pray">
-                <PrayerParticipateButton
-                  participating={prayer.viewerParticipating}
-                  pending={pending}
-                  onToggle={handleToggle}
-                />
-              </div>
               {prayer.canEdit || prayer.canChangeStatus ? (
                 <section className="prayer-manage">
                   <header className="prayer-manage__head">
