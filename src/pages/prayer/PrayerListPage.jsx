@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import PrayerCopyGuard from '@/components/prayer/PrayerCopyGuard'
 import PrayerHero from '@/components/prayer/PrayerHero'
 import PrayerStats from '@/components/prayer/PrayerStats'
@@ -34,6 +34,9 @@ function getVisiblePageNumbers(currentPage, totalPages, windowSize = PAGE_BUTTON
 }
 
 function PrayerListPage({ mode = 'board' }) {
+  const location = useLocation()
+  const openedBoard = location.state?.board === 'answered' ? 'answered' : 'praying'
+  const openedFilters = filtersForStat(openedBoard)
   const manage = mode === 'manage'
   const [stats, setStats] = useState(null)
   const [statsStatus, setStatsStatus] = useState('loading')
@@ -42,8 +45,8 @@ function PrayerListPage({ mode = 'board' }) {
   const [listStatus, setListStatus] = useState('loading')
   const [listMessage, setListMessage] = useState('')
   const [page, setPage] = useState(1)
-  const [status, setStatus] = useState('praying')
-  const [category, setCategory] = useState('personal')
+  const [status, setStatus] = useState(openedFilters.status)
+  const [category, setCategory] = useState(openedFilters.category)
 
   const activeStat = prayerListStat(status, false, category)
   const boardTitle = BOARD_TITLES[activeStat] ?? '개인기도 게시판'

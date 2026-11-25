@@ -75,9 +75,9 @@ function PrayerDetailPage() {
     }
   }, [prayerId])
 
-  const handleStatus = async (nextStatus) => {
+  const handleAnswer = async () => {
     setPending(true)
-    const result = await setPrayerStatus(prayer.id, nextStatus)
+    const result = await setPrayerStatus(prayer.id, 'answered')
     setPending(false)
 
     if (!result.success) {
@@ -85,7 +85,7 @@ function PrayerDetailPage() {
       return
     }
 
-    setPrayer((current) => ({ ...current, status: result.status }))
+    navigate(PRAYER_PATH, { replace: true, state: { board: 'answered' } })
   }
 
   const handleDelete = async () => {
@@ -117,56 +117,51 @@ function PrayerDetailPage() {
                   {prayerVisibilityLabel(prayer.visibility)}
                 </span>
               </div>
-              <h2 className="prayer-detail__title">{prayer.title}</h2>
-              <p className="prayer-detail__meta">
-                <span>{prayerAuthorLabel(prayer)}</span>
-                <span>{formatPrayerDate(prayer.createdAt)}</span>
-                <span>함께 기도 {prayer.participantCount}명</span>
-              </p>
+              <div className="prayer-detail__title-row">
+                <div className="prayer-detail__heading">
+                  <h2 className="prayer-detail__title">{prayer.title}</h2>
+                  <p className="prayer-detail__meta">
+                    <span>{prayerAuthorLabel(prayer)}</span>
+                    <span>{formatPrayerDate(prayer.createdAt)}</span>
+                    <span>함께 기도 {prayer.participantCount}명</span>
+                  </p>
+                </div>
+                <div className="prayer-detail__toolbar">
+                  {prayer.canEdit ? (
+                    <Link className="prayer-detail__tool" to={prayerEditPath(prayer.id)}>
+                      수정
+                    </Link>
+                  ) : null}
+                  <Link className="prayer-detail__tool" to={PRAYER_PATH}>
+                    목록
+                  </Link>
+                  {prayer.canDelete ? (
+                    <button
+                      type="button"
+                      className="prayer-detail__tool prayer-detail__tool--danger"
+                      onClick={() => setConfirmDelete(true)}
+                    >
+                      삭제
+                    </button>
+                  ) : null}
+                </div>
+              </div>
               <p className="prayer-detail__content">{prayer.content}</p>
               {message ? <p className="prayer-status prayer-status--error">{message}</p> : null}
-              {prayer.canEdit || prayer.canChangeStatus ? (
-                <section className="prayer-manage">
-                  <header className="prayer-manage__head">
-                    <h3>기도 제목 관리</h3>
-                    <p>작성자와 권한이 있는 사람에게만 보입니다.</p>
-                  </header>
-                  <div className="prayer-manage__actions">
-                    {prayer.canEdit ? (
-                      <Link className="prayer-button prayer-button--ghost" to={prayerEditPath(prayer.id)}>
-                        수정
-                      </Link>
-                    ) : null}
-                    {prayer.canChangeStatus ? (
-                      <>
-                        <button
-                          type="button"
-                          className="prayer-button prayer-button--ghost"
-                          disabled={pending || prayer.status === 'praying'}
-                          onClick={() => handleStatus('praying')}
-                        >
-                          기도 중으로 표시
-                        </button>
-                        <button
-                          type="button"
-                          className="prayer-button prayer-button--ghost"
-                          disabled={pending || prayer.status === 'answered'}
-                          onClick={() => handleStatus('answered')}
-                        >
-                          응답 완료로 표시
-                        </button>
-                      </>
-                    ) : null}
-                  </div>
-                </section>
+              {prayer.isOwner && prayer.status !== 'answered' ? (
+                <div className="prayer-detail__answer">
+                  <button
+                    type="button"
+                    className="prayer-button prayer-detail__answer-button"
+                    disabled={pending}
+                    onClick={handleAnswer}
+                  >
+                    {pending ? '옮기는 중' : '응답 완료'}
+                  </button>
+                </div>
               ) : null}
               {prayer.canDelete ? (
                 <section className="prayer-manage prayer-manage--admin">
-                  <div className="prayer-manage__actions">
-                    <button type="button" className="prayer-button prayer-button--danger" onClick={() => setConfirmDelete(true)}>
-                      삭제
-                    </button>
-                  </div>
                   <h4 className="prayer-manage__subhead">기도 참여 내역</h4>
                   {participantMessage ? (
                     <p className="prayer-status prayer-status--error">{participantMessage}</p>
