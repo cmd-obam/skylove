@@ -242,15 +242,10 @@ function PrayerListPage({ mode = 'board' }) {
           <section className="prayer-board" aria-label="기도 목록">
           <PrayerFilters
             category={category}
-            status={status}
             visibility={visibility}
             showVisibility={showVisibility}
             keyword={keyword}
             onCategoryChange={setCategory}
-            onStatusChange={(nextStatus) => {
-              setStatus(nextStatus)
-              setWithParticipants(false)
-            }}
             onVisibilityChange={setVisibility}
             onKeywordChange={setKeyword}
             onSearch={(event) => {
@@ -258,23 +253,23 @@ function PrayerListPage({ mode = 'board' }) {
               setQuery(keyword.trim())
             }}
           />
-          {listStatus === 'loading' ? <p className="prayer-status prayer-status--card">기도 제목을 불러오는 중입니다.</p> : null}
+          {listStatus === 'loading' ? <p className="prayer-board__note">기도 제목을 불러오는 중입니다.</p> : null}
           {listMessage && listStatus !== 'loading' ? (
-            <p className="prayer-status prayer-status--card prayer-status--error">{listMessage}</p>
+            <p className="prayer-board__note prayer-board__note--error">{listMessage}</p>
           ) : null}
           {showWriteEmpty ? (
-            <div className="prayer-empty">
-              <p className="prayer-status prayer-status--card">현재 작성된 기도가 없습니다.</p>
+            <div className="prayer-board__empty">
+              <p>현재 작성된 기도가 없습니다.</p>
               <Link className="prayer-button" to={PRAYER_WRITE_PATH}>
                 기도 제목 작성하기
               </Link>
             </div>
           ) : null}
           {showAnsweredEmpty ? (
-            <p className="prayer-status prayer-status--card">기도 응답 완료된 내역이 없습니다.</p>
+            <p className="prayer-board__empty">기도 응답 완료된 내역이 없습니다.</p>
           ) : null}
           {showFilteredEmpty ? (
-            <p className="prayer-status prayer-status--card">조건에 맞는 기도 제목이 없습니다.</p>
+            <p className="prayer-board__empty">조건에 맞는 기도 제목이 없습니다.</p>
           ) : null}
           {listStatus === 'ready' || listStatus === 'loading-more' ? (
             <div className="prayer-list">

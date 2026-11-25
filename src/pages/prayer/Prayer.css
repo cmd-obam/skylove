@@ -323,17 +323,68 @@
   font-weight: 400;
 }
 
-.prayer-empty {
+.prayer-board__empty {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 0.9rem;
-  padding: 1.25rem 0 0.35rem;
+  min-height: 180px;
+  margin: 0;
+  padding: 2.5rem 1rem;
+  border: 0;
+  background: none;
+  color: var(--prayer-ink);
   text-align: center;
 }
 
-.prayer-empty .prayer-status {
+.prayer-board__empty p {
   margin: 0;
+}
+
+.prayer-board__note {
+  margin: 1.5rem 0;
+  color: var(--prayer-ink);
+  text-align: center;
+}
+
+.prayer-board__note--error {
+  color: #9b3b3b;
+}
+
+.prayer-board .prayer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.prayer-board .prayer-card {
+  border: 0;
+  border-top: 1px solid #e7f1fb;
+  border-radius: 0 !important;
+  background: transparent;
+  box-shadow: none;
+}
+
+.prayer-board .prayer-card:first-child {
+  border-top: 0;
+}
+
+.prayer-board .prayer-card:hover {
+  transform: none;
+  background: #f7fbff;
+  box-shadow: none;
+}
+
+.prayer-board .prayer-card__footer {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.prayer-board .prayer-button--pray {
+  width: auto;
+  min-width: 160px;
 }
 
 .prayer-board {

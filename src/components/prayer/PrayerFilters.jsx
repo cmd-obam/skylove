@@ -1,9 +1,5 @@
 import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
-import {
-  PRAYER_CATEGORY_FILTERS,
-  PRAYER_STATUS_FILTERS,
-  PRAYER_VISIBILITY_FILTERS,
-} from '@/services/prayer/present'
+import { PRAYER_CATEGORY_FILTERS, PRAYER_VISIBILITY_FILTERS } from '@/services/prayer/present'
 
 function FilterGroup({ label, value, options, onChange }) {
   return (
@@ -25,12 +21,10 @@ function FilterGroup({ label, value, options, onChange }) {
 
 function PrayerFilters({
   category,
-  status,
   visibility,
   showVisibility,
   keyword,
   onCategoryChange,
-  onStatusChange,
   onVisibilityChange,
   onKeywordChange,
   onSearch,
@@ -47,15 +41,6 @@ function PrayerFilters({
         />
       </div>
       <div className="prayer-filter-tools">
-        <div className="prayer-filter-block">
-          <p className="prayer-filter-label">기도 상태</p>
-          <FilterGroup
-            label="기도 상태"
-            value={status}
-            options={PRAYER_STATUS_FILTERS}
-            onChange={onStatusChange}
-          />
-        </div>
         {showVisibility ? (
           <div className="prayer-filter-block">
             <p className="prayer-filter-label">공개 범위</p>
