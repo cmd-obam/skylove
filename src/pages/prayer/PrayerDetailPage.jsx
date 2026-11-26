@@ -17,7 +17,6 @@ import {
   fetchPrayerParticipants,
   fetchPrayerRequest,
   savePrayerParticipation,
-  setPrayerStatus,
   togglePrayerParticipation,
 } from '@/services/prayer/requests'
 import './Prayer.css'
@@ -51,7 +50,6 @@ function PrayerDetailPage() {
   const [prayer, setPrayer] = useState(null)
   const [status, setStatus] = useState('loading')
   const [message, setMessage] = useState('')
-  const [pending, setPending] = useState(false)
   const [joining, setJoining] = useState(false)
   const [participants, setParticipants] = useState([])
   const [participantMessage, setParticipantMessage] = useState('')
@@ -104,19 +102,6 @@ function PrayerDetailPage() {
       cancelled = true
     }
   }, [prayerId])
-
-  const handleAnswer = async () => {
-    setPending(true)
-    const result = await setPrayerStatus(prayer.id, 'answered')
-    setPending(false)
-
-    if (!result.success) {
-      setMessage(result.message)
-      return
-    }
-
-    navigate(PRAYER_PATH, { replace: true, state: { board: 'answered' } })
-  }
 
   const openComposer = () => {
     const mine = participants.find((person) => person.isMine)
@@ -265,18 +250,6 @@ function PrayerDetailPage() {
               </div>
               <p className="prayer-detail__content">{prayer.content}</p>
               {message ? <p className="prayer-status prayer-status--error">{message}</p> : null}
-              {prayer.isOwner && prayer.status !== 'answered' ? (
-                <div className="prayer-detail__answer">
-                  <button
-                    type="button"
-                    className="prayer-button prayer-detail__answer-button"
-                    disabled={pending}
-                    onClick={handleAnswer}
-                  >
-                    {pending ? '옮기는 중' : '응답 완료'}
-                  </button>
-                </div>
-              ) : null}
               {noteKind === 'together' ? (
                 <div className="prayer-detail__answer">
                   <button
@@ -286,9 +259,10 @@ function PrayerDetailPage() {
                     disabled={joining || prayer.status === 'answered'}
                     onClick={handleJoin}
                   >
-                    {joining
-                      ? '반영하는 중'
-                      : `${prayer.viewerParticipating ? '🙏 함께 기도했어요' : '🙏 함께 기도하기'} ${prayer.participantCount}`}
+                    <svg className="prayer-join__heart" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                      <path d="M12 19.4c-.3 0-6.6-4.1-6.6-8.7C5.4 8.2 7.2 6.6 9.3 6.6c1.2 0 2.2.6 2.7 1.5.5-.9 1.5-1.5 2.7-1.5 2.1 0 3.9 1.6 3.9 4.1 0 4.6-6.3 8.7-6.6 8.7z" />
+                    </svg>
+                    {joining ? '반영하는 중' : `함께 기도하기 ${prayer.participantCount}`}
                   </button>
                 </div>
               ) : null}

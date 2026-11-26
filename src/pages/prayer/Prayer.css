@@ -1032,24 +1032,35 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.35rem;
-  min-height: 40px;
-  padding: 0 1rem;
-  border: 1px solid #e5e7eb;
+  gap: 0.4rem;
+  min-height: 42px;
+  padding: 0 1.15rem;
+  border: 1px solid #b7d7f5;
   border-radius: 999px !important;
-  background: #f3f4f6;
-  color: #111827;
+  background: #ffffff;
+  color: #4da6ff;
   font: inherit;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1;
   cursor: pointer;
   box-shadow: none;
 }
 
+.prayer-join__heart {
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linejoin: round;
+}
+
 .prayer-join.is-active {
-  border-color: #111827;
-  background: #111827;
-  color: #ffffff;
+  border-color: #4da6ff;
+  background: #f3f9ff;
+}
+
+.prayer-join.is-active .prayer-join__heart {
+  fill: currentColor;
 }
 
 .prayer-join:disabled {
