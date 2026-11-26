@@ -124,6 +124,7 @@ CREATE TABLE IF NOT EXISTS public.prayer_participants (
   message text,
   prayed boolean NOT NULL DEFAULT false,
   created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz,
   CONSTRAINT prayer_participants_unique UNIQUE (prayer_id, user_id),
   CONSTRAINT prayer_participants_message_len
     CHECK (message IS NULL OR char_length(btrim(message)) BETWEEN 1 AND 500)
@@ -150,6 +151,9 @@ ALTER TABLE public.prayer_participants
 
 ALTER TABLE public.prayer_participants
   ADD COLUMN IF NOT EXISTS prayed boolean NOT NULL DEFAULT false;
+
+ALTER TABLE public.prayer_participants
+  ADD COLUMN IF NOT EXISTS updated_at timestamptz;
 
 DO $$
 BEGIN
@@ -690,8 +694,11 @@ RETURNS TABLE (
   user_id uuid,
   display_name text,
   created_at timestamptz,
+  updated_at timestamptz,
   message text,
-  is_mine boolean
+  is_mine boolean,
+  is_edited boolean,
+  staff_label text
 )
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -729,8 +736,21 @@ BEGIN
     pp.user_id,
     public.prayer_author_label(pp.user_id, false) AS display_name,
     pp.created_at,
+    pp.updated_at,
     pp.message,
-    (pp.user_id = public.effective_user_id()) AS is_mine
+    (pp.user_id = public.effective_user_id()) AS is_mine,
+    (pp.updated_at IS NOT NULL AND pp.updated_at > pp.created_at + interval '2 seconds') AS is_edited,
+    (
+      SELECT CASE lower(trim(prof.role))
+        WHEN 'super_admin' THEN '관리자'
+        WHEN 'admin' THEN '관리자'
+        WHEN 'senior_pastor' THEN '담임목사'
+        ELSE NULL
+      END
+      FROM public.profiles AS prof
+      WHERE prof.user_id = public.resolve_primary_user_id(pp.user_id)
+      LIMIT 1
+    ) AS staff_label
   FROM public.prayer_participants AS pp
   WHERE pp.prayer_id = p_id
     AND pp.message IS NOT NULL
@@ -781,15 +801,61 @@ BEGIN
     RAISE EXCEPTION '응답이 완료된 기도에는 남길 수 없습니다.';
   END IF;
 
-  IF v_owner = v_actor THEN
-    RAISE EXCEPTION '작성자는 응답 완료로 기도를 마무리합니다.';
-  END IF;
-
-  INSERT INTO public.prayer_participants (prayer_id, user_id, message, prayed)
-  VALUES (p_id, v_actor, v_message, false)
+  INSERT INTO public.prayer_participants (prayer_id, user_id, message, prayed, updated_at)
+  VALUES (p_id, v_actor, v_message, false, NULL)
   ON CONFLICT (prayer_id, user_id) DO UPDATE
   SET message = EXCLUDED.message,
-      created_at = now();
+      updated_at = CASE
+        WHEN public.prayer_participants.message IS DISTINCT FROM EXCLUDED.message THEN now()
+        ELSE public.prayer_participants.updated_at
+      END;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.delete_prayer_participation(p_id uuid, p_user_id uuid)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_actor uuid := public.effective_user_id();
+  v_owner uuid;
+  v_visibility text;
+  v_target uuid := p_user_id;
+BEGIN
+  IF v_actor IS NULL THEN
+    RAISE EXCEPTION '로그인이 필요합니다.';
+  END IF;
+
+  IF v_target IS NULL THEN
+    RAISE EXCEPTION '삭제할 기도를 찾을 수 없습니다.';
+  END IF;
+
+  IF v_target IS DISTINCT FROM v_actor AND NOT public.is_prayer_super_admin() THEN
+    RAISE EXCEPTION '본인이 남긴 기도만 삭제할 수 있습니다.';
+  END IF;
+
+  SELECT prayer_requests.user_id, prayer_requests.visibility
+  INTO v_owner, v_visibility
+  FROM public.prayer_requests
+  WHERE prayer_requests.id = p_id;
+
+  IF NOT FOUND OR NOT public.can_read_prayer(v_owner, v_visibility) THEN
+    RAISE EXCEPTION '기도 제목을 찾을 수 없거나 볼 수 없습니다.';
+  END IF;
+
+  UPDATE public.prayer_participants
+  SET message = NULL,
+      updated_at = now()
+  WHERE prayer_id = p_id
+    AND user_id = v_target;
+
+  DELETE FROM public.prayer_participants
+  WHERE prayer_id = p_id
+    AND user_id = v_target
+    AND message IS NULL
+    AND prayed = false;
 END;
 $$;
 
@@ -803,6 +869,7 @@ REVOKE ALL ON FUNCTION public.delete_prayer_request(uuid) FROM PUBLIC, anon;
 REVOKE ALL ON FUNCTION public.toggle_prayer_participation(uuid) FROM PUBLIC, anon;
 REVOKE ALL ON FUNCTION public.list_prayer_participants(uuid) FROM PUBLIC, anon;
 REVOKE ALL ON FUNCTION public.save_prayer_participation(uuid, text) FROM PUBLIC, anon;
+REVOKE ALL ON FUNCTION public.delete_prayer_participation(uuid, uuid) FROM PUBLIC, anon;
 
 GRANT EXECUTE ON FUNCTION public.list_prayer_requests(text, text, text, text, boolean, integer, integer, uuid) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.get_prayer_stats() TO authenticated;
@@ -814,6 +881,7 @@ GRANT EXECUTE ON FUNCTION public.delete_prayer_request(uuid) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.toggle_prayer_participation(uuid) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.list_prayer_participants(uuid) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.save_prayer_participation(uuid, text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.delete_prayer_participation(uuid, uuid) TO authenticated;
 
 DO $$
 BEGIN

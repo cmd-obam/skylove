@@ -1303,6 +1303,222 @@
   box-shadow: none;
 }
 
+.prayer-notes {
+  margin-top: 1.35rem;
+  padding: 1.15rem 1.15rem 0.35rem;
+  border: 1px solid #e6ebf2;
+  border-radius: 16px !important;
+  background: #f7f8fa;
+}
+
+.prayer-notes h4 {
+  margin: 0;
+  color: #1f2937;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.prayer-notes__lead {
+  margin: 0.35rem 0 0.95rem;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.prayer-notes__form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.prayer-notes__form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  color: #1f2937;
+  font-weight: 700;
+}
+
+.prayer-notes textarea {
+  width: 100%;
+  min-height: 96px;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #1f2937;
+  font: inherit;
+  font-weight: 400;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.prayer-notes textarea::placeholder {
+  color: #9ca3af;
+}
+
+.prayer-notes__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.prayer-note-button {
+  min-height: 38px;
+  padding: 0 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 999px !important;
+  background: #ffffff;
+  color: #374151;
+  font: inherit;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.prayer-note-button--submit {
+  border-color: #8b9aab;
+  background: #8b9aab;
+  color: #ffffff;
+}
+
+.prayer-note-button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.prayer-notes__list {
+  margin: 0.85rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.prayer-note {
+  padding: 0.85rem 0.15rem;
+  border-top: 1px solid #e6ebf2;
+}
+
+.prayer-note--staff {
+  margin: 0.45rem 0 0.7rem;
+  padding: 0.85rem 0.75rem;
+  border: 0;
+  border-radius: 12px !important;
+  background: #f3f8ff;
+}
+
+.prayer-note__head {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.prayer-note__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #e5e7eb;
+  color: #4b5563;
+  font-size: 0.85rem;
+  font-weight: 700;
+  flex: none;
+}
+
+.prayer-note--staff .prayer-note__avatar {
+  background: #ffffff;
+  color: #d4a017;
+}
+
+.prayer-note__name {
+  color: #1f2937;
+  font-weight: 700;
+}
+
+.prayer-note__badge {
+  padding: 0.12rem 0.45rem;
+  border-radius: 999px;
+  background: #e8f1fb;
+  color: #3b82f6;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.prayer-note__date {
+  color: #9ca3af;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.prayer-note__menu {
+  position: relative;
+  margin-left: auto;
+}
+
+.prayer-note__more {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #6b7280;
+  font: inherit;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+
+.prayer-note__more:hover,
+.prayer-note__more:focus-visible {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.prayer-note__popover {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 3;
+  min-width: 112px;
+  padding: 0.3rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+.prayer-note__popover button {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.45rem 0.55rem;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #1f2937;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.prayer-note__popover button:hover,
+.prayer-note__popover button:focus-visible {
+  background: #f3f4f6;
+}
+
+.prayer-note__popover button.is-danger {
+  color: #b91c1c;
+}
+
+.prayer-note__body {
+  margin: 0.4rem 0 0 2.45rem;
+  color: #374151;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 .prayer-participants {
   margin: 0.7rem 0 0;
   padding: 0;

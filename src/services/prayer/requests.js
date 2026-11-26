@@ -226,6 +226,19 @@ export async function togglePrayerParticipation(id) {
   return { success: true, participating: Boolean(data) }
 }
 
+export async function deletePrayerParticipation(prayerId, userId) {
+  const { error } = await supabase.rpc('delete_prayer_participation', {
+    p_id: prayerId,
+    p_user_id: userId,
+  })
+
+  if (error) {
+    return fail(error)
+  }
+
+  return { success: true }
+}
+
 export async function savePrayerParticipation(id, message) {
   const { error } = await supabase.rpc('save_prayer_participation', {
     p_id: id,
@@ -254,6 +267,8 @@ export async function fetchPrayerParticipants(id) {
       createdAt: row.created_at,
       message: row.message || '',
       isMine: Boolean(row.is_mine),
+      edited: Boolean(row.is_edited),
+      staffLabel: row.staff_label || '',
     })),
   }
 }

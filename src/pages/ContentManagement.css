@@ -339,17 +339,18 @@
 }
 
 .content-cms-table--select .content-cms-col-check {
-  width: 44px;
+  width: 36px;
 }
 
 .content-cms-table--select .content-cms-col-no {
-  width: 72px;
+  width: 52px;
 }
 
 .content-cms-table--select th:nth-child(-n + 2),
 .content-cms-table--select td:nth-child(-n + 2) {
-  padding-left: 6px;
-  padding-right: 6px;
+  padding-left: 4px;
+  padding-right: 4px;
+  white-space: nowrap;
 }
 
 .content-cms-title-cell {

@@ -13,6 +13,7 @@ import {
   prayerVisibilityLabel,
 } from '@/services/prayer/present'
 import {
+  deletePrayerParticipation,
   deletePrayerRequest,
   fetchPrayerParticipants,
   fetchPrayerRequest,
@@ -57,7 +58,11 @@ function PrayerDetailPage() {
   const [note, setNote] = useState('')
   const [savingNote, setSavingNote] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [menuUserId, setMenuUserId] = useState(null)
+  const [editingNote, setEditingNote] = useState(false)
+  const [noteToDelete, setNoteToDelete] = useState(null)
   const noteRef = useRef(null)
+  const menuRef = useRef(null)
 
   useEffect(() => {
     let cancelled = false
@@ -111,13 +116,28 @@ function PrayerDetailPage() {
   }
 
   useEffect(() => {
-    if (!composing) {
+    if (!composing && !editingNote) {
       return
     }
 
     noteRef.current?.focus()
     noteRef.current?.scrollIntoView({ block: 'nearest' })
-  }, [composing])
+  }, [composing, editingNote])
+
+  useEffect(() => {
+    if (!menuUserId) {
+      return undefined
+    }
+
+    const close = (event) => {
+      if (!menuRef.current?.contains(event.target)) {
+        setMenuUserId(null)
+      }
+    }
+
+    document.addEventListener('mousedown', close)
+    return () => document.removeEventListener('mousedown', close)
+  }, [menuUserId])
 
   const handlePray = async (event) => {
     event.preventDefault()
@@ -146,7 +166,35 @@ function PrayerDetailPage() {
 
     setParticipants(people.participants)
     setComposing(false)
+    setEditingNote(false)
     setNote('')
+    setParticipantMessage('')
+  }
+
+  const handleDeleteNote = async () => {
+    if (!noteToDelete) {
+      return
+    }
+
+    setSavingNote(true)
+    const result = await deletePrayerParticipation(prayer.id, noteToDelete.userId)
+    setSavingNote(false)
+
+    if (!result.success) {
+      setParticipantMessage(result.message)
+      setNoteToDelete(null)
+      return
+    }
+
+    const people = await fetchPrayerParticipants(prayer.id)
+    if (people.success) {
+      setParticipants(people.participants)
+    }
+    if (noteToDelete.isMine) {
+      setNote('')
+      setEditingNote(false)
+    }
+    setNoteToDelete(null)
     setParticipantMessage('')
   }
 
@@ -198,7 +246,7 @@ function PrayerDetailPage() {
       })()
     : []
   const notes = participants.filter((person) => person.message)
-  const showTogetherForm = noteKind === 'together' && prayer && !prayer.isOwner && prayer.status !== 'answered'
+  const showTogetherForm = noteKind === 'together' && prayer && prayer.status !== 'answered'
 
   return (
     <PrayerCopyGuard>
@@ -273,25 +321,136 @@ function PrayerDetailPage() {
                   </button>
                 </div>
               ) : null}
-              {noteKind || prayer.canDelete ? (
-                <section className="prayer-manage prayer-manage--admin" aria-label={isComment ? '댓글' : '기도 참여 내역'}>
-                  <h4 className="prayer-manage__subhead prayer-manage__subhead--first">
-                    {isComment ? '댓글' : '기도 참여 내역'}
-                  </h4>
-                  {composing || showTogetherForm ? (
-                    <form className="prayer-pray-form" onSubmit={handlePray}>
-                      <label className="prayer-field">
-                        {isComment ? '댓글' : '함께 드리는 기도'}
+              {noteKind === 'together' ? (
+                <section className="prayer-notes" aria-label="기도 참여 내역">
+                  <h4>기도 참여 내역</h4>
+                  <p className="prayer-notes__lead">함께 기도하며 격려의 메시지를 나눠보세요.</p>
+                  {showTogetherForm ? (
+                    <form className="prayer-notes__form" onSubmit={handlePray}>
+                      <label>
+                        함께 드리는 기도
                         <textarea
                           ref={noteRef}
                           value={note}
                           rows={4}
                           maxLength={500}
-                          placeholder={
-                            isComment
-                              ? '댓글을 적어 주세요.'
-                              : '함께 나누고 싶은 기도와 격려의 메시지를 작성해 주세요.'
-                          }
+                          placeholder="함께 나누고 싶은 기도와 격려의 메시지를 작성해 주세요."
+                          onChange={(event) => setNote(event.target.value)}
+                        />
+                      </label>
+                      <div className="prayer-notes__actions">
+                        <button
+                          type="button"
+                          className="prayer-note-button"
+                          onClick={() => {
+                            setNote('')
+                            setEditingNote(false)
+                          }}
+                        >
+                          취소
+                        </button>
+                        <button type="submit" className="prayer-note-button prayer-note-button--submit" disabled={savingNote}>
+                          {savingNote ? '남기는 중' : editingNote ? '수정하기' : '기도 남기기'}
+                        </button>
+                      </div>
+                    </form>
+                  ) : null}
+                  {participantMessage ? <p className="prayer-status prayer-status--error">{participantMessage}</p> : null}
+                  {notes.length > 0 ? (
+                    <ul className="prayer-notes__list">
+                      {notes.map((person) => {
+                        const canEdit = person.isMine && prayer.status !== 'answered'
+                        const canRemove = (person.isMine || prayer.canDelete) && prayer.status !== 'answered'
+                        return (
+                          <li key={person.userId} className={person.staffLabel ? 'prayer-note prayer-note--staff' : 'prayer-note'}>
+                            <div className="prayer-note__head">
+                              <span className="prayer-note__avatar" aria-hidden="true">
+                                {person.staffLabel ? (
+                                  <svg viewBox="0 0 24 24" width="16" height="16">
+                                    <path fill="currentColor" d="M5 16.5 3.2 8.6l4.3 3.2L12 6.2l4.5 5.6 4.3-3.2L19 16.5H5z" />
+                                  </svg>
+                                ) : (
+                                  person.displayName.slice(0, 1)
+                                )}
+                              </span>
+                              <span className="prayer-note__name">{person.displayName}</span>
+                              {person.staffLabel ? <span className="prayer-note__badge">{person.staffLabel}</span> : null}
+                              <span className="prayer-note__date">
+                                {formatPrayerDate(person.createdAt)}
+                                {person.edited ? ' (수정됨)' : ''}
+                              </span>
+                              {canEdit || canRemove ? (
+                                <div className="prayer-note__menu" ref={menuUserId === person.userId ? menuRef : null}>
+                                  <button
+                                    type="button"
+                                    className="prayer-note__more"
+                                    aria-label="기도 글 메뉴"
+                                    aria-expanded={menuUserId === person.userId}
+                                    onClick={() => setMenuUserId((current) => (current === person.userId ? null : person.userId))}
+                                  >
+                                    ···
+                                  </button>
+                                  {menuUserId === person.userId ? (
+                                    <div className="prayer-note__popover" role="menu">
+                                      {canEdit ? (
+                                        <button
+                                          type="button"
+                                          role="menuitem"
+                                          onClick={() => {
+                                            setNote(person.message)
+                                            setEditingNote(true)
+                                            setMenuUserId(null)
+                                            setParticipantMessage('')
+                                          }}
+                                        >
+                                          <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+                                            <path fill="none" stroke="currentColor" strokeWidth="1.8" d="M4 16.5V20h3.5L19 8.5 15.5 5 4 16.5z" />
+                                          </svg>
+                                          수정
+                                        </button>
+                                      ) : null}
+                                      {canRemove ? (
+                                        <button
+                                          type="button"
+                                          role="menuitem"
+                                          className="is-danger"
+                                          onClick={() => {
+                                            setMenuUserId(null)
+                                            setNoteToDelete(person)
+                                          }}
+                                        >
+                                          <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+                                            <path fill="none" stroke="currentColor" strokeWidth="1.8" d="M5 7h14M9 7V5h6v2m-7 0 1 12h6l1-12" />
+                                          </svg>
+                                          삭제
+                                        </button>
+                                      ) : null}
+                                    </div>
+                                  ) : null}
+                                </div>
+                              ) : null}
+                            </div>
+                            <p className="prayer-note__body">{person.message}</p>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  ) : null}
+                </section>
+              ) : null}
+              {isComment || (prayer.canDelete && noteKind !== 'together') ? (
+                <section className="prayer-manage prayer-manage--admin" aria-label="댓글">
+                  <h4 className="prayer-manage__subhead prayer-manage__subhead--first">댓글</h4>
+                  {composing ? (
+                    <form className="prayer-pray-form" onSubmit={handlePray}>
+                      <label className="prayer-field">
+                        댓글
+                        <textarea
+                          ref={isComment ? noteRef : null}
+                          value={note}
+                          rows={4}
+                          maxLength={500}
+                          placeholder="댓글을 적어 주세요."
                           onChange={(event) => setNote(event.target.value)}
                         />
                       </label>
@@ -307,19 +466,15 @@ function PrayerDetailPage() {
                           취소
                         </button>
                         <button type="submit" className="prayer-button" disabled={savingNote}>
-                          {savingNote ? '남기는 중' : isComment ? '댓글 남기기' : '기도 남기기'}
+                          {savingNote ? '남기는 중' : '댓글 남기기'}
                         </button>
                       </div>
                     </form>
                   ) : null}
-                  {participantMessage ? (
+                  {participantMessage && isComment ? (
                     <p className="prayer-status prayer-status--error">{participantMessage}</p>
                   ) : null}
-                  {notes.length === 0 && !composing && !showTogetherForm ? (
-                    <p className="prayer-status">
-                      {isComment ? '아직 댓글이 없습니다.' : '아직 참여한 회원이 없습니다.'}
-                    </p>
-                  ) : null}
+                  {notes.length === 0 && !composing ? <p className="prayer-status">아직 댓글이 없습니다.</p> : null}
                   {notes.length > 0 ? (
                     <ul className="prayer-participants">
                       {notes.map((person) => (
@@ -328,9 +483,7 @@ function PrayerDetailPage() {
                             <span>{person.displayName}</span>
                             <span>{formatPrayerDate(person.createdAt)}</span>
                           </div>
-                          {person.message ? (
-                            <p className="prayer-participants__message">{person.message}</p>
-                          ) : null}
+                          {person.message ? <p className="prayer-participants__message">{person.message}</p> : null}
                         </li>
                       ))}
                     </ul>
@@ -340,6 +493,17 @@ function PrayerDetailPage() {
             </article>
           ) : null}
         </div>
+        <Modal isOpen={Boolean(noteToDelete)} title="남긴 기도를 삭제할까요?" onClose={() => setNoteToDelete(null)}>
+          <p>삭제하면 이 기도 글은 참여 내역에서 사라집니다.</p>
+          <div className="prayer-inline-actions">
+            <button type="button" className="prayer-button prayer-button--danger" onClick={handleDeleteNote} disabled={savingNote}>
+              삭제
+            </button>
+            <button type="button" className="prayer-button prayer-button--ghost" onClick={() => setNoteToDelete(null)}>
+              취소
+            </button>
+          </div>
+        </Modal>
         <Modal isOpen={confirmDelete} title="기도 제목을 삭제할까요?" onClose={() => setConfirmDelete(false)}>
           <p>기도 제목과 참여 기록을 삭제합니다.</p>
           <div className="prayer-inline-actions">
