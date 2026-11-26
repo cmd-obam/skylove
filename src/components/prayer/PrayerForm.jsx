@@ -1,53 +1,85 @@
 import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
+import { useAuth } from '@/contexts/AuthContext'
 import {
-  PRAYER_CATEGORIES,
+  PRAYER_CARD_CATEGORIES,
   PRAYER_CONTENT_MAX,
   PRAYER_TITLE_MAX,
+  prayerCategoryLabel,
 } from '@/services/prayer/present'
 
-function PrayerForm({ draft, onChange, onSubmit, submitting, error, submitLabel, showStatus = false }) {
+function PrayerForm({
+  draft,
+  onChange,
+  onSubmit,
+  submitting,
+  error,
+  submitLabel,
+  showStatus = false,
+  showTitle = false,
+}) {
+  const { profile } = useAuth()
   const update = (patch) => onChange({ ...draft, ...patch })
+  const writerName =
+    profile?.nicknameEnabled && profile?.nickname ? profile.nickname : profile?.name || ''
+  const cardOptions = PRAYER_CARD_CATEGORIES.some((item) => item.id === draft.category)
+    ? PRAYER_CARD_CATEGORIES
+    : draft.category
+      ? [{ id: draft.category, label: prayerCategoryLabel(draft.category) }, ...PRAYER_CARD_CATEGORIES]
+      : PRAYER_CARD_CATEGORIES
 
   return (
-    <form className="prayer-form" onSubmit={onSubmit}>
+    <form className="prayer-form prayer-form--sheet" onSubmit={onSubmit}>
       <label className="prayer-field">
-        <span>카테고리</span>
-        <select
-          value={draft.category}
-          onChange={(event) => update({ category: event.target.value })}
-          required
-        >
-          <option value="">선택</option>
-          {PRAYER_CATEGORIES.map((item) => (
-            <option key={item.id} value={item.id}>
+        <span>이름</span>
+        <input value={writerName} placeholder="이름을 입력해 주세요" readOnly />
+      </label>
+
+      {showTitle ? (
+        <label className="prayer-field">
+          <span>기도 제목</span>
+          <input
+            value={draft.title}
+            onChange={(event) => update({ title: event.target.value })}
+            maxLength={PRAYER_TITLE_MAX}
+            autoComplete={AUTOCOMPLETE_OFF}
+            required
+          />
+        </label>
+      ) : null}
+
+      <fieldset className="prayer-field">
+        <legend>
+          기도카드분류 <span className="prayer-field__required">*</span>
+        </legend>
+        <div className="prayer-card-types">
+          {cardOptions.map((item) => (
+            <label key={item.id} className="prayer-card-types__item">
+              <input
+                type="checkbox"
+                checked={draft.category === item.id}
+                onChange={() => update({ category: item.id })}
+              />
               {item.label}
-            </option>
+            </label>
           ))}
-        </select>
-      </label>
+        </div>
+      </fieldset>
 
       <label className="prayer-field">
-        <span>기도 제목</span>
-        <input
-          value={draft.title}
-          onChange={(event) => update({ title: event.target.value })}
-          maxLength={PRAYER_TITLE_MAX}
-          autoComplete={AUTOCOMPLETE_OFF}
-          required
-        />
-      </label>
-
-      <label className="prayer-field">
-        <span>기도 내용</span>
+        <span>
+          기도 내용 <span className="prayer-field__required">*</span>
+        </span>
         <textarea
           value={draft.content}
           onChange={(event) => update({ content: event.target.value })}
           maxLength={PRAYER_CONTENT_MAX}
           rows={8}
+          placeholder="함께 나누고 싶은 기도 내용을 자유롭게 작성해 주세요."
           autoComplete={AUTOCOMPLETE_OFF}
           required
         />
       </label>
+      <p className="prayer-form__help">기도 내용을 편하게 작성해 주세요.</p>
 
       {showStatus ? (
         <fieldset className="prayer-field">
@@ -117,7 +149,7 @@ function PrayerForm({ draft, onChange, onSubmit, submitting, error, submitLabel,
         </p>
       ) : null}
 
-      <button type="submit" className="prayer-button" disabled={submitting}>
+      <button type="submit" className="prayer-button prayer-button--sheet" disabled={submitting}>
         {submitting ? '저장하는 중' : submitLabel}
       </button>
     </form>

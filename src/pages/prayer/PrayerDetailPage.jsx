@@ -20,7 +20,17 @@ import {
 } from '@/services/prayer/requests'
 import './Prayer.css'
 
-const COMMENT_CATEGORIES = new Set(['personal', 'family', 'health', 'church', 'mission', 'other'])
+const COMMENT_CATEGORIES = new Set([
+  'personal',
+  'family',
+  'health',
+  'church',
+  'mission',
+  'other',
+  'spirit',
+  'identity',
+  'path',
+])
 
 function prayerNoteKind(category) {
   if (category === 'intercession') {

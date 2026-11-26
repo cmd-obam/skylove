@@ -2,9 +2,8 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import PrayerCopyGuard from '@/components/prayer/PrayerCopyGuard'
 import PrayerForm from '@/components/prayer/PrayerForm'
-import PrayerHero, { prayerWriteHeroImage } from '@/components/prayer/PrayerHero'
 import { PRAYER_PATH, prayerDetailPath } from '@/data/prayerMenu'
-import { EMPTY_PRAYER_DRAFT, validatePrayerDraft } from '@/services/prayer/present'
+import { EMPTY_PRAYER_DRAFT, PRAYER_TITLE_MAX, validatePrayerDraft } from '@/services/prayer/present'
 import { createPrayerRequest, fetchPrayerAccess } from '@/services/prayer/requests'
 import './Prayer.css'
 
@@ -36,7 +35,10 @@ function PrayerWritePage() {
 
   const handleSubmit = async (event) => {
     event.preventDefault()
-    const validation = validatePrayerDraft(draft)
+    const title =
+      draft.title.trim() || draft.content.trim().replace(/\s+/g, ' ').slice(0, PRAYER_TITLE_MAX)
+    const nextDraft = { ...draft, title }
+    const validation = validatePrayerDraft(nextDraft)
 
     if (validation) {
       setError(validation)
@@ -45,7 +47,7 @@ function PrayerWritePage() {
 
     setSubmitting(true)
     setError('')
-    const result = await createPrayerRequest(draft)
+    const result = await createPrayerRequest(nextDraft)
     setSubmitting(false)
 
     if (!result.success) {
@@ -63,9 +65,17 @@ function PrayerWritePage() {
 
   return (
     <PrayerCopyGuard>
-      <div className="prayer-page">
-        <PrayerHero matchMain image={prayerWriteHeroImage} title="기도 제목 작성" />
+      <div className="prayer-page prayer-page--write">
         <div className="prayer-page__inner">
+          <header className="prayer-write-head">
+            <p className="prayer-write-head__crumb">
+              <Link to="/">HOME</Link>
+              <span aria-hidden="true"> / </span>
+              <span>기도 제목 작성</span>
+            </p>
+            <h1>기도 제목 작성</h1>
+            <p>함께 나누고 싶은 기도 제목을 남겨주세요. 하늘사랑교회가 함께 기도하겠습니다.</p>
+          </header>
           {privateDone ? (
             <div className="prayer-panel">
               <h2>비공개로 전해졌습니다.</h2>

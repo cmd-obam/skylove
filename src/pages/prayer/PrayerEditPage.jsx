@@ -100,6 +100,7 @@ function PrayerEditPage() {
               error={error}
               submitLabel="수정 내용 저장"
               showStatus
+              showTitle
             />
           ) : null}
         </div>

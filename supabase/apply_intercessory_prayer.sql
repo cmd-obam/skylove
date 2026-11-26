@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS public.prayer_requests (
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
   CONSTRAINT prayer_requests_category_check
-    CHECK (category IN ('intercession', 'personal', 'family', 'health', 'church', 'mission', 'other')),
+    CHECK (category IN ('intercession', 'personal', 'family', 'health', 'church', 'mission', 'other', 'spirit', 'identity', 'path')),
   CONSTRAINT prayer_requests_visibility_check
     CHECK (visibility IN ('public', 'private')),
   CONSTRAINT prayer_requests_status_check
@@ -300,7 +300,7 @@ AS $$
       OR lower(btrim(p_category)) = 'all'
       OR (
         lower(btrim(p_category)) = 'personal'
-        AND r.category IN ('personal', 'family', 'health', 'church', 'mission', 'other')
+        AND r.category IN ('personal', 'family', 'health', 'church', 'mission', 'other', 'spirit', 'identity', 'path')
       )
       OR (
         lower(btrim(p_category)) <> 'personal'
@@ -363,7 +363,7 @@ AS $$
     )::bigint AS together_count,
     count(*) FILTER (
       WHERE r.status = 'praying'
-        AND r.category IN ('personal', 'family', 'health', 'church', 'mission', 'other')
+        AND r.category IN ('personal', 'family', 'health', 'church', 'mission', 'other', 'spirit', 'identity', 'path')
     )::bigint AS praying_count,
     count(*) FILTER (WHERE r.status = 'answered')::bigint AS answered_count
   FROM public.prayer_requests AS r
@@ -414,7 +414,7 @@ BEGIN
     RAISE EXCEPTION '로그인이 필요합니다.';
   END IF;
 
-  IF v_category NOT IN ('intercession', 'personal', 'family', 'health', 'church', 'mission', 'other') THEN
+  IF v_category NOT IN ('intercession', 'personal', 'family', 'health', 'church', 'mission', 'other', 'spirit', 'identity', 'path') THEN
     RAISE EXCEPTION '카테고리를 선택해 주세요.';
   END IF;
 
@@ -501,7 +501,7 @@ BEGIN
     RAISE EXCEPTION '권한이 없습니다.';
   END IF;
 
-  IF v_category NOT IN ('intercession', 'personal', 'family', 'health', 'church', 'mission', 'other') THEN
+  IF v_category NOT IN ('intercession', 'personal', 'family', 'health', 'church', 'mission', 'other', 'spirit', 'identity', 'path') THEN
     RAISE EXCEPTION '카테고리를 선택해 주세요.';
   END IF;
 
@@ -698,7 +698,7 @@ BEGIN
     RAISE EXCEPTION '기도 제목을 찾을 수 없거나 볼 수 없습니다.';
   END IF;
 
-  IF v_category NOT IN ('intercession', 'personal', 'family', 'health', 'church', 'mission', 'other')
+  IF v_category NOT IN ('intercession', 'personal', 'family', 'health', 'church', 'mission', 'other', 'spirit', 'identity', 'path')
     AND NOT public.is_prayer_super_admin() THEN
     RAISE EXCEPTION '권한이 없습니다.';
   END IF;
@@ -751,7 +751,7 @@ BEGIN
     RAISE EXCEPTION '기도 제목을 찾을 수 없거나 볼 수 없습니다.';
   END IF;
 
-  IF v_category NOT IN ('intercession', 'personal', 'family', 'health', 'church', 'mission', 'other') THEN
+  IF v_category NOT IN ('intercession', 'personal', 'family', 'health', 'church', 'mission', 'other', 'spirit', 'identity', 'path') THEN
     RAISE EXCEPTION '이 기도 글에는 남길 수 없습니다.';
   END IF;
 

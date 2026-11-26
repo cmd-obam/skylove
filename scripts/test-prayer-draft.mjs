@@ -19,8 +19,10 @@ const validDraft = {
 test('기도 제목 초안은 카테고리와 길이, 공개 범위를 검사한다', () => {
   assert.equal(validatePrayerDraft(validDraft), null)
   assert.equal(validatePrayerDraft({ ...validDraft, category: 'intercession' }), null)
-  assert.equal(validatePrayerDraft({ ...validDraft, category: '' }), '카테고리를 선택해 주세요.')
-  assert.equal(validatePrayerDraft({ ...validDraft, category: 'family' }), '카테고리를 선택해 주세요.')
+  assert.equal(validatePrayerDraft({ ...validDraft, category: '' }), '기도카드분류를 선택해 주세요.')
+  assert.equal(validatePrayerDraft({ ...validDraft, category: 'family' }), null)
+  assert.equal(validatePrayerDraft({ ...validDraft, category: 'spirit' }), null)
+  assert.equal(validatePrayerDraft({ ...validDraft, category: 'unknown' }), '기도카드분류를 선택해 주세요.')
   assert.equal(validatePrayerDraft({ ...validDraft, title: '   ' }), '기도 제목은 1자 이상 120자 이하로 입력해 주세요.')
   assert.equal(
     validatePrayerDraft({ ...validDraft, title: '가'.repeat(121) }),

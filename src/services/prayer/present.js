@@ -6,6 +6,15 @@ export const PRAYER_CATEGORIES = [
   { id: 'personal', label: '개인기도' },
 ]
 
+export const PRAYER_CARD_CATEGORIES = [
+  { id: 'spirit', label: '영적' },
+  { id: 'health', label: '건강' },
+  { id: 'identity', label: '정체' },
+  { id: 'path', label: '진로' },
+  { id: 'family', label: '가정' },
+  { id: 'other', label: '기타' },
+]
+
 const LEGACY_CATEGORY_LABELS = {
   family: '가정',
   health: '건강',
@@ -28,7 +37,9 @@ export const PRAYER_VISIBILITY_FILTERS = [
   { id: 'private', label: '비공개' },
 ]
 
-const CATEGORY_LABELS = Object.fromEntries(PRAYER_CATEGORIES.map((item) => [item.id, item.label]))
+const CATEGORY_LABELS = Object.fromEntries(
+  [...PRAYER_CATEGORIES, ...PRAYER_CARD_CATEGORIES].map((item) => [item.id, item.label]),
+)
 
 export function prayerCategoryLabel(category) {
   return CATEGORY_LABELS[category] ?? LEGACY_CATEGORY_LABELS[category] ?? '기타'
@@ -82,8 +93,15 @@ export function formatPrayerDate(value) {
 export function validatePrayerDraft(draft) {
   const category = draft?.category
 
-  if (!PRAYER_CATEGORIES.some((item) => item.id === category)) {
-    return '카테고리를 선택해 주세요.'
+  const allowedCategories = new Set([
+    ...PRAYER_CATEGORIES.map((item) => item.id),
+    ...PRAYER_CARD_CATEGORIES.map((item) => item.id),
+    'church',
+    'mission',
+  ])
+
+  if (!allowedCategories.has(category)) {
+    return '기도카드분류를 선택해 주세요.'
   }
 
   const title = String(draft?.title ?? '').trim()
