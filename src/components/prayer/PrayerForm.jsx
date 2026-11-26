@@ -129,32 +129,6 @@ function PrayerForm({
         다른 회원에게는 작성자가 보이지 않습니다.
       </p>
 
-      <fieldset className="prayer-field">
-        <legend>공개 범위</legend>
-        <label className="prayer-choice">
-          <input
-            type="radio"
-            name="prayer-visibility"
-            checked={draft.visibility === 'public'}
-            onChange={() => update({ visibility: 'public' })}
-          />
-          회원 공개
-        </label>
-        <p className="prayer-form__help">로그인한 회원이 바로 볼 수 있고, 함께 기도할 수 있습니다.</p>
-        <label className="prayer-choice">
-          <input
-            type="radio"
-            name="prayer-visibility"
-            checked={draft.visibility === 'private'}
-            onChange={() => update({ visibility: 'private' })}
-          />
-          비공개
-        </label>
-        <p className="prayer-form__help">
-          작성자와 담임목사만 볼 수 있습니다.
-        </p>
-      </fieldset>
-
       {error ? (
         <p className="prayer-status prayer-status--error" role="alert">
           {error}
