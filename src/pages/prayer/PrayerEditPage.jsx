@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import PrayerCopyGuard from '@/components/prayer/PrayerCopyGuard'
 import PrayerForm from '@/components/prayer/PrayerForm'
 import PrayerHero from '@/components/prayer/PrayerHero'
@@ -87,11 +87,7 @@ function PrayerEditPage() {
   return (
     <PrayerCopyGuard>
       <div className="prayer-page">
-        <PrayerHero compact title="기도 제목 수정">
-          <Link className="prayer-back prayer-back--on-hero" to={PRAYER_PATH}>
-            기도 나눔으로
-          </Link>
-        </PrayerHero>
+        <PrayerHero title="기도 제목 수정" />
         <div className="prayer-page__inner">
           {loading ? <p className="prayer-status">기도 제목을 불러오는 중입니다.</p> : null}
           {message ? <p className="prayer-status prayer-status--error">{message}</p> : null}
