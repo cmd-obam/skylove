@@ -1177,10 +1177,12 @@
 }
 
 .prayer-form--sheet {
-  gap: 0.2rem;
+  box-sizing: border-box;
+  width: 100%;
   max-width: 920px;
+  gap: 0.2rem;
   margin: 0 auto 2.5rem;
-  padding: 0.2rem 0 1rem;
+  padding: 0.2rem 24px 1rem;
 }
 
 .prayer-form--sheet .prayer-field {
@@ -1346,6 +1348,11 @@
 
   .prayer-page__inner {
     width: min(1180px, calc(100% - 1.5rem));
+  }
+
+  .prayer-form--sheet {
+    padding-right: 16px;
+    padding-left: 16px;
   }
 
   .prayer-board__heading {
