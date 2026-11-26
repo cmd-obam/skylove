@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import PrayerCopyGuard from '@/components/prayer/PrayerCopyGuard'
 import PrayerForm from '@/components/prayer/PrayerForm'
+import PrayerHero from '@/components/prayer/PrayerHero'
 import { prayerDetailPath } from '@/data/prayerMenu'
-import { EMPTY_PRAYER_DRAFT, validatePrayerDraft } from '@/services/prayer/present'
+import { applyPrayerCardTitle, EMPTY_PRAYER_DRAFT, validatePrayerDraft } from '@/services/prayer/present'
 import { createPrayerRequest } from '@/services/prayer/requests'
 import './Prayer.css'
 
@@ -15,7 +16,8 @@ function PrayerWritePage() {
 
   const handleSubmit = async (event) => {
     event.preventDefault()
-    const validation = validatePrayerDraft(draft)
+    const nextDraft = applyPrayerCardTitle(draft)
+    const validation = validatePrayerDraft(nextDraft)
 
     if (validation) {
       setError(validation)
@@ -24,7 +26,7 @@ function PrayerWritePage() {
 
     setSubmitting(true)
     setError('')
-    const result = await createPrayerRequest(draft)
+    const result = await createPrayerRequest(nextDraft)
     setSubmitting(false)
 
     if (!result.success) {
@@ -38,6 +40,7 @@ function PrayerWritePage() {
   return (
     <PrayerCopyGuard>
       <div className="prayer-page prayer-page--write">
+        <PrayerHero title="기도 제목 작성" />
         <div className="prayer-page__inner">
           <header className="prayer-write-head">
             <p className="prayer-write-head__crumb">

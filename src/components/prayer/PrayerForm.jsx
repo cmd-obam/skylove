@@ -1,8 +1,9 @@
 import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
+import { useAuth } from '@/contexts/AuthContext'
 import {
   PRAYER_CARD_CATEGORIES,
   PRAYER_CONTENT_MAX,
-  PRAYER_TITLE_MAX,
+  prayerCardTitle,
   prayerCategoryLabel,
 } from '@/services/prayer/present'
 
@@ -15,28 +16,33 @@ function PrayerForm({
   submitLabel,
   showStatus = false,
 }) {
+  const { profile } = useAuth()
   const update = (patch) => onChange({ ...draft, ...patch })
-  const cardOptions = PRAYER_CARD_CATEGORIES.some((item) => item.id === draft.category)
-    ? PRAYER_CARD_CATEGORIES
-    : draft.category
-      ? [{ id: draft.category, label: prayerCategoryLabel(draft.category) }, ...PRAYER_CARD_CATEGORIES]
-      : PRAYER_CARD_CATEGORIES
+  const writerName =
+    profile?.nicknameEnabled && profile?.nickname ? profile.nickname : profile?.name || '회원'
+  const selected = Array.isArray(draft.cardIds) ? draft.cardIds : []
+  const extraOption =
+    draft.category && !PRAYER_CARD_CATEGORIES.some((item) => item.id === draft.category) && selected.length === 0
+      ? [{ id: draft.category, label: prayerCategoryLabel(draft.category) }]
+      : []
+  const cardOptions = [...extraOption, ...PRAYER_CARD_CATEGORIES]
+  const composedTitle = selected.length ? prayerCardTitle(selected, draft.otherText) : ''
+
+  const toggleCard = (id) => {
+    const next = selected.includes(id) ? selected.filter((item) => item !== id) : [...selected, id]
+    update({
+      cardIds: next,
+      category: next[0] || '',
+      otherText: next.includes('other') ? draft.otherText || '' : '',
+    })
+  }
 
   return (
     <form className="prayer-form prayer-form--sheet" onSubmit={onSubmit}>
-      <label className="prayer-field">
-        <span>
-          제목 <span className="prayer-field__required">*</span>
-        </span>
-        <input
-          value={draft.title}
-          onChange={(event) => update({ title: event.target.value })}
-          maxLength={PRAYER_TITLE_MAX}
-          placeholder="제목을 입력해 주세요"
-          autoComplete={AUTOCOMPLETE_OFF}
-          required
-        />
-      </label>
+      <div className="prayer-field">
+        <span>이름</span>
+        <p className="prayer-form__author">{writerName}</p>
+      </div>
 
       <fieldset className="prayer-field">
         <legend>
@@ -47,13 +53,24 @@ function PrayerForm({
             <label key={item.id} className="prayer-card-types__item">
               <input
                 type="checkbox"
-                checked={draft.category === item.id}
-                onChange={() => update({ category: item.id })}
+                checked={selected.includes(item.id)}
+                onChange={() => toggleCard(item.id)}
               />
               {item.label}
             </label>
           ))}
         </div>
+        {selected.includes('other') ? (
+          <input
+            value={draft.otherText || ''}
+            onChange={(event) => update({ otherText: event.target.value })}
+            maxLength={40}
+            placeholder="기타 내용을 입력해 주세요"
+            autoComplete={AUTOCOMPLETE_OFF}
+            required
+          />
+        ) : null}
+        {composedTitle ? <p className="prayer-form__author">{composedTitle}</p> : null}
       </fieldset>
 
       <label className="prayer-field">

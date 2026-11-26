@@ -45,6 +45,60 @@ export function prayerCategoryLabel(category) {
   return CATEGORY_LABELS[category] ?? LEGACY_CATEGORY_LABELS[category] ?? '기타'
 }
 
+export function prayerCardTitle(cardIds, otherText) {
+  const labels = (cardIds || [])
+    .map((id) => (id === 'other' ? String(otherText ?? '').trim() : prayerCategoryLabel(id)))
+    .filter(Boolean)
+
+  if (labels.length === 0) {
+    return ''
+  }
+
+  if (labels.length === 1) {
+    return `${labels[0]}기도`
+  }
+
+  return `${labels.join(' · ')}을 위한 기도`
+}
+
+export function parsePrayerCardSelection(title, _category) {
+  const text = String(title ?? '').trim()
+  const known = new Map(
+    PRAYER_CARD_CATEGORIES.filter((item) => item.id !== 'other').map((item) => [item.label, item.id]),
+  )
+  let parts = []
+
+  if (text.endsWith('을 위한 기도')) {
+    parts = text
+      .slice(0, -'을 위한 기도'.length)
+      .split(' · ')
+      .map((part) => part.trim())
+      .filter(Boolean)
+  } else if (text.endsWith('기도') && !text.includes(' · ')) {
+    parts = [text.slice(0, -'기도'.length).trim()].filter(Boolean)
+  }
+
+  const cardIds = []
+  let otherText = ''
+
+  parts.forEach((part) => {
+    const id = known.get(part)
+
+    if (id) {
+      cardIds.push(id)
+      return
+    }
+
+    if (!cardIds.includes('other')) {
+      cardIds.push('other')
+    }
+
+    otherText = part
+  })
+
+  return { cardIds, otherText }
+}
+
 export function prayerStatusLabel(status) {
   return status === 'answered' ? '응답 완료' : '기도 중'
 }
@@ -92,8 +146,37 @@ export function formatPrayerDate(value) {
   return formatted.replaceAll('-', '.')
 }
 
+export function applyPrayerCardTitle(draft) {
+  const cardIds = Array.isArray(draft?.cardIds) ? draft.cardIds : null
+
+  if (!cardIds || cardIds.length === 0) {
+    return draft
+  }
+
+  const usesCard = cardIds.some((id) => PRAYER_CARD_CATEGORIES.some((item) => item.id === id))
+
+  return {
+    ...draft,
+    category: cardIds[0],
+    title: usesCard ? prayerCardTitle(cardIds, draft.otherText) : draft.title,
+  }
+}
+
 export function validatePrayerDraft(draft) {
-  const category = draft?.category
+  const cardIds = Array.isArray(draft?.cardIds) ? draft.cardIds : null
+
+  if (cardIds) {
+    if (cardIds.length === 0) {
+      return '기도카드분류를 선택해 주세요.'
+    }
+
+    if (cardIds.includes('other') && !String(draft?.otherText ?? '').trim()) {
+      return '기타 내용을 입력해 주세요.'
+    }
+  }
+
+  const next = applyPrayerCardTitle(draft)
+  const category = next?.category
 
   const allowedCategories = new Set([
     ...PRAYER_CATEGORIES.map((item) => item.id),
@@ -106,7 +189,7 @@ export function validatePrayerDraft(draft) {
     return '기도카드분류를 선택해 주세요.'
   }
 
-  const title = String(draft?.title ?? '').trim()
+  const title = String(next?.title ?? '').trim()
 
   if (!title || title.length > PRAYER_TITLE_MAX) {
     return '기도 제목은 1자 이상 120자 이하로 입력해 주세요.'
@@ -163,6 +246,8 @@ export function filtersForStat(stat) {
 
 export const EMPTY_PRAYER_DRAFT = {
   category: '',
+  cardIds: [],
+  otherText: '',
   title: '',
   content: '',
   isAnonymous: false,

@@ -1280,11 +1280,17 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 0.85rem 1.2rem;
-  min-height: 46px;
-  padding: 0.75rem 1rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  background: #ffffff;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-weight: 500;
+}
+
+.prayer-form__author {
+  margin: 0;
+  color: #8aa0b8;
+  font-size: 0.95rem;
   font-weight: 500;
 }
 

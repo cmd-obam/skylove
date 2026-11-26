@@ -4,7 +4,7 @@ import PrayerCopyGuard from '@/components/prayer/PrayerCopyGuard'
 import PrayerForm from '@/components/prayer/PrayerForm'
 import PrayerHero from '@/components/prayer/PrayerHero'
 import { prayerDetailPath } from '@/data/prayerMenu'
-import { validatePrayerDraft } from '@/services/prayer/present'
+import { applyPrayerCardTitle, parsePrayerCardSelection, validatePrayerDraft } from '@/services/prayer/present'
 import { fetchPrayerRequest, updatePrayerRequest } from '@/services/prayer/requests'
 import './Prayer.css'
 
@@ -39,8 +39,12 @@ function PrayerEditPage() {
         return
       }
 
+      const selection = parsePrayerCardSelection(result.prayer.title, result.prayer.category)
+
       setDraft({
         category: result.prayer.category,
+        ...(selection.cardIds.length ? { cardIds: selection.cardIds } : {}),
+        otherText: selection.otherText,
         title: result.prayer.title,
         content: result.prayer.content,
         isAnonymous: result.prayer.isAnonymous,
@@ -59,7 +63,8 @@ function PrayerEditPage() {
 
   const handleSubmit = async (event) => {
     event.preventDefault()
-    const validation = validatePrayerDraft(draft)
+    const nextDraft = applyPrayerCardTitle(draft)
+    const validation = validatePrayerDraft(nextDraft)
 
     if (validation) {
       setError(validation)
@@ -68,7 +73,7 @@ function PrayerEditPage() {
 
     setSubmitting(true)
     setError('')
-    const result = await updatePrayerRequest(prayerId, draft)
+    const result = await updatePrayerRequest(prayerId, nextDraft)
     setSubmitting(false)
 
     if (!result.success) {

@@ -4,6 +4,7 @@ import {
   filtersForStat,
   formatPrayerDate,
   prayerAuthorLabel,
+  prayerCardTitle,
   prayerListStat,
   validatePrayerDraft,
 } from '../src/services/prayer/present.js'
@@ -30,6 +31,21 @@ test('기도 제목 초안은 카테고리와 길이, 공개 범위를 검사한
   )
   assert.equal(validatePrayerDraft({ ...validDraft, content: '' }), '기도 내용은 1자 이상 4000자 이하로 입력해 주세요.')
   assert.equal(validatePrayerDraft({ ...validDraft, visibility: 'hidden' }), '공개 범위를 선택해 주세요.')
+})
+
+test('기도카드 제목은 체크한 순서를 따른다', () => {
+  assert.equal(prayerCardTitle(['spirit']), '영적기도')
+  assert.equal(prayerCardTitle(['spirit', 'health']), '영적 · 건강을 위한 기도')
+  assert.equal(prayerCardTitle(['health', 'spirit']), '건강 · 영적을 위한 기도')
+  assert.equal(prayerCardTitle(['spirit', 'other'], '직장'), '영적 · 직장을 위한 기도')
+  assert.equal(
+    validatePrayerDraft({ ...validDraft, cardIds: [], category: '' }),
+    '기도카드분류를 선택해 주세요.',
+  )
+  assert.equal(
+    validatePrayerDraft({ ...validDraft, cardIds: ['other'], otherText: '  ' }),
+    '기타 내용을 입력해 주세요.',
+  )
 })
 
 test('작성일은 한국 시간 기준으로 표시한다', () => {
