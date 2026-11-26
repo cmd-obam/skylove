@@ -57,6 +57,7 @@ function PrayerDetailPage() {
   const [note, setNote] = useState('')
   const [savingNote, setSavingNote] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [togetherOn, setTogetherOn] = useState(false)
   const noteRef = useRef(null)
 
   useEffect(() => {
@@ -78,6 +79,12 @@ function PrayerDetailPage() {
       }
 
       setPrayer(result.prayer)
+      setTogetherOn(Boolean(result.prayer.viewerParticipating))
+      setComposing(
+        prayerNoteKind(result.prayer.category) === 'together' &&
+          !result.prayer.isOwner &&
+          result.prayer.status !== 'answered',
+      )
       setStatus('ready')
 
       if (prayerNoteKind(result.prayer.category) || result.prayer.canDelete) {
@@ -159,8 +166,15 @@ function PrayerDetailPage() {
 
     setParticipants(people.participants)
     setPrayer((current) =>
-      current ? { ...current, participantCount: people.participants.length } : current,
+      current
+        ? {
+            ...current,
+            participantCount: people.participants.length,
+            viewerParticipating: people.participants.some((person) => person.isMine),
+          }
+        : current,
     )
+    setTogetherOn(true)
     setComposing(false)
     setParticipantMessage('')
   }
@@ -178,16 +192,37 @@ function PrayerDetailPage() {
 
   const noteKind = prayerNoteKind(prayer?.category)
   const isComment = noteKind === 'comment'
+  const guestTogether = noteKind === 'together' && prayer && !prayer.isOwner
+
+  const toggleTogether = () => {
+    setTogetherOn((on) => {
+      const next = !on
+
+      if (next && !composing) {
+        openComposer()
+      }
+
+      return next
+    })
+  }
 
   return (
     <PrayerCopyGuard>
-      <div className="prayer-page">
-        <PrayerHero title="중보기도" />
+      <div className={`prayer-page${guestTogether ? ' prayer-page--guest' : ''}`}>
+        {guestTogether ? null : <PrayerHero title="중보기도" />}
         <div className="prayer-page__inner">
+          {guestTogether ? (
+            <p className="prayer-guest-crumb">
+              <Link to="/">하늘사랑교회</Link>
+              <span aria-hidden="true"> &gt; </span>
+              <Link to={PRAYER_PATH}>중보기도</Link>
+            </p>
+          ) : null}
           {status === 'loading' ? <p className="prayer-status">기도 제목을 불러오는 중입니다.</p> : null}
           {status === 'error' ? <p className="prayer-status prayer-status--error">{message}</p> : null}
           {status === 'ready' && prayer ? (
-            <article className={`prayer-detail${prayer.status === 'answered' ? ' prayer-card--answered' : ''}`}>
+            <article className={`prayer-detail${guestTogether ? ' prayer-detail--guest' : ''}${prayer.status === 'answered' ? ' prayer-card--answered' : ''}`}>
+              {guestTogether ? null : (
               <div className="prayer-detail__tags">
                 <span className="prayer-tag">{prayerCategoryLabel(prayer.category)}</span>
                 <span className={`prayer-tag prayer-tag--${prayer.status}`}>
@@ -197,17 +232,18 @@ function PrayerDetailPage() {
                   {prayerVisibilityLabel(prayer.visibility)}
                 </span>
               </div>
+              )}
               <div className="prayer-detail__title-row">
                 <div className="prayer-detail__heading">
                   <h2 className="prayer-detail__title">{prayer.title}</h2>
                   <p className="prayer-detail__meta">
                     <span>{prayerAuthorLabel(prayer)}</span>
                     <span>{formatPrayerDate(prayer.createdAt)}</span>
-                    <span>함께 기도 {prayer.participantCount}명</span>
+                    {guestTogether ? null : <span>함께 기도 {prayer.participantCount}명</span>}
                   </p>
                 </div>
                 <div className="prayer-detail__toolbar">
-                  {prayer.canEdit ? (
+                  {prayer.canEdit || prayer.isOwner ? (
                     <Link className="prayer-detail__tool" to={prayerEditPath(prayer.id)}>
                       수정
                     </Link>
@@ -242,17 +278,37 @@ function PrayerDetailPage() {
               ) : null}
               {noteKind && !prayer.isOwner && prayer.status !== 'answered' ? (
                 <div className="prayer-detail__answer">
-                  <button
-                    type="button"
-                    className="prayer-button prayer-detail__answer-button"
-                    onClick={openComposer}
-                  >
-                    {isComment ? '댓글달기' : '같이 기도하기'}
-                  </button>
+                  {guestTogether ? (
+                    <button
+                      type="button"
+                      className={`prayer-together${togetherOn ? ' is-active' : ''}`}
+                      aria-pressed={togetherOn}
+                      onClick={toggleTogether}
+                    >
+                      <svg className="prayer-together__heart" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                        <path
+                          fill="#e11d48"
+                          d="M12 20.2s-6.4-4.1-6.4-8.6C5.6 8.8 7.4 7 9.6 7c1.2 0 2.3.6 3 1.6.7-1 1.8-1.6 3-1.6 2.2 0 4 1.8 4 4.6 0 4.5-6.4 8.6-6.6 8.6z"
+                        />
+                      </svg>
+                      함께 기도하기 {prayer.participantCount}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="prayer-button prayer-detail__answer-button"
+                      onClick={openComposer}
+                    >
+                      댓글달기
+                    </button>
+                  )}
                 </div>
               ) : null}
               {noteKind || prayer.canDelete ? (
-                <section className="prayer-manage prayer-manage--admin" aria-label={isComment ? '댓글' : '기도 참여 내역'}>
+                <section
+                  className={`prayer-manage${guestTogether ? ' prayer-together-panel' : ' prayer-manage--admin'}`}
+                  aria-label={isComment ? '댓글' : '기도 참여 내역'}
+                >
                   <h4 className="prayer-manage__subhead prayer-manage__subhead--first">
                     {isComment ? '댓글' : '기도 참여 내역'}
                   </h4>
@@ -265,7 +321,11 @@ function PrayerDetailPage() {
                           value={note}
                           rows={4}
                           maxLength={500}
-                          placeholder={isComment ? '댓글을 적어 주세요.' : '이 제목을 위해 드리는 기도를 적어 주세요.'}
+                          placeholder={
+                            isComment
+                              ? '댓글을 적어 주세요.'
+                              : '함께 나누고 싶은 기도와 격려의 메시지를 작성해 주세요.'
+                          }
                           onChange={(event) => setNote(event.target.value)}
                         />
                       </label>
@@ -273,7 +333,12 @@ function PrayerDetailPage() {
                         <button
                           type="button"
                           className="prayer-button prayer-button--ghost"
-                          onClick={() => setComposing(false)}
+                          onClick={() => {
+                            setComposing(false)
+                            if (!prayer.viewerParticipating) {
+                              setTogetherOn(false)
+                            }
+                          }}
                         >
                           취소
                         </button>
