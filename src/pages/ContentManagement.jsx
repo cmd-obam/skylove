@@ -869,7 +869,17 @@ function ContentManagement() {
               </tbody>
             </table>
           ) : tab === 'posts' ? (
-            <table className="member-management-page__table content-cms-table">
+            <table className="member-management-page__table content-cms-table content-cms-table--select">
+              <colgroup>
+                <col className="content-cms-col-check" />
+                <col className="content-cms-col-no" />
+                <col />
+                <col />
+                <col />
+                <col />
+                <col />
+                <col />
+              </colgroup>
               <thead>
                 <tr>
                   <th scope="col">
@@ -975,7 +985,18 @@ function ContentManagement() {
               </tbody>
             </table>
           ) : (
-            <table className="member-management-page__table content-cms-table">
+            <table className="member-management-page__table content-cms-table content-cms-table--select">
+              <colgroup>
+                <col className="content-cms-col-check" />
+                <col className="content-cms-col-no" />
+                <col />
+                <col />
+                <col />
+                <col />
+                <col />
+                <col />
+                <col />
+              </colgroup>
               <thead>
                 <tr>
                   <th scope="col">
