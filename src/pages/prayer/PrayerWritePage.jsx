@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import PrayerCopyGuard from '@/components/prayer/PrayerCopyGuard'
 import PrayerForm from '@/components/prayer/PrayerForm'
 import { PRAYER_PATH, prayerDetailPath } from '@/data/prayerMenu'
-import { EMPTY_PRAYER_DRAFT, PRAYER_TITLE_MAX, validatePrayerDraft } from '@/services/prayer/present'
+import { EMPTY_PRAYER_DRAFT, validatePrayerDraft } from '@/services/prayer/present'
 import { createPrayerRequest, fetchPrayerAccess } from '@/services/prayer/requests'
 import './Prayer.css'
 
@@ -35,10 +35,7 @@ function PrayerWritePage() {
 
   const handleSubmit = async (event) => {
     event.preventDefault()
-    const title =
-      draft.title.trim() || draft.content.trim().replace(/\s+/g, ' ').slice(0, PRAYER_TITLE_MAX)
-    const nextDraft = { ...draft, title }
-    const validation = validatePrayerDraft(nextDraft)
+    const validation = validatePrayerDraft(draft)
 
     if (validation) {
       setError(validation)
@@ -47,7 +44,7 @@ function PrayerWritePage() {
 
     setSubmitting(true)
     setError('')
-    const result = await createPrayerRequest(nextDraft)
+    const result = await createPrayerRequest(draft)
     setSubmitting(false)
 
     if (!result.success) {
