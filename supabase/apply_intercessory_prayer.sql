@@ -8,7 +8,7 @@
 -- is_senior_pastor / is_pastor_story_designated_writer 를 사용합니다.
 --
 -- 회원 공개(public): 로그인한 회원
--- 비공개(private): 담임목사, 지정 담임목사 계정, 최고관리자, 관리자
+-- 비공개(private): 작성자 본인, 담임목사, 지정 담임목사 계정, 최고관리자
 -- 익명 작성자 실명: 최고관리자만
 -- ============================================================
 
@@ -39,17 +39,27 @@ AS $$
   SELECT
     public.is_prayer_super_admin()
     OR public.is_senior_pastor()
-    OR public.is_pastor_story_designated_writer()
-    OR EXISTS (
-      SELECT 1
-      FROM public.profiles
-      WHERE user_id = public.effective_user_id()
-        AND lower(trim(role)) = 'admin'
+    OR public.is_pastor_story_designated_writer();
+$$;
+
+CREATE OR REPLACE FUNCTION public.can_read_prayer(p_owner uuid, p_visibility text)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT public.effective_user_id() IS NOT NULL
+    AND (
+      coalesce(p_visibility, 'public') <> 'private'
+      OR p_owner = public.effective_user_id()
+      OR public.can_view_private_prayers()
     );
 $$;
 
 REVOKE ALL ON FUNCTION public.is_prayer_super_admin() FROM PUBLIC, anon, authenticated;
 REVOKE ALL ON FUNCTION public.can_view_private_prayers() FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.can_read_prayer(uuid, text) FROM PUBLIC, anon, authenticated;
 
 CREATE OR REPLACE FUNCTION public.prayer_author_label(p_user_id uuid, p_is_anonymous boolean)
 RETURNS text
@@ -192,8 +202,7 @@ CREATE POLICY prayer_requests_select_visible
   USING (
     auth.uid() IS NOT NULL
     AND (
-      visibility = 'public'
-      OR public.can_view_private_prayers()
+      public.can_read_prayer(user_id, visibility)
     )
   );
 
@@ -269,30 +278,18 @@ AS $$
     END AS author_user_id,
     (r.user_id = public.effective_user_id()) AS is_owner,
     (
-      (
-        public.is_prayer_super_admin()
-        OR r.user_id = public.effective_user_id()
-      )
-      AND (
-        r.visibility = 'public'
-        OR public.can_view_private_prayers()
-      )
+      public.is_prayer_super_admin()
+      OR r.user_id = public.effective_user_id()
     ) AS can_edit,
     public.is_prayer_super_admin() AS can_delete,
     (
       public.is_prayer_super_admin()
       OR public.can_view_private_prayers()
-      OR (
-        r.user_id = public.effective_user_id()
-        AND r.visibility = 'public'
-      )
+      OR r.user_id = public.effective_user_id()
     ) AS can_change_status
   FROM public.prayer_requests AS r
   WHERE auth.uid() IS NOT NULL
-    AND (
-      r.visibility = 'public'
-      OR public.can_view_private_prayers()
-    )
+    AND public.can_read_prayer(r.user_id, r.visibility)
     AND (p_id IS NULL OR r.id = p_id)
     AND (
       p_category IS NULL
@@ -324,7 +321,7 @@ AS $$
       OR (
         lower(btrim(p_visibility)) = 'private'
         AND r.visibility = 'private'
-        AND public.can_view_private_prayers()
+        AND public.can_read_prayer(r.user_id, r.visibility)
       )
     )
     AND (
@@ -368,10 +365,7 @@ AS $$
     count(*) FILTER (WHERE r.status = 'answered')::bigint AS answered_count
   FROM public.prayer_requests AS r
   WHERE auth.uid() IS NOT NULL
-    AND (
-      r.visibility = 'public'
-      OR public.can_view_private_prayers()
-    );
+    AND public.can_read_prayer(r.user_id, r.visibility);
 $$;
 
 CREATE OR REPLACE FUNCTION public.get_prayer_access()
@@ -490,7 +484,7 @@ BEGIN
     RAISE EXCEPTION '기도 제목을 찾을 수 없거나 볼 수 없습니다.';
   END IF;
 
-  IF v_row.visibility = 'private' AND NOT public.can_view_private_prayers() THEN
+  IF NOT public.can_read_prayer(v_row.user_id, v_row.visibility) THEN
     RAISE EXCEPTION '기도 제목을 찾을 수 없거나 볼 수 없습니다.';
   END IF;
 
@@ -563,14 +557,14 @@ BEGIN
     RAISE EXCEPTION '기도 제목을 찾을 수 없거나 볼 수 없습니다.';
   END IF;
 
-  IF v_row.visibility = 'private' AND NOT public.can_view_private_prayers() THEN
+  IF NOT public.can_read_prayer(v_row.user_id, v_row.visibility) THEN
     RAISE EXCEPTION '기도 제목을 찾을 수 없거나 볼 수 없습니다.';
   END IF;
 
   IF NOT (
     public.is_prayer_super_admin()
     OR public.can_view_private_prayers()
-    OR (v_row.user_id = v_actor AND v_row.visibility = 'public')
+    OR v_row.user_id = v_actor
   ) THEN
     RAISE EXCEPTION '권한이 없습니다.';
   END IF;
@@ -619,14 +613,15 @@ SET search_path = public
 AS $$
 DECLARE
   v_actor uuid := public.effective_user_id();
+  v_owner uuid;
   v_visibility text;
 BEGIN
   IF v_actor IS NULL THEN
     RAISE EXCEPTION '로그인이 필요합니다.';
   END IF;
 
-  SELECT prayer_requests.visibility
-  INTO v_visibility
+  SELECT prayer_requests.user_id, prayer_requests.visibility
+  INTO v_owner, v_visibility
   FROM public.prayer_requests
   WHERE prayer_requests.id = p_id;
 
@@ -634,7 +629,7 @@ BEGIN
     RAISE EXCEPTION '기도 제목을 찾을 수 없거나 볼 수 없습니다.';
   END IF;
 
-  IF v_visibility = 'private' AND NOT public.can_view_private_prayers() THEN
+  IF NOT public.can_read_prayer(v_owner, v_visibility) THEN
     RAISE EXCEPTION '기도 제목을 찾을 수 없거나 볼 수 없습니다.';
   END IF;
 
@@ -678,6 +673,7 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 DECLARE
+  v_owner uuid;
   v_category text;
   v_visibility text;
 BEGIN
@@ -685,8 +681,8 @@ BEGIN
     RAISE EXCEPTION '로그인이 필요합니다.';
   END IF;
 
-  SELECT prayer_requests.category, prayer_requests.visibility
-  INTO v_category, v_visibility
+  SELECT prayer_requests.user_id, prayer_requests.category, prayer_requests.visibility
+  INTO v_owner, v_category, v_visibility
   FROM public.prayer_requests
   WHERE prayer_requests.id = p_id;
 
@@ -694,7 +690,7 @@ BEGIN
     RAISE EXCEPTION '기도 제목을 찾을 수 없거나 볼 수 없습니다.';
   END IF;
 
-  IF v_visibility = 'private' AND NOT public.can_view_private_prayers() THEN
+  IF NOT public.can_read_prayer(v_owner, v_visibility) THEN
     RAISE EXCEPTION '기도 제목을 찾을 수 없거나 볼 수 없습니다.';
   END IF;
 
@@ -747,7 +743,7 @@ BEGIN
     RAISE EXCEPTION '기도 제목을 찾을 수 없거나 볼 수 없습니다.';
   END IF;
 
-  IF v_visibility = 'private' AND NOT public.can_view_private_prayers() THEN
+  IF NOT public.can_read_prayer(v_owner, v_visibility) THEN
     RAISE EXCEPTION '기도 제목을 찾을 수 없거나 볼 수 없습니다.';
   END IF;
 

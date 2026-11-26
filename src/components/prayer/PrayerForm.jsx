@@ -130,7 +130,7 @@ function PrayerForm({
           비공개
         </label>
         <p className="prayer-form__help">
-          비공개로 전달됩니다. 일반 회원은 작성자 본인이라도 이 글을 다시 열 수 없습니다.
+          작성자와 담임목사만 볼 수 있습니다.
         </p>
       </fieldset>
 

@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import PrayerCopyGuard from '@/components/prayer/PrayerCopyGuard'
 import PrayerForm from '@/components/prayer/PrayerForm'
 import PrayerHero from '@/components/prayer/PrayerHero'
-import { PRAYER_PATH, prayerDetailPath } from '@/data/prayerMenu'
+import { prayerDetailPath } from '@/data/prayerMenu'
 import { validatePrayerDraft } from '@/services/prayer/present'
 import { fetchPrayerRequest, updatePrayerRequest } from '@/services/prayer/requests'
 import './Prayer.css'
@@ -73,11 +73,6 @@ function PrayerEditPage() {
 
     if (!result.success) {
       setError(result.message)
-      return
-    }
-
-    if (draft.visibility === 'private') {
-      navigate(PRAYER_PATH, { replace: true })
       return
     }
 
