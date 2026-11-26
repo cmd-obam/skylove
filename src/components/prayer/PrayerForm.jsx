@@ -2,6 +2,7 @@ import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 import {
   PRAYER_CARD_CATEGORIES,
   PRAYER_CONTENT_MAX,
+  PRAYER_TITLE_MAX,
   prayerCardTitle,
   prayerCategoryLabel,
 } from '@/services/prayer/present'
@@ -22,10 +23,20 @@ function PrayerForm({
       ? [{ id: draft.category, label: prayerCategoryLabel(draft.category) }]
       : []
   const cardOptions = [...extraOption, ...PRAYER_CARD_CATEGORIES]
-  const composedTitle = selected.length ? prayerCardTitle(selected, draft.otherText) : ''
+  const onlyOther = selected.length === 1 && selected[0] === 'other'
+  const composedTitle = selected.length && !onlyOther ? prayerCardTitle(selected, draft.otherText) : ''
 
   const toggleCard = (id) => {
-    const next = selected.includes(id) ? selected.filter((item) => item !== id) : [...selected, id]
+    let next
+
+    if (id === 'other') {
+      next = selected.includes('other') ? [] : ['other']
+    } else if (selected.includes(id)) {
+      next = selected.filter((item) => item !== id)
+    } else {
+      next = [...selected.filter((item) => item !== 'other'), id]
+    }
+
     update({
       cardIds: next,
       category: next[0] || '',
@@ -69,8 +80,8 @@ function PrayerForm({
           <input
             value={draft.otherText || ''}
             onChange={(event) => update({ otherText: event.target.value })}
-            maxLength={40}
-            placeholder="기타 내용을 입력해 주세요"
+            maxLength={PRAYER_TITLE_MAX}
+            placeholder="기도 제목을 작성해 주세요"
             autoComplete={AUTOCOMPLETE_OFF}
           />
         ) : null}

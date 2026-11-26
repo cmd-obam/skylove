@@ -41,6 +41,7 @@ test('기도카드 제목은 체크한 순서를 따른다', () => {
   assert.equal(prayerCardTitle(['path']), '진로를 위한 기도')
   assert.equal(prayerCardTitle(['family']), '가정을 위한 기도')
   assert.equal(prayerCardTitle(['other']), '기타 기도 제목')
+  assert.equal(prayerCardTitle(['other'], '새 직장'), '새 직장')
   assert.equal(prayerCardTitle(['spirit', 'health']), '영적 · 건강을 위한 기도')
   assert.equal(prayerCardTitle(['health', 'spirit']), '건강 · 영적을 위한 기도')
   assert.equal(prayerCardTitle(['spirit', 'other'], '직장'), '영적 · 직장을 위한 기도')
@@ -48,7 +49,11 @@ test('기도카드 제목은 체크한 순서를 따른다', () => {
     validatePrayerDraft({ ...validDraft, cardIds: [], category: '' }),
     '기도카드분류를 선택해 주세요.',
   )
-  assert.equal(validatePrayerDraft({ ...validDraft, cardIds: ['other'], otherText: '  ' }), null)
+  assert.equal(
+    validatePrayerDraft({ ...validDraft, cardIds: ['other'], otherText: '  ' }),
+    '기도 제목을 작성해 주세요.',
+  )
+  assert.equal(validatePrayerDraft({ ...validDraft, cardIds: ['other'], otherText: '새 직장' }), null)
   assert.equal(
     validatePrayerDraft({ ...validDraft, cardIds: ['spirit'], writerName: '  ', isAnonymous: false }),
     '이름을 입력해 주세요.',

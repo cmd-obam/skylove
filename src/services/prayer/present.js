@@ -56,6 +56,10 @@ function objectParticle(word) {
 }
 
 export function prayerCardTitle(cardIds, otherText) {
+  if ((cardIds || []).length === 1 && cardIds[0] === 'other') {
+    return String(otherText ?? '').trim() || '기타 기도 제목'
+  }
+
   const labels = (cardIds || [])
     .map((id) => (id === 'other' ? String(otherText ?? '').trim() || '기타' : prayerCategoryLabel(id)))
     .filter(Boolean)
@@ -79,6 +83,14 @@ export function prayerCardTitle(cardIds, otherText) {
 
 export function parsePrayerCardSelection(title, _category) {
   const text = String(title ?? '').trim()
+
+  if (_category === 'other') {
+    return {
+      cardIds: ['other'],
+      otherText: text === '기타 기도 제목' ? '' : text,
+    }
+  }
+
   const known = new Map(
     PRAYER_CARD_CATEGORIES.filter((item) => item.id !== 'other').map((item) => [item.label, item.id]),
   )
@@ -189,6 +201,10 @@ export function validatePrayerDraft(draft) {
   if (cardIds) {
     if (cardIds.length === 0) {
       return '기도카드분류를 선택해 주세요.'
+    }
+
+    if (cardIds.length === 1 && cardIds[0] === 'other' && !String(draft?.otherText ?? '').trim()) {
+      return '기도 제목을 작성해 주세요.'
     }
   }
 
