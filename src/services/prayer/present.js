@@ -53,14 +53,16 @@ export function prayerVisibilityLabel(visibility) {
   return visibility === 'private' ? '비공개' : '회원 공개'
 }
 
-export function prayerAuthorLabel(prayer) {
+export function prayerAuthorLabel(prayer, options = {}) {
   if (!prayer) {
     return '회원'
   }
 
   if (prayer.isAnonymous) {
-    if (prayer.authorUserId) {
-      return `익명 · ${prayer.authorLabel || '회원'}`
+    const realName = prayer.authorLabel && prayer.authorLabel !== '익명' ? prayer.authorLabel : ''
+
+    if (options.reveal && prayer.authorUserId && realName) {
+      return `익명 · ${realName}`
     }
 
     return '익명'

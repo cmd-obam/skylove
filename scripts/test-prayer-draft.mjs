@@ -38,10 +38,14 @@ test('작성일은 한국 시간 기준으로 표시한다', () => {
   assert.equal(formatPrayerDate(''), '')
 })
 
-test('익명 작성자는 최고관리자에게만 실명이 붙는다', () => {
+test('익명 작성자는 기도 화면에는 익명만 보이고 관리 화면에서만 실명이 붙는다', () => {
   assert.equal(prayerAuthorLabel({ isAnonymous: true, authorLabel: '김성도', authorUserId: null }), '익명')
   assert.equal(
     prayerAuthorLabel({ isAnonymous: true, authorLabel: '김성도', authorUserId: 'user-1' }),
+    '익명',
+  )
+  assert.equal(
+    prayerAuthorLabel({ isAnonymous: true, authorLabel: '김성도', authorUserId: 'user-1' }, { reveal: true }),
     '익명 · 김성도',
   )
   assert.equal(prayerAuthorLabel({ isAnonymous: false, authorLabel: '김성도', authorUserId: null }), '김성도')

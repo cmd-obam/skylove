@@ -850,10 +850,10 @@ function ContentManagement() {
                         <td>
                           {prayer.authorUserId ? (
                             <Link to={getMemberDetailPath(prayer.authorUserId)}>
-                              {prayerAuthorLabel(prayer)}
+                              {prayerAuthorLabel(prayer, { reveal: true })}
                             </Link>
                           ) : (
-                            prayerAuthorLabel(prayer)
+                            prayerAuthorLabel(prayer, { reveal: true })
                           )}
                         </td>
                         <td>{formatDateTime(prayer.createdAt)}</td>
@@ -1098,7 +1098,7 @@ function ContentManagement() {
                       {prayer.title}
                     </Link>
                     <p className="content-cms-card__meta">
-                      {prayerAuthorLabel(prayer)} · {formatDateTime(prayer.createdAt)}
+                      {prayerAuthorLabel(prayer, { reveal: true })} · {formatDateTime(prayer.createdAt)}
                     </p>
                     <p className="content-cms-card__visibility">
                       <span className={`content-cms-status content-cms-status--${visibilityLabel}`}>
