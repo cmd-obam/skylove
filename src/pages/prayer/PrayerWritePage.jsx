@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import Modal from '@/components/common/Modal'
 import PrayerCopyGuard from '@/components/prayer/PrayerCopyGuard'
 import PrayerForm from '@/components/prayer/PrayerForm'
@@ -56,23 +56,15 @@ function PrayerWritePage() {
       <div className="prayer-page prayer-page--write">
         <PrayerHero title="기도 제목 작성" />
         <div className="prayer-page__inner">
-          <header className="prayer-write-head">
-            <p className="prayer-write-head__crumb">
-              <Link to="/">HOME</Link>
-              <span aria-hidden="true"> / </span>
-              <span>기도 제목 작성</span>
-            </p>
-            <h1>기도 제목 작성</h1>
-            <p>함께 나누고 싶은 기도 제목을 남겨주세요. 하늘사랑교회가 함께 기도하겠습니다.</p>
-          </header>
           <PrayerForm
             draft={draft}
             onChange={setDraft}
             onSubmit={handleSubmit}
             submitting={submitting}
             error={error}
-            submitLabel="기도 제목 올리기"
+            submitLabel="기도 요청하기"
             onBack={handleBack}
+            variant="request"
           />
         </div>
         <Modal isOpen={confirmLeave} title="이전 페이지로 돌아갈까요?" onClose={() => setConfirmLeave(false)}>
