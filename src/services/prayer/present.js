@@ -45,9 +45,19 @@ export function prayerCategoryLabel(category) {
   return CATEGORY_LABELS[category] ?? LEGACY_CATEGORY_LABELS[category] ?? '기타'
 }
 
+function objectParticle(word) {
+  const last = String(word ?? '').charCodeAt(String(word ?? '').length - 1)
+
+  if (!last || last < 0xac00 || last > 0xd7a3) {
+    return '를'
+  }
+
+  return (last - 0xac00) % 28 === 0 ? '를' : '을'
+}
+
 export function prayerCardTitle(cardIds, otherText) {
   const labels = (cardIds || [])
-    .map((id) => (id === 'other' ? String(otherText ?? '').trim() : prayerCategoryLabel(id)))
+    .map((id) => (id === 'other' ? String(otherText ?? '').trim() || '기타' : prayerCategoryLabel(id)))
     .filter(Boolean)
 
   if (labels.length === 0) {
@@ -55,10 +65,16 @@ export function prayerCardTitle(cardIds, otherText) {
   }
 
   if (labels.length === 1) {
-    return `${labels[0]}기도`
+    if (labels[0] === '기타') {
+      return '기타 기도 제목'
+    }
+
+    return `${labels[0]}${objectParticle(labels[0])} 위한 기도`
   }
 
-  return `${labels.join(' · ')}을 위한 기도`
+  const last = labels[labels.length - 1]
+
+  return `${labels.slice(0, -1).join(' · ')} · ${last}${objectParticle(last)} 위한 기도`
 }
 
 export function parsePrayerCardSelection(title, _category) {
@@ -68,9 +84,13 @@ export function parsePrayerCardSelection(title, _category) {
   )
   let parts = []
 
-  if (text.endsWith('을 위한 기도')) {
+  if (text === '기타 기도 제목') {
+    return { cardIds: ['other'], otherText: '' }
+  }
+
+  if (/(?:을|를) 위한 기도$/.test(text)) {
     parts = text
-      .slice(0, -'을 위한 기도'.length)
+      .replace(/(?:을|를) 위한 기도$/, '')
       .split(' · ')
       .map((part) => part.trim())
       .filter(Boolean)
@@ -169,10 +189,10 @@ export function validatePrayerDraft(draft) {
     if (cardIds.length === 0) {
       return '기도카드분류를 선택해 주세요.'
     }
+  }
 
-    if (cardIds.includes('other') && !String(draft?.otherText ?? '').trim()) {
-      return '기타 내용을 입력해 주세요.'
-    }
+  if (!draft?.isAnonymous && !String(draft?.writerName ?? '').trim()) {
+    return '이름을 입력해 주세요.'
   }
 
   const next = applyPrayerCardTitle(draft)
@@ -248,6 +268,7 @@ export const EMPTY_PRAYER_DRAFT = {
   category: '',
   cardIds: [],
   otherText: '',
+  writerName: '',
   title: '',
   content: '',
   isAnonymous: false,

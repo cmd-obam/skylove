@@ -13,6 +13,7 @@ const validDraft = {
   category: 'personal',
   title: '가정의 평안',
   content: '가족 모두가 건강하도록 기도합니다.',
+  writerName: '김성도',
   visibility: 'public',
   status: 'praying',
 }
@@ -34,7 +35,12 @@ test('기도 제목 초안은 카테고리와 길이, 공개 범위를 검사한
 })
 
 test('기도카드 제목은 체크한 순서를 따른다', () => {
-  assert.equal(prayerCardTitle(['spirit']), '영적기도')
+  assert.equal(prayerCardTitle(['spirit']), '영적을 위한 기도')
+  assert.equal(prayerCardTitle(['health']), '건강을 위한 기도')
+  assert.equal(prayerCardTitle(['identity']), '정체를 위한 기도')
+  assert.equal(prayerCardTitle(['path']), '진로를 위한 기도')
+  assert.equal(prayerCardTitle(['family']), '가정을 위한 기도')
+  assert.equal(prayerCardTitle(['other']), '기타 기도 제목')
   assert.equal(prayerCardTitle(['spirit', 'health']), '영적 · 건강을 위한 기도')
   assert.equal(prayerCardTitle(['health', 'spirit']), '건강 · 영적을 위한 기도')
   assert.equal(prayerCardTitle(['spirit', 'other'], '직장'), '영적 · 직장을 위한 기도')
@@ -42,9 +48,10 @@ test('기도카드 제목은 체크한 순서를 따른다', () => {
     validatePrayerDraft({ ...validDraft, cardIds: [], category: '' }),
     '기도카드분류를 선택해 주세요.',
   )
+  assert.equal(validatePrayerDraft({ ...validDraft, cardIds: ['other'], otherText: '  ' }), null)
   assert.equal(
-    validatePrayerDraft({ ...validDraft, cardIds: ['other'], otherText: '  ' }),
-    '기타 내용을 입력해 주세요.',
+    validatePrayerDraft({ ...validDraft, cardIds: ['spirit'], writerName: '  ', isAnonymous: false }),
+    '이름을 입력해 주세요.',
   )
 })
 

@@ -164,6 +164,7 @@ export async function createPrayerRequest(draft) {
     p_content: draft.content.trim(),
     p_is_anonymous: Boolean(draft.isAnonymous),
     p_visibility: draft.visibility,
+    p_writer_name: draft.writerName?.trim() || null,
   })
 
   if (error) {
@@ -182,6 +183,7 @@ export async function updatePrayerRequest(id, draft) {
     p_is_anonymous: Boolean(draft.isAnonymous),
     p_visibility: draft.visibility,
     p_status: draft.status,
+    p_writer_name: draft.writerName?.trim() || null,
   })
 
   if (error) {

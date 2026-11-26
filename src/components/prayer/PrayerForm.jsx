@@ -1,5 +1,4 @@
 import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
-import { useAuth } from '@/contexts/AuthContext'
 import {
   PRAYER_CARD_CATEGORIES,
   PRAYER_CONTENT_MAX,
@@ -16,10 +15,7 @@ function PrayerForm({
   submitLabel,
   showStatus = false,
 }) {
-  const { profile } = useAuth()
   const update = (patch) => onChange({ ...draft, ...patch })
-  const writerName =
-    profile?.nicknameEnabled && profile?.nickname ? profile.nickname : profile?.name || '회원'
   const selected = Array.isArray(draft.cardIds) ? draft.cardIds : []
   const extraOption =
     draft.category && !PRAYER_CARD_CATEGORIES.some((item) => item.id === draft.category) && selected.length === 0
@@ -39,10 +35,19 @@ function PrayerForm({
 
   return (
     <form className="prayer-form prayer-form--sheet" onSubmit={onSubmit}>
-      <div className="prayer-field">
-        <span>이름</span>
-        <p className="prayer-form__author">{writerName}</p>
-      </div>
+      <label className="prayer-field">
+        <span>
+          이름 {!draft.isAnonymous ? <span className="prayer-field__required">*</span> : null}
+        </span>
+        <input
+          value={draft.writerName || ''}
+          onChange={(event) => update({ writerName: event.target.value })}
+          maxLength={40}
+          placeholder="이름을 입력해 주세요"
+          autoComplete={AUTOCOMPLETE_OFF}
+          required={!draft.isAnonymous}
+        />
+      </label>
 
       <fieldset className="prayer-field">
         <legend>
@@ -67,7 +72,6 @@ function PrayerForm({
             maxLength={40}
             placeholder="기타 내용을 입력해 주세요"
             autoComplete={AUTOCOMPLETE_OFF}
-            required
           />
         ) : null}
         {composedTitle ? <p className="prayer-form__author">{composedTitle}</p> : null}

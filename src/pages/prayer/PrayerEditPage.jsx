@@ -46,6 +46,7 @@ function PrayerEditPage() {
         ...(selection.cardIds.length ? { cardIds: selection.cardIds } : {}),
         otherText: selection.otherText,
         title: result.prayer.title,
+        writerName: result.prayer.isAnonymous ? '' : result.prayer.authorLabel === '익명' ? '' : result.prayer.authorLabel,
         content: result.prayer.content,
         isAnonymous: result.prayer.isAnonymous,
         visibility: result.prayer.visibility,

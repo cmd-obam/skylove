@@ -6,6 +6,7 @@ import PrayerHero from '@/components/prayer/PrayerHero'
 import { PRAYER_PATH, prayerEditPath } from '@/data/prayerMenu'
 import {
   formatPrayerDate,
+  parsePrayerCardSelection,
   prayerAuthorLabel,
   prayerCategoryLabel,
   prayerStatusLabel,
@@ -17,23 +18,23 @@ import {
   fetchPrayerRequest,
   savePrayerParticipation,
   setPrayerStatus,
+  togglePrayerParticipation,
 } from '@/services/prayer/requests'
 import './Prayer.css'
 
-const COMMENT_CATEGORIES = new Set([
-  'personal',
-  'family',
-  'health',
-  'church',
-  'mission',
-  'other',
+const COMMENT_CATEGORIES = new Set(['personal', 'church', 'mission'])
+const TOGETHER_CATEGORIES = new Set([
+  'intercession',
   'spirit',
+  'health',
   'identity',
   'path',
+  'family',
+  'other',
 ])
 
 function prayerNoteKind(category) {
-  if (category === 'intercession') {
+  if (TOGETHER_CATEGORIES.has(category)) {
     return 'together'
   }
 
@@ -51,13 +52,13 @@ function PrayerDetailPage() {
   const [status, setStatus] = useState('loading')
   const [message, setMessage] = useState('')
   const [pending, setPending] = useState(false)
+  const [joining, setJoining] = useState(false)
   const [participants, setParticipants] = useState([])
   const [participantMessage, setParticipantMessage] = useState('')
   const [composing, setComposing] = useState(false)
   const [note, setNote] = useState('')
   const [savingNote, setSavingNote] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
-  const [togetherOn, setTogetherOn] = useState(false)
   const noteRef = useRef(null)
 
   useEffect(() => {
@@ -79,12 +80,6 @@ function PrayerDetailPage() {
       }
 
       setPrayer(result.prayer)
-      setTogetherOn(Boolean(result.prayer.viewerParticipating))
-      setComposing(
-        prayerNoteKind(result.prayer.category) === 'together' &&
-          !result.prayer.isOwner &&
-          result.prayer.status !== 'answered',
-      )
       setStatus('ready')
 
       if (prayerNoteKind(result.prayer.category) || result.prayer.canDelete) {
@@ -165,18 +160,30 @@ function PrayerDetailPage() {
     }
 
     setParticipants(people.participants)
+    setComposing(false)
+    setNote('')
+    setParticipantMessage('')
+  }
+
+  const handleJoin = async () => {
+    setJoining(true)
+    const result = await togglePrayerParticipation(prayer.id)
+    setJoining(false)
+
+    if (!result.success) {
+      setMessage(result.message)
+      return
+    }
+
     setPrayer((current) =>
       current
         ? {
             ...current,
-            participantCount: people.participants.length,
-            viewerParticipating: people.participants.some((person) => person.isMine),
+            viewerParticipating: result.participating,
+            participantCount: Math.max(0, current.participantCount + (result.participating ? 1 : -1)),
           }
         : current,
     )
-    setTogetherOn(true)
-    setComposing(false)
-    setParticipantMessage('')
   }
 
   const handleDelete = async () => {
@@ -192,39 +199,35 @@ function PrayerDetailPage() {
 
   const noteKind = prayerNoteKind(prayer?.category)
   const isComment = noteKind === 'comment'
-  const guestTogether = noteKind === 'together' && prayer && !prayer.isOwner
+  const categoryBadges = prayer
+    ? (() => {
+        const selection = parsePrayerCardSelection(prayer.title, prayer.category)
 
-  const toggleTogether = () => {
-    setTogetherOn((on) => {
-      const next = !on
+        if (selection.cardIds.length === 0) {
+          return [prayerCategoryLabel(prayer.category)]
+        }
 
-      if (next && !composing) {
-        openComposer()
-      }
-
-      return next
-    })
-  }
+        return selection.cardIds.map((id) =>
+          id === 'other' && selection.otherText ? selection.otherText : prayerCategoryLabel(id),
+        )
+      })()
+    : []
+  const notes = participants.filter((person) => person.message)
+  const showTogetherForm = noteKind === 'together' && prayer && !prayer.isOwner && prayer.status !== 'answered'
 
   return (
     <PrayerCopyGuard>
-      <div className={`prayer-page${guestTogether ? ' prayer-page--guest' : ''}`}>
-        {guestTogether ? null : <PrayerHero title="중보기도" />}
+      <div className="prayer-page">
+        <PrayerHero title="중보기도" />
         <div className="prayer-page__inner">
-          {guestTogether ? (
-            <p className="prayer-guest-crumb">
-              <Link to="/">하늘사랑교회</Link>
-              <span aria-hidden="true"> &gt; </span>
-              <Link to={PRAYER_PATH}>중보기도</Link>
-            </p>
-          ) : null}
           {status === 'loading' ? <p className="prayer-status">기도 제목을 불러오는 중입니다.</p> : null}
           {status === 'error' ? <p className="prayer-status prayer-status--error">{message}</p> : null}
           {status === 'ready' && prayer ? (
-            <article className={`prayer-detail${guestTogether ? ' prayer-detail--guest' : ''}${prayer.status === 'answered' ? ' prayer-card--answered' : ''}`}>
-              {guestTogether ? null : (
+            <article className={`prayer-detail${prayer.status === 'answered' ? ' prayer-card--answered' : ''}`}>
               <div className="prayer-detail__tags">
-                <span className="prayer-tag">{prayerCategoryLabel(prayer.category)}</span>
+                {categoryBadges.map((label, index) => (
+                  <span key={`${label}-${index}`} className="prayer-tag">{label}</span>
+                ))}
                 <span className={`prayer-tag prayer-tag--${prayer.status}`}>
                   {prayerStatusLabel(prayer.status)}
                 </span>
@@ -232,14 +235,12 @@ function PrayerDetailPage() {
                   {prayerVisibilityLabel(prayer.visibility)}
                 </span>
               </div>
-              )}
               <div className="prayer-detail__title-row">
                 <div className="prayer-detail__heading">
                   <h2 className="prayer-detail__title">{prayer.title}</h2>
                   <p className="prayer-detail__meta">
                     <span>{prayerAuthorLabel(prayer)}</span>
                     <span>{formatPrayerDate(prayer.createdAt)}</span>
-                    {guestTogether ? null : <span>함께 기도 {prayer.participantCount}명</span>}
                   </p>
                 </div>
                 <div className="prayer-detail__toolbar">
@@ -276,43 +277,34 @@ function PrayerDetailPage() {
                   </button>
                 </div>
               ) : null}
-              {noteKind && !prayer.isOwner && prayer.status !== 'answered' ? (
+              {noteKind === 'together' ? (
                 <div className="prayer-detail__answer">
-                  {guestTogether ? (
-                    <button
-                      type="button"
-                      className={`prayer-together${togetherOn ? ' is-active' : ''}`}
-                      aria-pressed={togetherOn}
-                      onClick={toggleTogether}
-                    >
-                      <svg className="prayer-together__heart" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-                        <path
-                          fill="#e11d48"
-                          d="M12 20.2s-6.4-4.1-6.4-8.6C5.6 8.8 7.4 7 9.6 7c1.2 0 2.3.6 3 1.6.7-1 1.8-1.6 3-1.6 2.2 0 4 1.8 4 4.6 0 4.5-6.4 8.6-6.6 8.6z"
-                        />
-                      </svg>
-                      함께 기도하기 {prayer.participantCount}
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      className="prayer-button prayer-detail__answer-button"
-                      onClick={openComposer}
-                    >
-                      댓글달기
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    className={`prayer-join${prayer.viewerParticipating ? ' is-active' : ''}`}
+                    aria-pressed={prayer.viewerParticipating}
+                    disabled={joining || prayer.status === 'answered'}
+                    onClick={handleJoin}
+                  >
+                    {joining
+                      ? '반영하는 중'
+                      : `${prayer.viewerParticipating ? '🙏 함께 기도했어요' : '🙏 함께 기도하기'} ${prayer.participantCount}`}
+                  </button>
+                </div>
+              ) : null}
+              {isComment && !prayer.isOwner && prayer.status !== 'answered' ? (
+                <div className="prayer-detail__answer">
+                  <button type="button" className="prayer-button prayer-detail__answer-button" onClick={openComposer}>
+                    댓글달기
+                  </button>
                 </div>
               ) : null}
               {noteKind || prayer.canDelete ? (
-                <section
-                  className={`prayer-manage${guestTogether ? ' prayer-together-panel' : ' prayer-manage--admin'}`}
-                  aria-label={isComment ? '댓글' : '기도 참여 내역'}
-                >
+                <section className="prayer-manage prayer-manage--admin" aria-label={isComment ? '댓글' : '기도 참여 내역'}>
                   <h4 className="prayer-manage__subhead prayer-manage__subhead--first">
                     {isComment ? '댓글' : '기도 참여 내역'}
                   </h4>
-                  {composing ? (
+                  {composing || showTogetherForm ? (
                     <form className="prayer-pray-form" onSubmit={handlePray}>
                       <label className="prayer-field">
                         {isComment ? '댓글' : '함께 드리는 기도'}
@@ -335,9 +327,7 @@ function PrayerDetailPage() {
                           className="prayer-button prayer-button--ghost"
                           onClick={() => {
                             setComposing(false)
-                            if (!prayer.viewerParticipating) {
-                              setTogetherOn(false)
-                            }
+                            setNote('')
                           }}
                         >
                           취소
@@ -351,14 +341,14 @@ function PrayerDetailPage() {
                   {participantMessage ? (
                     <p className="prayer-status prayer-status--error">{participantMessage}</p>
                   ) : null}
-                  {participants.length === 0 && !composing ? (
+                  {notes.length === 0 && !composing && !showTogetherForm ? (
                     <p className="prayer-status">
                       {isComment ? '아직 댓글이 없습니다.' : '아직 참여한 회원이 없습니다.'}
                     </p>
                   ) : null}
-                  {participants.length > 0 ? (
+                  {notes.length > 0 ? (
                     <ul className="prayer-participants">
-                      {participants.map((person) => (
+                      {notes.map((person) => (
                         <li key={person.userId}>
                           <div className="prayer-participants__meta">
                             <span>{person.displayName}</span>

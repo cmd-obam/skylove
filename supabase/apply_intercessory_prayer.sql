@@ -100,6 +100,7 @@ CREATE TABLE IF NOT EXISTS public.prayer_requests (
   title text NOT NULL,
   content text NOT NULL,
   is_anonymous boolean NOT NULL DEFAULT false,
+  writer_name text,
   visibility text NOT NULL DEFAULT 'public',
   status text NOT NULL DEFAULT 'praying',
   created_at timestamptz NOT NULL DEFAULT now(),
@@ -121,6 +122,7 @@ CREATE TABLE IF NOT EXISTS public.prayer_participants (
   prayer_id uuid NOT NULL REFERENCES public.prayer_requests (id) ON DELETE CASCADE,
   user_id uuid NOT NULL REFERENCES auth.users (id) ON DELETE CASCADE,
   message text,
+  prayed boolean NOT NULL DEFAULT false,
   created_at timestamptz NOT NULL DEFAULT now(),
   CONSTRAINT prayer_participants_unique UNIQUE (prayer_id, user_id),
   CONSTRAINT prayer_participants_message_len
@@ -140,8 +142,14 @@ CREATE INDEX IF NOT EXISTS prayer_requests_user_id_idx
 CREATE INDEX IF NOT EXISTS prayer_participants_prayer_id_idx
   ON public.prayer_participants (prayer_id);
 
+ALTER TABLE public.prayer_requests
+  ADD COLUMN IF NOT EXISTS writer_name text;
+
 ALTER TABLE public.prayer_participants
   ADD COLUMN IF NOT EXISTS message text;
+
+ALTER TABLE public.prayer_participants
+  ADD COLUMN IF NOT EXISTS prayed boolean NOT NULL DEFAULT false;
 
 DO $$
 BEGIN
@@ -264,14 +272,19 @@ AS $$
       SELECT count(*)::bigint
       FROM public.prayer_participants AS pp
       WHERE pp.prayer_id = r.id
+        AND pp.prayed
     ) AS participant_count,
     EXISTS (
       SELECT 1
       FROM public.prayer_participants AS pp
       WHERE pp.prayer_id = r.id
         AND pp.user_id = public.effective_user_id()
+        AND pp.prayed
     ) AS viewer_participating,
-    public.prayer_author_label(r.user_id, r.is_anonymous) AS author_label,
+    CASE
+      WHEN r.is_anonymous THEN public.prayer_author_label(r.user_id, true)
+      ELSE coalesce(nullif(btrim(r.writer_name), ''), public.prayer_author_label(r.user_id, false))
+    END AS author_label,
     CASE
       WHEN public.is_prayer_super_admin() THEN r.user_id
       ELSE NULL
@@ -389,7 +402,8 @@ CREATE OR REPLACE FUNCTION public.create_prayer_request(
   p_title text,
   p_content text,
   p_is_anonymous boolean,
-  p_visibility text
+  p_visibility text,
+  p_writer_name text DEFAULT NULL
 )
 RETURNS uuid
 LANGUAGE plpgsql
@@ -402,6 +416,7 @@ DECLARE
   v_title text := btrim(coalesce(p_title, ''));
   v_content text := btrim(coalesce(p_content, ''));
   v_visibility text := lower(btrim(coalesce(p_visibility, '')));
+  v_writer_name text := nullif(btrim(coalesce(p_writer_name, '')), '');
   v_id uuid;
 BEGIN
   IF v_actor IS NULL THEN
@@ -430,6 +445,7 @@ BEGIN
     title,
     content,
     is_anonymous,
+    writer_name,
     visibility,
     status
   )
@@ -439,6 +455,7 @@ BEGIN
     v_title,
     v_content,
     coalesce(p_is_anonymous, false),
+    v_writer_name,
     v_visibility,
     'praying'
   )
@@ -455,7 +472,8 @@ CREATE OR REPLACE FUNCTION public.update_prayer_request(
   p_content text,
   p_is_anonymous boolean,
   p_visibility text,
-  p_status text
+  p_status text,
+  p_writer_name text DEFAULT NULL
 )
 RETURNS uuid
 LANGUAGE plpgsql
@@ -470,6 +488,7 @@ DECLARE
   v_content text := btrim(coalesce(p_content, ''));
   v_visibility text := lower(btrim(coalesce(p_visibility, '')));
   v_status text := lower(btrim(coalesce(p_status, '')));
+  v_writer_name text := nullif(btrim(coalesce(p_writer_name, '')), '');
 BEGIN
   IF v_actor IS NULL THEN
     RAISE EXCEPTION '로그인이 필요합니다.';
@@ -521,6 +540,7 @@ BEGIN
     title = v_title,
     content = v_content,
     is_anonymous = coalesce(p_is_anonymous, false),
+    writer_name = v_writer_name,
     visibility = v_visibility,
     status = v_status
   WHERE prayer_requests.id = p_id;
@@ -638,21 +658,26 @@ BEGIN
     FROM public.prayer_participants
     WHERE prayer_id = p_id
       AND user_id = v_actor
+      AND prayed
   ) THEN
-    DELETE FROM public.prayer_participants
+    UPDATE public.prayer_participants
+    SET prayed = false
     WHERE prayer_id = p_id
       AND user_id = v_actor;
+
+    DELETE FROM public.prayer_participants
+    WHERE prayer_id = p_id
+      AND user_id = v_actor
+      AND prayed = false
+      AND message IS NULL;
 
     RETURN false;
   END IF;
 
-  BEGIN
-    INSERT INTO public.prayer_participants (prayer_id, user_id)
-    VALUES (p_id, v_actor);
-  EXCEPTION
-    WHEN unique_violation THEN
-      RETURN true;
-  END;
+  INSERT INTO public.prayer_participants (prayer_id, user_id, prayed)
+  VALUES (p_id, v_actor, true)
+  ON CONFLICT (prayer_id, user_id) DO UPDATE
+  SET prayed = true;
 
   RETURN true;
 END;
@@ -708,6 +733,7 @@ BEGIN
     (pp.user_id = public.effective_user_id()) AS is_mine
   FROM public.prayer_participants AS pp
   WHERE pp.prayer_id = p_id
+    AND pp.message IS NOT NULL
   ORDER BY pp.created_at DESC;
 END;
 $$;
@@ -759,8 +785,8 @@ BEGIN
     RAISE EXCEPTION '작성자는 응답 완료로 기도를 마무리합니다.';
   END IF;
 
-  INSERT INTO public.prayer_participants (prayer_id, user_id, message)
-  VALUES (p_id, v_actor, v_message)
+  INSERT INTO public.prayer_participants (prayer_id, user_id, message, prayed)
+  VALUES (p_id, v_actor, v_message, false)
   ON CONFLICT (prayer_id, user_id) DO UPDATE
   SET message = EXCLUDED.message,
       created_at = now();
@@ -770,8 +796,8 @@ $$;
 REVOKE ALL ON FUNCTION public.list_prayer_requests(text, text, text, text, boolean, integer, integer, uuid) FROM PUBLIC, anon;
 REVOKE ALL ON FUNCTION public.get_prayer_stats() FROM PUBLIC, anon;
 REVOKE ALL ON FUNCTION public.get_prayer_access() FROM PUBLIC, anon;
-REVOKE ALL ON FUNCTION public.create_prayer_request(text, text, text, boolean, text) FROM PUBLIC, anon;
-REVOKE ALL ON FUNCTION public.update_prayer_request(uuid, text, text, text, boolean, text, text) FROM PUBLIC, anon;
+REVOKE ALL ON FUNCTION public.create_prayer_request(text, text, text, boolean, text, text) FROM PUBLIC, anon;
+REVOKE ALL ON FUNCTION public.update_prayer_request(uuid, text, text, text, boolean, text, text, text) FROM PUBLIC, anon;
 REVOKE ALL ON FUNCTION public.set_prayer_status(uuid, text) FROM PUBLIC, anon;
 REVOKE ALL ON FUNCTION public.delete_prayer_request(uuid) FROM PUBLIC, anon;
 REVOKE ALL ON FUNCTION public.toggle_prayer_participation(uuid) FROM PUBLIC, anon;
@@ -781,8 +807,8 @@ REVOKE ALL ON FUNCTION public.save_prayer_participation(uuid, text) FROM PUBLIC,
 GRANT EXECUTE ON FUNCTION public.list_prayer_requests(text, text, text, text, boolean, integer, integer, uuid) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.get_prayer_stats() TO authenticated;
 GRANT EXECUTE ON FUNCTION public.get_prayer_access() TO authenticated;
-GRANT EXECUTE ON FUNCTION public.create_prayer_request(text, text, text, boolean, text) TO authenticated;
-GRANT EXECUTE ON FUNCTION public.update_prayer_request(uuid, text, text, text, boolean, text, text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.create_prayer_request(text, text, text, boolean, text, text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.update_prayer_request(uuid, text, text, text, boolean, text, text, text) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.set_prayer_status(uuid, text) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.delete_prayer_request(uuid) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.toggle_prayer_participation(uuid) TO authenticated;
