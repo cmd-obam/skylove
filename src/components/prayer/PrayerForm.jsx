@@ -15,6 +15,7 @@ function PrayerForm({
   error,
   submitLabel,
   showStatus = false,
+  onBack,
 }) {
   const update = (patch) => onChange({ ...draft, ...patch })
   const selected = Array.isArray(draft.cardIds) ? draft.cardIds : []
@@ -146,9 +147,21 @@ function PrayerForm({
         </p>
       ) : null}
 
-      <button type="submit" className="prayer-button prayer-button--sheet" disabled={submitting}>
-        {submitting ? '저장하는 중' : submitLabel}
-      </button>
+      <div className="prayer-form__actions">
+        {onBack ? (
+          <button
+            type="button"
+            className="prayer-button prayer-button--ghost prayer-button--sheet"
+            onClick={onBack}
+            disabled={submitting}
+          >
+            뒤로가기
+          </button>
+        ) : null}
+        <button type="submit" className="prayer-button prayer-button--sheet" disabled={submitting}>
+          {submitting ? '저장하는 중' : submitLabel}
+        </button>
+      </div>
     </form>
   )
 }

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import Modal from '@/components/common/Modal'
 import PrayerCopyGuard from '@/components/prayer/PrayerCopyGuard'
 import PrayerForm from '@/components/prayer/PrayerForm'
 import PrayerHero from '@/components/prayer/PrayerHero'
@@ -13,6 +14,10 @@ function PrayerWritePage() {
   const [draft, setDraft] = useState(EMPTY_PRAYER_DRAFT)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [confirmLeave, setConfirmLeave] = useState(false)
+  const hasWrittenText = [draft.writerName, draft.otherText, draft.content].some(
+    (value) => String(value ?? '').length > 0,
+  )
 
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -37,6 +42,15 @@ function PrayerWritePage() {
     navigate(prayerDetailPath(result.id), { replace: true })
   }
 
+  const handleBack = () => {
+    if (hasWrittenText) {
+      setConfirmLeave(true)
+      return
+    }
+
+    navigate(-1)
+  }
+
   return (
     <PrayerCopyGuard>
       <div className="prayer-page prayer-page--write">
@@ -58,8 +72,20 @@ function PrayerWritePage() {
             submitting={submitting}
             error={error}
             submitLabel="기도 제목 올리기"
+            onBack={handleBack}
           />
         </div>
+        <Modal isOpen={confirmLeave} title="이전 페이지로 돌아갈까요?" onClose={() => setConfirmLeave(false)}>
+          <p>이전 페이지로 이동하면 작성된 내용은 사라집니다.</p>
+          <div className="prayer-inline-actions">
+            <button type="button" className="prayer-button" onClick={() => navigate(-1)}>
+              확인
+            </button>
+            <button type="button" className="prayer-button prayer-button--ghost" onClick={() => setConfirmLeave(false)}>
+              취소
+            </button>
+          </div>
+        </Modal>
       </div>
     </PrayerCopyGuard>
   )

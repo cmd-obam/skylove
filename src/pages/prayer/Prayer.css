@@ -1287,10 +1287,18 @@
   margin: 0;
 }
 
-.prayer-form--sheet .prayer-button--sheet {
+.prayer-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.55rem;
   margin-top: 1.35rem;
+}
+
+.prayer-form--sheet .prayer-form__actions .prayer-button--sheet {
+  margin-top: 0;
   border-radius: 6px !important;
-  min-width: 168px;
+  min-width: 132px;
   min-height: 44px;
   box-shadow: none;
 }
