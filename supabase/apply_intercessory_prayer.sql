@@ -125,6 +125,7 @@ CREATE TABLE IF NOT EXISTS public.prayer_participants (
   prayed boolean NOT NULL DEFAULT false,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz,
+  edited_at timestamptz,
   CONSTRAINT prayer_participants_unique UNIQUE (prayer_id, user_id),
   CONSTRAINT prayer_participants_message_len
     CHECK (message IS NULL OR char_length(btrim(message)) BETWEEN 1 AND 500)
@@ -154,6 +155,9 @@ ALTER TABLE public.prayer_participants
 
 ALTER TABLE public.prayer_participants
   ADD COLUMN IF NOT EXISTS updated_at timestamptz;
+
+ALTER TABLE public.prayer_participants
+  ADD COLUMN IF NOT EXISTS edited_at timestamptz;
 
 DO $$
 BEGIN
@@ -739,7 +743,7 @@ BEGIN
     pp.updated_at,
     pp.message,
     (pp.user_id = public.effective_user_id()) AS is_mine,
-    (pp.updated_at IS NOT NULL AND pp.updated_at > pp.created_at + interval '2 seconds') AS is_edited,
+    (pp.edited_at IS NOT NULL) AS is_edited,
     (
       SELECT CASE lower(trim(prof.role))
         WHEN 'super_admin' THEN '관리자'
@@ -801,12 +805,20 @@ BEGIN
     RAISE EXCEPTION '응답이 완료된 기도에는 남길 수 없습니다.';
   END IF;
 
-  INSERT INTO public.prayer_participants (prayer_id, user_id, message, prayed, updated_at)
-  VALUES (p_id, v_actor, v_message, false, NULL)
+  INSERT INTO public.prayer_participants (prayer_id, user_id, message, prayed, updated_at, edited_at)
+  VALUES (p_id, v_actor, v_message, false, NULL, NULL)
   ON CONFLICT (prayer_id, user_id) DO UPDATE
   SET message = EXCLUDED.message,
+      edited_at = CASE
+        WHEN public.prayer_participants.message IS NOT NULL
+         AND btrim(public.prayer_participants.message) IS DISTINCT FROM EXCLUDED.message
+        THEN now()
+        ELSE public.prayer_participants.edited_at
+      END,
       updated_at = CASE
-        WHEN public.prayer_participants.message IS DISTINCT FROM EXCLUDED.message THEN now()
+        WHEN public.prayer_participants.message IS NOT NULL
+         AND btrim(public.prayer_participants.message) IS DISTINCT FROM EXCLUDED.message
+        THEN now()
         ELSE public.prayer_participants.updated_at
       END;
 END;
@@ -847,6 +859,7 @@ BEGIN
 
   UPDATE public.prayer_participants
   SET message = NULL,
+      edited_at = NULL,
       updated_at = now()
   WHERE prayer_id = p_id
     AND user_id = v_target;
