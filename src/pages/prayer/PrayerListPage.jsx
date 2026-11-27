@@ -404,20 +404,20 @@ function PrayerListPage({ mode = 'board' }) {
                       return (
                         <article key={prayer.id} className="prayer-feed">
                           <div className="prayer-feed__top">
-                            <div>
-                              <p className="prayer-feed__author">{prayerAuthorLabel(prayer)}</p>
-                              <p className="prayer-feed__date">{formatPrayerDateWords(prayer.createdAt)}</p>
-                            </div>
+                            <Link className="prayer-feed__title" to={prayerDetailPath(prayer.id)}>
+                              <h3>
+                                <NewPostBadge createdAt={prayer.createdAt} />
+                                {prayer.title}
+                              </h3>
+                            </Link>
                             <span className={`prayer-feed__badge${answered ? ' is-answered' : ''}`}>
                               {answered ? '응답 완료' : '진행 중'}
                             </span>
                           </div>
                           <Link className="prayer-feed__body" to={prayerDetailPath(prayer.id)}>
-                            <h3>
-                              <NewPostBadge createdAt={prayer.createdAt} />
-                              {prayer.title}
-                            </h3>
-                            <p>{prayer.content}</p>
+                            <p className="prayer-feed__author">{prayerAuthorLabel(prayer)}</p>
+                            <p className="prayer-feed__date">{formatPrayerDateWords(prayer.createdAt)}</p>
+                            <p className="prayer-feed__excerpt">{prayer.content}</p>
                           </Link>
                           <footer className="prayer-feed__footer">
                             <p>
