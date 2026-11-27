@@ -2,7 +2,6 @@ import { AUTOCOMPLETE_OFF } from '@/constants/autocomplete'
 import {
   PRAYER_CARD_CATEGORIES,
   PRAYER_CONTENT_MAX,
-  PRAYER_TITLE_MAX,
   prayerCardTitle,
   prayerCategoryLabel,
 } from '@/services/prayer/present'
@@ -146,16 +145,6 @@ function PrayerForm({
               })}
             </div>
             <p className="prayer-request__hint">여러 개를 선택할 수 있습니다.</p>
-            {selected.includes('other') ? (
-              <input
-                className="prayer-request__other"
-                value={draft.otherText || ''}
-                onChange={(event) => update({ otherText: event.target.value })}
-                maxLength={PRAYER_TITLE_MAX}
-                placeholder="기도 제목을 작성해 주세요"
-                autoComplete={AUTOCOMPLETE_OFF}
-              />
-            ) : null}
           </div>
         </div>
 
@@ -234,15 +223,6 @@ function PrayerForm({
             </label>
           ))}
         </div>
-        {selected.includes('other') ? (
-          <input
-            value={draft.otherText || ''}
-            onChange={(event) => update({ otherText: event.target.value })}
-            maxLength={PRAYER_TITLE_MAX}
-            placeholder="기도 제목을 작성해 주세요"
-            autoComplete={AUTOCOMPLETE_OFF}
-          />
-        ) : null}
         {composedTitle ? <p className="prayer-form__author">{composedTitle}</p> : null}
       </fieldset>
 

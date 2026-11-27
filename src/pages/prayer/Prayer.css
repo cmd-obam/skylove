@@ -1585,8 +1585,7 @@
 }
 
 .prayer-request__name > input,
-.prayer-form--request textarea,
-.prayer-request__other {
+.prayer-form--request textarea {
   width: 100%;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
@@ -1595,8 +1594,7 @@
   font: inherit;
 }
 
-.prayer-request__name > input,
-.prayer-request__other {
+.prayer-request__name > input {
   min-height: 44px;
   padding: 0 0.85rem;
 }
@@ -1613,8 +1611,7 @@
 }
 
 .prayer-request__name > input::placeholder,
-.prayer-form--request textarea::placeholder,
-.prayer-request__other::placeholder {
+.prayer-form--request textarea::placeholder {
   color: #9ca3af;
 }
 
@@ -1678,10 +1675,6 @@
 
 .prayer-request__count {
   text-align: right;
-}
-
-.prayer-request__other {
-  margin-top: 0.65rem;
 }
 
 .prayer-request__actions {

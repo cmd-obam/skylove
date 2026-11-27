@@ -49,10 +49,7 @@ test('기도카드 제목은 체크한 순서를 따른다', () => {
     validatePrayerDraft({ ...validDraft, cardIds: [], category: '' }),
     '기도카드분류를 선택해 주세요.',
   )
-  assert.equal(
-    validatePrayerDraft({ ...validDraft, cardIds: ['other'], otherText: '  ' }),
-    '기도 제목을 작성해 주세요.',
-  )
+  assert.equal(validatePrayerDraft({ ...validDraft, cardIds: ['other'], otherText: '  ' }), null)
   assert.equal(validatePrayerDraft({ ...validDraft, cardIds: ['other'], otherText: '새 직장' }), null)
   assert.equal(
     validatePrayerDraft({ ...validDraft, cardIds: ['spirit'], writerName: '  ', isAnonymous: false }),

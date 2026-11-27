@@ -203,10 +203,6 @@ export function validatePrayerDraft(draft) {
     if (cardIds.length === 0) {
       return '기도카드분류를 선택해 주세요.'
     }
-
-    if (cardIds.length === 1 && cardIds[0] === 'other' && !String(draft?.otherText ?? '').trim()) {
-      return '기도 제목을 작성해 주세요.'
-    }
   }
 
   if (!draft?.isAnonymous && !String(draft?.writerName ?? '').trim()) {
