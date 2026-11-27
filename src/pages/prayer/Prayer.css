@@ -1804,6 +1804,12 @@
   list-style: none;
 }
 
+.prayer-notes .prayer-note {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+}
+
 .prayer-note {
   padding: 0.85rem 0.15rem;
   border-top: 1px solid #e6ebf2;
