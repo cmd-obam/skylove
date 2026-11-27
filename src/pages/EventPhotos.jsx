@@ -171,6 +171,7 @@ function EventPhotos() {
                         title={post.title}
                         commentsCount={post.commentsCount}
                         hasImage={Boolean(post.hasImage || post.thumbnail)}
+                        createdAt={post.createdAt || post.date}
                       />
                     </h2>
                     <p className="event-photos-card__meta">

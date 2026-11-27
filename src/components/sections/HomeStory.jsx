@@ -5,6 +5,7 @@ import { FiBookOpen } from 'react-icons/fi'
 import { HiOutlineSpeakerphone } from 'react-icons/hi'
 import { HOME_STORY, HOME_STORY_SOURCES } from '@/data/home'
 import HomeSectionHeader from '@/components/sections/HomeSectionHeader'
+import NewPostBadge from '@/components/board/NewPostBadge'
 import { useAuth } from '@/contexts/AuthContext'
 import { fetchHomeStoryPosts } from '@/services/board/posts'
 import { getAlbumThumbnailSrc } from '@/utils/albumThumbnail'
@@ -99,6 +100,7 @@ function mapStoryCard(source, post) {
     listPath: source.listPath,
     empty: false,
     title: post.title || '제목 없음',
+    createdAt: post.createdAt || post.date,
     excerpt: getPostExcerpt(post.content),
     dateLabel: formatStoryDate(post, source.dateSuffix),
     imageSrc: resolveStoryImageSrc(post),
@@ -147,7 +149,10 @@ function FeaturedStoryCard({ card }) {
         <StoryBadge sourceId={card.id} label={card.badgeLabel} tone="solid" />
         <div className="home-story__featured-copy">
           {card.dateLabel ? <p className="home-story__featured-date">{card.dateLabel}</p> : null}
-          <h3 className="home-story__featured-title">{card.title}</h3>
+          <h3 className="home-story__featured-title">
+            <NewPostBadge createdAt={card.createdAt} />
+            {card.title}
+          </h3>
           {card.excerpt ? <p className="home-story__featured-excerpt">{card.excerpt}</p> : null}
         </div>
       </div>
@@ -186,7 +191,10 @@ function StoryCard({ card }) {
       </div>
       <div className="home-story__card-body">
         {card.dateLabel ? <p className="home-story__card-date">{card.dateLabel}</p> : null}
-        <h3 className="home-story__card-title">{card.title}</h3>
+        <h3 className="home-story__card-title">
+          <NewPostBadge createdAt={card.createdAt} />
+          {card.title}
+        </h3>
         {card.excerpt ? <p className="home-story__card-description">{card.excerpt}</p> : null}
         <span className="home-story__more-link">자세히 보기 →</span>
       </div>

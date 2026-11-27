@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { FiChevronLeft, FiChevronRight, FiSearch } from 'react-icons/fi'
 import { Link, useLocation } from 'react-router-dom'
+import NewPostBadge from '@/components/board/NewPostBadge'
 import PrayerCopyGuard from '@/components/prayer/PrayerCopyGuard'
 import PrayerHero from '@/components/prayer/PrayerHero'
 import PrayerStats from '@/components/prayer/PrayerStats'
@@ -367,6 +368,7 @@ function PrayerListPage({ mode = 'board' }) {
                             <td>{number}</td>
                             <td className="prayer-table__title">
                               <Link className="prayer-table__link" to={prayerDetailPath(prayer.id)}>
+                                <NewPostBadge createdAt={prayer.createdAt} />
                                 {prayer.title}
                               </Link>
                             </td>
@@ -411,7 +413,10 @@ function PrayerListPage({ mode = 'board' }) {
                             </span>
                           </div>
                           <Link className="prayer-feed__body" to={prayerDetailPath(prayer.id)}>
-                            <h3>{prayer.title}</h3>
+                            <h3>
+                              <NewPostBadge createdAt={prayer.createdAt} />
+                              {prayer.title}
+                            </h3>
                             <p>{prayer.content}</p>
                           </Link>
                           <footer className="prayer-feed__footer">

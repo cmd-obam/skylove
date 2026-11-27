@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { FiChevronLeft, FiChevronRight, FiFileText, FiHeart } from 'react-icons/fi'
 import Breadcrumb from '@/components/Breadcrumb'
 import BoardWriteButton from '@/components/board/BoardWriteButton'
+import NewPostBadge from '@/components/board/NewPostBadge'
 import { useBoardPostList } from '@/hooks/useBoardPostList'
 import useIsMobile from '@/hooks/useIsMobile'
 import { getWorshipWordBoard } from '@/data/worshipWord'
@@ -180,7 +181,10 @@ function WorshipWordList({ boardKey }) {
                     )}
                   </div>
                   <div className="worship-word-card__body">
-                    <h2 className="worship-word-card__title">{post.title}</h2>
+                    <h2 className="worship-word-card__title">
+                      <NewPostBadge createdAt={post.createdAt || post.date} />
+                      {post.title}
+                    </h2>
                     <p className="worship-word-card__meta">
                       <span>작성자 : {getPostAuthor(post)}</span>
                       <span className="worship-word-card__meta-sep" aria-hidden="true">

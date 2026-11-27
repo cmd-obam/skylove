@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import { FiChevronDown, FiHeart, FiUser } from 'react-icons/fi'
 import BoardPageHeader from '@/components/board/BoardPageHeader'
+import NewPostBadge from '@/components/board/NewPostBadge'
 import BoardPostAdminBar from '@/components/board/BoardPostAdminBar'
 import PostCopyright from '@/components/board/PostCopyright'
 import { useAuth } from '@/contexts/AuthContext'
@@ -125,7 +126,10 @@ function WorshipWordDetail({ boardKey }) {
       <article className="worship-word-detail" aria-label={`${board.title} 상세`}>
         <header className="worship-word-detail__header">
           <div className="worship-word-detail__title-row">
-            <h2 className="worship-word-detail__title">{post.title}</h2>
+            <h2 className="worship-word-detail__title">
+              <NewPostBadge createdAt={post.createdAt || post.date} />
+              {post.title}
+            </h2>
             <div className="worship-word-detail__header-actions">
               <BoardPostAdminBar
                 postType={board.postType}

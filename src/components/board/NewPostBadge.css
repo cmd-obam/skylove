@@ -1,0 +1,11 @@
+.new-post-badge {
+  display: inline-block;
+  margin-right: 0.35em;
+  color: #e11d48;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  vertical-align: 0.08em;
+  white-space: nowrap;
+}

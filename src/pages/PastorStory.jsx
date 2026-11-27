@@ -116,6 +116,7 @@ function PastorStory() {
                         title={post.title}
                         commentsCount={post.commentsCount}
                         hasImage={Boolean(post.hasImage || post.thumbnail)}
+                        createdAt={post.createdAt || post.date}
                       />
                     </Link>
                   </td>

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import Modal from '@/components/common/Modal'
+import NewPostBadge from '@/components/board/NewPostBadge'
 import PrayerCopyGuard from '@/components/prayer/PrayerCopyGuard'
 import PrayerHero from '@/components/prayer/PrayerHero'
 import { PRAYER_PATH, prayerEditPath } from '@/data/prayerMenu'
@@ -270,7 +271,10 @@ function PrayerDetailPage() {
               </div>
               <div className="prayer-detail__title-row">
                 <div className="prayer-detail__heading">
-                  <h2 className="prayer-detail__title">{prayer.title}</h2>
+                  <h2 className="prayer-detail__title">
+                    <NewPostBadge createdAt={prayer.createdAt} />
+                    {prayer.title}
+                  </h2>
                   <p className="prayer-detail__meta">
                     <span>{prayerAuthorLabel(prayer)}</span>
                     <span>{formatPrayerDate(prayer.createdAt)}</span>

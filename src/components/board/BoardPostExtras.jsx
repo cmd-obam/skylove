@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import NewPostBadge from '@/components/board/NewPostBadge'
 import { FiImage } from 'react-icons/fi'
 import { formatBoardDate } from '@/utils/formatBoardDate'
 import { boardPostPublicId } from '@/utils/boardPostRef'
@@ -63,6 +64,7 @@ function BoardPostExtras({
                     ) : null}
                     <div className="board-post-extras__related-body">
                       <p className="board-post-extras__related-post-title">
+                        <NewPostBadge createdAt={relatedPost.createdAt || relatedPost.date} />
                         {relatedPost.title}
                         {showImageIcon ? (
                           <FiImage

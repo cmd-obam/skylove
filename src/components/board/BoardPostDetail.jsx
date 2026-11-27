@@ -2,6 +2,7 @@ import { useCallback, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { FiHeart, FiImage } from 'react-icons/fi'
 import BoardPageHeader from '@/components/board/BoardPageHeader'
+import NewPostBadge from '@/components/board/NewPostBadge'
 import BoardPostExtras from '@/components/board/BoardPostExtras'
 import BoardPostComments from '@/components/board/BoardPostComments'
 import BoardPostAdminBar from '@/components/board/BoardPostAdminBar'
@@ -115,7 +116,10 @@ function BoardPostDetail({
       <article className="church-news-detail" aria-label={ariaLabel}>
         <header className="church-news-detail__header">
           <div className="church-news-detail__title-row">
-            <h2 className="church-news-detail__title">{post.title}</h2>
+            <h2 className="church-news-detail__title">
+              <NewPostBadge createdAt={post.createdAt || post.date} />
+              {post.title}
+            </h2>
             <div className="church-news-detail__header-actions">
               <BoardPostAdminBar
                 postType={postType}
