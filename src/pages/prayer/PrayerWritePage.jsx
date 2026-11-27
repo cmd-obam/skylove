@@ -67,7 +67,7 @@ function PrayerWritePage() {
             variant="request"
           />
         </div>
-        <Modal isOpen={confirmLeave} title="이전 페이지로 돌아갈까요?" onClose={() => setConfirmLeave(false)}>
+        <Modal isOpen={confirmLeave} title="이전 페이지로 돌아갈까요?" align="center" onClose={() => setConfirmLeave(false)}>
           <p>이전 페이지로 이동하면 작성된 내용은 사라집니다.</p>
           <div className="prayer-inline-actions">
             <button type="button" className="prayer-button" onClick={() => navigate(-1)}>

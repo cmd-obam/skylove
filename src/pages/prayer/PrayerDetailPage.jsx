@@ -498,7 +498,7 @@ function PrayerDetailPage() {
             </article>
           ) : null}
         </div>
-        <Modal isOpen={Boolean(noteToDelete)} title="남긴 기도를 삭제할까요?" onClose={() => setNoteToDelete(null)}>
+        <Modal isOpen={Boolean(noteToDelete)} title="남긴 기도를 삭제할까요?" align="center" onClose={() => setNoteToDelete(null)}>
           <p>삭제하면 이 기도 글은 참여 내역에서 사라집니다.</p>
           <div className="prayer-inline-actions">
             <button type="button" className="prayer-button prayer-button--danger" onClick={handleDeleteNote} disabled={savingNote}>
@@ -509,7 +509,7 @@ function PrayerDetailPage() {
             </button>
           </div>
         </Modal>
-        <Modal isOpen={confirmDelete} title="기도 제목을 삭제할까요?" onClose={() => setConfirmDelete(false)}>
+        <Modal isOpen={confirmDelete} title="기도 제목을 삭제할까요?" align="center" onClose={() => setConfirmDelete(false)}>
           <p>기도 제목과 참여 기록을 삭제합니다.</p>
           <div className="prayer-inline-actions">
             <button type="button" className="prayer-button prayer-button--danger" onClick={handleDelete}>

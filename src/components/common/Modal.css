@@ -140,6 +140,33 @@
   text-decoration: underline;
 }
 
+.modal__dialog--center .modal__header {
+  position: relative;
+  justify-content: center;
+}
+
+.modal__dialog--center .modal__title {
+  width: 100%;
+  padding-right: 36px;
+  padding-left: 36px;
+  text-align: center;
+}
+
+.modal__dialog--center .modal__close {
+  position: absolute;
+  top: 50%;
+  right: 1rem;
+  transform: translateY(-50%);
+}
+
+.modal__dialog--center .modal__body {
+  text-align: center;
+}
+
+.modal__dialog--center .prayer-inline-actions {
+  justify-content: center;
+}
+
 @media (max-width: 768px) {
   .modal {
     padding: 1rem;

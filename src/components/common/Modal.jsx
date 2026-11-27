@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import './Modal.css'
 
-function Modal({ isOpen, title, onClose, children }) {
+function Modal({ isOpen, title, onClose, children, align = 'start' }) {
   useEffect(() => {
     if (!isOpen) {
       return undefined
@@ -29,7 +29,7 @@ function Modal({ isOpen, title, onClose, children }) {
   return (
     <div className="modal" role="presentation" onClick={onClose}>
       <div
-        className="modal__dialog"
+        className={align === 'center' ? 'modal__dialog modal__dialog--center' : 'modal__dialog'}
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
