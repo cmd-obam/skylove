@@ -1850,46 +1850,26 @@
 .prayer-note__head {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.5rem;
   min-width: 0;
 }
 
-.prayer-note__avatar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: #e5e7eb;
-  color: #4b5563;
-  font-size: 0.85rem;
-  font-weight: 700;
-  flex: none;
-}
-
-.prayer-note--staff .prayer-note__avatar {
-  background: #ffffff;
-  color: #d4a017;
-}
-
 .prayer-note__name {
+  flex: 0 0 auto;
   color: #1f2937;
+  font-size: 0.92rem;
   font-weight: 700;
-}
-
-.prayer-note__badge {
-  padding: 0.12rem 0.45rem;
-  border-radius: 999px;
-  background: #e8f1fb;
-  color: #3b82f6;
-  font-size: 0.75rem;
-  font-weight: 700;
+  line-height: 1.4;
+  white-space: nowrap;
 }
 
 .prayer-note__date {
+  flex: 0 1 auto;
+  min-width: 0;
   color: #9ca3af;
-  font-size: 0.85rem;
+  font-size: 0.78rem;
+  line-height: 1.4;
   white-space: nowrap;
 }
 
@@ -1954,8 +1934,9 @@
 }
 
 .prayer-note__body {
-  margin: 0.4rem 0 0 2.45rem;
+  margin: 0.4rem 0 0;
   color: #374151;
+  font-size: 0.92rem;
   line-height: 1.65;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -2138,6 +2119,18 @@
     width: 100%;
     max-width: 100%;
     white-space: normal;
+  }
+
+  .prayer-note__name {
+    font-size: 0.88rem;
+  }
+
+  .prayer-note__date {
+    font-size: 0.75rem;
+  }
+
+  .prayer-note__body {
+    font-size: 0.88rem;
   }
 
   .prayer-board__title {

@@ -365,21 +365,10 @@ function PrayerDetailPage() {
                       {notes.map((person) => {
                         const canEdit = person.isMine && prayer.status !== 'answered'
                         const canRemove = (person.isMine || prayer.canDelete) && prayer.status !== 'answered'
-                        const showStaff = Boolean(person.staffLabel) && person.isMine
                         return (
-                          <li key={person.userId} className={showStaff ? 'prayer-note prayer-note--staff' : 'prayer-note'}>
+                          <li key={person.userId} className="prayer-note">
                             <div className="prayer-note__head">
-                              <span className="prayer-note__avatar" aria-hidden="true">
-                                {showStaff ? (
-                                  <svg viewBox="0 0 24 24" width="16" height="16">
-                                    <path fill="currentColor" d="M5 16.5 3.2 8.6l4.3 3.2L12 6.2l4.5 5.6 4.3-3.2L19 16.5H5z" />
-                                  </svg>
-                                ) : (
-                                  person.displayName.slice(0, 1)
-                                )}
-                              </span>
                               <span className="prayer-note__name">{person.displayName}</span>
-                              {showStaff ? <span className="prayer-note__badge">{person.staffLabel}</span> : null}
                               <span className="prayer-note__date">
                                 {formatPrayerDate(person.createdAt)}
                                 {person.edited ? ' (수정됨)' : ''}
