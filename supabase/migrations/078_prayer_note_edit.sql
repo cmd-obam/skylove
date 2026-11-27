@@ -1,6 +1,9 @@
 -- 기도 참여 글을 작성자가 수정·삭제할 수 있게 하고, 수정 여부와 운영 배지를 돌려준다.
 
 ALTER TABLE public.prayer_participants
+  ADD COLUMN IF NOT EXISTS prayed boolean NOT NULL DEFAULT false;
+
+ALTER TABLE public.prayer_participants
   ADD COLUMN IF NOT EXISTS updated_at timestamptz;
 
 DROP FUNCTION IF EXISTS public.list_prayer_participants(uuid);
