@@ -9,7 +9,7 @@ export const PRAYER_CATEGORIES = [
 export const PRAYER_CARD_CATEGORIES = [
   { id: 'spirit', label: '영적' },
   { id: 'health', label: '건강' },
-  { id: 'identity', label: '정치' },
+  { id: 'identity', label: '경제' },
   { id: 'path', label: '진로' },
   { id: 'family', label: '가정' },
   { id: 'other', label: '기타' },
@@ -95,6 +95,7 @@ export function parsePrayerCardSelection(title, _category) {
     PRAYER_CARD_CATEGORIES.filter((item) => item.id !== 'other').map((item) => [item.label, item.id]),
   )
   known.set('정체', 'identity')
+  known.set('정치', 'identity')
   let parts = []
 
   if (text === '기타 기도 제목') {

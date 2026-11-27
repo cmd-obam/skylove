@@ -37,7 +37,7 @@ test('기도 제목 초안은 카테고리와 길이, 공개 범위를 검사한
 test('기도카드 제목은 체크한 순서를 따른다', () => {
   assert.equal(prayerCardTitle(['spirit']), '영적을 위한 기도')
   assert.equal(prayerCardTitle(['health']), '건강을 위한 기도')
-  assert.equal(prayerCardTitle(['identity']), '정치를 위한 기도')
+  assert.equal(prayerCardTitle(['identity']), '경제를 위한 기도')
   assert.equal(prayerCardTitle(['path']), '진로를 위한 기도')
   assert.equal(prayerCardTitle(['family']), '가정을 위한 기도')
   assert.equal(prayerCardTitle(['other']), '기타 기도 제목')
