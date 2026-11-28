@@ -927,13 +927,18 @@ function ContentManagement() {
                           <Link to={getBoardDetailPath(post.post_type, boardPostPublicId(post))}>{post.title}</Link>
                           {post.has_admin_note ? <span className="content-cms-note-dot" title="관리자 메모" /> : null}
                         </td>
-                        <td>
+                        <td className="content-cms-name-cell">
                           {post.author_id ? (
-                            <Link to={getMemberDetailPath(post.author_id)}>
+                            <Link
+                              to={getMemberDetailPath(post.author_id)}
+                              title={toPublicAuthorLabel(post.writer, post.author_id)}
+                            >
                               {toPublicAuthorLabel(post.writer, post.author_id)}
                             </Link>
                           ) : (
-                            toPublicAuthorLabel(post.writer, post.author_id)
+                            <span title={toPublicAuthorLabel(post.writer, post.author_id)}>
+                              {toPublicAuthorLabel(post.writer, post.author_id)}
+                            </span>
                           )}
                         </td>
                         <td>{formatDateTime(post.created_at)}</td>
@@ -1087,13 +1092,18 @@ function ContentManagement() {
                             <span className="content-cms-note-dot" title="관리자 메모" />
                           ) : null}
                         </td>
-                        <td>
+                        <td className="content-cms-name-cell">
                           {comment.user_id ? (
-                            <Link to={getMemberDetailPath(comment.user_id)}>
+                            <Link
+                              to={getMemberDetailPath(comment.user_id)}
+                              title={toPublicAuthorLabel(comment.author_name, comment.user_id)}
+                            >
                               {toPublicAuthorLabel(comment.author_name, comment.user_id)}
                             </Link>
                           ) : (
-                            toPublicAuthorLabel(comment.author_name, comment.user_id)
+                            <span title={toPublicAuthorLabel(comment.author_name, comment.user_id)}>
+                              {toPublicAuthorLabel(comment.author_name, comment.user_id)}
+                            </span>
                           )}
                         </td>
                         <td>{formatDateTime(comment.created_at)}</td>

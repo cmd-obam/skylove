@@ -360,6 +360,22 @@
   width: 88px;
 }
 
+.member-management-page__table tbody td.content-cms-name-cell {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.member-management-page__table tbody td.content-cms-name-cell a,
+.member-management-page__table tbody td.content-cms-name-cell span {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
 .content-cms-table--select .content-cms-col-date {
   width: 156px;
 }
