@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FiChevronDown, FiPlus, FiSearch } from 'react-icons/fi'
-import PurgedPostsModal from '@/components/admin/PurgedPostsModal'
 import MemberMypageLayout from '@/components/auth/MemberMypageLayout'
 import { useAuth } from '@/contexts/AuthContext'
 import { useSuperAdmin } from '@/hooks/useSuperAdmin'
@@ -224,7 +223,7 @@ function ContentManagement() {
     sort: 'newest',
   })
   const [appliedFilters, setAppliedFilters] = useState(draftFilters)
-  const [purgedModalOpen, setPurgedModalOpen] = useState(false)
+  const [trashOpen, setTrashOpen] = useState(false)
   const [advancedSearchOpen, setAdvancedSearchOpen] = useState(false)
   const [writeMenuOpen, setWriteMenuOpen] = useState(false)
   const writeMenuRef = useRef(null)
@@ -263,6 +262,7 @@ function ContentManagement() {
 
     const filters = {
       ...appliedFilters,
+      status: trashOpen && tab === 'posts' ? 'deleted' : appliedFilters.status,
       limit: pageSize,
       offset: (page - 1) * pageSize,
       dateFrom: appliedFilters.period === 'custom' ? appliedFilters.dateFrom : '',
@@ -287,7 +287,7 @@ function ContentManagement() {
     setTotalCount(result.totalCount)
     setSelectedIds([])
     setLoading(false)
-  }, [appliedFilters, page, pageSize, tab])
+  }, [appliedFilters, page, pageSize, tab, trashOpen])
 
   useEffect(() => {
     loadRows()
@@ -325,11 +325,6 @@ function ContentManagement() {
     )
   }
 
-  const invertSelection = () => {
-    const selected = new Set(selectedIds)
-    setSelectedIds(rows.filter((row) => !selected.has(row.id)).map((row) => row.id))
-  }
-
   const applySearch = (event) => {
     event.preventDefault()
     setPage(1)
@@ -352,12 +347,12 @@ function ContentManagement() {
       return
     }
 
-    if (action === 'purge' || action === 'hard_delete' || action === 'permanent_delete') {
+    if (action === 'restore') {
       setConfirmState({
-        action: 'purge',
-        title: '영구삭제 확인',
-        confirmLabel: '영구삭제',
-        message: `선택한 ${tab === 'posts' ? '게시글' : '댓글'} ${selectedIds.length}개를 영구삭제하시겠습니까?\n삭제목록으로 이동되며 일반 목록에서는 보이지 않습니다. 최고관리자만 삭제목록에서 복원할 수 있습니다.`,
+        action: 'restore',
+        title: '복구 확인',
+        confirmLabel: '복구',
+        message: `선택한 게시글 ${selectedIds.length}개를 복구하시겠습니까?`,
       })
       return
     }
@@ -380,7 +375,8 @@ function ContentManagement() {
   }
 
   const confirmBulkDelete = async () => {
-    const action = confirmState?.action === 'purge' ? 'purge' : 'trash'
+    const action =
+      confirmState?.action === 'restore' ? 'restore' : confirmState?.action === 'purge' ? 'purge' : 'trash'
     setIsSubmitting(true)
     const result =
       tab === 'posts'
@@ -397,7 +393,8 @@ function ContentManagement() {
 
     setFeedback({
       type: 'success',
-      message: action === 'purge' ? '영구삭제되었습니다.' : '휴지통으로 이동했습니다.',
+      message:
+        action === 'restore' ? '복구했습니다.' : action === 'purge' ? '영구삭제되었습니다.' : '휴지통으로 이동했습니다.',
     })
     await loadRows()
   }
@@ -512,6 +509,7 @@ function ContentManagement() {
               className={`content-cms-tabs__button${tab === 'comments' ? ' is-active' : ''}`}
               onClick={() => {
                 setTab('comments')
+                setTrashOpen(false)
                 setPage(1)
                 setSelectedIds([])
               }}
@@ -527,6 +525,7 @@ function ContentManagement() {
               className={`content-cms-tabs__button${tab === 'prayers' ? ' is-active' : ''}`}
               onClick={() => {
                 setTab('prayers')
+                setTrashOpen(false)
                 setPage(1)
                 setSelectedIds([])
               }}
@@ -710,58 +709,43 @@ function ContentManagement() {
         </form>
 
         <div className="content-cms-actions">
-          {tab === 'prayers' ? <div className="content-cms-actions__bulk" /> : (
+          {tab === 'prayers' || !isSuperAdmin ? <div className="content-cms-actions__bulk" /> : (
           <div className="content-cms-actions__bulk">
             <button type="button" onClick={toggleSelectAll}>
               {allSelected ? '전체해제' : '전체선택'}
             </button>
-            <button type="button" onClick={invertSelection}>
-              역선택
-            </button>
-            <button type="button" onClick={() => runBulkAction('public')} disabled={isSubmitting}>
-              선택공개
-            </button>
-            <button type="button" onClick={() => runBulkAction('hide')} disabled={isSubmitting}>
-              선택숨김
-            </button>
-            <button type="button" onClick={() => runBulkAction('restore')} disabled={isSubmitting}>
-              선택복구
-            </button>
+            {trashOpen ? (
+              <button type="button" onClick={() => runBulkAction('restore')} disabled={isSubmitting}>
+                선택 복구
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="content-cms-actions__delete"
+                onClick={() => runBulkAction('trash')}
+                disabled={isSubmitting}
+              >
+                선택 삭제
+              </button>
+            )}
             {isSuperAdmin && tab === 'posts' ? (
-              <>
-                <button
-                  type="button"
-                  className="is-danger"
-                  onClick={() => runBulkAction('purge')}
-                  disabled={isSubmitting}
-                >
-                  영구삭제
-                </button>
-                <button
-                  type="button"
-                  className="content-cms-actions__purge-list"
-                  onClick={() => setPurgedModalOpen(true)}
-                  disabled={isSubmitting}
-                >
-                  삭제목록
-                </button>
-              </>
+              <button
+                type="button"
+                className={trashOpen ? 'is-active' : ''}
+                aria-pressed={trashOpen}
+                onClick={() => {
+                  setTrashOpen((current) => !current)
+                  setPage(1)
+                  setSelectedIds([])
+                }}
+              >
+                휴지통
+              </button>
             ) : null}
           </div>
           )}
 
           <div className="content-cms-actions__meta">
-            {tab === 'prayers' ? null : (
-            <button
-              type="button"
-              className="content-cms-actions__delete"
-              onClick={() => runBulkAction('trash')}
-              disabled={isSubmitting}
-            >
-              선택 삭제
-            </button>
-            )}
-
             <div className="content-cms-actions__pager" aria-label="페이지 이동">
               <button
                 type="button"
@@ -904,7 +888,7 @@ function ContentManagement() {
                 ) : rows.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="member-management-page__empty">
-                      검색 결과가 없습니다.
+                      {trashOpen ? '휴지통이 비어 있습니다.' : '검색 결과가 없습니다.'}
                     </td>
                   </tr>
                 ) : (
@@ -965,16 +949,25 @@ function ContentManagement() {
                             </button>
                             <button
                               type="button"
-                              className="member-management-page__action-button member-management-page__action-button--danger"
+                              className={`member-management-page__action-button${trashOpen ? '' : ' member-management-page__action-button--danger'}`}
                               onClick={() => {
                                 setSelectedIds([post.id])
-                                setConfirmState({
-                                  action: 'trash',
-                                  message: `「${post.title}」 게시글을 삭제하시겠습니까?\n휴지통으로 이동되며 15일 후 자동 영구삭제됩니다.`,
-                                })
+                                setConfirmState(
+                                  trashOpen
+                                    ? {
+                                        action: 'restore',
+                                        title: '복구 확인',
+                                        confirmLabel: '복구',
+                                        message: `「${post.title}」 게시글을 복구하시겠습니까?`,
+                                      }
+                                    : {
+                                        action: 'trash',
+                                        message: `「${post.title}」 게시글을 삭제하시겠습니까?\n휴지통으로 이동되며 15일 후 자동 영구삭제됩니다.`,
+                                      },
+                                )
                               }}
                             >
-                              삭제
+                              {trashOpen ? '복구' : '삭제'}
                             </button>
                           </div>
                         </td>
@@ -1131,7 +1124,9 @@ function ContentManagement() {
               })
             )
           ) : rows.length === 0 ? (
-            <p className="member-management-page__empty">검색 결과가 없습니다.</p>
+            <p className="member-management-page__empty">
+              {trashOpen ? '휴지통이 비어 있습니다.' : '검색 결과가 없습니다.'}
+            </p>
           ) : tab === 'posts' ? (
             rows.map((post, index) => (
               <article key={post.id} className="content-cms-card">
@@ -1214,12 +1209,6 @@ function ContentManagement() {
           onSave={saveNote}
         />
 
-        <PurgedPostsModal
-          isOpen={purgedModalOpen}
-          onClose={() => setPurgedModalOpen(false)}
-          onFeedback={setFeedback}
-          onChanged={loadRows}
-        />
       </div>
     </MemberMypageLayout>
   )

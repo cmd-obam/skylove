@@ -263,6 +263,12 @@
   color: #b91c1c;
 }
 
+.content-cms-actions__bulk button.is-active {
+  border-color: #93c5fd;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
 .content-cms-actions__purge-list {
   border-color: #bfdbfe !important;
   color: #1d4ed8 !important;
