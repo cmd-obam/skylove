@@ -103,6 +103,8 @@ CREATE TABLE IF NOT EXISTS public.prayer_requests (
   writer_name text,
   visibility text NOT NULL DEFAULT 'public',
   status text NOT NULL DEFAULT 'praying',
+  deleted_at timestamptz,
+  deleted_by uuid,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
   CONSTRAINT prayer_requests_category_check
@@ -146,6 +148,16 @@ CREATE INDEX IF NOT EXISTS prayer_participants_prayer_id_idx
 
 ALTER TABLE public.prayer_requests
   ADD COLUMN IF NOT EXISTS writer_name text;
+
+ALTER TABLE public.prayer_requests
+  ADD COLUMN IF NOT EXISTS deleted_at timestamptz;
+
+ALTER TABLE public.prayer_requests
+  ADD COLUMN IF NOT EXISTS deleted_by uuid;
+
+CREATE INDEX IF NOT EXISTS prayer_requests_deleted_at_idx
+  ON public.prayer_requests (deleted_at DESC)
+  WHERE deleted_at IS NOT NULL;
 
 ALTER TABLE public.prayer_participants
   ADD COLUMN IF NOT EXISTS message text;
@@ -310,6 +322,7 @@ AS $$
     ) AS can_change_status
   FROM public.prayer_requests AS r
   WHERE auth.uid() IS NOT NULL
+    AND r.deleted_at IS NULL
     AND public.can_read_prayer(r.user_id, r.visibility)
     AND (p_id IS NULL OR r.id = p_id)
     AND (
@@ -386,6 +399,7 @@ AS $$
     count(*) FILTER (WHERE r.status = 'answered')::bigint AS answered_count
   FROM public.prayer_requests AS r
   WHERE auth.uid() IS NOT NULL
+    AND r.deleted_at IS NULL
     AND public.can_read_prayer(r.user_id, r.visibility);
 $$;
 
@@ -622,8 +636,13 @@ BEGIN
     RAISE EXCEPTION '권한이 없습니다.';
   END IF;
 
-  DELETE FROM public.prayer_requests
-  WHERE prayer_requests.id = p_id;
+  UPDATE public.prayer_requests
+  SET
+    deleted_at = now(),
+    deleted_by = public.effective_user_id(),
+    updated_at = now()
+  WHERE prayer_requests.id = p_id
+    AND prayer_requests.deleted_at IS NULL;
 
   GET DIAGNOSTICS v_deleted = ROW_COUNT;
 
@@ -872,6 +891,134 @@ BEGIN
 END;
 $$;
 
+CREATE OR REPLACE FUNCTION public.list_trashed_prayers_for_super_admin(
+  p_query text DEFAULT NULL,
+  p_limit integer DEFAULT 30,
+  p_offset integer DEFAULT 0
+)
+RETURNS TABLE (
+  id uuid,
+  category text,
+  title text,
+  content text,
+  is_anonymous boolean,
+  visibility text,
+  status text,
+  created_at timestamptz,
+  updated_at timestamptz,
+  participant_count bigint,
+  viewer_participating boolean,
+  author_label text,
+  author_user_id uuid,
+  is_owner boolean,
+  can_edit boolean,
+  can_delete boolean,
+  can_change_status boolean
+)
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF NOT public.is_prayer_super_admin() THEN
+    RAISE EXCEPTION '접근 권한이 없습니다.';
+  END IF;
+
+  RETURN QUERY
+  SELECT
+    r.id,
+    r.category,
+    r.title,
+    r.content,
+    r.is_anonymous,
+    r.visibility,
+    r.status,
+    r.created_at,
+    r.updated_at,
+    (
+      SELECT count(*)::bigint
+      FROM public.prayer_participants AS pp
+      WHERE pp.prayer_id = r.id
+        AND pp.prayed
+    ) AS participant_count,
+    EXISTS (
+      SELECT 1
+      FROM public.prayer_participants AS pp
+      WHERE pp.prayer_id = r.id
+        AND pp.user_id = public.effective_user_id()
+        AND pp.prayed
+    ) AS viewer_participating,
+    CASE
+      WHEN r.is_anonymous THEN public.prayer_author_label(r.user_id, true)
+      ELSE coalesce(nullif(btrim(r.writer_name), ''), public.prayer_author_label(r.user_id, false))
+    END AS author_label,
+    r.user_id AS author_user_id,
+    (r.user_id = public.effective_user_id()) AS is_owner,
+    public.is_prayer_super_admin() AS can_edit,
+    public.is_prayer_super_admin() AS can_delete,
+    public.is_prayer_super_admin() AS can_change_status
+  FROM public.prayer_requests AS r
+  WHERE r.deleted_at IS NOT NULL
+    AND (
+      NULLIF(btrim(coalesce(p_query, '')), '') IS NULL
+      OR r.title ILIKE '%' || replace(replace(replace(left(btrim(p_query), 80), E'\\', E'\\\\'), '%', E'\\%'), '_', E'\\_') || '%' ESCAPE E'\\'
+      OR r.content ILIKE '%' || replace(replace(replace(left(btrim(p_query), 80), E'\\', E'\\\\'), '%', E'\\%'), '_', E'\\_') || '%' ESCAPE E'\\'
+    )
+  ORDER BY r.deleted_at DESC, r.created_at DESC
+  LIMIT LEAST(GREATEST(coalesce(p_limit, 30), 1), 101)
+  OFFSET GREATEST(coalesce(p_offset, 0), 0);
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.bulk_update_prayers_for_super_admin(p_payload jsonb)
+RETURNS jsonb
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_action text := lower(trim(coalesce(p_payload->>'action', '')));
+  v_ids uuid[];
+  v_count integer := 0;
+BEGIN
+  IF NOT public.is_prayer_super_admin() THEN
+    RAISE EXCEPTION '접근 권한이 없습니다.';
+  END IF;
+
+  SELECT coalesce(array_agg(value::uuid), ARRAY[]::uuid[])
+  INTO v_ids
+  FROM jsonb_array_elements_text(coalesce(p_payload->'ids', '[]'::jsonb));
+
+  IF array_length(v_ids, 1) IS NULL THEN
+    RAISE EXCEPTION '선택된 기도 제목이 없습니다.';
+  END IF;
+
+  IF v_action = 'delete' OR v_action = 'trash' THEN
+    UPDATE public.prayer_requests
+    SET
+      deleted_at = now(),
+      deleted_by = public.effective_user_id(),
+      updated_at = now()
+    WHERE id = ANY (v_ids)
+      AND deleted_at IS NULL;
+  ELSIF v_action = 'restore' THEN
+    UPDATE public.prayer_requests
+    SET
+      deleted_at = NULL,
+      deleted_by = NULL,
+      updated_at = now()
+    WHERE id = ANY (v_ids)
+      AND deleted_at IS NOT NULL;
+  ELSE
+    RAISE EXCEPTION '지원하지 않는 작업입니다. (action: %)', v_action;
+  END IF;
+
+  GET DIAGNOSTICS v_count = ROW_COUNT;
+  RETURN jsonb_build_object('success', true, 'affected', v_count);
+END;
+$$;
+
 REVOKE ALL ON FUNCTION public.list_prayer_requests(text, text, text, text, boolean, integer, integer, uuid) FROM PUBLIC, anon;
 REVOKE ALL ON FUNCTION public.get_prayer_stats() FROM PUBLIC, anon;
 REVOKE ALL ON FUNCTION public.get_prayer_access() FROM PUBLIC, anon;
@@ -883,6 +1030,8 @@ REVOKE ALL ON FUNCTION public.toggle_prayer_participation(uuid) FROM PUBLIC, ano
 REVOKE ALL ON FUNCTION public.list_prayer_participants(uuid) FROM PUBLIC, anon;
 REVOKE ALL ON FUNCTION public.save_prayer_participation(uuid, text) FROM PUBLIC, anon;
 REVOKE ALL ON FUNCTION public.delete_prayer_participation(uuid, uuid) FROM PUBLIC, anon;
+REVOKE ALL ON FUNCTION public.list_trashed_prayers_for_super_admin(text, integer, integer) FROM PUBLIC, anon;
+REVOKE ALL ON FUNCTION public.bulk_update_prayers_for_super_admin(jsonb) FROM PUBLIC, anon;
 
 GRANT EXECUTE ON FUNCTION public.list_prayer_requests(text, text, text, text, boolean, integer, integer, uuid) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.get_prayer_stats() TO authenticated;
@@ -895,6 +1044,8 @@ GRANT EXECUTE ON FUNCTION public.toggle_prayer_participation(uuid) TO authentica
 GRANT EXECUTE ON FUNCTION public.list_prayer_participants(uuid) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.save_prayer_participation(uuid, text) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.delete_prayer_participation(uuid, uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.list_trashed_prayers_for_super_admin(text, integer, integer) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.bulk_update_prayers_for_super_admin(jsonb) TO authenticated;
 
 DO $$
 BEGIN

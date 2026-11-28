@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { mapPrayerRow } from '@/services/prayer/requests'
 
 function mapRpcError(error, fallback) {
   if (!error) {
@@ -95,6 +96,50 @@ export async function bulkUpdatePostsForSuperAdmin(ids, action) {
 
   if (error) {
     return { success: false, message: mapRpcError(error, '게시글 일괄 처리에 실패했습니다.') }
+  }
+
+  return { success: true, affected: data?.affected ?? 0 }
+}
+
+function mapPrayerTrashError(error, fallback) {
+  if (error?.code === 'PGRST202' || /Could not find the function/i.test(error?.message ?? '')) {
+    return '중보기도 휴지통 DB 함수가 없습니다. supabase/migrations/082_content_comment_prayer_trash.sql 을 실행해 주세요.'
+  }
+
+  return mapRpcError(error, fallback)
+}
+
+export async function fetchTrashedPrayersForSuperAdmin({ query, limit = 20, offset = 0 } = {}) {
+  const { data, error } = await supabase.rpc('list_trashed_prayers_for_super_admin', {
+    p_query: query?.trim() ? query.trim() : null,
+    p_limit: limit,
+    p_offset: offset,
+  })
+
+  if (error) {
+    return {
+      success: false,
+      message: mapPrayerTrashError(error, '휴지통 기도 제목을 불러오지 못했습니다.'),
+      rows: [],
+    }
+  }
+
+  return {
+    success: true,
+    rows: (data ?? []).map(mapPrayerRow),
+  }
+}
+
+export async function bulkUpdatePrayersForSuperAdmin(ids, action) {
+  const { data, error } = await supabase.rpc('bulk_update_prayers_for_super_admin', {
+    p_payload: { ids, action },
+  })
+
+  if (error) {
+    return {
+      success: false,
+      message: mapPrayerTrashError(error, '기도 제목 일괄 처리에 실패했습니다.'),
+    }
   }
 
   return { success: true, affected: data?.affected ?? 0 }

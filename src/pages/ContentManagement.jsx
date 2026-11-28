@@ -11,9 +11,11 @@ import { canAccessCMS, canManagePrayers } from '@/services/auth/roles'
 import {
   bulkUpdateCommentsForSuperAdmin,
   bulkUpdatePostsForSuperAdmin,
+  bulkUpdatePrayersForSuperAdmin,
   fetchAdminContentNote,
   fetchContentCommentsForSuperAdmin,
   fetchContentPostsForSuperAdmin,
+  fetchTrashedPrayersForSuperAdmin,
   saveAdminContentNote,
 } from '@/services/admin/contentManagement'
 import {
@@ -238,11 +240,14 @@ function ContentManagement() {
       setLoading(true)
       setFeedback(null)
 
-      const result = await fetchPrayerFeed({
+      const prayerQuery = {
         query: appliedFilters.search,
         limit: pageSize + 1,
         offset: (page - 1) * pageSize,
-      })
+      }
+      const result = trashOpen
+        ? await fetchTrashedPrayersForSuperAdmin(prayerQuery)
+        : await fetchPrayerFeed(prayerQuery)
 
       if (!result.success) {
         setFeedback({ type: 'error', message: result.message })
@@ -264,7 +269,7 @@ function ContentManagement() {
 
     const filters = {
       ...appliedFilters,
-      status: trashOpen && tab === 'posts' ? 'deleted' : appliedFilters.status,
+      status: trashOpen ? 'deleted' : appliedFilters.status,
       limit: pageSize,
       offset: (page - 1) * pageSize,
       dateFrom: appliedFilters.period === 'custom' ? appliedFilters.dateFrom : '',
@@ -325,7 +330,13 @@ function ContentManagement() {
     return () => document.removeEventListener('mousedown', handlePointerDown)
   }, [manageMenuId])
 
-  const allSelected = rows.length > 0 && selectedIds.length === rows.length
+  const selectableRows = tab === 'prayers' ? prayerRows : rows
+  const allSelected = selectableRows.length > 0 && selectedIds.length === selectableRows.length
+  const itemLabel = tab === 'posts' ? '게시글' : tab === 'comments' ? '댓글' : '기도 제목'
+  const trashHint =
+    tab === 'prayers'
+      ? '휴지통으로 이동되며 휴지통에서 복구할 수 있습니다.'
+      : '휴지통으로 이동되며 15일 후 자동 영구삭제됩니다.'
 
   const toggleSelectAll = () => {
     if (allSelected) {
@@ -333,7 +344,7 @@ function ContentManagement() {
       return
     }
 
-    setSelectedIds(rows.map((row) => row.id))
+    setSelectedIds(selectableRows.map((row) => row.id))
   }
 
   const toggleSelect = (id) => {
@@ -359,7 +370,7 @@ function ContentManagement() {
         action: 'trash',
         title: '삭제 확인',
         confirmLabel: '삭제',
-        message: `선택한 ${tab === 'posts' ? '게시글' : '댓글'} ${selectedIds.length}개를 삭제하시겠습니까?\n휴지통으로 이동되며 15일 후 자동 영구삭제됩니다.`,
+        message: `선택한 ${itemLabel} ${selectedIds.length}개를 삭제하시겠습니까?\n${trashHint}`,
       })
       return
     }
@@ -369,7 +380,7 @@ function ContentManagement() {
         action: 'restore',
         title: '복구 확인',
         confirmLabel: '복구',
-        message: `선택한 게시글 ${selectedIds.length}개를 복구하시겠습니까?`,
+        message: `선택한 ${itemLabel} ${selectedIds.length}개를 복구하시겠습니까?`,
       })
       return
     }
@@ -378,7 +389,9 @@ function ContentManagement() {
     const result =
       tab === 'posts'
         ? await bulkUpdatePostsForSuperAdmin(selectedIds, action)
-        : await bulkUpdateCommentsForSuperAdmin(selectedIds, action)
+        : tab === 'prayers'
+          ? await bulkUpdatePrayersForSuperAdmin(selectedIds, action)
+          : await bulkUpdateCommentsForSuperAdmin(selectedIds, action)
 
     setIsSubmitting(false)
 
@@ -398,7 +411,9 @@ function ContentManagement() {
     const result =
       tab === 'posts'
         ? await bulkUpdatePostsForSuperAdmin(selectedIds, action)
-        : await bulkUpdateCommentsForSuperAdmin(selectedIds, action)
+        : tab === 'prayers'
+          ? await bulkUpdatePrayersForSuperAdmin(selectedIds, action)
+          : await bulkUpdateCommentsForSuperAdmin(selectedIds, action)
 
     setIsSubmitting(false)
     setConfirmState(null)
@@ -511,6 +526,7 @@ function ContentManagement() {
               className={`content-cms-tabs__button${tab === 'posts' ? ' is-active' : ''}`}
               onClick={() => {
                 setTab('posts')
+                setTrashOpen(false)
                 setPage(1)
                 setSelectedIds([])
               }}
@@ -726,7 +742,7 @@ function ContentManagement() {
         </form>
 
         <div className="content-cms-actions">
-          {tab === 'prayers' || !isSuperAdmin ? <div className="content-cms-actions__bulk" /> : (
+          {!isSuperAdmin ? <div className="content-cms-actions__bulk" /> : (
           <div className="content-cms-actions__bulk">
             <button type="button" onClick={toggleSelectAll}>
               {allSelected ? '전체해제' : '전체선택'}
@@ -745,20 +761,18 @@ function ContentManagement() {
                 선택 삭제
               </button>
             )}
-            {isSuperAdmin && tab === 'posts' ? (
-              <button
-                type="button"
-                className={trashOpen ? 'is-active' : ''}
-                aria-pressed={trashOpen}
-                onClick={() => {
-                  setTrashOpen((current) => !current)
-                  setPage(1)
-                  setSelectedIds([])
-                }}
-              >
-                휴지통
-              </button>
-            ) : null}
+            <button
+              type="button"
+              className={trashOpen ? 'is-active' : ''}
+              aria-pressed={trashOpen}
+              onClick={() => {
+                setTrashOpen((current) => !current)
+                setPage(1)
+                setSelectedIds([])
+              }}
+            >
+              휴지통
+            </button>
           </div>
           )}
 
@@ -816,53 +830,131 @@ function ContentManagement() {
 
         <div className="member-management-page__table-wrap content-cms-table-wrap">
           {tab === 'prayers' ? (
-            <table className="member-management-page__table content-cms-table">
+            <table
+              className={`member-management-page__table content-cms-table${isSuperAdmin ? ' content-cms-table--select' : ''}`}
+            >
+              {isSuperAdmin ? (
+                <colgroup>
+                  <col className="content-cms-col-check" />
+                  <col className="content-cms-col-no" />
+                  <col />
+                  <col className="content-cms-col-name" />
+                  <col className="content-cms-col-date" />
+                  <col className="content-cms-col-status" />
+                  <col className="content-cms-col-manage" />
+                </colgroup>
+              ) : null}
               <thead>
                 <tr>
-                  <th scope="col">번호</th>
+                  {isSuperAdmin ? (
+                    <th scope="col">
+                      <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} aria-label="전체선택" />
+                    </th>
+                  ) : null}
+                  <th scope="col" className="content-cms-cell-no">번호</th>
                   <th scope="col">제목</th>
                   <th scope="col">이름</th>
                   <th scope="col">작성일</th>
-                  <th scope="col" className="content-cms-visibility">구분</th>
+                  <th scope="col" className="content-cms-cell-status">구분</th>
+                  {isSuperAdmin ? <th scope="col" className="content-cms-cell-manage">관리</th> : null}
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={5} className="member-management-page__empty">
+                    <td colSpan={isSuperAdmin ? 7 : 5} className="member-management-page__empty">
                       불러오는 중...
                     </td>
                   </tr>
                 ) : prayerRows.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="member-management-page__empty">
-                      작성된 기도 제목이 없습니다.
+                    <td colSpan={isSuperAdmin ? 7 : 5} className="member-management-page__empty">
+                      {trashOpen ? '휴지통이 비어 있습니다.' : '작성된 기도 제목이 없습니다.'}
                     </td>
                   </tr>
                 ) : (
                   prayerRows.map((prayer, index) => {
                     const visibilityLabel = prayer.visibility === 'private' ? '비공개' : '공개'
+                    const authorLabel = prayerAuthorLabel(prayer, { reveal: true })
                     return (
                       <tr key={prayer.id}>
-                        <td>{(page - 1) * pageSize + index + 1}</td>
+                        {isSuperAdmin ? (
+                          <td>
+                            <input
+                              type="checkbox"
+                              checked={selectedIds.includes(prayer.id)}
+                              onChange={() => toggleSelect(prayer.id)}
+                              aria-label="기도 제목 선택"
+                            />
+                          </td>
+                        ) : null}
+                        <td className="content-cms-cell-no">{(page - 1) * pageSize + index + 1}</td>
                         <td className="content-cms-title-cell">
                           <Link to={prayerDetailPath(prayer.id)}>{prayer.title}</Link>
                         </td>
-                        <td>
+                        <td className="content-cms-name-cell">
                           {prayer.authorUserId ? (
-                            <Link to={getMemberDetailPath(prayer.authorUserId)}>
-                              {prayerAuthorLabel(prayer, { reveal: true })}
+                            <Link to={getMemberDetailPath(prayer.authorUserId)} title={authorLabel}>
+                              {authorLabel}
                             </Link>
                           ) : (
-                            prayerAuthorLabel(prayer, { reveal: true })
+                            <span title={authorLabel}>{authorLabel}</span>
                           )}
                         </td>
                         <td>{formatDateTime(prayer.createdAt)}</td>
-                        <td className="content-cms-visibility">
+                        <td className="content-cms-cell-status">
                           <span className={`content-cms-status content-cms-status--${visibilityLabel}`}>
                             {visibilityLabel}
                           </span>
                         </td>
+                        {isSuperAdmin ? (
+                          <td className="content-cms-cell-manage">
+                            <div
+                              className="content-cms-manage"
+                              ref={manageMenuId === prayer.id ? manageMenuRef : null}
+                            >
+                              <button
+                                type="button"
+                                className="content-cms-manage__button"
+                                aria-label="관리 메뉴"
+                                aria-expanded={manageMenuId === prayer.id}
+                                onClick={() =>
+                                  setManageMenuId((current) => (current === prayer.id ? null : prayer.id))
+                                }
+                              >
+                                <FiSettings aria-hidden="true" />
+                              </button>
+                              {manageMenuId === prayer.id ? (
+                                <div className="content-cms-manage__menu" role="menu">
+                                  <button
+                                    type="button"
+                                    role="menuitem"
+                                    className="is-danger"
+                                    onClick={() => {
+                                      setManageMenuId(null)
+                                      setSelectedIds([prayer.id])
+                                      setConfirmState(
+                                        trashOpen
+                                          ? {
+                                              action: 'restore',
+                                              title: '복구 확인',
+                                              confirmLabel: '복구',
+                                              message: `「${prayer.title}」 기도 제목을 복구하시겠습니까?`,
+                                            }
+                                          : {
+                                              action: 'trash',
+                                              message: `「${prayer.title}」 기도 제목을 삭제하시겠습니까?\n휴지통으로 이동되며 휴지통에서 복구할 수 있습니다.`,
+                                            },
+                                      )
+                                    }}
+                                  >
+                                    {trashOpen ? '복구' : '삭제'}
+                                  </button>
+                                </div>
+                              ) : null}
+                            </div>
+                          </td>
+                        ) : null}
                       </tr>
                     )
                   })
@@ -1061,7 +1153,7 @@ function ContentManagement() {
                 ) : rows.length === 0 ? (
                   <tr>
                     <td colSpan={9} className="member-management-page__empty">
-                      검색 결과가 없습니다.
+                      {trashOpen ? '휴지통이 비어 있습니다.' : '검색 결과가 없습니다.'}
                     </td>
                   </tr>
                 ) : (
@@ -1149,13 +1241,22 @@ function ContentManagement() {
                                   onClick={() => {
                                     setManageMenuId(null)
                                     setSelectedIds([comment.id])
-                                    setConfirmState({
-                                      action: 'trash',
-                                      message: `선택한 댓글 1개를 삭제하시겠습니까?\n휴지통으로 이동되며 15일 후 자동 영구삭제됩니다.`,
-                                    })
+                                    setConfirmState(
+                                      trashOpen
+                                        ? {
+                                            action: 'restore',
+                                            title: '복구 확인',
+                                            confirmLabel: '복구',
+                                            message: '선택한 댓글 1개를 복구하시겠습니까?',
+                                          }
+                                        : {
+                                            action: 'trash',
+                                            message: `선택한 댓글 1개를 삭제하시겠습니까?\n휴지통으로 이동되며 15일 후 자동 영구삭제됩니다.`,
+                                          },
+                                    )
                                   }}
                                 >
-                                  삭제
+                                  {trashOpen ? '복구' : '삭제'}
                                 </button>
                               </div>
                             ) : null}
@@ -1175,13 +1276,26 @@ function ContentManagement() {
             <p className="member-management-page__empty">불러오는 중...</p>
           ) : tab === 'prayers' ? (
             prayerRows.length === 0 ? (
-              <p className="member-management-page__empty">작성된 기도 제목이 없습니다.</p>
+              <p className="member-management-page__empty">
+                {trashOpen ? '휴지통이 비어 있습니다.' : '작성된 기도 제목이 없습니다.'}
+              </p>
             ) : (
               prayerRows.map((prayer, index) => {
                 const visibilityLabel = prayer.visibility === 'private' ? '비공개' : '공개'
                 return (
                   <article key={prayer.id} className="content-cms-card">
-                    <p className="content-cms-card__meta">#{(page - 1) * pageSize + index + 1}</p>
+                    {isSuperAdmin ? (
+                      <label className="content-cms-card__check">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.includes(prayer.id)}
+                          onChange={() => toggleSelect(prayer.id)}
+                        />
+                        <span>#{(page - 1) * pageSize + index + 1}</span>
+                      </label>
+                    ) : (
+                      <p className="content-cms-card__meta">#{(page - 1) * pageSize + index + 1}</p>
+                    )}
                     <Link className="content-cms-card__title" to={prayerDetailPath(prayer.id)}>
                       {prayer.title}
                     </Link>
