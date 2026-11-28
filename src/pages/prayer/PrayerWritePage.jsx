@@ -1,16 +1,31 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import Modal from '@/components/common/Modal'
 import PrayerCopyGuard from '@/components/prayer/PrayerCopyGuard'
 import PrayerForm from '@/components/prayer/PrayerForm'
 import PrayerHero from '@/components/prayer/PrayerHero'
-import { prayerDetailPath } from '@/data/prayerMenu'
+import { PRAYER_PATH, prayerDetailPath } from '@/data/prayerMenu'
 import { applyPrayerCardTitle, EMPTY_PRAYER_DRAFT, validatePrayerDraft } from '@/services/prayer/present'
 import { createPrayerRequest } from '@/services/prayer/requests'
 import './Prayer.css'
 
+function leavePrayerWrite(navigate, board) {
+  if (board === 'together' || board === 'answered') {
+    navigate(`${PRAYER_PATH}?board=${board}`, { replace: true })
+    return
+  }
+
+  if (board === 'praying') {
+    navigate(PRAYER_PATH, { replace: true })
+    return
+  }
+
+  navigate(-1)
+}
+
 function PrayerWritePage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const [draft, setDraft] = useState(EMPTY_PRAYER_DRAFT)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
@@ -48,7 +63,7 @@ function PrayerWritePage() {
       return
     }
 
-    navigate(-1)
+    leavePrayerWrite(navigate, location.state?.board)
   }
 
   return (
@@ -70,7 +85,7 @@ function PrayerWritePage() {
         <Modal isOpen={confirmLeave} title="이전 페이지로 돌아갈까요?" align="center" onClose={() => setConfirmLeave(false)}>
           <p>이전 페이지로 이동하면 작성된 내용은 사라집니다.</p>
           <div className="prayer-inline-actions">
-            <button type="button" className="prayer-button" onClick={() => navigate(-1)}>
+            <button type="button" className="prayer-button" onClick={() => leavePrayerWrite(navigate, location.state?.board)}>
               확인
             </button>
             <button type="button" className="prayer-button prayer-button--ghost" onClick={() => setConfirmLeave(false)}>

@@ -6,6 +6,7 @@ import {
   prayerAuthorLabel,
   prayerCardTitle,
   prayerListStat,
+  prayerMatchesCard,
   validatePrayerDraft,
 } from '../src/services/prayer/present.js'
 
@@ -95,4 +96,18 @@ test('통계 카드는 중보기도와 개인기도 목록으로 나뉜다', () 
     category: '',
     withParticipants: false,
   })
+})
+
+test('중보기도 분류 필터는 제목의 기도카드를 가린다', () => {
+  const spirit = { category: 'intercession', title: '영적을 위한 기도' }
+  const both = { category: 'intercession', title: '건강 · 진로를 위한 기도' }
+  const other = { category: 'intercession', title: '기타 기도 제목' }
+
+  assert.equal(prayerMatchesCard(spirit, ''), true)
+  assert.equal(prayerMatchesCard(spirit, 'spirit'), true)
+  assert.equal(prayerMatchesCard(spirit, 'health'), false)
+  assert.equal(prayerMatchesCard(both, 'health'), true)
+  assert.equal(prayerMatchesCard(both, 'path'), true)
+  assert.equal(prayerMatchesCard(other, 'other'), true)
+  assert.equal(prayerMatchesCard({ category: 'spirit', title: '자유 제목' }, 'spirit'), true)
 })

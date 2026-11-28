@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { FiChevronLeft, FiChevronRight, FiSearch } from 'react-icons/fi'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import NewPostBadge from '@/components/board/NewPostBadge'
 import PrayerCopyGuard from '@/components/prayer/PrayerCopyGuard'
 import PrayerHero from '@/components/prayer/PrayerHero'
@@ -12,6 +12,7 @@ import {
   formatPrayerDate,
   prayerAuthorLabel,
   prayerListStat,
+  prayerMatchesCard,
 } from '@/services/prayer/present'
 import {
   PRAYER_PAGE_SIZE,
@@ -66,9 +67,24 @@ function formatPrayerDateWords(value) {
   }).format(date)
 }
 
+function boardFromLocation(searchParams, stateBoard) {
+  const board = searchParams.get('board')
+
+  if (board === 'together' || board === 'answered' || board === 'praying') {
+    return board
+  }
+
+  if (stateBoard === 'together' || stateBoard === 'answered') {
+    return stateBoard
+  }
+
+  return 'praying'
+}
+
 function PrayerListPage({ mode = 'board' }) {
   const location = useLocation()
-  const openedBoard = location.state?.board === 'answered' ? 'answered' : 'praying'
+  const [searchParams, setSearchParams] = useSearchParams()
+  const openedBoard = boardFromLocation(searchParams, location.state?.board)
   const openedFilters = filtersForStat(openedBoard)
   const manage = mode === 'manage'
   const [stats, setStats] = useState(null)
@@ -82,6 +98,8 @@ function PrayerListPage({ mode = 'board' }) {
   const [category, setCategory] = useState(openedFilters.category)
   const [queryInput, setQueryInput] = useState('')
   const [query, setQuery] = useState('')
+  const [cardFilter, setCardFilter] = useState('')
+  const [filteredCount, setFilteredCount] = useState(null)
   const [joiningId, setJoiningId] = useState('')
   const pageSize = manage ? PRAYER_PAGE_SIZE : CARD_PAGE_SIZE
 
@@ -98,11 +116,15 @@ function PrayerListPage({ mode = 'board' }) {
   const bucketKnown = statsStatus === 'ready'
   const bucketEmpty = bucketCount === 0
   const categoryFiltered =
-    (activeStat === 'praying' && category !== 'personal') || (activeStat === 'answered' && category !== '')
+    (activeStat === 'together' && cardFilter !== '') ||
+    (activeStat === 'praying' && category !== 'personal') ||
+    (activeStat === 'answered' && category !== '')
   const filtered = Boolean(query) || categoryFiltered
-  const totalPages = !filtered && bucketKnown
-    ? Math.max(1, Math.ceil((bucketCount ?? 0) / pageSize))
-    : page + (rows.length === pageSize ? 1 : 0)
+  const totalPages = filteredCount != null
+    ? Math.max(1, Math.ceil(filteredCount / pageSize))
+    : !filtered && bucketKnown
+      ? Math.max(1, Math.ceil((bucketCount ?? 0) / pageSize))
+      : page + (rows.length === pageSize ? 1 : 0)
   const pageNumbers = useMemo(
     () => getVisiblePageNumbers(page, totalPages),
     [page, totalPages],
@@ -145,12 +167,13 @@ function PrayerListPage({ mode = 'board' }) {
 
     async function loadPage() {
       setListStatus('loading')
+      const filteringTogetherCards = activeStat === 'together' && cardFilter !== ''
       const result = await fetchPrayerFeed({
         status,
         category,
         query,
-        limit: pageSize,
-        offset: (page - 1) * pageSize,
+        limit: filteringTogetherCards ? 100 : pageSize,
+        offset: filteringTogetherCards ? 0 : (page - 1) * pageSize,
       })
 
       if (cancelled) {
@@ -159,14 +182,23 @@ function PrayerListPage({ mode = 'board' }) {
 
       if (!result.success) {
         setRows([])
+        setFilteredCount(null)
         setListStatus('error')
         setListMessage(result.message)
         return
       }
 
-      setRows(result.rows)
+      const matched = filteringTogetherCards
+        ? result.rows.filter((row) => prayerMatchesCard(row, cardFilter))
+        : result.rows
+      const visible = filteringTogetherCards
+        ? matched.slice((page - 1) * pageSize, page * pageSize)
+        : matched
+
+      setRows(visible)
+      setFilteredCount(filteringTogetherCards ? matched.length : null)
       setListMessage('')
-      setListStatus(result.rows.length === 0 ? 'empty' : 'ready')
+      setListStatus(visible.length === 0 ? 'empty' : 'ready')
     }
 
     void loadPage()
@@ -174,24 +206,41 @@ function PrayerListPage({ mode = 'board' }) {
     return () => {
       cancelled = true
     }
-  }, [page, status, category, query, pageSize])
+  }, [activeStat, cardFilter, page, status, category, query, pageSize])
 
   const handleStat = (stat) => {
     const next = filtersForStat(stat)
     setStatus(next.status)
     setCategory(next.category)
+    setCardFilter('')
+    setFilteredCount(null)
     setQuery('')
     setQueryInput('')
     setPage(1)
+    setSearchParams(stat === 'praying' ? {} : { board: stat }, { replace: true })
   }
 
   const handleChip = (id) => {
-    if (activeStat === 'answered') {
+    if (activeStat === 'together') {
+      setCardFilter(id)
+    } else if (activeStat === 'answered') {
       setCategory(id)
     } else {
       setCategory(id || 'personal')
     }
     setPage(1)
+  }
+
+  const chipSelected = (id) => {
+    if (activeStat === 'together') {
+      return id ? cardFilter === id : cardFilter === ''
+    }
+
+    if (activeStat === 'answered') {
+      return id ? category === id : category === ''
+    }
+
+    return id ? category === id : category === 'personal'
   }
 
   const handleSearch = (event) => {
@@ -261,34 +310,32 @@ function PrayerListPage({ mode = 'board' }) {
                 {boardTitle}
               </h2>
               {canWriteBoard ? (
-                <Link className="prayer-button prayer-button--board" to={PRAYER_WRITE_PATH}>
+                <Link className="prayer-button prayer-button--board" to={PRAYER_WRITE_PATH} state={{ board: activeStat }}>
                   기도 작성하기
                 </Link>
               ) : null}
             </div>
             {manage ? null : (
               <div className="prayer-gallery__tools">
-                {activeStat === 'together' ? <div /> : (
-                  <div className="prayer-gallery__chips" role="group" aria-label="기도 카테고리">
+                <div className="prayer-gallery__chips" role="group" aria-label="기도 카테고리">
+                  <button
+                    type="button"
+                    className={`prayer-gallery__chip${chipSelected('') ? ' is-selected' : ''}`}
+                    onClick={() => handleChip('')}
+                  >
+                    전체
+                  </button>
+                  {PRAYER_CARD_CATEGORIES.map((item) => (
                     <button
+                      key={item.id}
                       type="button"
-                      className={`prayer-gallery__chip${(activeStat === 'answered' ? category === '' : category === 'personal') ? ' is-selected' : ''}`}
-                      onClick={() => handleChip('')}
+                      className={`prayer-gallery__chip${chipSelected(item.id) ? ' is-selected' : ''}`}
+                      onClick={() => handleChip(item.id)}
                     >
-                      전체
+                      {item.label}
                     </button>
-                    {PRAYER_CARD_CATEGORIES.map((item) => (
-                      <button
-                        key={item.id}
-                        type="button"
-                        className={`prayer-gallery__chip${category === item.id ? ' is-selected' : ''}`}
-                        onClick={() => handleChip(item.id)}
-                      >
-                        {item.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
+                  ))}
+                </div>
                 <form className="prayer-gallery__search" onSubmit={handleSearch}>
                   <FiSearch aria-hidden="true" />
                   <input
@@ -337,7 +384,7 @@ function PrayerListPage({ mode = 'board' }) {
                     <tr>
                       <td colSpan={4} className="prayer-table__empty">
                         <p>현재 작성된 기도가 없습니다.</p>
-                        <Link className="prayer-button" to={PRAYER_WRITE_PATH}>
+                        <Link className="prayer-button" to={PRAYER_WRITE_PATH} state={{ board: activeStat }}>
                           기도 제목 작성하기
                         </Link>
                       </td>
@@ -388,7 +435,7 @@ function PrayerListPage({ mode = 'board' }) {
                 {showWriteEmpty ? (
                   <div className="prayer-gallery__status">
                     <p>현재 작성된 기도가 없습니다.</p>
-                    <Link className="prayer-button" to={PRAYER_WRITE_PATH}>
+                    <Link className="prayer-button" to={PRAYER_WRITE_PATH} state={{ board: activeStat }}>
                       기도 제목 작성하기
                     </Link>
                   </div>

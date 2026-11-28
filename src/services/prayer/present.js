@@ -133,6 +133,24 @@ export function parsePrayerCardSelection(title, _category) {
   return { cardIds, otherText }
 }
 
+export function prayerMatchesCard(prayer, cardId) {
+  if (!cardId) {
+    return true
+  }
+
+  if (prayer?.category === cardId) {
+    return true
+  }
+
+  const selection = parsePrayerCardSelection(prayer?.title, prayer?.category)
+
+  if (selection.cardIds.includes(cardId)) {
+    return true
+  }
+
+  return String(prayer?.title ?? '').includes(prayerCategoryLabel(cardId))
+}
+
 export function prayerStatusLabel(status) {
   return status === 'answered' ? '응답 완료' : '기도 중'
 }
