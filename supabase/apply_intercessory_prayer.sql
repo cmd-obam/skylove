@@ -7,8 +7,8 @@
 -- 권한은 클라이언트 role 값이 아니라 profiles 와 기존
 -- is_senior_pastor / is_pastor_story_designated_writer 를 사용합니다.
 --
--- 회원 공개(public): 로그인한 회원
--- 비공개(private): 작성자 본인, 담임목사, 지정 담임목사 계정, 최고관리자
+-- 열람: 로그인한 회원은 공개·비공개 기도 제목을 모두 볼 수 있다.
+-- 수정·삭제·상태 변경: 작성자, 담임목사, 지정 담임목사 계정, 최고관리자
 -- 익명 작성자 실명: 최고관리자만
 -- ============================================================
 
@@ -49,12 +49,7 @@ STABLE
 SECURITY DEFINER
 SET search_path = public
 AS $$
-  SELECT public.effective_user_id() IS NOT NULL
-    AND (
-      coalesce(p_visibility, 'public') <> 'private'
-      OR p_owner = public.effective_user_id()
-      OR public.can_view_private_prayers()
-    );
+  SELECT public.effective_user_id() IS NOT NULL;
 $$;
 
 REVOKE ALL ON FUNCTION public.is_prayer_super_admin() FROM PUBLIC, anon, authenticated;
@@ -189,7 +184,7 @@ $$;
 COMMENT ON TABLE public.prayer_requests IS
   '중보기도 제목. user_id는 익명이어도 저장한다. anon/authenticated 직접 SELECT 는 허용하지 않는다.';
 COMMENT ON COLUMN public.prayer_requests.visibility IS
-  'public = 로그인 회원 공개, private = 담임목사·최고관리자만';
+  'public = 회원 공개, private = 비공개 표시. 열람은 로그인한 회원 모두 가능';
 COMMENT ON COLUMN public.prayer_requests.user_id IS
   '작성 계정. 화면의 익명 여부와 별개로 항상 저장된다.';
 
