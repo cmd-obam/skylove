@@ -1,4 +1,4 @@
-export const NEW_POST_WINDOW_MS = 72 * 60 * 60 * 1000
+export const NEW_POST_WINDOW_MS = 48 * 60 * 60 * 1000
 
 export function isNewPost(createdAt, now = Date.now()) {
   if (!createdAt) {
