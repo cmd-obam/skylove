@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { FiChevronDown, FiPlus, FiSearch } from 'react-icons/fi'
+import { FiChevronDown, FiPlus, FiSearch, FiSettings } from 'react-icons/fi'
 import MemberMypageLayout from '@/components/auth/MemberMypageLayout'
 import { useAuth } from '@/contexts/AuthContext'
 import { useSuperAdmin } from '@/hooks/useSuperAdmin'
@@ -226,7 +226,9 @@ function ContentManagement() {
   const [trashOpen, setTrashOpen] = useState(false)
   const [advancedSearchOpen, setAdvancedSearchOpen] = useState(false)
   const [writeMenuOpen, setWriteMenuOpen] = useState(false)
+  const [manageMenuId, setManageMenuId] = useState(null)
   const writeMenuRef = useRef(null)
+  const manageMenuRef = useRef(null)
 
   const totalPages =
     tab === 'prayers' ? page + (prayerHasMore ? 1 : 0) : Math.max(1, Math.ceil(totalCount / pageSize))
@@ -307,6 +309,21 @@ function ContentManagement() {
     document.addEventListener('mousedown', handlePointerDown)
     return () => document.removeEventListener('mousedown', handlePointerDown)
   }, [writeMenuOpen])
+
+  useEffect(() => {
+    if (!manageMenuId) {
+      return undefined
+    }
+
+    const handlePointerDown = (event) => {
+      if (manageMenuRef.current && !manageMenuRef.current.contains(event.target)) {
+        setManageMenuId(null)
+      }
+    }
+
+    document.addEventListener('mousedown', handlePointerDown)
+    return () => document.removeEventListener('mousedown', handlePointerDown)
+  }, [manageMenuId])
 
   const allSelected = rows.length > 0 && selectedIds.length === rows.length
 
@@ -857,25 +874,25 @@ function ContentManagement() {
               <colgroup>
                 <col className="content-cms-col-check" />
                 <col className="content-cms-col-no" />
-                <col />
-                <col />
-                <col />
-                <col />
-                <col />
-                <col />
+                <col className="content-cms-col-board" />
+                <col className="content-cms-col-title" />
+                <col className="content-cms-col-name" />
+                <col className="content-cms-col-date" />
+                <col className="content-cms-col-status" />
+                <col className="content-cms-col-manage" />
               </colgroup>
               <thead>
                 <tr>
                   <th scope="col">
                     <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} aria-label="전체선택" />
                   </th>
-                  <th scope="col">번호</th>
+                  <th scope="col" className="content-cms-cell-no">번호</th>
                   <th scope="col">게시판</th>
                   <th scope="col">제목</th>
                   <th scope="col">이름</th>
                   <th scope="col">작성일</th>
-                  <th scope="col">상태</th>
-                  <th scope="col">관리</th>
+                  <th scope="col" className="content-cms-cell-status">상태</th>
+                  <th scope="col" className="content-cms-cell-manage">관리</th>
                 </tr>
               </thead>
               <tbody>
@@ -904,7 +921,7 @@ function ContentManagement() {
                             aria-label={`${post.title} 선택`}
                           />
                         </td>
-                        <td>{rowNumber}</td>
+                        <td className="content-cms-cell-no">{rowNumber}</td>
                         <td>{post.board_label}</td>
                         <td className="content-cms-title-cell">
                           <Link to={getBoardDetailPath(post.post_type, boardPostPublicId(post))}>{post.title}</Link>
@@ -920,7 +937,7 @@ function ContentManagement() {
                           )}
                         </td>
                         <td>{formatDateTime(post.created_at)}</td>
-                        <td>
+                        <td className="content-cms-cell-status">
                           <div className="content-cms-status-cell">
                             <span className={`content-cms-status content-cms-status--${getPostStatusLabel(post)}`}>
                               {getPostStatusLabel(post)}
@@ -932,43 +949,67 @@ function ContentManagement() {
                             ) : null}
                           </div>
                         </td>
-                        <td>
-                          <div className="member-management-page__actions">
-                            <Link
-                              to={getBoardEditPath(post.post_type, boardPostPublicId(post))}
-                              className="member-management-page__action-button"
-                            >
-                              수정
-                            </Link>
+                        <td className="content-cms-cell-manage">
+                          <div
+                            className="content-cms-manage"
+                            ref={manageMenuId === post.id ? manageMenuRef : null}
+                          >
                             <button
                               type="button"
-                              className="member-management-page__action-button"
-                              onClick={() => openNote('post', post.id, post.title)}
+                              className="content-cms-manage__button"
+                              aria-label="관리 메뉴"
+                              aria-expanded={manageMenuId === post.id}
+                              onClick={() =>
+                                setManageMenuId((current) => (current === post.id ? null : post.id))
+                              }
                             >
-                              메모
+                              <FiSettings aria-hidden="true" />
                             </button>
-                            <button
-                              type="button"
-                              className={`member-management-page__action-button${trashOpen ? '' : ' member-management-page__action-button--danger'}`}
-                              onClick={() => {
-                                setSelectedIds([post.id])
-                                setConfirmState(
-                                  trashOpen
-                                    ? {
-                                        action: 'restore',
-                                        title: '복구 확인',
-                                        confirmLabel: '복구',
-                                        message: `「${post.title}」 게시글을 복구하시겠습니까?`,
-                                      }
-                                    : {
-                                        action: 'trash',
-                                        message: `「${post.title}」 게시글을 삭제하시겠습니까?\n휴지통으로 이동되며 15일 후 자동 영구삭제됩니다.`,
-                                      },
-                                )
-                              }}
-                            >
-                              {trashOpen ? '복구' : '삭제'}
-                            </button>
+                            {manageMenuId === post.id ? (
+                              <div className="content-cms-manage__menu" role="menu">
+                                <Link
+                                  to={getBoardEditPath(post.post_type, boardPostPublicId(post))}
+                                  role="menuitem"
+                                  onClick={() => setManageMenuId(null)}
+                                >
+                                  수정
+                                </Link>
+                                <button
+                                  type="button"
+                                  role="menuitem"
+                                  onClick={() => {
+                                    setManageMenuId(null)
+                                    openNote('post', post.id, post.title)
+                                  }}
+                                >
+                                  메모
+                                </button>
+                                <button
+                                  type="button"
+                                  role="menuitem"
+                                  className="is-danger"
+                                  onClick={() => {
+                                    setManageMenuId(null)
+                                    setSelectedIds([post.id])
+                                    setConfirmState(
+                                      trashOpen
+                                        ? {
+                                            action: 'restore',
+                                            title: '복구 확인',
+                                            confirmLabel: '복구',
+                                            message: `「${post.title}」 게시글을 복구하시겠습니까?`,
+                                          }
+                                        : {
+                                            action: 'trash',
+                                            message: `「${post.title}」 게시글을 삭제하시겠습니까?\n휴지통으로 이동되며 15일 후 자동 영구삭제됩니다.`,
+                                          },
+                                    )
+                                  }}
+                                >
+                                  {trashOpen ? '복구' : '삭제'}
+                                </button>
+                              </div>
+                            ) : null}
                           </div>
                         </td>
                       </tr>
@@ -982,27 +1023,27 @@ function ContentManagement() {
               <colgroup>
                 <col className="content-cms-col-check" />
                 <col className="content-cms-col-no" />
-                <col />
-                <col />
-                <col />
-                <col />
-                <col />
-                <col />
-                <col />
+                <col className="content-cms-col-board" />
+                <col className="content-cms-col-title" />
+                <col className="content-cms-col-comment" />
+                <col className="content-cms-col-name" />
+                <col className="content-cms-col-date" />
+                <col className="content-cms-col-status" />
+                <col className="content-cms-col-manage" />
               </colgroup>
               <thead>
                 <tr>
                   <th scope="col">
                     <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} aria-label="전체선택" />
                   </th>
-                  <th scope="col">번호</th>
+                  <th scope="col" className="content-cms-cell-no">번호</th>
                   <th scope="col">게시판</th>
                   <th scope="col">제목</th>
                   <th scope="col">댓글내용</th>
                   <th scope="col">이름</th>
                   <th scope="col">작성일</th>
-                  <th scope="col">상태</th>
-                  <th scope="col">관리</th>
+                  <th scope="col" className="content-cms-cell-status">상태</th>
+                  <th scope="col" className="content-cms-cell-manage">관리</th>
                 </tr>
               </thead>
               <tbody>
@@ -1031,7 +1072,7 @@ function ContentManagement() {
                             aria-label="댓글 선택"
                           />
                         </td>
-                        <td>{rowNumber}</td>
+                        <td className="content-cms-cell-no">{rowNumber}</td>
                         <td>{comment.board_label}</td>
                         <td>
                           <Link to={getBoardDetailPath(comment.post_type, comment.post_id)}>
@@ -1056,35 +1097,58 @@ function ContentManagement() {
                           )}
                         </td>
                         <td>{formatDateTime(comment.created_at)}</td>
-                        <td>
+                        <td className="content-cms-cell-status">
                           <span
                             className={`content-cms-status content-cms-status--${getCommentStatusLabel(comment)}`}
                           >
                             {getCommentStatusLabel(comment)}
                           </span>
                         </td>
-                        <td>
-                          <div className="member-management-page__actions">
+                        <td className="content-cms-cell-manage">
+                          <div
+                            className="content-cms-manage"
+                            ref={manageMenuId === comment.id ? manageMenuRef : null}
+                          >
                             <button
                               type="button"
-                              className="member-management-page__action-button"
-                              onClick={() => openNote('comment', comment.id, comment.body.slice(0, 40))}
+                              className="content-cms-manage__button"
+                              aria-label="관리 메뉴"
+                              aria-expanded={manageMenuId === comment.id}
+                              onClick={() =>
+                                setManageMenuId((current) => (current === comment.id ? null : comment.id))
+                              }
                             >
-                              메모
+                              <FiSettings aria-hidden="true" />
                             </button>
-                            <button
-                              type="button"
-                              className="member-management-page__action-button member-management-page__action-button--danger"
-                              onClick={() => {
-                                setSelectedIds([comment.id])
-                                setConfirmState({
-                                  action: 'trash',
-                                  message: `선택한 댓글 1개를 삭제하시겠습니까?\n휴지통으로 이동되며 15일 후 자동 영구삭제됩니다.`,
-                                })
-                              }}
-                            >
-                              삭제
-                            </button>
+                            {manageMenuId === comment.id ? (
+                              <div className="content-cms-manage__menu" role="menu">
+                                <button
+                                  type="button"
+                                  role="menuitem"
+                                  onClick={() => {
+                                    setManageMenuId(null)
+                                    openNote('comment', comment.id, comment.body.slice(0, 40))
+                                  }}
+                                >
+                                  메모
+                                </button>
+                                <button
+                                  type="button"
+                                  role="menuitem"
+                                  className="is-danger"
+                                  onClick={() => {
+                                    setManageMenuId(null)
+                                    setSelectedIds([comment.id])
+                                    setConfirmState({
+                                      action: 'trash',
+                                      message: `선택한 댓글 1개를 삭제하시겠습니까?\n휴지통으로 이동되며 15일 후 자동 영구삭제됩니다.`,
+                                    })
+                                  }}
+                                >
+                                  삭제
+                                </button>
+                              </div>
+                            ) : null}
                           </div>
                         </td>
                       </tr>

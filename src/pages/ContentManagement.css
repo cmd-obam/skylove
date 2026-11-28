@@ -349,7 +349,31 @@
 }
 
 .content-cms-table--select .content-cms-col-no {
-  width: 52px;
+  width: 64px;
+}
+
+.content-cms-table--select .content-cms-col-board {
+  width: 150px;
+}
+
+.content-cms-table--select .content-cms-col-name {
+  width: 88px;
+}
+
+.content-cms-table--select .content-cms-col-date {
+  width: 156px;
+}
+
+.content-cms-table--select .content-cms-col-status {
+  width: 84px;
+}
+
+.content-cms-table--select .content-cms-col-manage {
+  width: 56px;
+}
+
+.content-cms-table--select .content-cms-col-comment {
+  width: 18%;
 }
 
 .content-cms-table--select th:nth-child(-n + 2),
@@ -359,8 +383,26 @@
   white-space: nowrap;
 }
 
+.member-management-page__table tbody td.content-cms-cell-no,
+.member-management-page__table thead th.content-cms-cell-no,
+.member-management-page__table tbody td.content-cms-cell-status,
+.member-management-page__table thead th.content-cms-cell-status,
+.member-management-page__table tbody td.content-cms-cell-manage,
+.member-management-page__table thead th.content-cms-cell-manage {
+  text-align: center;
+}
+
+.member-management-page__table tbody td.content-cms-cell-status,
+.member-management-page__table thead th.content-cms-cell-status,
+.member-management-page__table tbody td.content-cms-cell-manage,
+.member-management-page__table thead th.content-cms-cell-manage {
+  padding-left: 4px;
+  padding-right: 4px;
+  overflow: visible;
+  white-space: nowrap;
+}
+
 .content-cms-title-cell {
-  max-width: 260px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -441,8 +483,82 @@
 .content-cms-status-cell {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: 0.25rem;
+}
+
+.content-cms-manage {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.content-cms-manage__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  color: #4b5563;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.content-cms-manage__button:hover,
+.content-cms-manage__button:focus-visible {
+  border-color: #93c5fd;
+  color: #1d4ed8;
+}
+
+.content-cms-manage__menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 6;
+  min-width: 112px;
+  padding: 0.3rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+.content-cms-manage__menu a,
+.content-cms-manage__menu button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0.45rem 0.55rem;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #1f2937;
+  font: inherit;
+  font-size: 0.875rem;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.content-cms-manage__menu a:hover,
+.content-cms-manage__menu a:focus-visible,
+.content-cms-manage__menu button:hover,
+.content-cms-manage__menu button:focus-visible {
+  background: #f3f4f6;
+}
+
+.content-cms-manage__menu .is-danger {
+  color: #b91c1c;
+}
+
+@media (min-width: 901px) {
+  .member-management-page__table-wrap.content-cms-table-wrap {
+    overflow: visible;
+  }
 }
 
 .content-cms-schedule-time {
